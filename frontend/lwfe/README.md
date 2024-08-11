@@ -1,4 +1,4 @@
-# livwell
+# lwfe
 
 ## Project setup
 ```
