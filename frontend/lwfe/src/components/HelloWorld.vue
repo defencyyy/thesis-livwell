@@ -1,6 +1,23 @@
 <template>
+  <nav>
+    <ul class = "navr">
+      <li class="navr">HOME</li>
+      <li class="navr">ABOUT</li>
+      <li class="navr">CONTACTS</li>
+      <li class="navr">SWITCH</li>
+      <li class="navr"> SIGN IN/OUT</li>
+    </ul>
+  </nav>
+
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <div>
+      <p>Find The Perfect Apartment Space For Your School</p>
+    </div>
+
+    <div>
+      <p>picture</p>
+    </div>
+    <!-- <h1>{{ msg }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -26,7 +43,7 @@
       <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 
@@ -40,10 +57,28 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+
+
+<style>
+
+
+.navr {
+  display: flex;
+  justify-content: flex-end;
+  color: black;
+  padding-right: 30px;
+  padding-top: 10px;
+ 
+}
+
+.hello
+{
+  display: flex;
+}
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
