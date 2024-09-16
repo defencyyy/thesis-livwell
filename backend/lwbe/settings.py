@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'livwelldb',
         'USER': 'postgres',
-        'PASSWORD': 'root12345',
+        'PASSWORD': '12345',
         'HOST': 'localhost',
     }
 }
