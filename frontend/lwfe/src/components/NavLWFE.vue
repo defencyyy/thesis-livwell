@@ -19,7 +19,7 @@
                 <a href="#about" class="nav-link">About</a>
               </li>
               <li class="nav-item">
-                <a href="#signup" class="nav-link">Sign Up</a>
+                <a href="../components/Signin.vue" class="nav-link">Sign Up</a>
               </li>
               <li class="nav-item">
                 <a href="#login" class="nav-link">Log In</a>
