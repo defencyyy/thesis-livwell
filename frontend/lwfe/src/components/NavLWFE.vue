@@ -1,9 +1,9 @@
 <template>
     <header>
 
-       <nav class="navbar navbar-expand-sm bg-dark navbar-dark pb-5">
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark pb-5">
         <div class="container">
-          <a href="" class="navbar-brand">LIVWELL</a>
+          <a href="" class="navbar-brand">(617)-555-5555</a>
           
        
           
@@ -28,7 +28,7 @@
           </div>
         </div>
         
-       </nav>
+       </nav>       
       </header>
 
     
