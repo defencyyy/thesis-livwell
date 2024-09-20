@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <div>
@@ -29,5 +29,39 @@ export default {
     computed:{
         ...mapState('auth',{firstname: state=> state.name,}),
     },
+};
+</script> -->
+<template>
+  <form @submit.prevent="loginUser">
+    <input v-model="username" placeholder="Username" required />
+    <input v-model="password" type="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+    };
+  },
+  methods: {
+    async loginUser() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/v1/token/login/', {
+          username: this.username,
+          password: this.password,
+        });
+        console.log('Login successful, token:', response.data); // Store the token as needed
+        // Handle successful login (e.g., redirect or save token)
+      } catch (error) {
+        console.error('Login error:', error.response ? error.response.data : error.message);
+      }
+    },
+  },
 };
 </script>
