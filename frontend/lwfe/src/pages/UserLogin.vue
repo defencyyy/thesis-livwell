@@ -3,7 +3,7 @@
     <div class="col-md-6 offset-md-3">
         <div>
         <div>
-            <h3>Login</h3>
+            <h3>Login{{firstname}}</h3>
             <hr>
         </div>
         <form>
@@ -24,5 +24,10 @@
 </div>
 </template>
 <script>
-export default {};
+import {mapState} from 'vuex';
+export default {
+    computed:{
+        ...mapState('auth',{firstname: state=> state.name,}),
+    },
+};
 </script>
