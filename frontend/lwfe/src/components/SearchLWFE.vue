@@ -5,7 +5,7 @@
     <div class="container text-center">
         <div class="p-5 bg-secondary m-5">
             <div class="mb-4">
-                <h1>Property Searching Just Got So Easy</h1>
+                <h1>Property Searching <span class="text-warning"> Just Got So Easy</span></h1>
             </div>
             <p class="lead">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Recusandae quas, asperiores eveniet vel nostrum magnam
                 voluptatum tempore! Consectetur, id commodi!</p>
