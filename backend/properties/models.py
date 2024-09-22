@@ -1,20 +1,20 @@
 from django.db import models
 from .choices import property_choices
 from datetime import datetime
+# from Accounts.models import User
 
 class Property(models.Model):
 
   # user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
   title = models.CharField(max_length=100)
   address = models.CharField(max_length=200)
-  highlighted_description = models.TextField(blank=True)
   description = models.TextField(blank=True)
   price = models.IntegerField()
   post_date = models.DateTimeField(default=datetime.now, blank=True)
   property_type = models.CharField(max_length=20, choices=property_choices, default=('house', 'House'))
 
-  #amenities
-  #location
+  # Amenities
+  # Location
 
   # Management
   is_active = models.BooleanField(default=True)
