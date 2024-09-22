@@ -3,7 +3,7 @@
 
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark pb-5">
         <div class="container">
-          <a href="" class="navbar-brand">(617)-555-5555</a>
+          <a href="" class="navbar-brand">LivWell</a>
           
        
           
@@ -22,7 +22,7 @@
                 <a href="../components/Signin.vue" class="nav-link">Sign Up</a>
               </li>
               <li class="nav-item">
-                <a href="#login" class="nav-link">Log In</a>
+                <a href="../components/SignInLWFE.vue" class="nav-link">Log In</a>
               </li>
             </ul>
           </div>
