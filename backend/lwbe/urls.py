@@ -7,4 +7,3 @@ urlpatterns = [
     path('api/v1/', include('djoser.urls')),
     path('api/v1/', include('djoser.urls.authtoken')),
     path('', RedirectView.as_view(url='/api/v1/', permanent=True)),  # Redirect root to API base
-]

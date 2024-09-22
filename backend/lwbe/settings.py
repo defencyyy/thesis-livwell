@@ -43,10 +43,14 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'djoser',
-    'UserAccess.apps.UseraccessConfig'
-]
-CORS_ALLOWED_ORIGINS=["http://localhost:8080",]
+    'UserAccess.apps.UseraccessConfig',
+    'properties.apps.PropertiesConfig',
+
+  
+CORS_ALLOWED_ORIGINS = [
+  "http://localhost:8080",
 CORS_ORIGIN_ALLOW_ALL= True
+  
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
