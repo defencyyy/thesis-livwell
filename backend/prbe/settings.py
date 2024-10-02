@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'paysched.apps.PayschedConfig',
     'affiliations.apps.AffiliationsConfig',
     'customers.apps.CustomersConfig',
+    'companies.apps.CompaniesConfig',
+    'documents.apps.DocumentsConfig',
     'corsheaders',
     'rest_framework',
 ]
