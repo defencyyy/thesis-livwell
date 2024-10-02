@@ -67,16 +67,21 @@ export default {
                 });
 
                 if (response.status === 200) {
+                    // If login is successful, you can store the token for future requests
+                    const token = response.data.token;
+                    localStorage.setItem('auth_token', token);
+
                     // Redirect to main page after successful login
                     this.$router.push('/brokmain');
                 }
             } catch (error) {
-                // Handle login 
+                // Handle invalid credentials or other errors
                 this.error = "Invalid username or password. Please try again.";
             }
         }
     }
 };
+
 </script>
 
 <style>
