@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Login Page</h2>
+        <h2>Dev Login Page</h2>
         <form @submit.prevent="login">
             <div>
                 <label for="username">Username:</label>
@@ -27,7 +27,7 @@ export default {
         login() {
             // Temporary logic: You can add your backend API call here later
             if (this.username && this.password) {
-                this.$router.push('/brokmain'); // Route to main page
+                this.$router.push('/devmain'); // Route to main page
             } else {
                 alert("Please fill in both fields.");
             }

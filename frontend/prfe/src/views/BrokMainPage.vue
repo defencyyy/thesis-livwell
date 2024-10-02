@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Welcome, You Are Logged In!</h1>
+        <h1>Welcome, You Are Logged Ins!</h1>
         <p>This is the main page.</p>
     </div>
 </template>
