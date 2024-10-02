@@ -18,21 +18,16 @@
 
                                         <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example22">Password</label>
-                                            <input type="text" id="password" v-model="password" class="form-control" required/>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <div class="flex-grow-1"></div>
-                                            <a class="text-muted" href="#!">Forgot Password</a>
+                                            <input type="password" id="password" v-model="password" class="form-control" required/>
                                         </div>
 
                                         <div class="text-center pt-1 mb-5 pb-1">
-                                            <button 
-                                                class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3"
-                                                type="submit">Sign in
+                                            <button class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3" type="submit">
+                                                Sign in
                                             </button>
                                         </div>
 
+                                        <p v-if="error" class="text-danger">{{ error }}</p>
                                     </form>
                                 </div>
                             </div>
@@ -41,10 +36,7 @@
                                     <div style="width: 120px; height: 120px; background-color: white; border-radius: 50%; margin: 0 auto 20px;"></div>
                                     <h4 class="mb-4">Company Name</h4>
                                     <p class="small mb-0">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
-                                        do eiusmod
-                                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                        quis nostrud
-                                        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                        do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                                 </div>
                             </div>
                         </div>
@@ -56,24 +48,34 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     data() {
         return {
             username: "",
             password: "",
+            error: null
         };
     },
     methods: {
-        login() {
-            if (this.username && this.password) {
+        async login() {
+            try {
+                const response = await axios.post('http://localhost:8000/login/', {
+                    username: this.username,
+                    password: this.password
+                });
 
-                this.$router.push('/brokmain'); // Route to main page
-
-            } else {
-                alert("Please fill in both fields.");
+                if (response.status === 200) {
+                    // Redirect to main page after successful login
+                    this.$router.push('/brokmain');
+                }
+            } catch (error) {
+                // Handle login failure
+                this.error = "Invalid username or password. Please try again.";
             }
-        },
-    },
+        }
+    }
 };
 </script>
 
