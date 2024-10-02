@@ -1,3 +1,10 @@
 from django.contrib import admin
+from .models import Company
 
-# Register your models here.
+class CompanyAdmin(admin.ModelAdmin):
+  company_display = ('id', 'name', 'is_active')
+  company_display_links = ('id', 'name')
+  search_fields = ('name', 'description')
+  company_per_page = 25 
+
+admin.site.register(Company, CompanyAdmin)
