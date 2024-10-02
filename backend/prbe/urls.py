@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .view import login_view  # Make sure to import your login view
+from . import view
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', login_view, name='login'),  # Add this line
+    path('login/', view.login_view, name='login'),  # Add this line
 ]

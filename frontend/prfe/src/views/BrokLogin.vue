@@ -53,41 +53,65 @@
 </template>
 
 <script>
-import axios from 'axios';
+
 
 export default {
     data() {
         return {
             username: "",
             password: "",
-            error: null
         };
     },
-    methods: {
-        // Place the async keyword here
-        async login() {
-            this.error = null;  // Clear any previous error messages
+  methods: {
+    async login() {
+        if (this.username && this.password) {
             try {
-                const response = await axios.post('http://localhost:8080/login/', {
-                    username: this.username,
-                    password: this.password
+                // Get the CSRF token from Django's cookies
+                const csrftoken = this.getCookie('csrftoken');
+                
+                const response = await fetch('http://localhost:8000/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,  // Include CSRF token in the headers
+                    },
+                    body: JSON.stringify({
+                        username: this.username,
+                        password: this.password,
+                    }),
                 });
 
-                if (response.status === 200) {
-                    // Handle successful login (e.g., store token)
-                    localStorage.setItem('auth_token', response.data.token); // Modify this if your API returns a token
-                    this.$router.push('/brokmain');  // Redirect to main page
+                const data = await response.json();
+                if (data.success) {
+                    // Login successful, redirect to main page
+                    this.$router.push('/brokmain');
+                } else {
+                    this.error = data.message;  // Display error message
                 }
             } catch (error) {
-                // Handle error response
-                if (error.response && error.response.status === 401) {
-                    this.error = "Invalid username or password. Please try again.";
-                } else {
-                    this.error = "An error occurred. Please try again later.";
+                this.error = "An error occurred during login.";
+            }
+        } else {
+            alert("Please fill in both fields.");
+        }
+    },
+    
+    getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
         }
+        return cookieValue;
     }
+}
+
 };
 </script>
 
