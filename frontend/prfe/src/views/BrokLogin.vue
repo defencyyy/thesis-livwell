@@ -66,7 +66,9 @@ export default {
     methods: {
         login() {
             if (this.username && this.password) {
-                this.$router.push("/main");
+
+                this.$router.push('/brokmain'); // Route to main page
+
             } else {
                 alert("Please fill in both fields.");
             }

@@ -41,6 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # USER
+    'developers.apps.DevelopersConfig',
+    'brokers.apps.BrokersConfig',
+    'units.apps.UnitsConfig',
+    'paysched.apps.PayschedConfig',
+    'affiliations.apps.AffiliationsConfig',
+    'customers.apps.CustomersConfig',
+    'companies.apps.CompaniesConfig',
+    'documents.apps.DocumentsConfig',
     'corsheaders',
     'rest_framework',
 ]
