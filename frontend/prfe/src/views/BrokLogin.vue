@@ -71,7 +71,7 @@ export default {
                     this.$router.push('/brokmain');
                 }
             } catch (error) {
-                // Handle login failure
+                // Handle login 
                 this.error = "Invalid username or password. Please try again.";
             }
         }
