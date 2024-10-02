@@ -21,6 +21,11 @@
                                             <input type="password" id="password" v-model="password" class="form-control" required/>
                                         </div>
 
+                                        <div class="d-flex justify-content-between align-items-center mb-4">
+                                            <div class="flex-grow-1"></div>
+                                            <a class="text-muted" href="#!">Forgot Password</a>
+                                        </div>
+
                                         <div class="text-center pt-1 mb-5 pb-1">
                                             <button class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3" type="submit">
                                                 Sign in
@@ -59,29 +64,31 @@ export default {
         };
     },
     methods: {
+        // Place the async keyword here
         async login() {
+            this.error = null;  // Clear any previous error messages
             try {
-                const response = await axios.post('http://localhost:8000/login/', {
+                const response = await axios.post('http://localhost:8080/login/', {
                     username: this.username,
                     password: this.password
                 });
 
                 if (response.status === 200) {
-                    // If login is successful, you can store the token for future requests
-                    const token = response.data.token;
-                    localStorage.setItem('auth_token', token);
-
-                    // Redirect to main page after successful login
-                    this.$router.push('/brokmain');
+                    // Handle successful login (e.g., store token)
+                    localStorage.setItem('auth_token', response.data.token); // Modify this if your API returns a token
+                    this.$router.push('/brokmain');  // Redirect to main page
                 }
             } catch (error) {
-                // Handle invalid credentials or other errors
-                this.error = "Invalid username or password. Please try again.";
+                // Handle error response
+                if (error.response && error.response.status === 401) {
+                    this.error = "Invalid username or password. Please try again.";
+                } else {
+                    this.error = "An error occurred. Please try again later.";
+                }
             }
         }
     }
 };
-
 </script>
 
 <style>
