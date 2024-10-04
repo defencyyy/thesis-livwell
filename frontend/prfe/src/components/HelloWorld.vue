@@ -14,7 +14,7 @@
     <h6> • STUDIO UNIT | ₱84,000+ SPOT DP | ₱10,000+MONTHLY <br>
         • 1 BEDROOM UNIT | ₱110,000+ SPOT DP | ₱13,000+ MONTHLY <br>
         • 2 BEDROOM UNIT | ₱170,000+SPOT DP | ₱20,000+
-        helo
+        
     </h6>
    
   </div>
