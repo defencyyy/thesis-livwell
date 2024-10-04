@@ -12,7 +12,7 @@ class Unit(models.Model):
   lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
   location = models.CharField(max_length=200, blank=True)
   quantity = models.PositiveIntegerField(default=1)
-  status = models.CharField(max_length=50, choices=[('available', 'Available'), ('sold', 'Sold')])
+  status = models.CharField(max_length=50, choices=[('available', 'Available'), ('reserved', 'Reserved'), ('sold', 'Sold')])
 
   def __str__(self):
     return f" {self.site.name} - {self.title}"
