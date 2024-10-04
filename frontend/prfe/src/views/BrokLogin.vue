@@ -23,7 +23,7 @@
 
                                         <div class="d-flex justify-content-between align-items-center mb-4">
                                             <div class="flex-grow-1"></div>
-                                            <a class="text-muted" href="#!">Forgot Password</a>
+                                            <router-link class="text-muted" to="/brokforgotpass">Forgot Password</router-link>
                                         </div>
 
                                         <div class="text-center pt-1 mb-5 pb-1">
