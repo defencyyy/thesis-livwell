@@ -14,12 +14,10 @@ class Broker(models.Model):
   picture = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
   password = models.CharField(max_length=128, null=True)
 
-
   def save(self, *args, **kwargs):
-        if self.password and not self.password.startswith('pbkdf2_'):
-            self.password = make_password(self.password)
-        super().save(*args, **kwargs)
-  
+    if self.password and not self.password.startswith('pbkdf2_'):
+      self.password = make_password(self.password)
+    super().save(*args, **kwargs)
 
   def __str__(self):
     return self.name
