@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # USER
+    # User Apps
     'developers.apps.DevelopersConfig',
     'brokers.apps.BrokersConfig',
     'units.apps.UnitsConfig',
@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'documents.apps.DocumentsConfig',
     'docreqs.apps.DocreqsConfig',
     'sites.apps.SitesConfig',
+
+    # User
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
