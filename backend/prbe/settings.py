@@ -152,3 +152,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'aeronjquiambao@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'ljscdntxmmdqupmz'  # Your Gmail password or app password
+CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins

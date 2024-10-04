@@ -46,7 +46,7 @@ export default {
   methods: {
     async resetPassword() {
       try {
-        const response = await fetch(`http://localhost:8000/reset-password-confirm/${this.$route.params.uid}/${this.$route.params.token}/`, {
+          const response = await fetch(`http://localhost:8000/brokresetpass/${this.$route.params.uid}/${this.$route.params.token}/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -55,12 +55,11 @@ export default {
         });
 
         if (response.ok) {
-          const data = await response.json();
           this.message = "Password reset successfully!";
           this.error = "";
         } else {
-          const data = await response.json();
-          this.error = data.message || "Failed to reset password.";
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to reset password.";
           this.message = "";
         }
       } catch (error) {
@@ -71,7 +70,3 @@ export default {
   },
 };
 </script>
-
-<style>
-/* Add your styles here */
-</style>

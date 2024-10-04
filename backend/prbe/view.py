@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django.utils import timezone  # Make sure to import timezone
+from django.shortcuts import render
+from django.conf import settings
 import json
 
 @csrf_exempt
@@ -38,58 +40,62 @@ def login_view(request):
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=400)
 
 @csrf_exempt
+
 def send_password_reset_email(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             email = data.get('email')
-            print(f"Received email: {email}")  # Debug: print the received email
+            broker = Broker.objects.get(email=email)
 
-            # Check if the email is associated with any broker
-            
-            broker = Broker.objects.get(email=email)  # Check if email exists
-            # If the broker is found, generate a token
+            # Generate a token
             token = default_token_generator.make_token(broker)
 
-            # Create a password reset link
-            reset_link = request.build_absolute_uri(
-    reverse('ResetPasswordConfirm', kwargs={'uid': broker.pk, 'token': token})
-)
+            # Create a password reset link (change this part)
+            reset_link = reverse('BrokResetPass', kwargs={'uid': broker.pk, 'token': token})
 
+            # Assuming your Vue app is running on localhost:8080
+            reset_link_full = f'http://localhost:8080/#/brokresetpass/{broker.pk}/{token}/'
 
             # Send email
             send_mail(
                 'Password Reset',
-                f'Click the link below to reset your password:\n{reset_link}',
+                f'Click the link below to reset your password:\n{reset_link_full}',
                 'noreply@example.com',
                 [email],
-                fail_silently= False,
+                fail_silently=False,
             )
+
             return JsonResponse({"success": True, "message": "Password reset email sent"}, status=200)
 
+        except Broker.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Broker not found"}, status=404)
         except Exception as e:
-            print(f"An error occurred: {str(e)}")  # Print the error for debugging
             return JsonResponse({"success": False, "message": "An internal error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
 
 @csrf_exempt
-def reset_password_confirm(request, uid, token):
+def BrokResetPass(request, uid, token):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             new_password = data.get('new_password')
-            broker = get_object_or_404(Broker, pk=uid)  # Retrieve broker instead of User
+
+            if not new_password:
+                return JsonResponse({"success": False, "message": "New password is required"}, status=400)
+
+            broker = get_object_or_404(Broker, pk=uid)
 
             # Check if the token is valid
             if default_token_generator.check_token(broker, token):
-                broker.set_password(new_password)  # Use set_password for hashing
+                broker.set_password(new_password)
                 broker.save()
                 return JsonResponse({"success": True, "message": "Password reset successfully"}, status=200)
             else:
                 return JsonResponse({"success": False, "message": "Invalid token"}, status=400)
 
-        except Broker.DoesNotExist:  # Change this to Broker
+        except Broker.DoesNotExist:
             return JsonResponse({"success": False, "message": "Invalid user"}, status=404)
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
