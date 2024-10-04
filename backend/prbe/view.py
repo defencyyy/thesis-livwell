@@ -53,8 +53,6 @@ def send_password_reset_email(request):
 
             # Create a password reset link
             reset_link = request.build_absolute_uri(
-                reverse('password_reset_confirm', kwargs={'uid': broker.pk, 'token': token})
-            )
 
             # Send email
             send_mail(
