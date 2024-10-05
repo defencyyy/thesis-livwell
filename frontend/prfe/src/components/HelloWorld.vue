@@ -1,5 +1,5 @@
 <template>
-  <div class="hello">
+  <div class="hello container text-center">
     <h1>{{ msg }}</h1>
     <p>
       Click here to check the full requirements in condominium <br>
