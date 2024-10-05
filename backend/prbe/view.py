@@ -10,34 +10,47 @@ from django.utils import timezone  # Make sure to import timezone
 from django.shortcuts import render
 from django.conf import settings
 import json
+from django.contrib.auth.hashers import make_password
+
 
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         try:
+            # Log the incoming request
+            print("Received POST request for login.")
+
+            # Parse the request body
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
 
             if not username or not password:
-                return JsonResponse({"success": False, "message": "Missing username or password"}, status=400)
+                return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
 
-            try:
-                broker = Broker.objects.get(username=username)
-            except Broker.DoesNotExist:
-                return JsonResponse({"success": False, "message": "User does not exist"}, status=404)
+            # Find the broker by username
+            broker = Broker.objects.get(username=username)
 
-            if check_password(password, broker.password):
-                broker.last_login = timezone.now()  # Update last_login to the current time
-                broker.save()  # Save the updated broker object
-                return JsonResponse({"success": True, "message": "Login successful"}, status=200)
-            else:
-                return JsonResponse({"success": False, "message": "Invalid credentials"}, status=401)
+            # Check the password
+            if not check_password(password, broker.password):
+                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
 
+            # Update the last login time
+            broker.last_login = timezone.now()
+            broker.save()
+
+            return JsonResponse({"success": True, "message": "Login successful."}, status=200)
+
+        except Broker.DoesNotExist:
+            return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
         except json.JSONDecodeError:
-            return JsonResponse({"success": False, "message": "Invalid JSON data"}, status=400)
+            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error during login: {e}")
+            return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
-    return JsonResponse({"success": False, "message": "Invalid request method"}, status=400)
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 @csrf_exempt
 
@@ -79,23 +92,33 @@ def send_password_reset_email(request):
 def BrokResetPass(request, uid, token):
     if request.method == 'POST':
         try:
+            # Log the incoming request
+            print("Received POST request to reset password.")
+
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
             if not new_password:
-                return JsonResponse({"success": False, "message": "New password is required"}, status=400)
+                return JsonResponse({"success": False, "message": "New password is required."}, status=400)
 
-            broker = get_object_or_404(Broker, pk=uid)
+            # Find the broker by uid
+            broker = Broker.objects.get(pk=uid)
 
             # Check if the token is valid
-            if default_token_generator.check_token(broker, token):
-                broker.set_password(new_password)
-                broker.save()
-                return JsonResponse({"success": True, "message": "Password reset successfully"}, status=200)
-            else:
-                return JsonResponse({"success": False, "message": "Invalid token"}, status=400)
+            if not default_token_generator.check_token(broker, token):
+                return JsonResponse({"success": False, "message": "Invalid or expired token."}, status=400)
+
+            # Update the password
+            broker.password = make_password(new_password)
+            broker.save()
+
+            return JsonResponse({"success": True, "message": "Password reset successfully!"}, status=200)
 
         except Broker.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Invalid user"}, status=404)
+            return JsonResponse({"success": False, "message": "Broker not found."}, status=404)
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error resetting password: {e}")
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
 
-    return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)

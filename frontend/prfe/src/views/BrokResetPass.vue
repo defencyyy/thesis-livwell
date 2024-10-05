@@ -45,8 +45,8 @@ export default {
   },
   methods: {
     async resetPassword() {
-      try {
-          const response = await fetch(`http://localhost:8000/brokresetpass/${this.$route.params.uid}/${this.$route.params.token}/`, {
+      try {          
+          const response = await fetch(`http://localhost:8000/brokpass/${this.$route.params.uid}/${this.$route.params.token}/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
