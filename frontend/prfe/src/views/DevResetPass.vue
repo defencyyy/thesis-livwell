@@ -5,24 +5,24 @@
         <div class="col-xl-10">
           <div class="card rounded-3 text-black">
             <div class="card-body p-md-5 mx-md-4">
-              <h3>Set a New Password</h3>
-              <p>Enter your new password below.</p>
+              <h3>Reset Your Password</h3>
+              <p>Please enter your new password.</p>
               <form @submit.prevent="resetPassword">
                 <div class="form-outline mb-4">
-                  <label for="new_password" class="form-label">New Password</label>
+                  <label for="newPassword" class="form-label">New Password</label>
                   <input
                     type="password"
-                    id="new_password"
+                    id="newPassword"
                     v-model="newPassword"
                     class="form-control"
                     required
                   />
                 </div>
                 <div class="form-outline mb-4">
-                  <label for="confirm_password" class="form-label">Confirm Password</label>
+                  <label for="confirmPassword" class="form-label">Confirm Password</label>
                   <input
                     type="password"
-                    id="confirm_password"
+                    id="confirmPassword"
                     v-model="confirmPassword"
                     class="form-control"
                     required
@@ -62,8 +62,11 @@ export default {
         return;
       }
 
+      const uid = this.$route.params.uid;
+      const token = this.$route.params.token;
+
       try {
-        const response = await fetch(`http://localhost:8000/brokpass/${this.$route.params.uid}/${this.$route.params.token}/`, {
+        const response = await fetch(`http://localhost:8000/devpass/${uid}/${token}/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -75,8 +78,8 @@ export default {
           this.message = "Password reset successfully!";
           this.error = "";
         } else {
-          const errorData = await response.json();
-          this.error = errorData.message || "Failed to reset password.";
+          const data = await response.json();
+          this.error = data.message || "Failed to reset the password.";
           this.message = "";
         }
       } catch (error) {

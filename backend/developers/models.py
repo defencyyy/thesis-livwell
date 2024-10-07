@@ -11,6 +11,7 @@ class Developer(models.Model):
     description = models.TextField(blank=True)
     picture = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
     password = models.CharField(max_length=128, blank=True, null=True)
+    last_login = models.DateTimeField(null=True, blank=True)  # Add this line
 
     def save(self, *args, **kwargs):
         if self.password and not self.password.startswith('pbkdf2_'):
@@ -19,3 +20,8 @@ class Developer(models.Model):
 
     def __str__(self):
         return self.name
+    def get_username(self):
+        return self.username  # Return the username field
+
+    def get_email_field_name(self):
+        return 'email'  # Return the name of the email field
