@@ -23,7 +23,7 @@
 
                                         <div class="d-flex justify-content-between align-items-center mb-4">
                                             <div class="flex-grow-1"></div>
-                                            <a class="text-muted" href="#!">Forgot Password</a>
+                                            <router-link class="text-muted" to="/brokforgotpass">Forgot Password</router-link>
                                         </div>
 
                                         <div class="text-center pt-1 mb-5 pb-1">
@@ -53,65 +53,68 @@
 </template>
 
 <script>
-
-
 export default {
     data() {
         return {
             username: "",
             password: "",
+            error: null, // Add the error property to hold the error message
         };
     },
-  methods: {
-    async login() {
-        if (this.username && this.password) {
-            try {
-                // Get the CSRF token from Django's cookies
-                const csrftoken = this.getCookie('csrftoken');
-                
-                const response = await fetch('http://localhost:8000/login/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,  // Include CSRF token in the headers
-                    },
-                    body: JSON.stringify({
-                        username: this.username,
-                        password: this.password,
-                    }),
-                });
+    methods: {
+        async login() {
+            this.error = null; // Reset error before making the request
+            if (this.username && this.password) {
+                try {
+                    // Get the CSRF token from Django's cookies
+                    const csrftoken = this.getCookie('csrftoken');
+                    
+                    const response = await fetch('http://localhost:8000/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,  // Include CSRF token in the headers
+                        },
+                        body: JSON.stringify({
+                            username: this.username,
+                            password: this.password,
+                        }),
+                    });
 
-                const data = await response.json();
-                if (data.success) {
-                    // Login successful, redirect to main page
-                    this.$router.push('/brokmain');
-                } else {
-                    this.error = data.message;  // Display error message
+                    const data = await response.json();
+                    if (data.success) {
+                        // Login successful, redirect to main page
+                        this.$router.push('/brokmain');
+                    } else {
+                        // Set the error message if login fails
+                        this.error = data.message;  
+                    }
+                } catch (error) {
+                    // Set a generic error message if the fetch fails
+                    this.error = "An error occurred during login.";
                 }
-            } catch (error) {
-                this.error = "An error occurred during login.";
+            } else {
+                // Handle empty input fields
+                this.error = "Please fill in both fields.";
             }
-        } else {
-            alert("Please fill in both fields.");
-        }
-    },
-    
-    getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+        },
+
+        // Function to get the CSRF token from cookies
+        getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
     }
-}
-
 };
 </script>
 
