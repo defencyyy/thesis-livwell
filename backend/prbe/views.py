@@ -1,5 +1,3 @@
-# In brokers/views.py (or the appropriate views file)
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
@@ -19,36 +17,39 @@ import json
 def login_view(request):
     if request.method == 'POST':
         try:
+            # Log the incoming request
+            print("Received POST request for login.")
+
+            # Parse the request body
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
 
-
-
-            # Check if the username and password are received
             if not username or not password:
-                return JsonResponse({"success": False, "message": "Missing username or password"}, status=400)
+                return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
 
-            # Retrieve user from the brokers_broker table
-            try:
-                broker = Broker.objects.get(username=username)
-                
+            # Find the broker by username
+            broker = Broker.objects.get(username=username)
 
-            except Broker.DoesNotExist:
-                all_brokers = Broker.objects.all()
-                
-                return JsonResponse({"success": False, "message": "User does not exist"}, status=404)
+            # Check the password
+            if not check_password(password, broker.password):
+                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
 
-            # Validate the password
-            if check_password(password, broker.password):  # Use check_password if passwords are hashed
-                
-                return JsonResponse({"success": True, "message": "Login successful"}, status=200)
-            else:
-                
-                return JsonResponse({"success": False, "message": "Invalid credentials"}, status=401)
+            # Update the last login time
+            broker.last_login = timezone.now()
+            broker.save()
 
+            return JsonResponse({"success": True, "message": "Login successful."}, status=200)
+
+        except Broker.DoesNotExist:
+            return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
         except json.JSONDecodeError:
-            return JsonResponse({"success": False, "message": "Invalid JSON data"}, status=400)
+            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error during login: {e}")
+            return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
+
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 @csrf_exempt
