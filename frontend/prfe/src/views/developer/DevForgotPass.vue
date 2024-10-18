@@ -5,9 +5,9 @@
         <div class="col-xl-10">
           <div class="card rounded-3 text-black">
             <div class="card-body p-md-5 mx-md-4">
-              <h3>Reset Your Password</h3>
+              <h3>Developer Password Reset</h3>
               <p>Please enter your email to receive a password reset link.</p>
-              <form @submit.prevent="sendResetLink">
+              <form @submit.prevent="sendDevResetLink">
                 <div class="form-outline mb-4">
                   <label for="email" class="form-label">Email address</label>
                   <input
@@ -40,41 +40,36 @@ export default {
     return {
       email: "",
       message: "",
-      error: ""
+      error: "",
     };
   },
   methods: {
-      async sendResetLink() {
-    //console.log("Entered email:", this.email);
-    try {
-      const response = await fetch("http://localhost:8000/reset-password/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: this.email }),
-      });
+    async sendDevResetLink() {
+      try {
+        const response = await fetch(
+          "http://localhost:8000/reset-dev-password/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: this.email }),
+          }
+        );
 
-      if (response.ok) {
-        // No need for "data" here, since we're not using the returned data
-        this.message = "Password reset link sent to your email.";
-        this.error = "";
-      } else {
-        // No need to declare "data" unless you use it to extract a specific message
-        const data = await response.json(); // Extract message if available
-        this.error = data.message || "Failed to send the reset link.";
+        if (response.ok) {
+          this.message = "Password reset link sent to your email.";
+          this.error = "";
+        } else {
+          const data = await response.json();
+          this.error = data.message || "Failed to send the reset link.";
+          this.message = "";
+        }
+      } catch (error) {
+        this.error = "An error occurred while sending the reset link.";
         this.message = "";
       }
-    } catch (error) {
-      this.error = "An error occurred while sending the reset link.";
-      this.message = "";
-    }
+    },
   },
-},
-
 };
 </script>
-
-<style>
-/* Add styles here */
-</style>

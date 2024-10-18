@@ -1,31 +1,43 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
-import BrokLogin from '@/views/BrokLogin.vue';
-import BrokMainPage from '@/views/BrokMainPage.vue';
-import DevMainPage from '@/views/DevMainPage.vue';
-import DevLogin from '@/views/DevLogin.vue';
-import BrokForgotPass from '@/views/BrokForgotPass.vue'; 
-import BrokResetPass from '@/views/BrokResetPass.vue';
-import DevForgotPass from '@/views/DevForgotPass.vue'; 
-import DevResetPass from '@/views/DevResetPass.vue';
+import { createRouter, createWebHashHistory } from "vue-router";
+
+import DevLogin from "@/views/developer/DevLogin.vue";
+import DevForgotPass from "@/views/developer/DevForgotPass.vue";
+import DevResetPass from "@/views/developer/DevResetPass.vue";
+import DevMainPage from "@/views/developer/DevMainPage.vue";
+
+import BrkLogin from "@/views/broker/BrkLogin.vue";
+import BrkForgotPass from "@/views/broker/BrkForgotPass.vue";
+import BrkResetPass from "@/views/broker/BrkResetPass.vue";
+import BrkMainPage from "@/views/broker/BrkMainPage.vue";
 
 const routes = [
-    { path: '/broklogin', name: 'BrokLogin', component: BrokLogin },
-    { path: '/brokmain', name: 'BrokMain', component: BrokMainPage },
-    { path: '/devlogin', name: 'DevLogin', component: DevLogin },
-    { path: '/devmain', name: 'DevMain', component: DevMainPage },
-    { path: '/brokforgotpass', name: 'BrokForgotPass', component: BrokForgotPass },
-    //{ path: '/brokresetpass', name: 'BrokResetPass', component: BrokResetPass }, // Moved to the top
-    { path: '/brokresetpass/:uid/:token', name: 'BrokResetPass', component: BrokResetPass }, // Moved to the top
-    { path: '/devforgotpass', name: 'DevForgotPass', component: DevForgotPass },
-    { path: '/devresetpass/:uid/:token', name: 'DevResetPass', component: DevResetPass },
-    { path: '/', redirect: '/broklogin' },
+  // Broker Routes
+  { path: "/broklogin", name: "BrkLogin", component: BrkLogin },
+  { path: "/brokforgotpass", name: "BrkForgotPass", component: BrkForgotPass },
+  {
+    path: "/brokresetpass/:uid/:token",
+    name: "BrkResetPass",
+    component: BrkResetPass,
+  },
+  { path: "/brokmain", name: "BrkMain", component: BrkMainPage },
+
+  // Developer Routes
+  { path: "/devlogin", name: "DevLogin", component: DevLogin },
+  { path: "/devforgotpass", name: "DevForgotPass", component: DevForgotPass },
+  {
+    path: "/devresetpass/:uid/:token",
+    name: "DevResetPass",
+    component: DevResetPass,
+  },
+  { path: "/devmain", name: "DevMain", component: DevMainPage },
+
+  // Redirect
+  { path: "/", redirect: "/broklogin" },
 ];
 
 const router = createRouter({
-    history: createWebHashHistory(),
-    routes,
+  history: createWebHashHistory(),
+  routes,
 });
-
-
 
 export default router;

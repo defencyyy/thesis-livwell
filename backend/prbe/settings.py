@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'customers.apps.CustomersConfig',
     'companies.apps.CompaniesConfig',
     'documents.apps.DocumentsConfig',
-    'docreqs.apps.DocreqsConfig',
     'sites.apps.SitesConfig',
 
     # User
@@ -95,7 +94,6 @@ DATABASES = {
         'HOST': 'localhost',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
