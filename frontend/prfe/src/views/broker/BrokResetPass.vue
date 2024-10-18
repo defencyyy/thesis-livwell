@@ -9,9 +9,7 @@
               <p>Enter your new password below.</p>
               <form @submit.prevent="resetPassword">
                 <div class="form-outline mb-4">
-                  <label for="new_password" class="form-label"
-                    >New Password</label
-                  >
+                  <label for="new_password" class="form-label">New Password</label>
                   <input
                     type="password"
                     id="new_password"
@@ -21,9 +19,7 @@
                   />
                 </div>
                 <div class="form-outline mb-4">
-                  <label for="confirm_password" class="form-label"
-                    >Confirm Password</label
-                  >
+                  <label for="confirm_password" class="form-label">Confirm Password</label>
                   <input
                     type="password"
                     id="confirm_password"
@@ -55,7 +51,7 @@ export default {
       newPassword: "",
       confirmPassword: "",
       message: "",
-      error: "",
+      error: ""
     };
   },
   methods: {
@@ -67,16 +63,13 @@ export default {
       }
 
       try {
-        const response = await fetch(
-          `http://localhost:8000/broker/resetpass/${this.$route.params.uid}/${this.$route.params.token}/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ new_password: this.newPassword }),
-          }
-        );
+        const response = await fetch(`http://localhost:8000/brokpass/${this.$route.params.uid}/${this.$route.params.token}/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ new_password: this.newPassword }),
+        });
 
         if (response.ok) {
           this.message = "Password reset successfully!";

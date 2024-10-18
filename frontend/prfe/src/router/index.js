@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 // Broker views
-import BrkLogin from "@/views/broker/BrkLogin.vue";
-import BrkMainPage from "@/views/broker/BrkMainPage.vue";
-import BrkForgotPass from "@/views/broker/BrkForgotPass.vue";
-import BrkResetPass from "@/views/broker/BrkResetPass.vue";
+import BrokLogin from "@/views/broker/BrokLogin.vue";
+import BrokMainPage from "@/views/broker/BrokMainPage.vue";
+import BrokForgotPass from "@/views/broker/BrokForgotPass.vue";
+import BrokResetPass from "@/views/broker/BrokResetPass.vue";
 
 // Developer views
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -12,47 +12,33 @@ import DevMainPage from "@/views/developer/DevMainPage.vue";
 import DevForgotPass from "@/views/developer/DevForgotPass.vue";
 import DevResetPass from "@/views/developer/DevResetPass.vue";
 
-// Layout components
-import BrokerLayout from "@/components/BrokerLayout.vue";
-import DeveloperLayout from "@/components/DeveloperLayout.vue";
-
 const routes = [
   // Broker routes
+  { path: "/broklogin", name: "BrokLogin", component: BrokLogin },
+  { path: "/brokmain", name: "BrokMain", component: BrokMainPage },
   {
-    path: "/broker",
-    name: "Broker",
-    component: BrokerLayout,
-    children: [
-      { path: "login", name: "BrkLogin", component: BrkLogin },
-      { path: "main", name: "BrkMain", component: BrkMainPage },
-      { path: "forgotpass", name: "BrkForgotPass", component: BrkForgotPass },
-      {
-        path: "resetpass/:uid/:token",
-        name: "BrkResetPass",
-        component: BrkResetPass,
-      },
-    ],
+    path: "/brokforgotpass",
+    name: "BrokForgotPass",
+    component: BrokForgotPass,
+  },
+  {
+    path: "/brokresetpass/:uid/:token",
+    name: "BrokResetPass",
+    component: BrokResetPass,
   },
 
   // Developer routes
+  { path: "/devlogin", name: "DevLogin", component: DevLogin },
+  { path: "/devmain", name: "DevMain", component: DevMainPage },
+  { path: "/devforgotpass", name: "DevForgotPass", component: DevForgotPass },
   {
-    path: "/developer",
-    name: "Developer",
-    component: DeveloperLayout,
-    children: [
-      { path: "login", name: "DevLogin", component: DevLogin },
-      { path: "main", name: "DevMain", component: DevMainPage },
-      { path: "forgotpass", name: "DevForgotPass", component: DevForgotPass },
-      {
-        path: "resetpass/:uid/:token",
-        name: "DevResetPass",
-        component: DevResetPass,
-      },
-    ],
+    path: "/devresetpass/:uid/:token",
+    name: "DevResetPass",
+    component: DevResetPass,
   },
 
-  // Redirect root to broker login *MAKE HOME PAGE
-  { path: "/", redirect: "/broker/login" },
+  // Redirect root to broker login
+  { path: "/", redirect: "/broklogin" },
 ];
 
 const router = createRouter({

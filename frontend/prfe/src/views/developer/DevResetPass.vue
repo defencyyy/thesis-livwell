@@ -9,9 +9,7 @@
               <p>Please enter your new password.</p>
               <form @submit.prevent="resetPassword">
                 <div class="form-outline mb-4">
-                  <label for="newPassword" class="form-label"
-                    >New Password</label
-                  >
+                  <label for="newPassword" class="form-label">New Password</label>
                   <input
                     type="password"
                     id="newPassword"
@@ -21,9 +19,7 @@
                   />
                 </div>
                 <div class="form-outline mb-4">
-                  <label for="confirmPassword" class="form-label"
-                    >Confirm Password</label
-                  >
+                  <label for="confirmPassword" class="form-label">Confirm Password</label>
                   <input
                     type="password"
                     id="confirmPassword"
@@ -55,7 +51,7 @@ export default {
       newPassword: "",
       confirmPassword: "",
       message: "",
-      error: "",
+      error: ""
     };
   },
   methods: {
@@ -70,16 +66,13 @@ export default {
       const token = this.$route.params.token;
 
       try {
-        const response = await fetch(
-          `http://localhost:8000/developer/resetpass/${uid}/${token}/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ new_password: this.newPassword }),
-          }
-        );
+        const response = await fetch(`http://localhost:8000/devpass/${uid}/${token}/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ new_password: this.newPassword }),
+        });
 
         if (response.ok) {
           this.message = "Password reset successfully!";

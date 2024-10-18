@@ -45,7 +45,7 @@
                       class="d-flex justify-content-between align-items-center mb-4"
                     >
                       <div class="flex-grow-1"></div>
-                      <router-link class="text-muted" to="/developer/forgotpass"
+                      <router-link class="text-muted" to="/devforgotpass"
                         >Forgot Password</router-link
                       >
                     </div>
@@ -121,7 +121,7 @@ export default {
 
           const data = await response.json();
           if (data.success) {
-            this.$router.push("/developer/main"); // Redirect to developer main page
+            this.$router.push("/devmain"); // Redirect to developer main page
           } else {
             this.error = data.message;
           }
