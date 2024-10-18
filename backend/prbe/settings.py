@@ -61,6 +61,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
 ]
 
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8080"]
+
 ROOT_URLCONF = 'prbe.urls'
 
 TEMPLATES = [

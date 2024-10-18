@@ -107,7 +107,7 @@ export default {
           // Get the CSRF token from Django's cookies
           const csrftoken = this.getCookie("csrftoken");
 
-          const response = await fetch("http://localhost:8000/login/", {
+          const response = await fetch("http://localhost:8080/broker/login/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
