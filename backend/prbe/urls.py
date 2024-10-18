@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.urls import path
-from . import view
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', view.login_view, name='login'),
-    path('reset-password/', view.send_password_reset_email, name='reset-password'),#for brokers
-    path('brokpass/<int:uid>/<str:token>/', view.BrokResetPass, name='BrokResetPass'),#for brokers
-    path('devlogin/', view.login_view_dev, name='devlogin'),  # for developers
-    path('reset-dev-password/', view.send_dev_password_reset_email, name='reset-dev-password'),  # for developers
-    path('devpass/<int:uid>/<str:token>/', view.DevResetPass, name='DevResetPass'),  # for developers
+    path('login/', views.login_view, name='login'),
+    path('reset-password/', views.send_password_reset_email, name='reset-password'),#for brokers
+    path('brokpass/<int:uid>/<str:token>/', views.BrokResetPass, name='BrokResetPass'),#for brokers
+    path('devlogin/', views.login_view_dev, name='devlogin'),  # for developers
+    path('reset-dev-password/', views.send_dev_password_reset_email, name='reset-dev-password'),  # for developers
+    path('devpass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),  # for developers
 ]

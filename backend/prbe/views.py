@@ -55,7 +55,6 @@ def login_view(request):
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 @csrf_exempt
-
 def send_password_reset_email(request):
     if request.method == 'POST':
         try:
