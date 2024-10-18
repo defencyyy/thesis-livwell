@@ -43,7 +43,7 @@ const routes = [
 
   // Redirect
   { path: "/", redirect: "/broker/login" },
-];
+
 
 const router = createRouter({
   history: createWebHashHistory(),
