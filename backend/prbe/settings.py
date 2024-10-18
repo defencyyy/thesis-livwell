@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'customers.apps.CustomersConfig',
     'companies.apps.CompaniesConfig',
     'documents.apps.DocumentsConfig',
+    'docreqs.apps.DocreqsConfig',
     'sites.apps.SitesConfig',
 
     # User
