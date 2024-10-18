@@ -1,18 +1,13 @@
 from django.contrib import admin
 from django.urls import path
-from . import views
+from . import view
 
 urlpatterns = [
-    # Admin view
     path('admin/', admin.site.urls),
-
-    # Broker 
-    path('broker/login/', views.login_view, name='broker-login'),  # Login for brokers
-    path('broker/reset-password/', views.send_password_reset_email, name='broker-reset-password'),  # Forgot password
-    path('broker/resetpass/<int:uid>/<str:token>/', views.BrokResetPass, name='broker-reset-pass'),  # Password reset
-
-    # Developer
-    path('developer/login/', views.login_view_dev, name='developer-login'),  # Login for developers
-    path('developer/reset-password/', views.send_dev_password_reset_email, name='developer-reset-password'),  # Forgot password
-    path('developer/resetpass/<int:uid>/<str:token>/', views.DevResetPass, name='developer-reset-pass'),  # Password reset
+    path('login/', view.login_view, name='login'),
+    path('reset-password/', view.send_password_reset_email, name='reset-password'),#for brokers
+    path('brokpass/<int:uid>/<str:token>/', view.BrokResetPass, name='BrokResetPass'),#for brokers
+    path('devlogin/', view.login_view_dev, name='devlogin'),  # for developers
+    path('reset-dev-password/', view.send_dev_password_reset_email, name='reset-dev-password'),  # for developers
+    path('devpass/<int:uid>/<str:token>/', view.DevResetPass, name='DevResetPass'),  # for developers
 ]

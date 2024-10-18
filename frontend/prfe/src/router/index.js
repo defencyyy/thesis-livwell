@@ -1,7 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
-// Landing views
-
 // Broker views
 import BrkLogin from "@/views/broker/BrkLogin.vue";
 import BrkMainPage from "@/views/broker/BrkMainPage.vue";

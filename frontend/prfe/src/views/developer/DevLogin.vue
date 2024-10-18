@@ -106,21 +106,18 @@ export default {
         try {
           const csrftoken = this.getCookie("csrftoken");
 
-          const response = await fetch(
-            "http://localhost:8080/developer/login/",
-            {
-              // Updated URL
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
-              },
-              body: JSON.stringify({
-                username: this.username,
-                password: this.password,
-              }),
-            }
-          );
+          const response = await fetch("http://localhost:8000/devlogin/", {
+            // Updated URL
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify({
+              username: this.username,
+              password: this.password,
+            }),
+          });
 
           const data = await response.json();
           if (data.success) {

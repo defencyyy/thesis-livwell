@@ -13,14 +13,6 @@ from brokers.models import Broker
 from developers.models import Developer 
 import json
 
-from django.contrib.auth import logout
-
-@csrf_exempt
-def logout_view(request):
-    logout(request)
-    return JsonResponse({"message": "Logged out successfully"})
-
-
 def authenticate_user(model, username, password):
     user = model.objects.get(username=username)
     
@@ -76,6 +68,7 @@ def login_view(request):
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 @csrf_exempt
+
 def send_password_reset_email(request):
     if request.method == 'POST':
         try:
@@ -90,7 +83,7 @@ def send_password_reset_email(request):
             reset_link = reverse('BrokResetPass', kwargs={'uid': broker.pk, 'token': token})
 
             # Assuming your Vue app is running on localhost:8080
-            reset_link_full = f'http://localhost:8080/brokresetpass/{broker.pk}/{token}/'
+            reset_link_full = f'http://localhost:8080/#/brokresetpass/{broker.pk}/{token}/'
 
             # Send email
             send_mail(
@@ -195,7 +188,7 @@ def send_dev_password_reset_email(request):
             reset_link = reverse('DevResetPass', kwargs={'uid': developer.pk, 'token': token})
 
             # Assuming your Vue app is running on localhost:8080
-            reset_link_full = f'http://localhost:8080/devresetpass/{developer.pk}/{token}/'
+            reset_link_full = f'http://localhost:8080/#/devresetpass/{developer.pk}/{token}/'
 
             # Send email
             send_mail(
