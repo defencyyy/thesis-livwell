@@ -68,7 +68,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/brokpass/${this.$route.params.uid}/${this.$route.params.token}/`,
+          `http://localhost:8000/broker/reset-pass/${this.$route.params.uid}/${this.$route.params.token}/`,
           {
             method: "POST",
             headers: {

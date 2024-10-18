@@ -14,27 +14,35 @@ import BrkMainPage from "@/views/broker/BrkMainPage.vue";
 
 const routes = [
   // Developer Routes
-  { path: "/devlogin", name: "DevLogin", component: DevLogin },
-  { path: "/devforgotpass", name: "DevForgotPass", component: DevForgotPass },
+  { path: "/developer/login", name: "DevLogin", component: DevLogin },
   {
-    path: "/devresetpass/:uid/:token",
+    path: "/developer/forgot-password",
+    name: "DevForgotPass",
+    component: DevForgotPass,
+  },
+  {
+    path: "/developer/reset-password/:uid/:token",
     name: "DevResetPass",
     component: DevResetPass,
   },
-  { path: "/devmain", name: "DevMain", component: DevMainPage },
+  { path: "/developer/dashboard", name: "DevMain", component: DevMainPage },
 
   // Broker Routes
-  { path: "/broklogin", name: "BrkLogin", component: BrkLogin },
-  { path: "/brokforgotpass", name: "BrkForgotPass", component: BrkForgotPass },
+  { path: "/broker/login", name: "BrkLogin", component: BrkLogin },
   {
-    path: "/brokresetpass/:uid/:token",
+    path: "/broker/forgot-password",
+    name: "BrkForgotPass",
+    component: BrkForgotPass,
+  },
+  {
+    path: "/broker/reset-password/:uid/:token",
     name: "BrkResetPass",
     component: BrkResetPass,
   },
-  { path: "/brokmain", name: "BrkMain", component: BrkMainPage },
+  { path: "/broker/dashboard", name: "BrkMain", component: BrkMainPage },
 
   // Redirect
-  { path: "/", redirect: "/broklogin" },
+  { path: "/", redirect: "/broker/login" },
 ];
 
 const router = createRouter({

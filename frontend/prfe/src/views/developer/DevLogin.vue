@@ -45,7 +45,9 @@
                       class="d-flex justify-content-between align-items-center mb-4"
                     >
                       <div class="flex-grow-1"></div>
-                      <router-link class="text-muted" to="/devforgotpass"
+                      <router-link
+                        class="text-muted"
+                        to="/developer/forgot-password"
                         >Forgot Password</router-link
                       >
                     </div>
@@ -106,22 +108,25 @@ export default {
         try {
           const csrftoken = this.getCookie("csrftoken");
 
-          const response = await fetch("http://localhost:8000/devlogin/", {
-            // Updated URL
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken,
-            },
-            body: JSON.stringify({
-              username: this.username,
-              password: this.password,
-            }),
-          });
+          const response = await fetch(
+            "http://localhost:8000/developer/login/",
+            {
+              // Updated URL
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+              },
+              body: JSON.stringify({
+                username: this.username,
+                password: this.password,
+              }),
+            }
+          );
 
           const data = await response.json();
           if (data.success) {
-            this.$router.push("/devmain"); // Redirect to developer main page
+            this.$router.push("/developer/dashboard"); // Redirect to developer main page
           } else {
             this.error = data.message;
           }

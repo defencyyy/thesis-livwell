@@ -47,7 +47,7 @@ export default {
     async sendDevResetLink() {
       try {
         const response = await fetch(
-          "http://localhost:8000/reset-dev-password/",
+          "http://localhost:8000/developer/reset-password/",
           {
             method: "POST",
             headers: {

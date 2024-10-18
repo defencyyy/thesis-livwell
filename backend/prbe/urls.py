@@ -4,10 +4,11 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', views.login_view, name='login'),
-    path('reset-password/', views.send_password_reset_email, name='reset-password'),#for brokers
-    path('brokpass/<int:uid>/<str:token>/', views.BrokResetPass, name='BrokResetPass'),#for brokers
-    path('devlogin/', views.login_view_dev, name='devlogin'),  # for developers
-    path('reset-dev-password/', views.send_dev_password_reset_email, name='reset-dev-password'),  # for developers
-    path('devpass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),  # for developers
+    path('broker/login/', views.login_view, name='broker_login'),
+    path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
+    path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
+    
+    path('developer/login/', views.login_view_dev, name='developer_login'), 
+    path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
+    path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
 ]

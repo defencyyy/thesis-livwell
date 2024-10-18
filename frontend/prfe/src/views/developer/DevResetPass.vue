@@ -71,7 +71,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/devpass/${uid}/${token}/`,
+          `http://localhost:8000/developer/reset-pass/${uid}/${token}/`,
           {
             method: "POST",
             headers: {

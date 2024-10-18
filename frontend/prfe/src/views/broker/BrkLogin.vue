@@ -45,7 +45,9 @@
                       class="d-flex justify-content-between align-items-center mb-4"
                     >
                       <div class="flex-grow-1"></div>
-                      <router-link class="text-muted" to="/brokforgotpass"
+                      <router-link
+                        class="text-muted"
+                        to="/broker/forgot-password"
                         >Forgot Password</router-link
                       >
                     </div>
@@ -107,7 +109,7 @@ export default {
           // Get the CSRF token from Django's cookies
           const csrftoken = this.getCookie("csrftoken");
 
-          const response = await fetch("http://localhost:8000/login/", {
+          const response = await fetch("http://localhost:8000/broker/login/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -122,7 +124,7 @@ export default {
           const data = await response.json();
           if (data.success) {
             // Login successful, redirect to main page
-            this.$router.push("/brokmain");
+            this.$router.push("/broker/dashboard");
           } else {
             // Set the error message if login fails
             this.error = data.message;

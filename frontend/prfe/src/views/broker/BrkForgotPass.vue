@@ -47,13 +47,16 @@ export default {
     async sendResetLink() {
       //console.log("Entered email:", this.email);
       try {
-        const response = await fetch("http://localhost:8000/reset-password/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: this.email }),
-        });
+        const response = await fetch(
+          "http://localhost:8000/broker/reset-password/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: this.email }),
+          }
+        );
 
         if (response.ok) {
           // No need for "data" here, since we're not using the returned data
