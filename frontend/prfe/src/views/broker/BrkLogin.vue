@@ -9,7 +9,7 @@
                 <div class="card-body p-md-5 mx-md-4">
                   <form @submit.prevent="login">
                     <br />
-                    <h2 class="text-start">Hello, Developer!</h2>
+                    <h2 class="text-start">Hello, User!</h2>
                     <p class="text-start">
                       Welcome back! Please enter your details.
                     </p>
@@ -45,7 +45,7 @@
                       class="d-flex justify-content-between align-items-center mb-4"
                     >
                       <div class="flex-grow-1"></div>
-                      <router-link class="text-muted" to="/developer/forgotpass"
+                      <router-link class="text-muted" to="/broker/forgotpass"
                         >Forgot Password</router-link
                       >
                     </div>
@@ -96,22 +96,22 @@ export default {
     return {
       username: "",
       password: "",
-      error: null,
+      error: null, // Add the error property to hold the error message
     };
   },
   methods: {
     async login() {
-      this.error = null;
+      this.error = null; // Reset error before making the request
       if (this.username && this.password) {
         try {
+          // Get the CSRF token from Django's cookies
           const csrftoken = this.getCookie("csrftoken");
 
-          const response = await fetch("http://localhost:8000/devlogin/", {
-            // Updated URL
+          const response = await fetch("http://localhost:8000/login/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken,
+              "X-CSRFToken": csrftoken, // Include CSRF token in the headers
             },
             body: JSON.stringify({
               username: this.username,
@@ -121,18 +121,23 @@ export default {
 
           const data = await response.json();
           if (data.success) {
-            this.$router.push("/developer/main"); // Redirect to developer main page
+            // Login successful, redirect to main page
+            this.$router.push("/broker/main");
           } else {
+            // Set the error message if login fails
             this.error = data.message;
           }
         } catch (error) {
+          // Set a generic error message if the fetch fails
           this.error = "An error occurred during login.";
         }
       } else {
+        // Handle empty input fields
         this.error = "Please fill in both fields.";
       }
     },
 
+    // Function to get the CSRF token from cookies
     getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== "") {
@@ -153,7 +158,7 @@ export default {
 
 <style>
 .gradient-custom-2 {
-  background: red;
+  background: #0d6efd;
 }
 
 .form-label {
