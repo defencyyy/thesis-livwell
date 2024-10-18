@@ -1,40 +1,20 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.hashers import make_password
+from brokers.models import Broker  # Import Broker from the Brokers app
+from developers.models import Developer # Import Developer from the Developers app
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from django.utils import timezone  
+from django.utils import timezone  # Make sure to import timezone
 from django.shortcuts import render
 from django.conf import settings
-from brokers.models import Broker 
-from developers.models import Developer 
 import json
+from django.contrib.auth.hashers import make_password
 
-def authenticate_user(model, username, password):
-    user = model.objects.get(username=username)
-    
-    if not check_password(password, user.password):
-        return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
 
-    user.last_login = timezone.now()
-    user.save()
-
-    return user
-
-@csrf_exempt
-def get_user_role(request):
-    user_role = request.session.get('user_role', None)
-    if user_role:
-        return JsonResponse({"success": True, "role": user_role}, status=200)
-    return JsonResponse({"success": False, "message": "No role found"}, status=404)
-
-# ---
-# BROKERS
-# ---
-
+#For Brokers
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
@@ -50,11 +30,18 @@ def login_view(request):
             if not username or not password:
                 return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
 
-            # Authenticate
-            broker = authenticate_user(Broker, username, password)
-            if broker:
-                request.session['user_role'] = 'broker'
-                return JsonResponse({"success": True, "message": "Login successful."}, status=200)
+            # Find the broker by username
+            broker = Broker.objects.get(username=username)
+
+            # Check the password
+            if not check_password(password, broker.password):
+                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
+
+            # Update the last login time
+            broker.last_login = timezone.now()
+            broker.save()
+
+            return JsonResponse({"success": True, "message": "Login successful."}, status=200)
 
         except Broker.DoesNotExist:
             return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
@@ -138,10 +125,7 @@ def BrokResetPass(request, uid, token):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
-# ---
-# DEVELOPERS
-# ---
-
+#For Developers
 @csrf_exempt
 def login_view_dev(request):
     if request.method == 'POST':
@@ -155,11 +139,14 @@ def login_view_dev(request):
             if not username or not password:
                 return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
 
-            # Authenticate
-            developer = authenticate_user(Developer, username, password)
-            if developer:
-                request.session['user_role'] = 'developer'
-                return JsonResponse({"success": True, "message": "Login successful."}, status=200)
+            # Assuming you have a Developer model like Broker
+            developer = Developer.objects.get(username=username)  # Adjust for Developer
+
+            if not check_password(password, developer.password):
+                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
+
+            developer.last_login = timezone.now()
+            developer.save()
 
             return JsonResponse({"success": True, "message": "Login successful."}, status=200)
 
@@ -235,5 +222,3 @@ def DevResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
-
-# CY - possible na gawan ng function ung reset email/pass kaso depende pa if ung dev is sa admin (tayo) lang
