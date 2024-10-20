@@ -21,7 +21,7 @@ const routes = [
     component: DevForgotPass,
   },
   {
-    path: "/developer/reset-password/:uid/:token",
+    path: "/developer/reset-pass/:uid/:token",
     name: "DevResetPass",
     component: DevResetPass,
   },
@@ -35,7 +35,7 @@ const routes = [
     component: BrkForgotPass,
   },
   {
-    path: "/broker/reset-password/:uid/:token",
+    path: "/broker/reset-pass/:uid/:token",
     name: "BrkResetPass",
     component: BrkResetPass,
   },
