@@ -98,7 +98,7 @@ export default {
     return {
       username: "",
       password: "",
-      error: null, // Add the error property to hold the error message
+      error: null,
     };
   },
   methods: {
@@ -123,7 +123,11 @@ export default {
 
           const data = await response.json();
           if (data.success) {
-            // Login successful, redirect to main page
+            // Store the token and logged-in status
+            localStorage.setItem("authToken", data.token);
+            localStorage.setItem("user_role", "broker");
+            localStorage.setItem("logged_in", "true");
+
             this.$router.push("/broker/dashboard");
           } else {
             // Set the error message if login fails

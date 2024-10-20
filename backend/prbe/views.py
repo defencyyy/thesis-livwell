@@ -1,3 +1,4 @@
+# Django
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
@@ -8,19 +9,18 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone  
 from django.shortcuts import render
 from django.conf import settings
+
+# Non-Django
 from brokers.models import Broker 
 from developers.models import Developer 
 import json
 
-#For Brokers
 @csrf_exempt
-def login_view(request):
+def login_view(request, user_type):
     if request.method == 'POST':
         try:
-            # Log the incoming request
-            print("Received POST request for login.")
+            print(f"Received POST request for {user_type} login.")
 
-            # Parse the request body
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
@@ -28,30 +28,43 @@ def login_view(request):
             if not username or not password:
                 return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
 
-            # Find the broker by username
-            broker = Broker.objects.get(username=username)
+            # Determine the model based on user_type
+            if user_type == 'broker':
+                user = Broker.objects.get(username=username)
+            elif user_type == 'developer':
+                user = Developer.objects.get(username=username)
+            else:
+                return JsonResponse({"success": False, "message": "Invalid user type."}, status=400)
 
             # Check the password
-            if not check_password(password, broker.password):
+            if not check_password(password, user.password):
                 return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
 
             # Update the last login time
-            broker.last_login = timezone.now()
-            broker.save()
+            user.last_login = timezone.now()
+            user.save()
 
             return JsonResponse({"success": True, "message": "Login successful."}, status=200)
 
-        except Broker.DoesNotExist:
+        except (Broker.DoesNotExist, Developer.DoesNotExist):
             return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
         except json.JSONDecodeError:
             return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
-            # Log the error for debugging
             print(f"Error during login: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
+@csrf_exempt
+def login_view_broker(request):
+    return login_view(request, user_type='broker')
+
+@csrf_exempt
+def login_view_developer(request):
+    return login_view(request, user_type='developer')
+
+# For Brokers
 @csrf_exempt
 def send_password_reset_email(request):
     if request.method == 'POST':
@@ -122,41 +135,7 @@ def BrkResetPass(request, uid, token):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
-#For Developers
-@csrf_exempt
-def login_view_dev(request):
-    if request.method == 'POST':
-        try:
-            print("Received POST request for developer login.")
-
-            data = json.loads(request.body)
-            username = data.get('username')
-            password = data.get('password')
-
-            if not username or not password:
-                return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
-
-            # Assuming you have a Developer model like Broker
-            developer = Developer.objects.get(username=username)
-
-            if not check_password(password, developer.password):
-                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
-
-            developer.last_login = timezone.now()
-            developer.save()
-
-            return JsonResponse({"success": True, "message": "Login successful."}, status=200)
-
-        except Developer.DoesNotExist:  
-            return JsonResponse({"success": False, "message": "Developer does not exist."}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
-        except Exception as e:
-            print(f"Error during login: {e}")
-            return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
-
-    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
-
+# For Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):
     if request.method == 'POST':

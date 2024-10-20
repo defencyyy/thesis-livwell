@@ -126,7 +126,11 @@ export default {
 
           const data = await response.json();
           if (data.success) {
-            this.$router.push("/developer/dashboard"); // Redirect to developer main page
+            localStorage.setItem("authToken", data.token);
+            localStorage.setItem("user_role", "developer");
+            localStorage.setItem("logged_in", "true");
+
+            this.$router.push("/developer/dashboard");
           } else {
             this.error = data.message;
           }
