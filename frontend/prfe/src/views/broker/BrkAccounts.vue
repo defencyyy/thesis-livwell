@@ -2,8 +2,6 @@
   <div class="accounts-page">
     <SideNav />
     <div class="content">
-      <h1>Accounts</h1>
-      <p>Here you can manage your accounts.</p>
     </div>
   </div>
 </template>
