@@ -44,7 +44,15 @@ def login_view(request, user_type):
             user.last_login = timezone.now()
             user.save()
 
-            return JsonResponse({"success": True, "message": "Login successful."}, status=200)
+            return JsonResponse({
+                "success": True,
+                "user": {
+                    "id": str(user.id),  # Include user ID
+                    "username": user.username,
+                    "email": user.email,
+                    "contact_number": user.contact_number  # Ensure this field exists in your Broker model
+                }
+            }, status=200)
 
         except (Broker.DoesNotExist, Developer.DoesNotExist):
             return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
@@ -134,6 +142,40 @@ def BrkResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+@csrf_exempt
+def update_broker_view(request, broker_id):
+    if request.method == 'PUT':
+        try:
+            # Log incoming request data
+            print(f"Received request to update broker with ID {broker_id}. Request body: {request.body}")
+
+            data = json.loads(request.body)
+            broker = Broker.objects.get(id=broker_id)
+            
+            # Update fields
+            broker.username = data.get('username', broker.username)
+            broker.email = data.get('email', broker.email)
+            broker.contact_number = data.get('contact_number', broker.contact_number)
+            
+            if 'password' in data and data['password']:  # Ensure password is provided
+                broker.password = make_password(data['password'])  # Hash the password
+            
+            broker.save()
+            print(f"Broker with ID {broker_id} updated successfully.")
+            return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
+        
+        except Broker.DoesNotExist:
+            print(f"Broker with ID {broker_id} does not exist.")
+            return JsonResponse({"success": False, "message": "Broker does not exist."}, status=404)
+        except json.JSONDecodeError as e:
+            print(f"JSON decoding error: {e}")
+            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            print(f"Error updating broker: {e}")
+            return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 
 # For Developers
 @csrf_exempt
