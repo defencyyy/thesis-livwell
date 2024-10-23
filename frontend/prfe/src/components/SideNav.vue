@@ -32,20 +32,33 @@ export default {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
       menuItems: [],
-      isCollapsed: false, // State to manage sidebar collapse
+      isCollapsed: false,
     };
   },
   created() {
-    console.log("User Role:", this.userRole);
     this.setMenuItems();
-    console.log("Menu Items:", this.menuItems);
   },
   methods: {
     setMenuItems() {
       if (this.userRole === "developer") {
-        this.menuItems = [{ name: "Dashboard", link: "/developer/dashboard" }];
+        this.menuItems = [
+          { name: "Dashboard", link: "/developer/dashboard" },
+          { name: "Units", link: "/developer/units" },
+          { name: "Broker Accounts", link: "/developer/broker-accounts" },
+          { name: "Payment Schedules", link: "/developer/payment-schedules" },
+          { name: "Manage Company", link: "/developer/manage-company" },
+          { name: "Manage Affiliations", link: "/developer/manage-affiliations" },
+          { name: "Manage Sites", link: "/developer/manage-sites" },
+          { name: "Manage Account", link: "/developer/manage-account" },
+        ];
       } else if (this.userRole === "broker") {
-        this.menuItems = [{ name: "Dashboard", link: "/broker/dashboard" }];
+        this.menuItems = [
+          { name: "Dashboard", link: "/broker/dashboard" },
+          { name: "Affiliated Units", link: "/broker/affiliated-units" }, 
+          { name: "Manage Customer", link: "/broker/manage-customer" },
+          { name: "Milestones", link: "/broker/milestones" },
+          { name: "Account", link: "/broker/account" },
+        ];
       } else {
         this.menuItems = [
           { name: "Home", link: "/home" },
@@ -54,7 +67,7 @@ export default {
       }
     },
     toggleSidebar() {
-      this.isCollapsed = !this.isCollapsed; // Toggle the collapsed state
+      this.isCollapsed = !this.isCollapsed;
     },
   },
 };
@@ -62,33 +75,32 @@ export default {
 
 <style scoped>
 .sidebar {
-  width: 250px; /* Set your desired width */
+  width: 250px;
   transition: width 0.3s;
-  /* Add other styles for the sidebar here */
 }
 
 .sidebar.collapsed {
-  width: 60px; /* Adjust width when collapsed */
-  overflow: hidden; /* Prevent content from overflowing */
+  width: 60px;
+  overflow: hidden;
 }
 
 .sidebar h4 {
-  display: inline; /* Keep title inline for collapsed view */
+  display: inline;
 }
 
 .sidebar .b-nav-item {
-  white-space: nowrap; /* Prevent text from wrapping */
-  display: inline-block; /* Keep items inline in collapsed view */
+  white-space: nowrap;
+  display: inline-block;
   transition: opacity 0.3s;
 }
 
 .sidebar.collapsed .b-nav-item {
-  opacity: 0; /* Hide items in collapsed view */
-  pointer-events: none; /* Prevent click events */
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sidebar:not(.collapsed) .b-nav-item {
-  opacity: 1; /* Show items when expanded */
-  pointer-events: auto; /* Allow click events */
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>
