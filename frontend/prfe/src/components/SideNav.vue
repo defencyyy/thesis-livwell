@@ -58,13 +58,13 @@ export default {
           { name: "Dashboard", link: "/developer/dashboard" },
           { name: "Company", link: "/developer/company" },
           { name: "Brokers", link: "/developer/brokers" },
-          { name: "Affiliations", link: "/developer/affiliations" },
+          { name: "Affiliations", link: "/developer/affiliation" },
           {
             name: "Sites",
             link: "/developer/sites",
             children: [{ name: "Units", link: "/developer/units" }],
           },
-          { name: "Payment Schedules", link: "/developer/payment-schedules" },
+          { name: "Payment Schedules", link: "/developer/payment-schedule" },
           { name: "Account", link: "/developer/account" },
         ];
       } else if (this.userRole === "broker") {

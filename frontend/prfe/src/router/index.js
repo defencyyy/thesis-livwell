@@ -9,12 +9,20 @@ import DevForgotPass from "@/views/developer/DevForgotPass.vue";
 import DevResetPass from "@/views/developer/DevResetPass.vue";
 import DevMainPage from "@/views/developer/DevMainPage.vue";
 // Dev Functions
+import DevFuncAccount from "@/views/developer/functions/DevAccount.vue";
+import DevFuncAffiliation from "@/views/developer/functions/DevAffiliation.vue";
+import DevFuncBroker from "@/views/developer/functions/DevBrokers.vue";
+import DevFuncCompany from "@/views/developer/functions/DevCompany.vue";
+import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
+import DevFuncSites from "@/views/developer/functions/DevSites.vue";
+import DevFuncUnits from "@/views/developer/functions/DevUnits.vue";
 
 // Brokers
 import BrkLogin from "@/views/broker/BrkLogin.vue";
 import BrkForgotPass from "@/views/broker/BrkForgotPass.vue";
 import BrkResetPass from "@/views/broker/BrkResetPass.vue";
 import BrkMainPage from "@/views/broker/BrkMainPage.vue";
+// Broker Functions
 import AffiliatedUnits from "@/views/broker/BrkAffiliatedUnits.vue";
 import BrkManageCustomers from "@/views/broker/BrkManageCustomers.vue";
 import BrkMilestones from "@/views/broker/BrkMilestones.vue";
@@ -46,6 +54,48 @@ const routes = [
     component: DevMainPage,
     meta: { requiresAuth: true, role: "developer" },
   },
+  {
+    path: "/developer/account",
+    name: "DevFuncAccount",
+    component: DevFuncAccount,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/affiliation",
+    name: "DevFuncAffiliation",
+    component: DevFuncAffiliation,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/brokers",
+    name: "DevFuncBroker",
+    component: DevFuncBroker,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/company",
+    name: "DevFuncCompany",
+    component: DevFuncCompany,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/payment-schedule",
+    name: "DevFuncPaySched",
+    component: DevFuncPaySched,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/sites",
+    name: "DevFuncSites",
+    component: DevFuncSites,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/units",
+    name: "DevFuncUnits",
+    component: DevFuncUnits,
+    meta: { requiresAuth: true, role: "developer" },
+  },
 
   // Broker Routes
   {
@@ -70,10 +120,10 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
   {
-    path: "/broker/affiliated-units", // New route for Affiliated Units
+    path: "/broker/affiliated-units",
     name: "AffiliatedUnits",
     component: AffiliatedUnits,
-    meta: { requiresAuth: true, role: "broker" }, // Protecting this route
+    meta: { requiresAuth: true, role: "broker" },
   },
   {
     path: "/broker/manage-customer",
@@ -94,7 +144,6 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
 
-  // Redirect
   { path: "/", redirect: "/home" },
 ];
 
