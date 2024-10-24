@@ -14,6 +14,7 @@ from django.conf import settings
 from brokers.models import Broker 
 from developers.models import Developer 
 import json
+import re
 
 @csrf_exempt
 def login_view(request, user_type):
@@ -44,7 +45,15 @@ def login_view(request, user_type):
             user.last_login = timezone.now()
             user.save()
 
-            return JsonResponse({"success": True, "message": "Login successful."}, status=200)
+            return JsonResponse({
+                "success": True,
+                "user": {
+                    "id": str(user.id),  # Include user ID
+                    "username": user.username,
+                    "email": user.email,
+                    "contact_number": user.contact_number  # Ensure this field exists in your Broker model
+                }
+            }, status=200)
 
         except (Broker.DoesNotExist, Developer.DoesNotExist):
             return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
@@ -104,14 +113,25 @@ def send_password_reset_email(request):
 def BrkResetPass(request, uid, token):
     if request.method == 'POST':
         try:
-            # Log the incoming request
             print("Received POST request to reset password.")
-
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
+            # Ensure password is provided
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
+
+            # Password strength validation (same as in the account update)
+            if len(new_password) < 8:
+                return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
+            if not re.search(r'[A-Z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
+            if not re.search(r'[a-z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
+            if not re.search(r'\d', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
 
             # Find the broker by uid
             broker = Broker.objects.get(pk=uid)
@@ -129,9 +149,57 @@ def BrkResetPass(request, uid, token):
         except Broker.DoesNotExist:
             return JsonResponse({"success": False, "message": "Broker not found."}, status=404)
         except Exception as e:
-            # Log the error for debugging
             print(f"Error resetting password: {e}")
             return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+@csrf_exempt
+def update_broker_view(request, broker_id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            broker = Broker.objects.get(id=broker_id)
+
+            # Validate username uniqueness
+            if 'username' in data and data['username'] is not None:
+                if Broker.objects.filter(username=data['username']).exclude(id=broker_id).exists():
+                    return JsonResponse({"success": False, "message": "Username already exists."}, status=400)
+                broker.username = data['username']
+
+            # Validate password strength
+            if 'password' in data and data['password'] is not None:
+                password = data['password']
+                
+                if len(password) < 8:
+                    return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
+                if not re.search(r"[A-Z]", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
+                if not re.search(r"[a-z]", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
+                if not re.search(r"\d", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
+                if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
+                
+                # Hash the password
+                broker.password = make_password(password)
+
+            # Update other fields
+            if 'email' in data and data['email'] is not None:
+                broker.email = data['email']
+            if 'contact_number' in data and data['contact_number'] is not None:
+                broker.contact_number = data['contact_number']
+
+            broker.save()
+            return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
+
+        except Broker.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Broker does not exist."}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
+        except Exception as e:
+            print(f"Error updating broker: {e}")
+            return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
@@ -179,14 +247,30 @@ def DevResetPass(request, uid, token):
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
+            # Ensure password is provided
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
 
+            # Password strength validation
+            if len(new_password) < 8:
+                return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
+            if not re.search(r'[A-Z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
+            if not re.search(r'[a-z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
+            if not re.search(r'\d', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
+
+            # Find the developer by uid
             developer = Developer.objects.get(pk=uid)
 
+            # Check if the token is valid
             if not default_token_generator.check_token(developer, token):
                 return JsonResponse({"success": False, "message": "Invalid or expired token."}, status=400)
 
+            # Update the password
             developer.password = make_password(new_password)
             developer.save()
 

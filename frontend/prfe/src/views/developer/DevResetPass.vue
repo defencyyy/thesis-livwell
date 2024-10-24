@@ -58,43 +58,65 @@ export default {
       error: "",
     };
   },
-  methods: {
-    async resetPassword() {
-      if (this.newPassword !== this.confirmPassword) {
-        this.error = "Passwords do not match.";
+ methods: {
+  async resetPassword() {
+    const password = this.newPassword;
+    const confirmPassword = this.confirmPassword;
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      this.error = "Passwords do not match.";
+      this.message = "";
+      return;
+    }
+
+    // Client-side password validation
+    const passwordRequirements = [
+      { regex: /.{8,}/, message: "Password must be at least 8 characters long." },
+      { regex: /[A-Z]/, message: "Password must contain at least one uppercase letter." },
+      { regex: /[a-z]/, message: "Password must contain at least one lowercase letter." },
+      { regex: /\d/, message: "Password must contain at least one number." },
+      { regex: /[!@#$%^&*(),.?":{}|<>]/, message: "Password must contain at least one special character." },
+    ];
+
+    for (const rule of passwordRequirements) {
+      if (!rule.regex.test(password)) {
+        this.error = rule.message;
         this.message = "";
         return;
       }
+    }
 
-      const uid = this.$route.params.uid;
-      const token = this.$route.params.token;
+    const uid = this.$route.params.uid;
+    const token = this.$route.params.token;
 
-      try {
-        const response = await fetch(
-          `http://localhost:8000/developer/reset-pass/${uid}/${token}/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ new_password: this.newPassword }),
-          }
-        );
-
-        if (response.ok) {
-          this.message = "Password reset successfully!";
-          this.error = "";
-        } else {
-          const data = await response.json();
-          this.error = data.message || "Failed to reset the password.";
-          this.message = "";
+    // Proceed with the password reset request if validation passes
+    try {
+      const response = await fetch(
+        `http://localhost:8000/developer/reset-pass/${uid}/${token}/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ new_password: password }),
         }
-      } catch (error) {
-        this.error = "An error occurred while resetting the password.";
+      );
+
+      if (response.ok) {
+        this.message = "Password reset successfully!";
+        this.error = "";
+      } else {
+        const data = await response.json();
+        this.error = data.message || "Failed to reset the password.";
         this.message = "";
       }
-    },
+    } catch (error) {
+      this.error = "An error occurred while resetting the password.";
+      this.message = "";
+    }
   },
+}
 };
 </script>
 
