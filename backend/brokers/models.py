@@ -8,8 +8,8 @@ class Broker(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     affiliations = models.ManyToManyField(Affiliation, related_name='brokers')
     email = models.EmailField(max_length=50)
-    username = models.CharField(max_length=100)
-    name = models.CharField(max_length=200)
+    username = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=200, editable=False)
     contact_number = models.CharField(max_length=20)
     password = models.CharField(max_length=128, null=True)
     last_login = models.DateTimeField(null=True, blank=True)  # Add this line

@@ -2,7 +2,6 @@ from django.db import models
 from companies.models import Company
 from affiliations.models import Affiliation
 from sites.models import Site
-from brokers.models import Broker  # Import the Broker model
 
 class Unit(models.Model):
     STATUS_CHOICES = [
