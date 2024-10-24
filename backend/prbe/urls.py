@@ -1,22 +1,15 @@
-"""
-URL configuration for prbe project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('broker/login/', views.login_view_broker, name='broker_login'),
+    path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
+    path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
+    path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
+    
+    path('developer/login/', views.login_view_developer, name='developer_login'), 
+    path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
+    path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
 ]
