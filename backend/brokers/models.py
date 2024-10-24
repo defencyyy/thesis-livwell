@@ -11,8 +11,6 @@ class Broker(models.Model):
     username = models.CharField(max_length=100)
     name = models.CharField(max_length=200)
     contact_number = models.CharField(max_length=20)
-    description = models.TextField(blank=True)
-    picture = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
     password = models.CharField(max_length=128, null=True)
     last_login = models.DateTimeField(null=True, blank=True)  # Add this line
 
