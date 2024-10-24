@@ -18,7 +18,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -79,8 +78,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'prbe.wsgi.application'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+WSGI_APPLICATION = 'prbe.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -142,6 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
 }
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
