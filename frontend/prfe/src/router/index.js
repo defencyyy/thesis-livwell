@@ -8,6 +8,7 @@ import DevLogin from "@/views/developer/DevLogin.vue";
 import DevForgotPass from "@/views/developer/DevForgotPass.vue";
 import DevResetPass from "@/views/developer/DevResetPass.vue";
 import DevMainPage from "@/views/developer/DevMainPage.vue";
+// Dev Functions
 
 // Brokers
 import BrkLogin from "@/views/broker/BrkLogin.vue";
@@ -18,7 +19,6 @@ import AffiliatedUnits from "@/views/broker/BrkAffiliatedUnits.vue";
 import BrkManageCustomers from "@/views/broker/BrkManageCustomers.vue";
 import BrkMilestones from "@/views/broker/BrkMilestones.vue";
 import BrkAccounts from "@/views/broker/BrkAccounts.vue";
-
 
 const routes = [
   { path: "/home", name: "Home", component: Home },
@@ -76,23 +76,23 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" }, // Protecting this route
   },
   {
-  path: "/broker/manage-customer",
-  name: "ManageCustomers",
-  component: BrkManageCustomers,
-  meta: { requiresAuth: true, role: "broker" },
-},
-{
-  path: "/broker/milestones",
-  name: "BrkMilestones",
-  component: BrkMilestones,
-  meta: { requiresAuth: true, role: "broker" },
-},
-{
-  path: "/broker/account",
-  name: "BrkAccounts",
-  component: BrkAccounts,
-  meta: { requiresAuth: true, role: "broker" },
-},
+    path: "/broker/manage-customer",
+    name: "ManageCustomers",
+    component: BrkManageCustomers,
+    meta: { requiresAuth: true, role: "broker" },
+  },
+  {
+    path: "/broker/milestones",
+    name: "BrkMilestones",
+    component: BrkMilestones,
+    meta: { requiresAuth: true, role: "broker" },
+  },
+  {
+    path: "/broker/account",
+    name: "BrkAccounts",
+    component: BrkAccounts,
+    meta: { requiresAuth: true, role: "broker" },
+  },
 
   // Redirect
   { path: "/", redirect: "/home" },

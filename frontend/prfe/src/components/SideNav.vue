@@ -7,15 +7,28 @@
       <h4 id="sidebar-title">Company Name and Logo</h4>
       <nav class="mb-3">
         <b-nav vertical>
-          <b-nav-item
-            v-for="(item, index) in menuItems"
-            :key="index"
-            :to="item.link"
-            exact
-            custom
-          >
-            {{ item.name }}
-          </b-nav-item>
+          <template v-for="(item, index) in menuItems" :key="index">
+            <b-nav-item v-if="!item.children" :to="item.link" exact custom>
+              {{ item.name }}
+            </b-nav-item>
+
+            <div v-else>
+              <b-nav-item :to="item.link" exact custom class="parent-item">
+                {{ item.name }}
+              </b-nav-item>
+              <div class="child-menu">
+                <b-nav-item
+                  v-for="(child, idx) in item.children"
+                  :key="idx"
+                  :to="child.link"
+                  exact
+                  custom
+                >
+                  {{ child.name }}
+                </b-nav-item>
+              </div>
+            </div>
+          </template>
         </b-nav>
       </nav>
     </div>
@@ -43,18 +56,21 @@ export default {
       if (this.userRole === "developer") {
         this.menuItems = [
           { name: "Dashboard", link: "/developer/dashboard" },
-          { name: "Units", link: "/developer/units" },
-          { name: "Broker Accounts", link: "/developer/broker-accounts" },
+          { name: "Company", link: "/developer/company" },
+          { name: "Brokers", link: "/developer/brokers" },
+          { name: "Affiliations", link: "/developer/affiliations" },
+          {
+            name: "Sites",
+            link: "/developer/sites",
+            children: [{ name: "Units", link: "/developer/units" }],
+          },
           { name: "Payment Schedules", link: "/developer/payment-schedules" },
-          { name: "Manage Company", link: "/developer/manage-company" },
-          { name: "Manage Affiliations", link: "/developer/manage-affiliations" },
-          { name: "Manage Sites", link: "/developer/manage-sites" },
-          { name: "Manage Account", link: "/developer/manage-account" },
+          { name: "Account", link: "/developer/account" },
         ];
       } else if (this.userRole === "broker") {
         this.menuItems = [
           { name: "Dashboard", link: "/broker/dashboard" },
-          { name: "Affiliated Units", link: "/broker/affiliated-units" }, 
+          { name: "Affiliated Units", link: "/broker/affiliated-units" },
           { name: "Manage Customer", link: "/broker/manage-customer" },
           { name: "Milestones", link: "/broker/milestones" },
           { name: "Account", link: "/broker/account" },
@@ -86,6 +102,14 @@ export default {
 
 .sidebar h4 {
   display: inline;
+}
+
+.parent-item {
+  font-weight: bold;
+}
+
+.child-menu {
+  margin-left: 20px;
 }
 
 .sidebar .b-nav-item {

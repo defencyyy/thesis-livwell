@@ -11,6 +11,7 @@ class Site(models.Model):
   ]
 
   company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
+  picture = models.ImageField(upload_to='site_pictures/', blank=True, null=True)  
   affiliations = models.ManyToManyField(Affiliation, related_name='sites')
   name = models.CharField(max_length=100)
   description = models.TextField(blank=True)
