@@ -9,12 +9,15 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone  
 from django.shortcuts import render
 from django.conf import settings
+from django.db import models  # Import models here
+
 
 # Non-Django
 from brokers.models import Broker 
 from developers.models import Developer 
 from customers.models import Customer
 from sales.models import Sale
+from units.models import Unit
 import json
 import re
 
@@ -238,6 +241,23 @@ def total_sales_view(request):
         total_sales = Sale.objects.filter(broker_id=broker_id).count()
 
         return JsonResponse({'total_sales': total_sales})
+@csrf_exempt  # If you need to exempt CSRF protection (for development purposes only)
+def total_commissions_view(request):
+    if request.method == 'GET':
+        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        if not broker_id:
+            return JsonResponse({'error': 'Broker ID not provided'}, status=400)
+
+        # Get all sales made by the broker
+        sales = Sale.objects.filter(broker_id=broker_id)
+        
+        # Extract unit IDs from the sales
+        unit_ids = sales.values_list('unit_id', flat=True)
+
+        # Sum up the commissions for these units
+        total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
+
+        return JsonResponse({'total_commissions': total_commission})
 
 # For Developers
 @csrf_exempt

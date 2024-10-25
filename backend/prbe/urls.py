@@ -14,6 +14,8 @@ urlpatterns = [
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
     path('sales/total/', views.total_sales_view, name='total_sales'),
+    path('sales/commissions/', views.total_commissions_view, name='total_commissions'),
+
 
     
 

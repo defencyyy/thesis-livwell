@@ -30,31 +30,41 @@ export default {
       totalMilestones: 0, // Default value for total milestones
     };
   },
-  methods: {
-    async fetchTotalSales() {
-      const brokerId = localStorage.getItem("broker_id"); // Get broker ID from local storage
+methods: {
+  async fetchMilestonesData() {
+    const brokerId = localStorage.getItem("broker_id"); // Get broker ID from local storage
 
-      if (!brokerId) {
-        console.error("Broker ID not found in local storage.");
-        return; // Exit if broker ID is not available
+    if (!brokerId) {
+      console.error("Broker ID not found in local storage.");
+      return; // Exit if broker ID is not available
+    }
+
+    try {
+      // Fetch total sales
+      const salesResponse = await fetch(`http://localhost:8000/sales/total/?broker_id=${brokerId}`);
+      if (salesResponse.ok) {
+        const salesData = await salesResponse.json();
+        this.totalSales = salesData.total_sales; // Update total sales in the component state
+      } else {
+        console.error("Failed to fetch total sales");
       }
 
-      try {
-        const response = await fetch(`http://localhost:8000/sales/total/?broker_id=${brokerId}`);
-        if (response.ok) {
-          const data = await response.json();
-          this.totalSales = data.total_sales; // Update total sales in the component state
-        } else {
-          console.error("Failed to fetch total sales");
-        }
-      } catch (error) {
-        console.error("An error occurred while fetching total sales:", error);
+      // Fetch total commissions
+      const commissionsResponse = await fetch(`http://localhost:8000/sales/commissions/?broker_id=${brokerId}`);
+      if (commissionsResponse.ok) {
+        const commissionsData = await commissionsResponse.json();
+        this.totalCommissions = commissionsData.total_commissions; // Update total commissions in the component state
+      } else {
+        console.error("Failed to fetch total commissions");
       }
-    },
+    } catch (error) {
+      console.error("An error occurred while fetching milestones data:", error);
+    }
   },
-  mounted() {
-    this.fetchTotalSales(); // Fetch total sales when the component is mounted
-  },
+},
+mounted() {
+  this.fetchMilestonesData(); // Fetch total sales and commissions when the component is mounted
+},
 };
 </script>
 
