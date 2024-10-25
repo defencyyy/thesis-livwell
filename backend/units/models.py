@@ -2,6 +2,7 @@ from django.db import models
 from companies.models import Company
 from affiliations.models import Affiliation
 from sites.models import Site
+from decimal import Decimal
 
 class Unit(models.Model):
     STATUS_CHOICES = [
@@ -38,3 +39,55 @@ class Unit(models.Model):
 
     def __str__(self):
         return f"{self.site.name} - {self.title}"
+
+    @classmethod
+    def create_dummy_data(cls):
+        # Create dummy data
+        units_data = [
+            {
+                "title": "1-Bedroom Unit",
+                "floor_area": Decimal("35.00"),
+                "lot_area": Decimal("45.00"),
+                "floor": 2,
+                "quantity": 5,
+                "status": "available",
+                "price": Decimal("2500000.00"),
+                "view": "south",
+                "balcony": "has_balcony",
+                "commission": Decimal("250000.00"),
+                "company_id": 1,  # Replace with actual Company ID
+                "site_id": 1,     # Replace with actual Site ID
+            },
+            {
+                "title": "2-Bedroom Unit",
+                "floor_area": Decimal("55.00"),
+                "lot_area": Decimal("60.00"),
+                "floor": 3,
+                "quantity": 8,
+                "status": "sold",
+                "price": Decimal("3800000.00"),
+                "view": "east",
+                "balcony": "no_balcony",
+                "commission": Decimal("300000.00"),
+                "company_id": 1,  # Replace with actual Company ID
+                "site_id": 1,     # Replace with actual Site ID
+            },
+            {
+                "title": "Studio Unit",
+                "floor_area": Decimal("25.00"),
+                "lot_area": Decimal("30.00"),
+                "floor": 5,
+                "quantity": 5,
+                "status": "available",
+                "price": Decimal("1800000.00"),
+                "view": "west",
+                "balcony": "no_balcony",
+                "commission": Decimal("180000.00"),
+                "company_id": 1,  # Replace with actual Company ID
+                "site_id": 1,     # Replace with actual Site ID
+            },
+        ]
+
+        # Insert the data into the database
+        for unit in units_data:
+            cls.objects.create(**unit)

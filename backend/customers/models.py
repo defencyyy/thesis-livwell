@@ -4,7 +4,6 @@ from companies.models import Company
 from units.models import Unit
 
 class Customer(models.Model):
-  company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
   broker = models.ForeignKey(Broker, on_delete=models.DO_NOTHING)
   email = models.EmailField(max_length=50) 
   contact_number = models.CharField(max_length=20)

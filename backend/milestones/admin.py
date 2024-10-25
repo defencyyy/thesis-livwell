@@ -8,3 +8,4 @@ class MilestoneAdmin(admin.ModelAdmin):
   milestone_per_page = 25 
 
 admin.site.register(Milestone, MilestoneAdmin)
+

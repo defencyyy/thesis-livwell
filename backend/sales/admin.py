@@ -8,3 +8,4 @@ class SaleAdmin(admin.ModelAdmin):
   sales_per_page = 25 
 
 admin.site.register(Sale, SaleAdmin)
+
