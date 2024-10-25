@@ -64,6 +64,14 @@ export default {
       // Get the currently logged broker's ID (you'll need to implement this logic)
       const brokerId = localStorage.getItem("broker_id");
 
+      // Validate contact number format (example: 123-456-7890 or (123) 456-7890 or 1234567890)
+      const phonePattern = /^(?:\(\d{3}\)|\d{3}-)?\d{3}-\d{4}$/;
+      if (!phonePattern.test(this.contactNumber)) {
+        this.error = "Please enter a valid phone number format (e.g., 123-456-7890).";
+        this.successMessage = null;
+        return; // Exit the method if the phone number is invalid
+      }
+
       // Add customer logic
       try {
         const response = await fetch('http://localhost:8000/customers/', {
@@ -104,7 +112,6 @@ export default {
     },
     async getCurrentBrokerId() {
       // Replace with actual logic to retrieve the logged-in broker's ID
-      // For example, you might fetch it from the store or an API endpoint
       const response = await fetch('http://localhost:8000/current-broker/');
       const data = await response.json();
       return data.id; // Assuming the response contains the broker ID

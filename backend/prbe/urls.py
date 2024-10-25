@@ -13,6 +13,9 @@ urlpatterns = [
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
+    path('sales/total/', views.total_sales_view, name='total_sales'),
+
+    
 
     
     path('developer/login/', views.login_view_developer, name='developer_login'), 

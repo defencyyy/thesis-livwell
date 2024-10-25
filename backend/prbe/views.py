@@ -14,6 +14,7 @@ from django.conf import settings
 from brokers.models import Broker 
 from developers.models import Developer 
 from customers.models import Customer
+from sales.models import Sale
 import json
 import re
 
@@ -226,6 +227,17 @@ def add_customer(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+def total_sales_view(request):
+    if request.method == 'GET':
+        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        if not broker_id:
+            return JsonResponse({'error': 'Broker ID not provided'}, status=400)
+
+        # Calculate total sales for the given broker ID
+        total_sales = Sale.objects.filter(broker_id=broker_id).count()
+
+        return JsonResponse({'total_sales': total_sales})
 
 # For Developers
 @csrf_exempt
