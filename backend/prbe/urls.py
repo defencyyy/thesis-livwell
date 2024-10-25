@@ -18,6 +18,8 @@ urlpatterns = [
     path('sales/commissions/', views.total_commissions_view, name='total_commissions'),
     path('sales/sites/', views.site_sales_view, name='site_sales'),  
 
+    
+
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
