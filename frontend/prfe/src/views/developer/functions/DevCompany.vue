@@ -26,12 +26,14 @@ export default {
     };
   },
   mounted() {
-    const token = localStorage.getItem("token"); // Adjust this to where you store your token
+    const token = localStorage.getItem("authToken");
+    console.log("Token retrieved:", token); // Check the token value
+
     fetch("http://localhost:8000/api/companies/1/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Token ${token}`, // or 'Bearer ' if you're using Bearer tokens
+        Authorization: `Token ${token}`,
       },
     })
       .then((response) => {
@@ -47,6 +49,7 @@ export default {
         console.error("Error fetching company:", error);
       });
   },
+
   methods: {
     onFileChange(event) {
       // Handle file input change
@@ -54,19 +57,20 @@ export default {
     },
     updateCompany() {
       const formData = new FormData();
-      formData.append("description", this.company.description); // Assume you want to update description
+      formData.append("description", this.company.description);
       if (this.newLogo) {
-        formData.append("logo", this.newLogo); // Append new logo if provided
+        formData.append("logo", this.newLogo);
       }
 
-      // Make a PUT request to update the company
+      const token = localStorage.getItem("authToken"); // Retrieve the token again for the PUT request
+
       fetch(`http://localhost:8000/api/companies/1/`, {
         method: "PUT",
         body: formData,
         headers: {
-          // You may need to set the content type to application/json depending on your backend setup
           Accept: "application/json",
-          // 'Content-Type': 'application/json' // Uncomment if sending JSON; remove if sending FormData
+          Authorization: `Token ${token}`, // Include token here
+          // 'Content-Type': 'application/json' // Don't set this if you're sending FormData
         },
       })
         .then((response) => {
@@ -77,7 +81,6 @@ export default {
         })
         .then((data) => {
           console.log("Company updated:", data);
-          // Optionally, redirect or show success message
         })
         .catch((error) => {
           console.error("Error updating company:", error);
