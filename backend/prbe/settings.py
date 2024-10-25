@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'companies.apps.CompaniesConfig',
     'documents.apps.DocumentsConfig',
     'sites.apps.SitesConfig',
+    'milestones.apps.MilestonesConfig',
+    'sales.apps.SalesConfig',
+    
 
     # User
     'corsheaders',

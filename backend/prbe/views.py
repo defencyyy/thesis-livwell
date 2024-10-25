@@ -13,6 +13,7 @@ from django.conf import settings
 # Non-Django
 from brokers.models import Broker 
 from developers.models import Developer 
+from customers.models import Customer
 import json
 import re
 
@@ -200,6 +201,29 @@ def update_broker_view(request, broker_id):
         except Exception as e:
             print(f"Error updating broker: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+@csrf_exempt
+def add_customer(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Create a new customer instance
+            customer = Customer.objects.create(
+                broker_id=data['broker'],
+                email=data['email'],
+                contact_number=data['contact_number'],
+                affiliated_link=data.get('affiliated_link', ''),
+                last_name=data['last_name'],
+                first_name=data['first_name']
+            )
+
+            return JsonResponse({"success": True, "message": "Customer added successfully!"}, status=201)
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
