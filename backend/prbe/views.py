@@ -18,6 +18,7 @@ from developers.models import Developer
 from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit
+from sites.models import Site
 import json
 import re
 
@@ -258,6 +259,28 @@ def total_commissions_view(request):
         total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
 
         return JsonResponse({'total_commissions': total_commission})
+@csrf_exempt
+def site_sales_view(request):
+    if request.method == 'GET':
+        broker_id = request.GET.get('broker_id')
+        if not broker_id:
+            return JsonResponse({'error': 'Broker ID not provided'}, status=400)
+
+        # Fetch sites and calculate total sales per site
+        sites = []
+        for site in Site.objects.all():  # Assuming you have a Site model
+            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id).count()  # Adjust the filter based on your relationships
+            sites.append({
+                'id': site.id,
+                'name': site.name,
+                'picture': site.picture.url if site.picture else None,  # Adjust based on your model
+                'total_sales': total_sales,
+            })
+
+        return JsonResponse({'sites': sites})
+
+
+
 
 # For Developers
 @csrf_exempt
