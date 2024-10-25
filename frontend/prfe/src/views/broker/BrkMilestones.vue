@@ -14,11 +14,16 @@
           <strong>Total Milestones:</strong> {{ totalMilestones }}
         </div>
       </div>
-      
+
       <div v-if="siteSales.length > 0" class="site-sales">
         <h3>Site Sales Information</h3>
         <div class="site-container">
-          <div v-for="site in siteSales" :key="site.id" class="site">
+          <div
+            v-for="site in siteSales"
+            :key="site.id"
+            class="site"
+            @click="openModal(site)"
+          >
             <img :src="site.picture" alt="Site Image" />
             <h4>{{ site.name }}</h4>
             <p>Total Sales: {{ site.total_sales }}</p>
@@ -28,6 +33,27 @@
 
       <div v-else class="no-progress">
         <p>No progress yet.</p>
+      </div>
+
+      <!-- Modal for displaying site information -->
+      <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-content">
+          <button class="close-button" @click="closeModal">X</button>
+          <p v-if="selectedSite">{{ selectedSite.name }}</p>
+          <div v-if="selectedSite && selectedSite.sales && selectedSite.sales.length > 0">
+            <h4>Sales Details:</h4>
+            <ul>
+              <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
+                <strong>Unit Name:</strong> {{ sale.unit_name }} <br />
+                <strong>Customer Name:</strong> {{ sale.customer_name }} <br />
+                <strong>Date Sold:</strong> {{ sale.date_sold }}
+              </li>
+            </ul>
+          </div>
+          <div v-else-if="selectedSite">
+            <p>No sales found for this site.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -47,6 +73,8 @@ export default {
       totalCommissions: 0,
       totalMilestones: 0,
       siteSales: [], // To store site sales information
+      showModal: false, // Controls the modal visibility
+      selectedSite: null, // Stores the currently selected site information
     };
   },
   methods: {
@@ -90,6 +118,34 @@ export default {
         console.error("An error occurred while fetching milestones data:", error);
       }
     },
+    
+    async fetchSalesDetails(site) {
+      const brokerId = localStorage.getItem("broker_id"); // Get broker ID from local storage
+      try {
+        const response = await fetch(`http://localhost:8000/sales/details/?site_id=${site.id}&broker_id=${brokerId}`);
+        if (response.ok) {
+          const salesData = await response.json();
+          this.selectedSite = {
+            ...site,
+            sales: salesData.sales, // Store sales data in the selected site
+          };
+        } else {
+          console.error("Failed to fetch sales details");
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching sales details:", error);
+      }
+    },
+
+    async openModal(site) {
+      await this.fetchSalesDetails(site); // Fetch sales details when opening the modal
+      this.showModal = true; // Show the modal after data is fetched
+    },
+    
+    closeModal() {
+      this.showModal = false;
+      this.selectedSite = null; // Reset selected site when closing the modal
+    },
   },
   mounted() {
     this.fetchMilestonesData(); // Fetch total sales and commissions when the component is mounted
@@ -97,53 +153,84 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .milestones-page {
-  display: flex; /* Aligns SideNav and content side by side */
-  height: 100vh; /* Full height of the viewport */
+  display: flex;
+  height: 100vh;
 }
 
 .content {
-  flex: 1; /* Fills remaining space */
-  padding: 20px; /* Adds some padding */
-  text-align: center; /* Center text in the content area */
+  flex: 1;
+  padding: 20px;
+  text-align: center;
 }
 
 .milestones-summary {
-  display: flex; /* Use flexbox to align items horizontally */
-  justify-content: space-around; /* Space items evenly */
-  margin-top: 20px; /* Adds margin to separate from title */
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
 }
 
 .milestone-item {
-  flex: 1; /* Allow items to take equal space */
-  text-align: center; /* Center text within each item */
+  flex: 1;
+  text-align: center;
 }
 
 .site-sales {
-  margin-top: 20px; /* Adds margin to separate from milestones */
+  margin-top: 20px;
 }
 
 .site-container {
-  display: flex; /* Aligns site items in a row */
-  justify-content: space-evenly; /* Space items evenly */
-  flex-wrap: nowrap; /* Prevents wrapping to a new line */
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: nowrap;
 }
 
 .site {
-  margin: 0 10px; /* Adds margin for individual site info */
-  text-align: center; /* Center text in each site */
-  flex: 0 1 auto; /* Allows the site items to take their natural size */
+  margin: 0 10px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .site img {
-  max-width: 100px; /* Set a fixed width for images */
-  height: auto; /* Maintains aspect ratio */
+  max-width: 100px;
+  height: auto;
 }
 
 .no-progress {
-  margin-top: 20px; /* Adds margin for no progress message */
-  font-weight: bold; /* Makes the message stand out */
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
 }
 </style>

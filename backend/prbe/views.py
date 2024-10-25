@@ -278,8 +278,36 @@ def site_sales_view(request):
             })
 
         return JsonResponse({'sites': sites})
+    
+@csrf_exempt
+def sales_details_view(request):
+    if request.method == 'GET':
+        site_id = request.GET.get('site_id')
+        broker_id = request.GET.get('broker_id')
 
+        # Check if site_id and broker_id are provided
+        if not site_id or not broker_id:
+            return JsonResponse({'error': 'Site ID or Broker ID not provided'}, status=400)
 
+        try:
+            # Fetch sales related to the specified site and broker
+            sales = Sale.objects.filter(
+                unit__site_id=site_id,  # Filter sales by the site ID
+                broker_id=broker_id  # Filter sales by the broker ID
+            ).select_related('unit', 'customer')  # Use select_related for efficient querying
+
+            sales_details = []
+            for sale in sales:
+                sales_details.append({
+                    'unit_name': sale.unit.title,  # Get the unit title from Units_unit
+                    'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",  # Customer name from Customers_customer
+                    'date_sold': sale.date_sold.strftime("%Y-%m-%d")  # Sale date from Sales_sale
+                })
+
+            return JsonResponse({'sales': sales_details})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)  # Handle any unexpected errors
 
 
 # For Developers

@@ -17,6 +17,8 @@ urlpatterns = [
     path('sales/total/', views.total_sales_view, name='total_sales'),
     path('sales/commissions/', views.total_commissions_view, name='total_commissions'),
     path('sales/sites/', views.site_sales_view, name='site_sales'),  
+        path('sales/details/', views.sales_details_view, name='sales-details'),
+
 
     
 
