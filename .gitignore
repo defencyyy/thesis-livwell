@@ -1,4 +1,5 @@
 # User
+backend/photos
 
 # Ignore node_modules directory
 node_modules/
