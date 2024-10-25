@@ -273,7 +273,7 @@ def site_sales_view(request):
             sites.append({
                 'id': site.id,
                 'name': site.name,
-                'picture': site.picture.url if site.picture else None,  # Adjust based on your model
+                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,  # Use build_absolute_uri
                 'total_sales': total_sales,
             })
 
