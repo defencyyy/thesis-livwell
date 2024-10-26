@@ -20,6 +20,7 @@ export default {
   methods: {
     async logout() {
       try {
+        // Send a logout request to the server
         const response = await fetch(
           "http://localhost:8000/developer/logout/",
           {
@@ -34,10 +35,12 @@ export default {
 
         const data = await response.json();
         if (data.success) {
+          // Clear all localStorage items related to the user
           localStorage.removeItem("user_id");
           localStorage.removeItem("user_role");
           localStorage.removeItem("logged_in");
 
+          // Redirect to the home page (login)
           this.$router.push({ path: "/home" });
         } else {
           console.error("Logout failed:", data.message);

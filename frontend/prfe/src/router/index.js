@@ -151,6 +151,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
+
 router.beforeEach((to, from, next) => {
   const isLoggedIn = localStorage.getItem("logged_in") === "true";
   const userRole = localStorage.getItem("user_role");
