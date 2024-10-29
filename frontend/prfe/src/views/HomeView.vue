@@ -47,12 +47,11 @@
     </div>
 </nav>
 
-
-  <div class="d-flex justify-content-evenly bg-secondary">
+<section>
+<div class="d-flex justify-content-evenly bg-secondary">
 
   <div class="home text-white">
     <img alt="Vue logo" src="@/assets/logo.png"/>
-    
     <h1>Welcome to LivWell!</h1>
     <p>Explore listings or manage your properties with ease.</p>
 
@@ -73,6 +72,68 @@
     </div>
   </div>
 </div>
+</section>
+
+
+<section class="features-icons bg-light text-center">
+          <p class="fs-1">FEATURES</p>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                            <div class="features-icons-icon d-flex"><i class="bi-window m-auto text-primary"></i></div>
+                            <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
+                            <h3>Fully Responsive</h3>
+                            <p class="lead mb-0">This theme will look great on any device, no matter the size!</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                            <div class="features-icons-icon d-flex"><i class="bi-layers m-auto text-primary"></i></div>
+                            <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
+                            <h3>Bootstrap 5 Ready</h3>
+                            <p class="lead mb-0">Featuring the latest build of the new Bootstrap 5 framework!</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="features-icons-item mx-auto mb-0 mb-lg-3">
+                            <div class="features-icons-icon d-flex"><i class="bi-terminal m-auto text-primary"></i></div>
+                            <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
+                            <h3>Easy to Use</h3>
+                            <p class="lead mb-0">Ready to use with your own content, or customize the source files!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</section>
+
+<section class="showcase">
+            <div class="container-fluid p-0">
+                <div class="row g-0">
+                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    <div class="col-lg-6 order-lg-1 my-auto showcase-text ">
+                        <h2 style="padding-top: 125px;">Fully Responsive Design</h2>
+                        <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">When you use a theme created by Start Bootstrap, you know that the theme will look great on any device, whether it's a phone, tablet, or desktop the page will behave responsively!</p>
+                    </div>
+                </div>
+                <div class="row g-0">
+                    <div class="col-lg-6 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    <div class="col-lg-6 my-auto showcase-text">
+                        <h2 style="padding-top: 125px;">Updated For Bootstrap 5</h2>
+                        <p class="lead mb-0" style="padding-top: 25px;">Newly improved, and full of great utility classes, Bootstrap 5 is leading the way in mobile responsive web development! All of the themes on Start Bootstrap are now using Bootstrap 5!</p>
+                    </div>
+                </div>
+                <div class="row g-0">
+                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+                        <h2 style="padding-top: 125px;">Easy to Use & Customize</h2>
+                        <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">Landing Page is just HTML and CSS with a splash of SCSS for users who demand some deeper customization options. Out of the box, just add your content and images, and your new landing page will be ready to go!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
 </template>
 
 <script>
@@ -123,5 +184,20 @@ button:hover {
 
 nav{
   background-color: #4caf50;
+}
+
+.features-icons
+{
+  padding-top: 50px;
+}
+
+.fs-1
+{
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.col-lg-6
+{
+  height: 480px;
 }
 </style>
