@@ -53,6 +53,35 @@ export default {
   
   methods: {
   async updateAccount() {
+    // Validate password on client-side
+    if (this.password) {
+      if (this.password.length < 8) {
+        this.error = "Password must be at least 8 characters long.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/[A-Z]/.test(this.password)) {
+        this.error = "Password must contain at least one uppercase letter.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/[a-z]/.test(this.password)) {
+        this.error = "Password must contain at least one lowercase letter.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/\d/.test(this.password)) {
+        this.error = "Password must contain at least one number.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
+        this.error = "Password must contain at least one special character.";
+        this.successMessage = null;
+        return;
+      }
+    }
+
     const brokerId = localStorage.getItem("broker_id");
     if (brokerId) {
       try {
@@ -63,10 +92,10 @@ export default {
             'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: JSON.stringify({
-            username: this.username || undefined, // Send undefined if not provided
-            email: this.email || undefined, // Send undefined if not provided
-            contact_number: this.contactNumber || undefined, // Send undefined if not provided
-            password: this.password || undefined, // Send undefined if not provided
+            username: this.username || undefined,
+            email: this.email || undefined,
+            contact_number: this.contactNumber || undefined,
+            password: this.password || undefined,
           }),
         });
 

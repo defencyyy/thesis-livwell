@@ -18,7 +18,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -28,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
 
     # User Apps
     'developers.apps.DevelopersConfig',
@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'companies.apps.CompaniesConfig',
     'documents.apps.DocumentsConfig',
     'sites.apps.SitesConfig',
+    'milestones.apps.MilestonesConfig',
+    'sales.apps.SalesConfig',
 
     # User
     'corsheaders',
@@ -79,8 +81,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'prbe.wsgi.application'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+WSGI_APPLICATION = 'prbe.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -142,6 +146,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
 }
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -151,3 +156,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'aeronjquiambao@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'ljscdntxmmdqupmz'  # Your Gmail password or app password
 CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

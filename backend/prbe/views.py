@@ -9,11 +9,18 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone  
 from django.shortcuts import render
 from django.conf import settings
+from django.db import models  # Import models here
+
 
 # Non-Django
 from brokers.models import Broker 
 from developers.models import Developer 
+from customers.models import Customer
+from sales.models import Sale
+from units.models import Unit
+from sites.models import Site
 import json
+import re
 
 @csrf_exempt
 def login_view(request, user_type):
@@ -112,14 +119,25 @@ def send_password_reset_email(request):
 def BrkResetPass(request, uid, token):
     if request.method == 'POST':
         try:
-            # Log the incoming request
             print("Received POST request to reset password.")
-
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
+            # Ensure password is provided
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
+
+            # Password strength validation (same as in the account update)
+            if len(new_password) < 8:
+                return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
+            if not re.search(r'[A-Z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
+            if not re.search(r'[a-z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
+            if not re.search(r'\d', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
 
             # Find the broker by uid
             broker = Broker.objects.get(pk=uid)
@@ -137,7 +155,6 @@ def BrkResetPass(request, uid, token):
         except Broker.DoesNotExist:
             return JsonResponse({"success": False, "message": "Broker not found."}, status=404)
         except Exception as e:
-            # Log the error for debugging
             print(f"Error resetting password: {e}")
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
@@ -146,35 +163,151 @@ def BrkResetPass(request, uid, token):
 def update_broker_view(request, broker_id):
     if request.method == 'PUT':
         try:
-            # Log incoming request data
-            print(f"Received request to update broker with ID {broker_id}. Request body: {request.body}")
-
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
-            
-            # Update fields
-            broker.username = data.get('username', broker.username)
-            broker.email = data.get('email', broker.email)
-            broker.contact_number = data.get('contact_number', broker.contact_number)
-            
-            if 'password' in data and data['password']:  # Ensure password is provided
-                broker.password = make_password(data['password'])  # Hash the password
-            
+
+            # Validate username uniqueness
+            if 'username' in data and data['username'] is not None:
+                if Broker.objects.filter(username=data['username']).exclude(id=broker_id).exists():
+                    return JsonResponse({"success": False, "message": "Username already exists."}, status=400)
+                broker.username = data['username']
+
+            # Validate password strength
+            if 'password' in data and data['password'] is not None:
+                password = data['password']
+                
+                if len(password) < 8:
+                    return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
+                if not re.search(r"[A-Z]", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
+                if not re.search(r"[a-z]", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
+                if not re.search(r"\d", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
+                if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+                    return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
+                
+                # Hash the password
+                broker.password = make_password(password)
+
+            # Update other fields
+            if 'email' in data and data['email'] is not None:
+                broker.email = data['email']
+            if 'contact_number' in data and data['contact_number'] is not None:
+                broker.contact_number = data['contact_number']
+
             broker.save()
-            print(f"Broker with ID {broker_id} updated successfully.")
             return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
-        
+
         except Broker.DoesNotExist:
-            print(f"Broker with ID {broker_id} does not exist.")
             return JsonResponse({"success": False, "message": "Broker does not exist."}, status=404)
-        except json.JSONDecodeError as e:
-            print(f"JSON decoding error: {e}")
+        except json.JSONDecodeError:
             return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
             print(f"Error updating broker: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+@csrf_exempt
+def add_customer(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Create a new customer instance
+            customer = Customer.objects.create(
+                broker_id=data['broker'],
+                email=data['email'],
+                contact_number=data['contact_number'],
+                affiliated_link=data.get('affiliated_link', ''),
+                last_name=data['last_name'],
+                first_name=data['first_name']
+            )
+
+            return JsonResponse({"success": True, "message": "Customer added successfully!"}, status=201)
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+def total_sales_view(request):
+    if request.method == 'GET':
+        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        if not broker_id:
+            return JsonResponse({'error': 'Broker ID not provided'}, status=400)
+
+        # Calculate total sales for the given broker ID
+        total_sales = Sale.objects.filter(broker_id=broker_id).count()
+
+        return JsonResponse({'total_sales': total_sales})
+@csrf_exempt  # If you need to exempt CSRF protection (for development purposes only)
+def total_commissions_view(request):
+    if request.method == 'GET':
+        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        if not broker_id:
+            return JsonResponse({'error': 'Broker ID not provided'}, status=400)
+
+        # Get all sales made by the broker
+        sales = Sale.objects.filter(broker_id=broker_id)
+        
+        # Extract unit IDs from the sales
+        unit_ids = sales.values_list('unit_id', flat=True)
+
+        # Sum up the commissions for these units
+        total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
+
+        return JsonResponse({'total_commissions': total_commission})
+@csrf_exempt
+def site_sales_view(request):
+    if request.method == 'GET':
+        broker_id = request.GET.get('broker_id')
+        if not broker_id:
+            return JsonResponse({'error': 'Broker ID not provided'}, status=400)
+
+        # Fetch sites and calculate total sales per site
+        sites = []
+        for site in Site.objects.all():  # Assuming you have a Site model
+            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id).count()  # Adjust the filter based on your relationships
+            sites.append({
+                'id': site.id,
+                'name': site.name,
+                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,  # Use build_absolute_uri
+                'total_sales': total_sales,
+            })
+
+        return JsonResponse({'sites': sites})
+    
+@csrf_exempt
+def sales_details_view(request):
+    if request.method == 'GET':
+        site_id = request.GET.get('site_id')
+        broker_id = request.GET.get('broker_id')
+
+        # Check if site_id and broker_id are provided
+        if not site_id or not broker_id:
+            return JsonResponse({'error': 'Site ID or Broker ID not provided'}, status=400)
+
+        try:
+            # Fetch sales related to the specified site and broker
+            sales = Sale.objects.filter(
+                unit__site_id=site_id,  # Filter sales by the site ID
+                broker_id=broker_id  # Filter sales by the broker ID
+            ).select_related('unit', 'customer')  # Use select_related for efficient querying
+
+            sales_details = []
+            for sale in sales:
+                sales_details.append({
+                    'unit_name': sale.unit.title,  # Get the unit title from Units_unit
+                    'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",  # Customer name from Customers_customer
+                    'date_sold': sale.date_sold.strftime("%Y-%m-%d")  # Sale date from Sales_sale
+                })
+
+            return JsonResponse({'sales': sales_details})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)  # Handle any unexpected errors
 
 
 # For Developers
@@ -221,14 +354,30 @@ def DevResetPass(request, uid, token):
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
+            # Ensure password is provided
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
 
+            # Password strength validation
+            if len(new_password) < 8:
+                return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
+            if not re.search(r'[A-Z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
+            if not re.search(r'[a-z]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
+            if not re.search(r'\d', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
+                return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
+
+            # Find the developer by uid
             developer = Developer.objects.get(pk=uid)
 
+            # Check if the token is valid
             if not default_token_generator.check_token(developer, token):
                 return JsonResponse({"success": False, "message": "Invalid or expired token."}, status=400)
 
+            # Update the password
             developer.password = make_password(new_password)
             developer.save()
 
