@@ -6,9 +6,11 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('broker/login/', views.login_view_broker, name='broker_login'),
     path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
+    path('broker/logout/', views.brk_logout_view, name='broker_logout'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
 
     path('customers/', views.add_customer, name='add_customer'),

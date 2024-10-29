@@ -1,11 +1,12 @@
 from django.db import models
+from companies.models import Company
 
 class Milestone(models.Model):
   STATUS_CHOICES = [
     ('broker', 'Broker'),
     ('company', 'Company'),
   ]
-
+  company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
   name = models.CharField(max_length=100, unique=True)
   description = models.TextField(blank=True)
   reward = models.CharField(max_length=100)
