@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,7 +29,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-
     # User Apps
     'developers.apps.DevelopersConfig',
     'brokers.apps.BrokersConfig',
@@ -59,9 +59,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8080',
-]
+CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
+
+# CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
 
 ROOT_URLCONF = 'prbe.urls'
 
@@ -121,6 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # 15 min expiration
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # 7 days expiration
+    'ROTATE_REFRESH_TOKENS': True,                   # Enable rotation
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -155,7 +162,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'aeronjquiambao@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'ljscdntxmmdqupmz'  # Your Gmail password or app password
-CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

@@ -93,6 +93,8 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+
 export default {
   data() {
     return {
@@ -102,6 +104,17 @@ export default {
     };
   },
   methods: {
+    ...mapActions(["login"]),
+
+    getCookie(name) {
+      let cookieArr = document.cookie.split(";");
+      for (let cookie of cookieArr) {
+        let [key, value] = cookie.split("=");
+        if (key.trim() === name) return decodeURIComponent(value);
+      }
+      return null;
+    },
+
     async login() {
       this.error = null;
       if (this.username && this.password) {
@@ -111,7 +124,6 @@ export default {
           const response = await fetch(
             "http://localhost:8000/developer/login/",
             {
-              // Updated URL
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -121,13 +133,15 @@ export default {
                 username: this.username,
                 password: this.password,
               }),
+              credentials: "include",
             }
           );
 
           const data = await response.json();
           if (data.success) {
-            localStorage.setItem("authToken", data.token);
-            localStorage.setItem("user_role", "developer");
+            localStorage.setItem("authToken", data.tokens.access);
+            localStorage.setItem("user_role", data.user.user_role);
+            localStorage.setItem("user_id", data.user.id);
             localStorage.setItem("logged_in", "true");
 
             this.$router.push("/developer/dashboard");
@@ -140,21 +154,6 @@ export default {
       } else {
         this.error = "Please fill in both fields.";
       }
-    },
-
-    getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === name + "=") {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
     },
   },
 };

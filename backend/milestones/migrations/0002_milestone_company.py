@@ -8,14 +8,14 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('companies', '0005_alter_company_logo_alter_company_name'),
-        ('customers', '0006_remove_customer_company'),
+        ('milestones', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customer',
+            model_name='milestone',
             name='company',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='companies.company'),
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.DO_NOTHING, to='companies.company'),
             preserve_default=False,
         ),
     ]

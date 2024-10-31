@@ -3,7 +3,10 @@
     <SideNav />
     <div class="content">
       <h1>Edit Company</h1>
-      <p>Description: {{ company.description }}</p>
+      <textarea
+        v-model="company.description"
+        placeholder="Enter description"
+      ></textarea>
       <img :src="company.logo" alt="Company Logo" v-if="company.logo" />
       <input type="file" @change="onFileChange" />
       <button @click="updateCompany">Update Company</button>
@@ -16,45 +19,40 @@ import SideNav from "@/components/SideNav.vue";
 
 export default {
   name: "DevCompany",
-  components: {
-    SideNav,
-  },
+  components: { SideNav },
   data() {
     return {
-      company: {},
-      newLogo: null, // To hold the new logo file
+      company: {}, // Holds company data
+      newLogo: null, // Stores the new logo file
     };
   },
   mounted() {
-    const token = localStorage.getItem("authToken");
-    console.log("Token retrieved:", token); // Check the token value
-
-    fetch("http://localhost:8000/api/companies/1/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        this.company = data;
-      })
-      .catch((error) => {
-        console.error("Error fetching company:", error);
-      });
+    this.fetchCompany();
   },
-
   methods: {
-    onFileChange(event) {
-      // Handle file input change
-      this.newLogo = event.target.files[0];
+    fetchCompany() {
+      const token = localStorage.getItem("authToken");
+
+      fetch("http://localhost:8000/api/companies/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch company data");
+          return response.json();
+        })
+        .then((data) => {
+          if (data.length === 0) throw new Error("No company found"); // Handle empty response
+          this.company = data[0]; // Assume the first company is the developer's
+        })
+        .catch((error) => {
+          console.error("Error fetching company:", error);
+        });
     },
+
     updateCompany() {
       const formData = new FormData();
       formData.append("description", this.company.description);
@@ -62,25 +60,24 @@ export default {
         formData.append("logo", this.newLogo);
       }
 
-      const token = localStorage.getItem("authToken"); // Retrieve the token again for the PUT request
+      const token = localStorage.getItem("authToken");
 
-      fetch(`http://localhost:8000/api/companies/1/`, {
+      fetch(`http://localhost:8000/api/companies/${this.company.id}/`, {
+        // Use dynamic ID
         method: "PUT",
         body: formData,
         headers: {
-          Accept: "application/json",
-          Authorization: `Token ${token}`, // Include token here
-          // 'Content-Type': 'application/json' // Don't set this if you're sending FormData
+          Accept: "application/json", // Allow FormData
+          Authorization: `Token ${token}`,
         },
       })
         .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+          if (!response.ok) throw new Error("Failed to update company");
           return response.json();
         })
         .then((data) => {
           console.log("Company updated:", data);
+          this.company = data; // Refresh the company data
         })
         .catch((error) => {
           console.error("Error updating company:", error);
