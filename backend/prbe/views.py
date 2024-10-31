@@ -234,9 +234,10 @@ def add_customer(request):
         try:
             data = json.loads(request.body)
 
-            # Create a new customer instance
+            # Create a new customer instance, including company_id
             customer = Customer.objects.create(
                 broker_id=data['broker'],
+                company_id=data['company_id'],  # Include company_id
                 email=data['email'],
                 contact_number=data['contact_number'],
                 affiliated_link=data.get('affiliated_link', ''),
@@ -246,6 +247,28 @@ def add_customer(request):
 
             return JsonResponse({"success": True, "message": "Customer added successfully!"}, status=201)
 
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+@csrf_exempt
+def get_broker(request, broker_id):
+    if request.method == 'GET':
+        try:
+            # Fetch the broker from the database
+            broker = Broker.objects.get(id=broker_id)
+            
+            # Return the necessary details (including company_id)
+            broker_data = {
+                "id": broker.id,
+                "company_id": broker.company_id,  # Adjust according to your field name
+                "email": broker.email,
+                # Add other fields you may need
+            }
+            return JsonResponse(broker_data, status=200)
+
+        except Broker.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Broker not found."}, status=404)
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
