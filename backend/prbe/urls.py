@@ -18,7 +18,9 @@ urlpatterns = [
     path('sales/total/', views.total_sales_view, name='total_sales'),
     path('sales/commissions/', views.total_commissions_view, name='total_commissions'),
     path('sales/sites/', views.site_sales_view, name='site_sales'),  
-        path('sales/details/', views.sales_details_view, name='sales-details'),
+    path('sales/details/', views.sales_details_view, name='sales-details'),
+    path('brokers/<int:broker_id>/', views.get_broker, name='get_broker'),
+
 
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
