@@ -158,10 +158,6 @@ export default {
   
 }
 
-/* .homes
-{
-  display: flex;
-} */
 .button-container {
   margin-top: 20px;
 }
