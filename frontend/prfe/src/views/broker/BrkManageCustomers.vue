@@ -59,64 +59,71 @@ export default {
       successMessage: null,
     };
   },
-  methods: {
-    async addCustomer() {
-      // Get the currently logged broker's ID (you'll need to implement this logic)
-      const brokerId = localStorage.getItem("broker_id");
+ methods: {
+  async addCustomer() {
+    // Get the currently logged broker's ID
+    const brokerId = localStorage.getItem("broker_id");
 
-      // Validate contact number format (example: 123-456-7890 or (123) 456-7890 or 1234567890)
-      const phonePattern = /^(?:\(\d{3}\)|\d{3}-)?\d{3}-\d{4}$/;
-      if (!phonePattern.test(this.contactNumber)) {
-        this.error = "Please enter a valid phone number format (e.g., 123-456-7890).";
+    // Validate contact number format
+    const phonePattern = /^(?:\(\d{3}\)|\d{3}-)?\d{3}-\d{4}$/;
+    if (!phonePattern.test(this.contactNumber)) {
+      this.error = "Please enter a valid phone number format (e.g., 123-456-7890).";
+      this.successMessage = null;
+      return; // Exit the method if the phone number is invalid
+    }
+
+    try {
+      // Fetch the broker's company_id
+      const brokerResponse = await fetch(`http://localhost:8000/brokers/${brokerId}/`);
+      if (!brokerResponse.ok) {
+        const errorData = await brokerResponse.json();
+        this.error = errorData.message || "Failed to fetch broker data.";
         this.successMessage = null;
-        return; // Exit the method if the phone number is invalid
+        return;
       }
+      const brokerData = await brokerResponse.json();
+      const companyId = brokerData.company_id; // Assuming the response contains company_id
 
       // Add customer logic
-      try {
-        const response = await fetch('http://localhost:8000/customers/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            broker: brokerId,
-            email: this.email,
-            contact_number: this.contactNumber,
-            affiliated_link: this.affiliatedLink,
-            last_name: this.lastName,
-            first_name: this.firstName,
-          }),
-        });
+      const response = await fetch('http://localhost:8000/customers/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          broker: brokerId,
+          company_id: companyId, // Include company_id
+          email: this.email,
+          contact_number: this.contactNumber,
+          affiliated_link: this.affiliatedLink,
+          last_name: this.lastName,
+          first_name: this.firstName,
+        }),
+      });
 
-        if (response.ok) {
-          this.successMessage = "Customer added successfully!";
-          this.error = null;
-          this.resetForm();
-        } else {
-          const errorData = await response.json();
-          this.error = errorData.message || "Failed to add customer.";
-          this.successMessage = null;
-        }
-      } catch (error) {
-        this.error = "An error occurred while adding the customer.";
+      if (response.ok) {
+        this.successMessage = "Customer added successfully!";
+        this.error = null;
+        this.resetForm();
+      } else {
+        const errorData = await response.json();
+        this.error = errorData.message || "Failed to add customer.";
         this.successMessage = null;
       }
-    },
-    resetForm() {
-      this.email = '';
-      this.contactNumber = '';
-      this.affiliatedLink = '';
-      this.lastName = '';
-      this.firstName = '';
-    },
-    async getCurrentBrokerId() {
-      // Replace with actual logic to retrieve the logged-in broker's ID
-      const response = await fetch('http://localhost:8000/current-broker/');
-      const data = await response.json();
-      return data.id; // Assuming the response contains the broker ID
-    },
+    } catch (error) {
+      this.error = "An error occurred while adding the customer.";
+      this.successMessage = null;
+    }
   },
+  resetForm() {
+    this.email = '';
+    this.contactNumber = '';
+    this.affiliatedLink = '';
+    this.lastName = '';
+    this.firstName = '';
+  },
+}
+
 };
 </script>
 

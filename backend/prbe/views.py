@@ -1,4 +1,4 @@
-# Django
+# Django Lib
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
@@ -7,62 +7,71 @@ from django.urls import reverse
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django.utils import timezone  
-from django.shortcuts import render
-from django.conf import settings
-from django.db import models  # Import models here
+from django.db import models 
+from django.utils.timezone import now  
+from django.contrib.auth.hashers import check_password, make_password
+from rest_framework_simplejwt.tokens import RefreshToken
 
-
-# Non-Django
 from brokers.models import Broker 
 from developers.models import Developer 
 from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit
 from sites.models import Site
+
 import json
 import re
 
 @csrf_exempt
-def login_view(request, user_type):
+def login_view(request, user_role):
     if request.method == 'POST':
         try:
-            print(f"Received POST request for {user_type} login.")
-
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
 
             if not username or not password:
-                return JsonResponse({"success": False, "message": "Username and password are required."}, status=400)
+                return JsonResponse(
+                    {"success": False, "message": "Username and password are required."},
+                    status=400
+                )
 
-            # Determine the model based on user_type
-            if user_type == 'broker':
-                user = Broker.objects.get(username=username)
-            elif user_type == 'developer':
-                user = Developer.objects.get(username=username)
+            # Fetch the user based on user_role
+            if user_role == 'broker':
+                user = Broker.objects.filter(username=username).first()
+            elif user_role == 'developer':
+                user = Developer.objects.filter(username=username).first()
             else:
                 return JsonResponse({"success": False, "message": "Invalid user type."}, status=400)
 
-            # Check the password
-            if not check_password(password, user.password):
+            # Validate credentials
+            if user is None or not check_password(password, user.password):
                 return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
 
-            # Update the last login time
-            user.last_login = timezone.now()
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+            # Save last login timestamp
+            user.last_login = now()
             user.save()
 
+            # Return tokens and user data
             return JsonResponse({
                 "success": True,
+                "tokens": {
+                    "access": access_token,
+                    "refresh": str(refresh)
+                },
                 "user": {
-                    "id": str(user.id),  # Include user ID
+                    "id": user.id,
                     "username": user.username,
                     "email": user.email,
-                    "contact_number": user.contact_number  # Ensure this field exists in your Broker model
+                    "contact_number": user.contact_number,
+                    "user_role": user_role
                 }
             }, status=200)
 
-        except (Broker.DoesNotExist, Developer.DoesNotExist):
-            return JsonResponse({"success": False, "message": "User does not exist."}, status=404)
         except json.JSONDecodeError:
             return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
@@ -73,13 +82,53 @@ def login_view(request, user_type):
 
 @csrf_exempt
 def login_view_broker(request):
-    return login_view(request, user_type='broker')
+    return login_view(request, user_role='broker')
 
 @csrf_exempt
 def login_view_developer(request):
-    return login_view(request, user_type='developer')
+    return login_view(request, user_role='developer')
 
-# For Brokers
+def validate_password_strength(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+    if not re.search(r'[A-Z]', password):
+        return "Password must contain at least one uppercase letter."
+    if not re.search(r'[a-z]', password):
+        return "Password must contain at least one lowercase letter."
+    if not re.search(r'\d', password):
+        return "Password must contain at least one number."
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return "Password must contain at least one special character."
+    return None
+
+@csrf_exempt
+def refresh_token_view(request):
+    refresh_token = request.COOKIES.get('refresh_token')
+
+    if refresh_token:
+        try:
+            refresh = RefreshToken(refresh_token)
+            new_access_token = str(refresh.access_token)
+
+            response = JsonResponse({'success': True})
+            response.set_cookie(
+                'access_token', new_access_token, httponly=True, max_age=900
+            )
+            return response
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Refresh token not found'})
+
+@csrf_exempt
+def dev_logout_view(request):
+    if request.method == 'POST':
+        response = JsonResponse({'success': True})
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+# Brokers
 @csrf_exempt
 def send_password_reset_email(request):
     if request.method == 'POST':
@@ -88,16 +137,12 @@ def send_password_reset_email(request):
             email = data.get('email')
             broker = Broker.objects.get(email=email)
 
-            # Generate a token
             token = default_token_generator.make_token(broker)
 
-            # Create a password reset link (change this part)
             reset_link = reverse('BrkResetPass', kwargs={'uid': broker.pk, 'token': token})
 
-            # Assuming your Vue app is running on localhost:8080
             reset_link_full = f'http://localhost:8080/#/broker/reset-pass/{broker.pk}/{token}/'
 
-            # Send email
             send_mail(
                 'Password Reset',
                 f'Click the link below to reset your password:\n{reset_link_full}',
@@ -123,30 +168,18 @@ def BrkResetPass(request, uid, token):
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
-            # Ensure password is provided
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
 
-            # Password strength validation (same as in the account update)
-            if len(new_password) < 8:
-                return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
-            if not re.search(r'[A-Z]', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
-            if not re.search(r'[a-z]', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
-            if not re.search(r'\d', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
-            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
+            password_error = validate_password_strength(new_password)
+            if password_error:
+                return JsonResponse({"success": False, "message": password_error}, status=400)
 
-            # Find the broker by uid
             broker = Broker.objects.get(pk=uid)
 
-            # Check if the token is valid
             if not default_token_generator.check_token(broker, token):
                 return JsonResponse({"success": False, "message": "Invalid or expired token."}, status=400)
 
-            # Update the password
             broker.password = make_password(new_password)
             broker.save()
 
@@ -159,6 +192,7 @@ def BrkResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 @csrf_exempt
 def update_broker_view(request, broker_id):
     if request.method == 'PUT':
@@ -166,31 +200,15 @@ def update_broker_view(request, broker_id):
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
 
-            # Validate username uniqueness
-            if 'username' in data and data['username'] is not None:
-                if Broker.objects.filter(username=data['username']).exclude(id=broker_id).exists():
-                    return JsonResponse({"success": False, "message": "Username already exists."}, status=400)
-                broker.username = data['username']
-
-            # Validate password strength
             if 'password' in data and data['password'] is not None:
                 password = data['password']
-                
-                if len(password) < 8:
-                    return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
-                if not re.search(r"[A-Z]", password):
-                    return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
-                if not re.search(r"[a-z]", password):
-                    return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
-                if not re.search(r"\d", password):
-                    return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
-                if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-                    return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
-                
-                # Hash the password
+
+                password_error = validate_password_strength(password)
+                if password_error:
+                    return JsonResponse({"success": False, "message": password_error}, status=400)
+
                 broker.password = make_password(password)
 
-            # Update other fields
             if 'email' in data and data['email'] is not None:
                 broker.email = data['email']
             if 'contact_number' in data and data['contact_number'] is not None:
@@ -209,15 +227,17 @@ def update_broker_view(request, broker_id):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
+
 @csrf_exempt
 def add_customer(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
 
-            # Create a new customer instance
+            # Create a new customer instance, including company_id
             customer = Customer.objects.create(
                 broker_id=data['broker'],
+                company_id=data['company_id'],  # Include company_id
                 email=data['email'],
                 contact_number=data['contact_number'],
                 affiliated_link=data.get('affiliated_link', ''),
@@ -227,6 +247,28 @@ def add_customer(request):
 
             return JsonResponse({"success": True, "message": "Customer added successfully!"}, status=201)
 
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+@csrf_exempt
+def get_broker(request, broker_id):
+    if request.method == 'GET':
+        try:
+            # Fetch the broker from the database
+            broker = Broker.objects.get(id=broker_id)
+            
+            # Return the necessary details (including company_id)
+            broker_data = {
+                "id": broker.id,
+                "company_id": broker.company_id,  # Adjust according to your field name
+                "email": broker.email,
+                # Add other fields you may need
+            }
+            return JsonResponse(broker_data, status=200)
+
+        except Broker.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Broker not found."}, status=404)
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
@@ -242,6 +284,7 @@ def total_sales_view(request):
         total_sales = Sale.objects.filter(broker_id=broker_id).count()
 
         return JsonResponse({'total_sales': total_sales})
+    
 @csrf_exempt  # If you need to exempt CSRF protection (for development purposes only)
 def total_commissions_view(request):
     if request.method == 'GET':
@@ -259,6 +302,7 @@ def total_commissions_view(request):
         total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
 
         return JsonResponse({'total_commissions': total_commission})
+    
 @csrf_exempt
 def site_sales_view(request):
     if request.method == 'GET':
@@ -309,8 +353,7 @@ def sales_details_view(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)  # Handle any unexpected errors
 
-
-# For Developers
+# Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):
     if request.method == 'POST':
@@ -346,7 +389,6 @@ def send_dev_password_reset_email(request):
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
 
-
 @csrf_exempt
 def DevResetPass(request, uid, token):
     if request.method == 'POST':
@@ -358,17 +400,9 @@ def DevResetPass(request, uid, token):
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
 
-            # Password strength validation
-            if len(new_password) < 8:
-                return JsonResponse({"success": False, "message": "Password must be at least 8 characters long."}, status=400)
-            if not re.search(r'[A-Z]', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one uppercase letter."}, status=400)
-            if not re.search(r'[a-z]', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one lowercase letter."}, status=400)
-            if not re.search(r'\d', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one number."}, status=400)
-            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
-                return JsonResponse({"success": False, "message": "Password must contain at least one special character."}, status=400)
+            password_error = validate_password_strength(new_password)
+            if password_error:
+                return JsonResponse({"success": False, "message": password_error}, status=400)
 
             # Find the developer by uid
             developer = Developer.objects.get(pk=uid)

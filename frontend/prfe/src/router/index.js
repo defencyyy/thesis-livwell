@@ -8,6 +8,7 @@ import DevLogin from "@/views/developer/DevLogin.vue";
 import DevForgotPass from "@/views/developer/DevForgotPass.vue";
 import DevResetPass from "@/views/developer/DevResetPass.vue";
 import DevMainPage from "@/views/developer/DevMainPage.vue";
+
 // Dev Functions
 import DevFuncAccount from "@/views/developer/functions/DevAccount.vue";
 import DevFuncAffiliation from "@/views/developer/functions/DevAffiliation.vue";
@@ -22,6 +23,7 @@ import BrkLogin from "@/views/broker/BrkLogin.vue";
 import BrkForgotPass from "@/views/broker/BrkForgotPass.vue";
 import BrkResetPass from "@/views/broker/BrkResetPass.vue";
 import BrkMainPage from "@/views/broker/BrkMainPage.vue";
+
 // Broker Functions
 import AffiliatedUnits from "@/views/broker/BrkAffiliatedUnits.vue";
 import BrkManageCustomers from "@/views/broker/BrkManageCustomers.vue";
@@ -151,6 +153,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
+
 router.beforeEach((to, from, next) => {
   const isLoggedIn = localStorage.getItem("logged_in") === "true";
   const userRole = localStorage.getItem("user_role");
