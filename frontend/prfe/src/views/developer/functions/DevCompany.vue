@@ -43,12 +43,18 @@ export default {
   methods: {
     async fetchCompany() {
       try {
-        const response = await axios.get("/developer/company/");
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get("/developer/company/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         this.company = response.data;
       } catch (error) {
         console.error("Error fetching company data:", error);
       }
     },
+
     onFileChange(event) {
       this.newLogo = event.target.files[0];
     },

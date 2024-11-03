@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import EditCompany
+from .views import CompanyView
 
 urlpatterns = [
-    path('', EditCompany, name="company-view-edit"), 
+    path('developer/company/', CompanyView.as_view(), name='company'),
 ]

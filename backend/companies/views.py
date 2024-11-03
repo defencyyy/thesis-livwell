@@ -1,29 +1,21 @@
-# views.py
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from .models import Company
-
-# Assuming you have a Developer model related to the User model
+from developers.models import Developer  # Import your custom Developer model
 from .serializers import CompanySerializer
 
-@api_view(['GET', 'PUT'])
-def EditCompany(request):
-    # Get the logged-in developer's company
-    try:
-        company = request.user.developer.company  # Ensure that the user has a developer instance
-    except AttributeError:
-        return Response({"error": "Developer not found for this user"}, status=status.HTTP_404_NOT_FOUND)
-    except Company.DoesNotExist:
-        return Response({"error": "Company not found"}, status=status.HTTP_404_NOT_FOUND)
+class CompanyView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    if request.method == 'GET':
+    def get(self, request):
+        # Adjust if request.user is not automatically mapped to a Developer instance
+        try:
+            developer = Developer.objects.get(email=request.user.email)  # Adjust if needed
+            company = developer.company
+        except Developer.DoesNotExist:
+            return Response({"error": "Developer not found"}, status=404)
+
+        # Serialize the company data
         serializer = CompanySerializer(company)
         return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = CompanySerializer(company, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
