@@ -142,7 +142,7 @@ export default {
           if (data.success) {
             // Storing JWT and company data
             localStorage.setItem("authToken", data.tokens.access);
-            localStorage.setItem("companyId", data.user.company_id); // Store company_id from payload
+            localStorage.setItem("company_id", data.user.company_id);
             localStorage.setItem("user_id", data.user.id);
             localStorage.setItem("user_role", data.user.user_role);
             localStorage.setItem("logged_in", "true");

@@ -3,6 +3,14 @@
     <SideNav />
     <div class="content">
       <h2>Edit Company</h2>
+
+      <!-- Display user information -->
+      <div class="user-info">
+        <p><strong>User ID:</strong> {{ userId }}</p>
+        <p><strong>User Role:</strong> {{ userType }}</p>
+        <p><strong>Company ID:</strong> {{ companyId }}</p>
+      </div>
+
       <form @submit.prevent="updateCompany">
         <div>
           <label for="description">Description:</label>
@@ -27,6 +35,7 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   name: "DevCompany",
@@ -37,24 +46,36 @@ export default {
       newLogo: null, // Stores the new logo file
     };
   },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId,
+      userType: (state) => state.userType, // Corrected from userRole to userType
+      companyId: (state) => state.companyId,
+    }),
+  },
   mounted() {
+    console.log("Company ID from Vuex store:", this.companyId); // Debugging line
     this.fetchCompany();
   },
+
   methods: {
     async fetchCompany() {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get("/developer/company/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        console.log("Using company ID:", this.companyId); // Debugging line
+        const response = await axios.get(
+          `/developer/company/${this.companyId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         this.company = response.data;
       } catch (error) {
         console.error("Error fetching company data:", error);
       }
     },
-
     onFileChange(event) {
       this.newLogo = event.target.files[0];
     },
@@ -65,11 +86,9 @@ export default {
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
-
         await axios.put("/developer/company/", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-
         alert("Company updated successfully!");
       } catch (error) {
         console.error("Error updating company:", error);
@@ -83,10 +102,13 @@ export default {
 .developer-company-page {
   display: flex;
 }
-
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
+}
+.user-info {
+  margin-bottom: 20px;
+  text-align: left;
 }
 </style>

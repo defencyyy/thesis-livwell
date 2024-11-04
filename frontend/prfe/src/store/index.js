@@ -4,7 +4,7 @@ export default createStore({
   state: {
     userId: localStorage.getItem("user_id") || null,
     userType: localStorage.getItem("user_role") || null,
-    companyId: localStorage.getItem("company_id") || null,
+    companyId: localStorage.getItem("company_id") || null, // Use "company_id" to match the localStorage key
     loggedIn: localStorage.getItem("logged_in") === "true",
   },
   getters: {
@@ -15,15 +15,16 @@ export default createStore({
   },
   mutations: {
     setUser(state, user) {
+      console.log("Setting user in Vuex:", user); // Debugging line
       state.userId = user.id;
       state.userType = user.user_role;
-      state.companyId = user.company_id;
+      state.companyId = user.company_id; // Keep this as "company_id" to match with localStorage
       state.loggedIn = true;
 
       // Store in localStorage
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("user_role", user.user_role);
-      localStorage.setItem("company_id", user.company_id);
+      localStorage.setItem("company_id", user.company_id); // Store with "company_id"
       localStorage.setItem("logged_in", "true");
     },
     clearUser(state) {
@@ -35,12 +36,13 @@ export default createStore({
       // Clear from localStorage
       localStorage.removeItem("user_id");
       localStorage.removeItem("user_role");
-      localStorage.removeItem("company_id"); // Clear companyId
+      localStorage.removeItem("company_id"); // Clear company_id
       localStorage.setItem("logged_in", "false");
     },
   },
   actions: {
     login({ commit }, user) {
+      console.log("User data at login:", user); // Debugging line
       commit("setUser", user);
     },
     logout({ commit }) {

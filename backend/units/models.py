@@ -23,6 +23,12 @@ class Unit(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     site = models.ForeignKey(Site, on_delete=models.DO_NOTHING)
     affiliations = models.ManyToManyField(Affiliation, related_name='units')
+    # final_id 21 (20) = 2 21002 21003 ... 21020
+    # final_id 21 (20) = 21021 ... 21040
+    # sites
+    # 25 floors
+    # 21 = 100 space
+    # 1-20 / 1,5,7,10
     title = models.CharField(max_length=100)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
