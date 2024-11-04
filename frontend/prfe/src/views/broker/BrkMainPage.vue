@@ -2,7 +2,7 @@
   <div class="main-page">
     <SideNav />
     <div class="content">
-      <h1>Welcome, You Are Logged In!</h1>
+      <h1>Welcome, You Are Loggedd In!</h1>
       <p>This is the main page for brokers.</p>
       <button @click="logout">Logout</button>
     </div>
