@@ -63,7 +63,7 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
 
-# CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
+CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
 
 ROOT_URLCONF = 'prbe.urls'
 
