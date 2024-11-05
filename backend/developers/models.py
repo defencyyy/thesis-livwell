@@ -7,6 +7,7 @@ class Developer(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)
+    contact_number = models.CharField(max_length=20)
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
     max_length=20,
