@@ -352,6 +352,70 @@ def sales_details_view(request):
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)  # Handle any unexpected errors
+        
+@csrf_exempt
+def get_available_sites(request):
+    if request.method == 'GET':
+        # Fetch sites that are either 'preselling' or 'completed'
+        sites = Site.objects.filter(status__in=['preselling', 'completed'])        
+        # Prepare the response data
+        site_data = []
+        for site in sites:
+            site_data.append({
+                'id': site.id,
+                'name': site.name,
+                'description': site.description,
+                'location': site.location,
+                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
+            })
+        
+        return JsonResponse({'sites': site_data}, status=200)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+@csrf_exempt
+def get_site_name(request, site_id):
+    if request.method == 'GET':
+        try:
+            # Fetch the site based on the provided site_id
+            site = Site.objects.get(id=site_id)
+            return JsonResponse({'name': site.name}, status=200)  # Adjust 'name' to your actual field name
+
+        except Site.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Site not found'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+@csrf_exempt
+def get_available_units(request):
+    if request.method == 'GET':
+        site_id = request.GET.get('site_id')
+        if not site_id:
+            return JsonResponse({'success': False, 'message': 'Site ID not provided'}, status=400)
+
+        try:
+            # Fetch only units that are associated with the given site ID and have a status of 'available'
+            units = Unit.objects.filter(site_id=site_id, status='available')
+
+            # Prepare the response data
+            unit_data = []
+            for unit in units:
+                unit_data.append({
+                    'id': unit.id,
+                    'title': unit.title,  # Adjust this to your actual field names
+                    # Add any additional fields you want to return
+                })
+
+            return JsonResponse({'units': unit_data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+      
 
 # Developers
 @csrf_exempt
