@@ -33,6 +33,7 @@ export default {
 .main-page {
   display: flex;
   height: 100vh;
+ 
 }
 
 .content {

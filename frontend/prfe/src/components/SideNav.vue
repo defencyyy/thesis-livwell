@@ -10,7 +10,7 @@
           <template v-for="(item, index) in menuItems" :key="index">
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
               {{ item.name }}
-            </b-nav-item>
+            </b-nav-item> 
 
             <div v-else>
               <b-nav-item :to="item.link" exact custom class="parent-item">
@@ -94,6 +94,8 @@ export default {
 .sidebar {
   width: 250px;
   transition: width 0.3s;
+  background-color: gray;
+  height: 96%;
 }
 
 .sidebar.collapsed {
@@ -128,4 +130,5 @@ export default {
   opacity: 1;
   pointer-events: auto;
 }
+
 </style>
