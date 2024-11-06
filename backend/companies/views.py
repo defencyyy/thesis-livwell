@@ -1,20 +1,47 @@
-from rest_framework import generics
-from .models import Company
-from .serializers import CompanySerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .models import Company
+from developers.models import Developer
+from .serializers import CompanySerializer
+from rest_framework import status
 
-class CompanyView(generics.ListCreateAPIView):
-    serializer_class = CompanySerializer
+class CompanyView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-    def get_queryset(self):
-        # Assuming the user has a foreign key to the Company model
-        return Company.objects.filter(developer=self.request.user)
+    def get(self, request):
+        developer_id = request.user.id
 
-class CompanyDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated]
+        try:
+            developer = Developer.objects.get(id=developer_id)
+        except Developer.DoesNotExist:
+            return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not hasattr(developer, 'company'):
+            return Response({"error": "Developer has no associated company"}, status=status.HTTP_404_NOT_FOUND)
+        
+        company = developer.company
+        serializer = CompanySerializer(company)
+        return Response(serializer.data)
 
-    def get_queryset(self):
-        # Return only the company associated with the logged-in user
-        return Company.objects.filter(developer=self.request.user)
+    def put(self, request):
+        developer_id = request.user.id
+
+        try:
+            developer = Developer.objects.get(id=developer_id)
+        except Developer.DoesNotExist:
+            return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not hasattr(developer, 'company'):
+            return Response({"error": "Developer has no associated company"}, status=status.HTTP_404_NOT_FOUND)
+
+        company = developer.company
+        serializer = CompanySerializer(company, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

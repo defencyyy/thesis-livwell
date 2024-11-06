@@ -68,7 +68,9 @@ def login_view(request, user_role):
                     "username": user.username,
                     "email": user.email,
                     "contact_number": user.contact_number,
-                    "user_role": user_role
+                    "user_role": user_role,
+                    "company_id": user.company.id,  # Include the company ID here
+                    "company_name": user.company.name,  # Include company name if needed
                 }
             }, status=200)
 
@@ -251,6 +253,7 @@ def add_customer(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 @csrf_exempt
 def get_broker(request, broker_id):
     if request.method == 'GET':
