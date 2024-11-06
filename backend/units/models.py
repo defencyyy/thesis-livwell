@@ -53,6 +53,6 @@ class Unit(models.Model):
     # 2101 2102 ... 2119 2120 / 2101, 2105, 2107, 2110
 
     def __str__(self):
-        return f"{self.site.name} - {self.title}"
+        return f"{self.site.name} - {self.unit_title}"
     
     # def unit_type
