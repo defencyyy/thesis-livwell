@@ -382,7 +382,11 @@ def get_site_name(request, site_id):
         try:
             # Fetch the site based on the provided site_id
             site = Site.objects.get(id=site_id)
-            return JsonResponse({'name': site.name}, status=200)  # Adjust 'name' to your actual field name
+            created_year = site.created_at.year  # Extract the year from the created_at field
+            return JsonResponse({
+                'name': site.name,
+                'created_year': created_year  # Return the creation year along with the site name
+            }, status=200)
 
         except Site.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Site not found'}, status=404)
@@ -391,6 +395,7 @@ def get_site_name(request, site_id):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 
 @csrf_exempt
 def get_available_units(request):

@@ -26,7 +26,7 @@
           <p>P{{ selectedUnit.price }} Bedroom: {{ selectedUnit.bedroom }} Bathroom: {{ selectedUnit.bathroom }} Floor Area: {{ selectedUnit.floor_area }}</p>
           <hr>
           <center>Details</center>
-          <p>Unit/Floor Number: {{ selectedUnit.floor }} Balcony: {{ selectedUnit.balcony }} Built(Year): </p>
+          <p>Unit/Floor Number: {{ selectedUnit.floor }} Balcony: {{ selectedUnit.balcony }} Built(Year):{{ siteYear }} </p>
           <p>Baths:{{ selectedUnit.bathroom }} Bedrooms: {{ selectedUnit.bedroom }}  Floor area(m<sup>2</sup>):{{ selectedUnit.floor_area }} </p>
           <p>View: {{ selectedUnit.view }} </p>
           <hr>
@@ -70,8 +70,9 @@ export default {
     async fetchSiteName() {
       try {
         const response = await axios.get(`http://localhost:8000/sites/${this.siteId}`);
-        this.siteName = response.data.name; // Assume your API returns a 'name' field
-      } catch (error) {
+        this.siteName = response.data.name;  // Store the site name
+        this.siteYear = response.data.created_year;  // Store the site's created year
+      }   catch (error) {
         console.error("Error fetching site name:", error);
       }
     },
