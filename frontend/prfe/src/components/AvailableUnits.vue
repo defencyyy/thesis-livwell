@@ -6,7 +6,7 @@
       <div v-if="units.length">
         <div class="units-container">
           <div v-for="unit in units" :key="unit.id" class="unit-card">
-            <p>{{ unit.title }}</p> <!-- Display the unit title -->
+            <p>{{ unit.unit_title }}</p> <!-- Display the unit title -->
           </div>
         </div>
       </div>

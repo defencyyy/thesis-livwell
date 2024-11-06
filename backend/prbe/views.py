@@ -346,7 +346,7 @@ def sales_details_view(request):
             sales_details = []
             for sale in sales:
                 sales_details.append({
-                    'unit_name': sale.unit.title,  # Get the unit title from Units_unit
+                    'unit_name': sale.unit.unit_title,  # Get the unit title from Units_unit
                     'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",  # Customer name from Customers_customer
                     'date_sold': sale.date_sold.strftime("%Y-%m-%d")  # Sale date from Sales_sale
                 })
@@ -408,7 +408,7 @@ def get_available_units(request):
             for unit in units:
                 unit_data.append({
                     'id': unit.id,
-                    'title': unit.title,  # Adjust this to your actual field names
+                    'unit_title': unit.unit_title,  # Adjust this to your actual field names
                     # Add any additional fields you want to return
                 })
 
