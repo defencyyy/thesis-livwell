@@ -409,7 +409,15 @@ def get_available_units(request):
                 unit_data.append({
                     'id': unit.id,
                     'unit_title': unit.unit_title,  # Adjust this to your actual field names
-                    # Add any additional fields you want to return
+                    'picture':  request.build_absolute_uri(unit.picture.url) if unit.picture else None,
+  # Include the picture URL (if available)
+                    'price': unit.price,  # Include the price
+                    'bedroom':unit.bedroom,
+                    "bathroom":unit.bathroom,
+                    "floor_area":unit.floor_area,
+                    "floor":unit.floor,
+                    "balcony":unit.balcony,
+                    "view":unit.view,
                 })
 
             return JsonResponse({'units': unit_data}, status=200)
@@ -418,7 +426,6 @@ def get_available_units(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
-      
 
 # Developers
 @csrf_exempt
