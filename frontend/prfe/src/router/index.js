@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
 import About from "@/views/AboutView.vue";
@@ -30,8 +30,7 @@ import BrkManageCustomers from "@/views/broker/BrkManageCustomers.vue";
 import BrkMilestones from "@/views/broker/BrkMilestones.vue";
 import BrkAccounts from "@/views/broker/BrkAccounts.vue";
 import BrkManageSales from "@/views/broker/BrkManageSales.vue";
-import AvailableUnits from '@/components/AvailableUnits.vue'; // Adjust the path as necessary
-
+import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path as necessary
 
 const routes = [
   { path: "/home", name: "Home", component: Home },
@@ -133,8 +132,8 @@ const routes = [
 
   // other routes
   {
-    path: '/units/:siteId',
-    name: 'AvailableUnits',
+    path: "/units/:siteId",
+    name: "AvailableUnits",
     component: AvailableUnits,
   },
 
@@ -168,7 +167,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 

@@ -42,6 +42,33 @@
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+import { jwtDecode } from "jwt-decode"; // Use named import for jwtDecode
+
+// Function to check if the token is valid
+function checkTokenValidity() {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    console.error("No token found!");
+    return false;
+  }
+
+  try {
+    const decoded = jwtDecode(token); // Use jwtDecode here
+    const currentTime = Date.now() / 1000; // Current time in seconds
+
+    if (decoded.exp < currentTime) {
+      console.error("Token has expired!");
+      return false;
+    } else {
+      console.log("Token is valid");
+      return true;
+    }
+  } catch (error) {
+    console.error("Invalid token", error);
+    return false;
+  }
+}
 
 export default {
   name: "DevCompany",
@@ -55,27 +82,44 @@ export default {
   computed: {
     ...mapState({
       userId: (state) => state.userId,
-      userType: (state) => state.userType, // Corrected from userRole to userType
+      userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
   },
   mounted() {
-    console.log("Company ID from Vuex store:", this.companyId); // Debugging line
-    this.fetchCompany();
+    const isValidToken = checkTokenValidity();
+    if (isValidToken) {
+      this.fetchCompany();
+    } else {
+      alert("Your session has expired. Please log in again.");
+      this.$router.push({ name: "login" }); // Redirect to login page
+    }
   },
-
   methods: {
     async fetchCompany() {
+      const token = localStorage.getItem("authToken");
       try {
-        const token = localStorage.getItem("authToken");
-        console.log("Using company ID:", this.companyId); // Debugging line
-        const response = await axios.get(`/developer/company/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:8000/developer/company/",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        this.company = response.data;
+        const data = await response.json();
+        if (response.ok) {
+          this.company = data; // Update company data if the response is successful
+        } else {
+          console.error("Error fetching company data:", data);
+          if (data.detail === "Authentication credentials were not provided.") {
+            alert("Session expired. Please log in again.");
+            this.$router.push({ name: "login" });
+          }
+        }
       } catch (error) {
         console.error("Error fetching company data:", error);
       }
@@ -84,7 +128,7 @@ export default {
       this.newLogo = event.target.files[0];
     },
     async updateCompany() {
-      console.log("Attempting to update company..."); // Add this line
+      console.log("Attempting to update company...");
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
@@ -92,13 +136,17 @@ export default {
           formData.append("logo", this.newLogo);
         }
         const token = localStorage.getItem("authToken");
-        const response = await axios.put(`/developer/company/`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("Update response:", response); // Log the response
+        const response = await axios.put(
+          `http://localhost:8000/developer/company/`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Update response:", response);
         alert("Company updated successfully!");
       } catch (error) {
         console.error("Error updating company:", error);

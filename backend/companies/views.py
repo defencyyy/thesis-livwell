@@ -14,6 +14,8 @@ class CompanyView(APIView):
     def get(self, request):
         developer_id = request.user.id
 
+        print(f"Request user ID: {request.user.id}")  # Debugging line
+
         try:
             developer = Developer.objects.get(id=developer_id)
         except Developer.DoesNotExist:

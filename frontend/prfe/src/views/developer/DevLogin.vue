@@ -141,7 +141,7 @@ export default {
           const data = await response.json();
           if (data.success) {
             // Storing JWT and company data
-            localStorage.setItem("authToken", data.tokens.access);
+            localStorage.setItem("authToken", data.tokens.access); // Save JWT token here
             localStorage.setItem("company_id", data.user.company_id);
             localStorage.setItem("user_id", data.user.id);
             localStorage.setItem("user_role", data.user.user_role);

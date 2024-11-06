@@ -28,6 +28,8 @@ urlpatterns = [
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
     path('developer/logout/', views.dev_logout_view, name='developer_logout'),
+    
+    # API
     path('developer/company/', include('companies.urls')),
 
 

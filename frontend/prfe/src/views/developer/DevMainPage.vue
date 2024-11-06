@@ -34,6 +34,7 @@ export default {
 
         const data = await response.json();
         if (data.success) {
+          localStorage.removeItem("authToken");
           localStorage.removeItem("user_id");
           localStorage.removeItem("user_role");
           localStorage.removeItem("logged_in");
