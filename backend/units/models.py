@@ -1,8 +1,12 @@
 from django.db import models
 from companies.models import Company
-from affiliations.models import Affiliation
 from sites.models import Site
-from decimal import Decimal
+import os
+
+def logo_upload_path(instance, filename):
+  company_id = instance.company.id if instance.company else 'new'
+  unit_id = instance.id
+  return os.path.join('photos', str(company_id), 'sites', 'units', str(unit_id), filename)
 
 class Unit(models.Model):
     STATUS_CHOICES = [
@@ -22,14 +26,11 @@ class Unit(models.Model):
 
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     site = models.ForeignKey(Site, on_delete=models.DO_NOTHING)
-    affiliations = models.ManyToManyField(Affiliation, related_name='units')
-    # final_id 21 (20) = 2 21002 21003 ... 21020
-    # final_id 21 (20) = 21021 ... 21040
-    # sites
-    # 25 floors
-    # 21 = 100 space
-    # 1-20 / 1,5,7,10
-    title = models.CharField(max_length=100)
+    # unit_number = models.PositiveIntegerField(null=True) # Eto ung gawin natin na parang Floor 10 Unit 1 = 10001 or 1001, floor+unitqty check mo ung sa baba
+    unit_title = models.CharField(max_length=100)
+    picture = models.ImageField(upload_to=logo_upload_path, blank=True, null=True)
+    bedroom = models.PositiveIntegerField(default=1, null=True)
+    bathroom = models.PositiveIntegerField(default=1, null=True)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     floor = models.PositiveIntegerField(default=1, help_text="Floor number")
@@ -43,5 +44,15 @@ class Unit(models.Model):
       help_text="Commission earned when the unit is sold"
     )
 
+    # final_id 21 (20) = 2 21002 21003 ... 21020
+    # final_id 21 (20) = 21021 ... 21040
+    # sites
+    # 25 floors
+    # floor 21 = 100 space
+    # select 1-20 / select 1,5,7,10
+    # 2101 2102 ... 2119 2120 / 2101, 2105, 2107, 2110
+
     def __str__(self):
         return f"{self.site.name} - {self.title}"
+    
+    # def unit_type

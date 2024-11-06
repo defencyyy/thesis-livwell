@@ -23,10 +23,6 @@ urlpatterns = [
     path('units/available/', views.get_available_units, name='get_available_units'),  # Add the new URL pattern
     path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  # URL pattern for fetching site name
 
-
-
-    
-
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  

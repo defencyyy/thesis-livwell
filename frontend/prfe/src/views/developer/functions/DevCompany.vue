@@ -11,6 +11,12 @@
         <p><strong>Company ID:</strong> {{ companyId }}</p>
       </div>
 
+      <!-- Debug: Display company data -->
+      <div class="company-data">
+        <h3>Company Data (Debug)</h3>
+        <pre>{{ company }}</pre>
+      </div>
+
       <form @submit.prevent="updateCompany">
         <div>
           <label for="description">Description:</label>
@@ -63,14 +69,12 @@ export default {
       try {
         const token = localStorage.getItem("authToken");
         console.log("Using company ID:", this.companyId); // Debugging line
-        const response = await axios.get(
-          `/developer/company/${this.companyId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`/developer/company/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         this.company = response.data;
       } catch (error) {
         console.error("Error fetching company data:", error);
@@ -80,15 +84,21 @@ export default {
       this.newLogo = event.target.files[0];
     },
     async updateCompany() {
+      console.log("Attempting to update company..."); // Add this line
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
-        await axios.put("/developer/company/", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+        const token = localStorage.getItem("authToken");
+        const response = await axios.put(`/developer/company/`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         });
+        console.log("Update response:", response); // Log the response
         alert("Company updated successfully!");
       } catch (error) {
         console.error("Error updating company:", error);
