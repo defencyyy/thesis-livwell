@@ -125,12 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # 15 min expiration
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # 7 days expiration
-    'ROTATE_REFRESH_TOKENS': True,                   # Enable rotation
-}
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 

@@ -47,6 +47,7 @@ import { jwtDecode } from "jwt-decode"; // Use named import for jwtDecode
 // Function to check if the token is valid
 function checkTokenValidity() {
   const token = localStorage.getItem("authToken");
+  console.log("Stored Token:", token);
 
   if (!token) {
     console.error("No token found!");
@@ -55,6 +56,7 @@ function checkTokenValidity() {
 
   try {
     const decoded = jwtDecode(token); // Use jwtDecode here
+    console.log("Decoded token:", decoded);
     const currentTime = Date.now() / 1000; // Current time in seconds
 
     if (decoded.exp < currentTime) {
@@ -100,7 +102,7 @@ export default {
       const token = localStorage.getItem("authToken");
       try {
         const response = await fetch(
-          "http://localhost:8000/developer/company/",
+          `http://localhost:8000/developer/company/`,
           {
             method: "GET",
             headers: {
@@ -150,6 +152,7 @@ export default {
         alert("Company updated successfully!");
       } catch (error) {
         console.error("Error updating company:", error);
+        alert("Error updating company. Please try again.");
       }
     },
   },

@@ -82,6 +82,7 @@ def login_view(request, user_role):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
+
 @csrf_exempt
 def login_view_broker(request):
     return login_view(request, user_role='broker')
