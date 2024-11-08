@@ -432,6 +432,55 @@ def get_available_units(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
+@csrf_exempt
+def get_customers_for_broker(request, broker_id):
+    try:
+        # Fetch the broker (you can also validate this broker)
+        broker = get_object_or_404(Broker, pk=broker_id)
+
+        # Fetch customers for the broker
+        customers = Customer.objects.filter(broker_id=broker_id)
+
+        customer_data = []
+        for customer in customers:
+
+            # Get the customer details
+            customer_name = f"{customer.first_name} {customer.last_name}"
+            contact_number = customer.contact_number
+
+            # Check if the customer has made any sales
+            sales = Sale.objects.filter(customer_id=customer.id)
+
+            if sales.exists():
+                # For each sale, get the related site and unit, create a row for each sale
+                for sale in sales:
+                    site = Site.objects.get(id=sale.site_id)
+                    unit = Unit.objects.get(id=sale.unit_id)
+
+                    # Add a new row for each sale the customer made
+                    customer_data.append({
+                        'customer_name': customer_name,
+                        'contact_number': contact_number,
+                        'site': site.name,
+                        'unit': unit.unit_title,
+                        'document_status': "Pending",  # Adjust document status as needed
+                    })
+            else:
+                # If no sales, add a "To be followed" entry in a single row
+                customer_data.append({
+                    'customer_name': customer_name,
+                    'contact_number': contact_number,
+                    'site': "To be followed",
+                    'unit': "To be followed",
+                    'document_status': "Pending",  # Adjust document status as needed
+                })
+
+
+        return JsonResponse({'success': True, 'customers': customer_data}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

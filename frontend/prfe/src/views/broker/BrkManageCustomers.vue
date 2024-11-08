@@ -43,6 +43,33 @@
         <p v-if="error" class="text-danger">{{ error }}</p>
         <p v-if="successMessage">{{ successMessage }}</p>
       </b-modal>
+
+      <!-- Table to display the customers -->
+      <table v-if="customers.length" class="table">
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Site</th>
+            <th>Unit</th>
+            <th>Contact</th>
+            <th>Document Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(customer, index) in customers" :key="index">
+            <td>{{ customer.customer_name }}</td>
+            <td>{{ customer.site }}</td>
+            <td>{{ customer.unit }}</td>
+            <td>{{ customer.contact_number }}</td>
+            <td>{{ customer.document_status }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-if="!customers.length">No customers found for this broker.</p>
+
+      <!-- Error and Success Messages -->
+      <p v-if="error" class="text-danger">{{ error }}</p>
+      <p v-if="successMessage">{{ successMessage }}</p>
     </div>
   </div>
 </template>
@@ -65,11 +92,31 @@ export default {
       affiliatedLink: '',
       lastName: '',
       firstName: '',
+      customers: [],  // This will hold the list of customers
       error: null,
       successMessage: null,
     };
   },
+  mounted() {
+    // Call fetchCustomers when the component is mounted
+    this.fetchCustomers();
+  },
   methods: {
+    async fetchCustomers() {
+      const brokerId = localStorage.getItem("broker_id");
+      try {
+        const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/`);
+        if (response.ok) {
+          const data = await response.json();
+          this.customers = data.customers;
+        } else {
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to fetch customer data.";
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching customer data.";
+      }
+    },
     async addCustomer() {
       const brokerId = localStorage.getItem("broker_id");
       const phonePattern = /^(?:\(\d{3}\)|\d{3}-)?\d{3}-\d{4}$/;
