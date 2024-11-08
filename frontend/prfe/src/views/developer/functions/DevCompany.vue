@@ -4,11 +4,29 @@
     <div class="content">
       <h2>Edit Company</h2>
 
-      <!-- Display user information -->
+      <!-- Display user and company information -->
       <div class="user-info">
         <p><strong>User ID:</strong> {{ userId }}</p>
         <p><strong>User Role:</strong> {{ userType }}</p>
         <p><strong>Company ID:</strong> {{ companyId }}</p>
+
+        <!-- Display company name, description, and logo, even if they are empty -->
+        <p><strong>Company Name:</strong> {{ company.name || "" }}</p>
+        <p>
+          <strong>Company Description:</strong> {{ company.description || "" }}
+        </p>
+
+        <!-- For logo, only display the image if available, otherwise leave a blank -->
+        <div>
+          <strong>Company Logo:</strong>
+          <img
+            v-if="company.logo"
+            :src="company.logo"
+            alt="Company Logo"
+            width="100"
+          />
+          <span v-else>No Logo Available</span>
+        </div>
       </div>
 
       <!-- Debug: Display company data -->
@@ -63,6 +81,12 @@ export default {
     this.fetchCompany(); // Fetch the company data immediately without token check
   },
   methods: {
+    // Helper function to get CSRF token from cookies
+    getCSRFToken() {
+      const csrfToken = document.cookie.match(/csrftoken=([\w-]+)/);
+      return csrfToken ? csrfToken[1] : "";
+    },
+
     async fetchCompany() {
       const userId = localStorage.getItem("user_id");
       const companyId = localStorage.getItem("company_id");
@@ -74,8 +98,6 @@ export default {
       }
 
       try {
-        console.log(userId);
-        console.log(companyId);
         const response = await axios.get(
           "http://localhost:8000/developer/company/",
           {
@@ -83,12 +105,18 @@ export default {
               "Developer-ID": userId, // Pass the developer ID in the headers
               "Company-ID": companyId, // Pass the company ID in the headers
               "Content-Type": "application/json",
+              "X-CSRFToken": this.getCSRFToken(), // Include CSRF token
             },
           }
         );
 
         if (response.status === 200) {
-          this.company = response.data;
+          // Map the API response to match the data structure expected by the template
+          this.company = {
+            name: response.data.company_name,
+            description: response.data.company_description,
+            logo: response.data.company_logo,
+          };
         } else {
           alert("Error fetching company data.");
         }
@@ -102,7 +130,8 @@ export default {
     },
 
     async updateCompany() {
-      console.log("Attempting to update company...");
+      console.log("CSRF Token:", this.getCSRFToken());
+
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
@@ -110,14 +139,15 @@ export default {
           formData.append("logo", this.newLogo);
         }
 
+        const csrfToken = this.getCSRFToken(); // Get the CSRF token
         const response = await axios.put(
           `http://localhost:8000/developer/company/`,
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
-              "Developer-ID": this.userId, // Include developer ID
-              "Company-ID": this.companyId, // Include company ID
+              "X-CSRFToken": csrfToken, // Ensure CSRF token is included
+              "Developer-ID": this.userId,
+              "Company-ID": this.companyId,
             },
           }
         );
