@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -62,6 +63,13 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
+
+ # Custom headers 
+CORS_ALLOW_HEADERS = [
+    'developer-id', 'company-id', 'content-type', 'authorization',
+    'accept', 'accept-encoding', 'x-csrftoken', 'access-control-allow-origin',
+]
+
 
 # CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
 

@@ -1,65 +1,34 @@
-import logging
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import Company
+from django.http import JsonResponse
+from django.views import View  # Import View class for CBVs
 from developers.models import Developer
-from .serializers import CompanySerializer
-from rest_framework import status
+from .models import Company
 
-class CompanyView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+class CompanyView(View):
+    def get(self, request, *args, **kwargs):
+        # Retrieve the developer and company IDs from the headers
+        developer_id = request.headers.get('Developer-ID')
+        company_id = request.headers.get('Company-ID')
 
-    def get(self, request):
-        logging.debug(f"Request user: {request.user}, Authenticated: {request.user.is_authenticated}")
-
-        # Check if request.user is set correctly
-        user_id = getattr(request.user, 'id', None)
-        if not user_id:
-            logging.error("User ID not found in request.user.")
-            return Response({"error": "User authentication failed."}, status=status.HTTP_403_FORBIDDEN)
+        # If developer_id or company_id is not provided, return an error
+        if not developer_id or not company_id:
+            return JsonResponse({'error': 'Developer ID or Company ID not provided'}, status=400)
 
         try:
-            developer = Developer.objects.get(id=user_id)
-            logging.debug(f"Developer found: {developer}")
+            # Fetch the developer and associated company
+            developer = Developer.objects.get(id=developer_id)
+            company = Company.objects.get(id=company_id)
+
+            # Check if the developer is associated with the company
+            if developer.company.id == company.id:
+                return JsonResponse({
+                    'company_name': company.name,
+                    'company_description': company.description,
+                    'company_logo': company.logo.url if company.logo else None  # Return logo URL if it exists
+                })
+            else:
+                return JsonResponse({'error': 'Unauthorized'}, status=401)
+
         except Developer.DoesNotExist:
-            logging.error("Developer does not exist.")
-            return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # Ensure the developer has an associated company
-        if not hasattr(developer, 'company'):
-            logging.error("Developer has no associated company.")
-            return Response({"error": "Developer has no associated company"}, status=status.HTTP_404_NOT_FOUND)
-
-        company = developer.company
-        serializer = CompanySerializer(company)
-        return Response(serializer.data)
-
-    def put(self, request):
-        user_id = getattr(request.user, 'id', None)
-        if not user_id:
-            logging.error("User ID not found in request.user.")
-            return Response({"error": "User authentication failed."}, status=status.HTTP_403_FORBIDDEN)
-
-        try:
-            developer = Developer.objects.get(id=user_id)
-            logging.debug(f"Developer found: {developer}")
-        except Developer.DoesNotExist:
-            logging.error("Developer does not exist.")
-            return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # Ensure the developer has an associated company
-        if not hasattr(developer, 'company'):
-            logging.error("Developer has no associated company.")
-            return Response({"error": "Developer has no associated company"}, status=status.HTTP_404_NOT_FOUND)
-
-        company = developer.company
-        serializer = CompanySerializer(company, data=request.data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'Developer not found'}, status=404)
+        except Company.DoesNotExist:
+            return JsonResponse({'error': 'Company not found'}, status=404)

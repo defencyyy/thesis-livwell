@@ -42,35 +42,6 @@
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
 import { mapState } from "vuex";
-import { jwtDecode } from "jwt-decode"; // Use named import for jwtDecode
-
-// Function to check if the token is valid
-function checkTokenValidity() {
-  const token = localStorage.getItem("authToken");
-  console.log("Stored Token:", token);
-
-  if (!token) {
-    console.error("No token found!");
-    return false;
-  }
-
-  try {
-    const decoded = jwtDecode(token); // Use jwtDecode here
-    console.log("Decoded token:", decoded);
-    const currentTime = Date.now() / 1000; // Current time in seconds
-
-    if (decoded.exp < currentTime) {
-      console.error("Token has expired!");
-      return false;
-    } else {
-      console.log("Token is valid");
-      return true;
-    }
-  } catch (error) {
-    console.error("Invalid token", error);
-    return false;
-  }
-}
 
 export default {
   name: "DevCompany",
@@ -89,46 +60,47 @@ export default {
     }),
   },
   mounted() {
-    const isValidToken = checkTokenValidity();
-    if (isValidToken) {
-      this.fetchCompany();
-    } else {
-      alert("Your session has expired. Please log in again.");
-      this.$router.push({ name: "login" }); // Redirect to login page
-    }
+    this.fetchCompany(); // Fetch the company data immediately without token check
   },
   methods: {
     async fetchCompany() {
-      const token = localStorage.getItem("authToken");
+      const userId = localStorage.getItem("user_id");
+      const companyId = localStorage.getItem("company_id");
+
+      if (!userId || !companyId) {
+        alert("Developer or Company ID not found. Please log in.");
+        this.$router.push({ name: "DevLogin" });
+        return;
+      }
+
       try {
-        const response = await fetch(
-          `http://localhost:8000/developer/company/`,
+        console.log(userId);
+        console.log(companyId);
+        const response = await axios.get(
+          "http://localhost:8000/developer/company/",
           {
-            method: "GET",
             headers: {
-              Authorization: `Bearer ${token}`,
+              "Developer-ID": userId, // Pass the developer ID in the headers
+              "Company-ID": companyId, // Pass the company ID in the headers
               "Content-Type": "application/json",
             },
           }
         );
 
-        const data = await response.json();
-        if (response.ok) {
-          this.company = data; // Update company data if the response is successful
+        if (response.status === 200) {
+          this.company = response.data;
         } else {
-          console.error("Error fetching company data:", data);
-          if (data.detail === "Authentication credentials were not provided.") {
-            alert("Session expired. Please log in again.");
-            this.$router.push({ name: "login" });
-          }
+          alert("Error fetching company data.");
         }
       } catch (error) {
         console.error("Error fetching company data:", error);
+        alert("Error fetching company data.");
       }
     },
     onFileChange(event) {
       this.newLogo = event.target.files[0];
     },
+
     async updateCompany() {
       console.log("Attempting to update company...");
       try {
@@ -137,17 +109,19 @@ export default {
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
-        const token = localStorage.getItem("authToken");
+
         const response = await axios.put(
           `http://localhost:8000/developer/company/`,
           formData,
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
+              "Developer-ID": this.userId, // Include developer ID
+              "Company-ID": this.companyId, // Include company ID
             },
           }
         );
+
         console.log("Update response:", response);
         alert("Company updated successfully!");
       } catch (error) {
