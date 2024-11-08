@@ -63,6 +63,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
+CSRF_COOKIE_SAMESITE = 'None'
 
  # Custom headers 
 CORS_ALLOW_HEADERS = [

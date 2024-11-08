@@ -2,16 +2,14 @@ from django.http import JsonResponse
 from django.views import View
 from developers.models import Developer
 from .models import Company
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
-from django.http import QueryDict
+from rest_framework.parsers import MultiPartParser
+from django.middleware.csrf import get_token
+import logging
 
-from django.http import JsonResponse
-from django.views import View
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.utils.decorators import method_decorator
-from django.http import QueryDict
-from rest_framework.parsers import MultiPartParser, FormParser
+# Set up logging
+logger = logging.getLogger(__name__)
 
 class CompanyView(View):
     @method_decorator(ensure_csrf_cookie)
@@ -19,7 +17,10 @@ class CompanyView(View):
         developer_id = request.headers.get('Developer-ID')
         company_id = request.headers.get('Company-ID')
 
+        logger.debug(f"GET request received with Developer-ID: {developer_id} and Company-ID: {company_id}")
+
         if not developer_id or not company_id:
+            logger.error("Developer ID or Company ID not provided")
             return JsonResponse({'error': 'Developer ID or Company ID not provided'}, status=400)
 
         try:
@@ -27,25 +28,36 @@ class CompanyView(View):
             company = Company.objects.get(id=company_id)
 
             if developer.company.id == company.id:
-                return JsonResponse({
+                response = JsonResponse({
                     'company_name': company.name,
                     'company_description': company.description,
                     'company_logo': company.logo.url if company.logo else None
                 })
+                # Set CSRF token in response headers
+                csrf_token = get_token(request)
+                response["X-CSRFToken"] = csrf_token
+                logger.debug(f"CSRF token set in response: {csrf_token}")
+                return response
             else:
+                logger.warning("Unauthorized access attempt")
                 return JsonResponse({'error': 'Unauthorized'}, status=401)
 
         except Developer.DoesNotExist:
+            logger.error("Developer not found")
             return JsonResponse({'error': 'Developer not found'}, status=404)
         except Company.DoesNotExist:
+            logger.error("Company not found")
             return JsonResponse({'error': 'Company not found'}, status=404)
 
-    @method_decorator(ensure_csrf_cookie)
+    @method_decorator(csrf_exempt)
     def put(self, request, *args, **kwargs):
         developer_id = request.headers.get('Developer-ID')
         company_id = request.headers.get('Company-ID')
 
+        logger.debug(f"PUT request received with Developer-ID: {developer_id} and Company-ID: {company_id}")
+
         if not developer_id or not company_id:
+            logger.error("Developer ID or Company ID not provided")
             return JsonResponse({'error': 'Developer ID or Company ID not provided'}, status=400)
 
         try:
@@ -53,13 +65,14 @@ class CompanyView(View):
             company = Company.objects.get(id=company_id)
 
             if developer.company.id == company.id:
-                # Use MultiPartParser to handle form-data
-                parser = MultiPartParser()  # Use this for handling file uploads
+                # Log parsing form data
+                parser = MultiPartParser()
                 data = parser.parse(request)
 
-                # The description and logo come from the parsed data
                 description = data.data.get('description')
                 logo = data.files.get('logo')
+
+                logger.debug(f"Updating company with description: {description} and logo: {logo}")
 
                 if description:
                     company.description = description
@@ -67,12 +80,16 @@ class CompanyView(View):
                     company.logo = logo
 
                 company.save()
+                logger.info("Company updated successfully")
                 return JsonResponse({'message': 'Company updated successfully'})
 
             else:
+                logger.warning("Unauthorized access attempt")
                 return JsonResponse({'error': 'Unauthorized'}, status=401)
 
         except Developer.DoesNotExist:
+            logger.error("Developer not found")
             return JsonResponse({'error': 'Developer not found'}, status=404)
         except Company.DoesNotExist:
+            logger.error("Company not found")
             return JsonResponse({'error': 'Company not found'}, status=404)

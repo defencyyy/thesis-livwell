@@ -3,20 +3,14 @@
     <SideNav />
     <div class="content">
       <h2>Edit Company</h2>
-
-      <!-- Display user and company information -->
       <div class="user-info">
         <p><strong>User ID:</strong> {{ userId }}</p>
         <p><strong>User Role:</strong> {{ userType }}</p>
         <p><strong>Company ID:</strong> {{ companyId }}</p>
-
-        <!-- Display company name, description, and logo, even if they are empty -->
         <p><strong>Company Name:</strong> {{ company.name || "" }}</p>
         <p>
           <strong>Company Description:</strong> {{ company.description || "" }}
         </p>
-
-        <!-- For logo, only display the image if available, otherwise leave a blank -->
         <div>
           <strong>Company Logo:</strong>
           <img
@@ -28,13 +22,6 @@
           <span v-else>No Logo Available</span>
         </div>
       </div>
-
-      <!-- Debug: Display company data -->
-      <div class="company-data">
-        <h3>Company Data (Debug)</h3>
-        <pre>{{ company }}</pre>
-      </div>
-
       <form @submit.prevent="updateCompany">
         <div>
           <label for="description">Description:</label>
@@ -66,8 +53,8 @@ export default {
   components: { SideNav },
   data() {
     return {
-      company: {}, // Holds company data
-      newLogo: null, // Stores the new logo file
+      company: {},
+      newLogo: null,
     };
   },
   computed: {
@@ -78,15 +65,15 @@ export default {
     }),
   },
   mounted() {
-    this.fetchCompany(); // Fetch the company data immediately without token check
+    this.fetchCompany();
   },
   methods: {
-    // Helper function to get CSRF token from cookies
     getCSRFToken() {
-      const csrfToken = document.cookie.match(/csrftoken=([\w-]+)/);
-      return csrfToken ? csrfToken[1] : "";
+      const csrfToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken="));
+      return csrfToken ? csrfToken.split("=")[1] : "";
     },
-
     async fetchCompany() {
       const userId = localStorage.getItem("user_id");
       const companyId = localStorage.getItem("company_id");
@@ -102,16 +89,15 @@ export default {
           "http://localhost:8000/developer/company/",
           {
             headers: {
-              "Developer-ID": userId, // Pass the developer ID in the headers
-              "Company-ID": companyId, // Pass the company ID in the headers
+              "Developer-ID": userId,
+              "Company-ID": companyId,
               "Content-Type": "application/json",
-              "X-CSRFToken": this.getCSRFToken(), // Include CSRF token
+              "X-CSRFToken": this.getCSRFToken(),
             },
           }
         );
 
         if (response.status === 200) {
-          // Map the API response to match the data structure expected by the template
           this.company = {
             name: response.data.company_name,
             description: response.data.company_description,
@@ -130,32 +116,44 @@ export default {
     },
 
     async updateCompany() {
-      console.log("CSRF Token:", this.getCSRFToken());
+      const userId = localStorage.getItem("user_id");
+      const companyId = localStorage.getItem("company_id");
+
+      if (!userId || !companyId) {
+        alert("Developer or Company ID not found. Please log in.");
+        this.$router.push({ name: "DevLogin" });
+        return;
+      }
 
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
         if (this.newLogo) {
-          formData.append("logo", this.newLogo);
+          formData.append("logo", this.newLogo); // File data for logo
         }
 
-        const csrfToken = this.getCSRFToken(); // Get the CSRF token
         const response = await axios.put(
-          `http://localhost:8000/developer/company/`,
+          `http://localhost:8000/developer/company/`, // Endpoint remains the same
           formData,
           {
             headers: {
-              "X-CSRFToken": csrfToken, // Ensure CSRF token is included
-              "Developer-ID": this.userId,
-              "Company-ID": this.companyId,
+              "Developer-ID": userId,
+              "Company-ID": companyId,
+              "X-CSRFToken": this.getCSRFToken(), // CSRF token
             },
           }
         );
 
         console.log("Update response:", response);
         alert("Company updated successfully!");
+        // Optionally update local state or redirect after successful update
       } catch (error) {
         console.error("Error updating company:", error);
+        // Log the full error response for debugging purposes
+        if (error.response) {
+          console.error(error.response.data);
+          console.error(error.response.status);
+        }
         alert("Error updating company. Please try again.");
       }
     },
