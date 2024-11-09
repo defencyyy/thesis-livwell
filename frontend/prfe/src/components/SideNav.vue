@@ -93,7 +93,7 @@ export default {
 <style scoped>
 .sidebar {
   width: 250px;
-  transition: width 0.3s;
+  transition: width 0.5s;
   background-color: gray;
   height: 96%;
 }
