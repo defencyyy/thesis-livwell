@@ -48,8 +48,9 @@
                       <router-link
                         class="text-muted"
                         to="/developer/forgot-password"
-                        >Forgot Password</router-link
                       >
+                        Forgot Password
+                      </router-link>
                     </div>
 
                     <div class="text-center pt-1 mb-5 pb-1">
@@ -107,7 +108,6 @@ export default {
     ...mapActions(["login"]),
 
     getCookie(name) {
-      // Cookie helper function
       let cookieArr = document.cookie.split(";");
       for (let cookie of cookieArr) {
         let [key, value] = cookie.split("=");
@@ -121,6 +121,7 @@ export default {
       if (this.username && this.password) {
         try {
           const csrftoken = this.getCookie("csrftoken");
+          console.log("CSRF Token in login:", csrftoken); // Debugging
 
           const response = await fetch(
             "http://localhost:8000/developer/login/",
@@ -134,24 +135,26 @@ export default {
                 username: this.username,
                 password: this.password,
               }),
-              credentials: "include",
+              credentials: "include", // Ensure cookies are sent with the request
             }
           );
 
           const data = await response.json();
-          if (data.success) {
-            // Storing JWT and company data
-            localStorage.setItem("authToken", data.tokens.access); // Save JWT token here
-            localStorage.setItem("company_id", data.user.company_id);
-            localStorage.setItem("user_id", data.user.id);
-            localStorage.setItem("user_role", data.user.user_role);
-            localStorage.setItem("logged_in", "true");
 
+          if (data.success) {
+            const user = data.user;
+            const token = data.tokens.access;
+
+            // Commit the login action to Vuex and set localStorage
+            this.$store.dispatch("login", { user, token });
+
+            // Redirect to dashboard
             this.$router.push("/developer/dashboard");
           } else {
-            this.error = data.message;
+            this.error = data.message || "Invalid username or password.";
           }
         } catch (error) {
+          console.error("Login error:", error); // Debugging
           this.error = "An error occurred during login.";
         }
       } else {

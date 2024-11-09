@@ -15,7 +15,7 @@
           <strong>Company Logo:</strong>
           <img
             v-if="company.logo"
-            :src="company.logo"
+            :src="getLogoUrl(company.logo)"
             alt="Company Logo"
             width="100"
           />
@@ -32,7 +32,7 @@
           <input type="file" @change="onFileChange" />
           <img
             v-if="company.logo"
-            :src="company.logo"
+            :src="getLogoUrl(company.logo)"
             alt="Company Logo"
             width="100"
           />
@@ -54,7 +54,7 @@ export default {
   data() {
     return {
       company: {},
-      draftDescription: "", // New variable for draft description
+      draftDescription: "",
       newLogo: null,
     };
   },
@@ -76,10 +76,7 @@ export default {
       return csrfToken ? csrfToken.split("=")[1] : "";
     },
     async fetchCompany() {
-      const userId = localStorage.getItem("user_id");
-      const companyId = localStorage.getItem("company_id");
-
-      if (!userId || !companyId) {
+      if (!this.userId || !this.companyId) {
         alert("Developer or Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
@@ -90,8 +87,8 @@ export default {
           "http://localhost:8000/developer/company/",
           {
             headers: {
-              "Developer-ID": userId,
-              "Company-ID": companyId,
+              "Developer-ID": this.userId,
+              "Company-ID": this.companyId,
               "Content-Type": "application/json",
               "X-CSRFToken": this.getCSRFToken(),
             },
@@ -104,7 +101,6 @@ export default {
             description: response.data.company_description,
             logo: response.data.company_logo,
           };
-          // Initialize draftDescription with the current description
           this.draftDescription = this.company.description;
         } else {
           alert("Error fetching company data.");
@@ -114,44 +110,45 @@ export default {
         alert("Error fetching company data.");
       }
     },
+    getLogoUrl(logoPath) {
+      return `http://localhost:8000${logoPath}`;
+    },
     onFileChange(event) {
       this.newLogo = event.target.files[0];
     },
     async updateCompany() {
-      const userId = localStorage.getItem("user_id");
-      const companyId = localStorage.getItem("company_id");
-
-      if (!userId || !companyId) {
+      if (!this.userId || !this.companyId) {
         alert("Developer or Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
       }
 
-      // Set company description to the draft value before submitting
       this.company.description = this.draftDescription;
 
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
         if (this.newLogo) {
-          formData.append("logo", this.newLogo); // File data for logo
+          formData.append("logo", this.newLogo);
         }
 
         const response = await axios.put(
-          `http://localhost:8000/developer/company/`,
+          "http://localhost:8000/developer/company/",
           formData,
           {
             headers: {
-              "Developer-ID": userId,
-              "Company-ID": companyId,
+              "Developer-ID": this.userId,
+              "Company-ID": this.companyId,
               "X-CSRFToken": this.getCSRFToken(),
             },
           }
         );
 
-        console.log("Update response:", response);
-        alert("Company updated successfully!");
-        // Optionally update local state or redirect after successful update
+        if (response.status === 200) {
+          alert("Company updated successfully!");
+        } else {
+          alert("Error updating company.");
+        }
       } catch (error) {
         console.error("Error updating company:", error);
         if (error.response) {

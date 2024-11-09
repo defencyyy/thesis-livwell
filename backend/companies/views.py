@@ -6,6 +6,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.parsers import MultiPartParser
 from django.middleware.csrf import get_token
+from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 
 # Set up logging
@@ -28,11 +29,24 @@ class CompanyView(View):
             company = Company.objects.get(id=company_id)
 
             if developer.company.id == company.id:
+                # Set cookies with SameSite=None and Secure=True
+                refresh = RefreshToken.for_user(developer)
+                access_token = str(refresh.access_token)
+
                 response = JsonResponse({
                     'company_name': company.name,
                     'company_description': company.description,
                     'company_logo': company.logo.url if company.logo else None
                 })
+
+                # Set the cookies with SameSite=None and Secure=True
+                response.set_cookie(
+                    'access_token', access_token, httponly=True, max_age=900, samesite='None', secure=True
+                )
+                response.set_cookie(
+                    'refresh_token', str(refresh), httponly=True, max_age=86400, samesite='None', secure=True
+                )
+
                 # Set CSRF token in response headers
                 csrf_token = get_token(request)
                 response["X-CSRFToken"] = csrf_token
@@ -49,7 +63,7 @@ class CompanyView(View):
             logger.error("Company not found")
             return JsonResponse({'error': 'Company not found'}, status=404)
 
-    @method_decorator(csrf_exempt)
+    @csrf_exempt
     def put(self, request, *args, **kwargs):
         developer_id = request.headers.get('Developer-ID')
         company_id = request.headers.get('Company-ID')

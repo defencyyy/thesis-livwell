@@ -1,6 +1,6 @@
 # Django Lib
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
 from django.urls import reverse
@@ -22,7 +22,7 @@ from sites.models import Site
 import json
 import re
 
-@csrf_exempt
+@csrf_protect
 def login_view(request, user_role):
     if request.method == 'POST':
         try:
@@ -70,7 +70,6 @@ def login_view(request, user_role):
                     "contact_number": user.contact_number,
                     "user_role": user_role,
                     "company_id": user.company.id,  # Include the company ID here
-                    "company_name": user.company.name,  # Include company name if needed
                 }
             }, status=200)
 
