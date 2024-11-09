@@ -25,7 +25,7 @@
       <form @submit.prevent="updateCompany">
         <div>
           <label for="description">Description:</label>
-          <textarea v-model="company.description"></textarea>
+          <textarea v-model="draftDescription"></textarea>
         </div>
         <div>
           <label for="logo">Logo:</label>
@@ -54,6 +54,7 @@ export default {
   data() {
     return {
       company: {},
+      draftDescription: "", // New variable for draft description
       newLogo: null,
     };
   },
@@ -103,6 +104,8 @@ export default {
             description: response.data.company_description,
             logo: response.data.company_logo,
           };
+          // Initialize draftDescription with the current description
+          this.draftDescription = this.company.description;
         } else {
           alert("Error fetching company data.");
         }
@@ -114,7 +117,6 @@ export default {
     onFileChange(event) {
       this.newLogo = event.target.files[0];
     },
-
     async updateCompany() {
       const userId = localStorage.getItem("user_id");
       const companyId = localStorage.getItem("company_id");
@@ -125,6 +127,9 @@ export default {
         return;
       }
 
+      // Set company description to the draft value before submitting
+      this.company.description = this.draftDescription;
+
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
@@ -133,13 +138,13 @@ export default {
         }
 
         const response = await axios.put(
-          `http://localhost:8000/developer/company/`, // Endpoint remains the same
+          `http://localhost:8000/developer/company/`,
           formData,
           {
             headers: {
               "Developer-ID": userId,
               "Company-ID": companyId,
-              "X-CSRFToken": this.getCSRFToken(), // CSRF token
+              "X-CSRFToken": this.getCSRFToken(),
             },
           }
         );
@@ -149,7 +154,6 @@ export default {
         // Optionally update local state or redirect after successful update
       } catch (error) {
         console.error("Error updating company:", error);
-        // Log the full error response for debugging purposes
         if (error.response) {
           console.error(error.response.data);
           console.error(error.response.status);
