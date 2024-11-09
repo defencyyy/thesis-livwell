@@ -30,7 +30,6 @@
             </li>
           </ul>
         </div>
-        
       </div>
     </nav>
   </template>
@@ -45,7 +44,7 @@
   <style scoped>
  .navbar
  {
-    background-color: #42b983;
+    background-color: green;
  }
   </style>
   

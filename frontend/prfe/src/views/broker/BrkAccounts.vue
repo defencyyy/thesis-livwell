@@ -1,7 +1,9 @@
 <template>
-  <div class="accounts-page">
+  <SideNav/>
 
-    <SideNav/>
+  <div class="accounts-page">
+  
+  
       <div class="content row justify-content-center">
         <div class="col-md-6 col-lg-4">
           <div class="card mt-5">

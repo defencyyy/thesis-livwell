@@ -76,6 +76,7 @@ export default {
           { name: "Manage Customer", link: "/broker/manage-customer" },
           { name: "Milestones", link: "/broker/milestones" },
           { name: "Account", link: "/broker/account" },
+          { name: "Test", link: "/broker/test"},
         ];
       } else {
         this.menuItems = [
