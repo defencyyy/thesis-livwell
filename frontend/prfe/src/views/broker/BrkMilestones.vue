@@ -1,4 +1,5 @@
 <template>
+  <HeaderLivwell/>
   <div class="milestones-page">
     <SideNav />
     <div class="content">
@@ -61,12 +62,13 @@
 
 <script>
 
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
 
 export default {
   name: "BrkMilestones",
   components: {
-    SideNav, 
+    SideNav, HeaderLivwell 
   },
   data() {
     return {

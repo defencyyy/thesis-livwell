@@ -1,4 +1,7 @@
 <template>
+  <header>
+    <HeaderLivwell/>
+  </header>
   <div class="affiliated-units-page">
     <SideNav />
     <div class="content">
@@ -26,6 +29,7 @@
 </template>
 
 <script>
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
 import axios from 'axios'; // Ensure you have axios installed
 import { useRouter } from 'vue-router'; // Import useRouter
@@ -33,7 +37,7 @@ import { useRouter } from 'vue-router'; // Import useRouter
 export default {
   name: "AffiliatedUnits",
   components: {
-    SideNav, // Registering the SideNav component
+    SideNav, HeaderLivwell // Registering the SideNav component
   },
   setup() {
     const router = useRouter(); // Use router for navigation

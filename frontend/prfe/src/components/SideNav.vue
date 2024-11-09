@@ -96,7 +96,7 @@ export default {
   width: 250px;
   transition: width 0.5s;
   background-color: gray;
-  height: 96%;
+  height: 100%;
 }
 
 .sidebar.collapsed {
