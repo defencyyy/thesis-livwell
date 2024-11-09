@@ -1,5 +1,6 @@
 <template>
   <div class="manage-customers-page">
+  
     <SideNav />
     <div class="content">
       <h1>Manage Customers</h1>

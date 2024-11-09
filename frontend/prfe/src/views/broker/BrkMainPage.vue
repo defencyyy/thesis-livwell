@@ -1,6 +1,11 @@
 <template>
+  <Header>
+    <HeaderLivwell/>
+  </Header>
   <div class="main-page">
+    
     <SideNav />
+
     <div class="content">
       <h1>Welcome, You Are Loggedd In!</h1>
       <p>This is the main page for brokers.</p>
@@ -11,11 +16,12 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 
 export default {
   name: "BrkMainPage",
   components: {
-    SideNav,
+    SideNav, HeaderLivwell,
   },
   methods: {
     logout() {
@@ -30,6 +36,12 @@ export default {
 </script>
 
 <style scoped>
+
+header
+{
+  background-color: #42b983;
+}
+
 .main-page {
   display: flex;
   height: 100vh;

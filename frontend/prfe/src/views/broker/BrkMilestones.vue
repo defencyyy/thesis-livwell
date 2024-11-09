@@ -60,12 +60,13 @@
 </template>
 
 <script>
+
 import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
 
 export default {
   name: "BrkMilestones",
   components: {
-    SideNav,
+    SideNav, 
   },
   data() {
     return {

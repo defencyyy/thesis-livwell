@@ -1,5 +1,6 @@
 <template>
   <div class="accounts-page">
+
     <SideNav/>
       <div class="content row justify-content-center">
         <div class="col-md-6 col-lg-4">
@@ -44,6 +45,7 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+
 
 export default {
   name: "BrkAccounts",

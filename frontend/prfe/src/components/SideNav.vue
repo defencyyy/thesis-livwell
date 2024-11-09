@@ -1,11 +1,12 @@
 <template>
   <div>
-    <b-button @click="toggleSidebar">{{
-      isCollapsed ? "UnCollapse" : "Collapse"
-    }}</b-button>
+    
     <div :class="['sidebar', { collapsed: isCollapsed }]">
       <h4 id="sidebar-title">Company Name and Logo</h4>
       <nav class="mb-3">
+        <b-button @click="toggleSidebar">{{
+      isCollapsed ? "UnCollapse" : "Collapse"
+    }}</b-button>
         <b-nav vertical>
           <template v-for="(item, index) in menuItems" :key="index">
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
