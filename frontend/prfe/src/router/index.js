@@ -11,7 +11,6 @@ import DevMainPage from "@/views/developer/DevMainPage.vue";
 
 // Dev Functions
 import DevFuncAccount from "@/views/developer/functions/DevAccount.vue";
-import DevFuncAffiliation from "@/views/developer/functions/DevAffiliation.vue";
 import DevFuncBroker from "@/views/developer/functions/DevBrokers.vue";
 import DevFuncCompany from "@/views/developer/functions/DevCompany.vue";
 import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
@@ -62,12 +61,6 @@ const routes = [
     path: "/developer/account",
     name: "DevFuncAccount",
     component: DevFuncAccount,
-    meta: { requiresAuth: true, role: "developer" },
-  },
-  {
-    path: "/developer/affiliation",
-    name: "DevFuncAffiliation",
-    component: DevFuncAffiliation,
     meta: { requiresAuth: true, role: "developer" },
   },
   {
