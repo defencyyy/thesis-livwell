@@ -44,7 +44,8 @@
   <style scoped>
  .navbar
  {
-    background-color: green;
+    background-color:  #42b983;
+    
  }
   </style>
   
