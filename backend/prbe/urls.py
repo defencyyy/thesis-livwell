@@ -20,8 +20,11 @@ urlpatterns = [
     path('sales/details/', views.sales_details_view, name='sales-details'),
     path('brokers/<int:broker_id>/', views.get_broker, name='get_broker'),
     path('sites/available/', views.get_available_sites, name='get_available_sites'),
-    path('units/available/', views.get_available_units, name='get_available_units'),  # Add the new URL pattern
-    path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  # URL pattern for fetching site name
+    path('units/available/', views.get_available_units, name='get_available_units'),  
+    path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  
+    path('customers/broker/<int:broker_id>/', views.get_customers_for_broker, name='get_customers_for_broker'),
+
+
 
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 

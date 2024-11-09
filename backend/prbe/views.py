@@ -347,7 +347,7 @@ def sales_details_view(request):
             sales_details = []
             for sale in sales:
                 sales_details.append({
-                    'unit_name': sale.unit.title,  # Get the unit title from Units_unit
+                    'unit_name': sale.unit.unit_title,  # Get the unit title from Units_unit
                     'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",  # Customer name from Customers_customer
                     'date_sold': sale.date_sold.strftime("%Y-%m-%d")  # Sale date from Sales_sale
                 })
@@ -383,7 +383,11 @@ def get_site_name(request, site_id):
         try:
             # Fetch the site based on the provided site_id
             site = Site.objects.get(id=site_id)
-            return JsonResponse({'name': site.name}, status=200)  # Adjust 'name' to your actual field name
+            created_year = site.created_at.year  # Extract the year from the created_at field
+            return JsonResponse({
+                'name': site.name,
+                'created_year': created_year  # Return the creation year along with the site name
+            }, status=200)
 
         except Site.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Site not found'}, status=404)
@@ -392,6 +396,7 @@ def get_site_name(request, site_id):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 
 @csrf_exempt
 def get_available_units(request):
@@ -409,8 +414,16 @@ def get_available_units(request):
             for unit in units:
                 unit_data.append({
                     'id': unit.id,
-                    'title': unit.title,  # Adjust this to your actual field names
-                    # Add any additional fields you want to return
+                    'unit_title': unit.unit_title,  # Adjust this to your actual field names
+                    'picture':  request.build_absolute_uri(unit.picture.url) if unit.picture else None,
+  # Include the picture URL (if available)
+                    'price': unit.price,  # Include the price
+                    'bedroom':unit.bedroom,
+                    "bathroom":unit.bathroom,
+                    "floor_area":unit.floor_area,
+                    "floor":unit.floor,
+                    "balcony":unit.balcony,
+                    "view":unit.view,
                 })
 
             return JsonResponse({'units': unit_data}, status=200)
@@ -419,7 +432,55 @@ def get_available_units(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
-      
+
+@csrf_exempt
+def get_customers_for_broker(request, broker_id):
+    try:
+        # Fetch the broker (you can also validate this broker)
+        broker = get_object_or_404(Broker, pk=broker_id)
+
+        # Fetch customers for the broker
+        customers = Customer.objects.filter(broker_id=broker_id)
+
+        customer_data = []
+        for customer in customers:
+
+            # Get the customer details
+            customer_name = f"{customer.first_name} {customer.last_name}"
+            contact_number = customer.contact_number
+
+            # Check if the customer has made any sales
+            sales = Sale.objects.filter(customer_id=customer.id)
+
+            if sales.exists():
+                # For each sale, get the related site and unit, create a row for each sale
+                for sale in sales:
+                    site = Site.objects.get(id=sale.site_id)
+                    unit = Unit.objects.get(id=sale.unit_id)
+
+                    # Add a new row for each sale the customer made
+                    customer_data.append({
+                        'customer_name': customer_name,
+                        'contact_number': contact_number,
+                        'site': site.name,
+                        'unit': unit.unit_title,
+                        'document_status': "Pending",  # Adjust document status as needed
+                    })
+            else:
+                # If no sales, add a "To be followed" entry in a single row
+                customer_data.append({
+                    'customer_name': customer_name,
+                    'contact_number': contact_number,
+                    'site': "To be followed",
+                    'unit': "To be followed",
+                    'document_status': "Pending",  # Adjust document status as needed
+                })
+
+
+        return JsonResponse({'success': True, 'customers': customer_data}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 # Developers
 @csrf_exempt
