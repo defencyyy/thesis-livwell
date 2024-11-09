@@ -22,7 +22,7 @@ from sites.models import Site
 import json
 import re
 
-@csrf_protect
+@csrf_exempt
 def login_view(request, user_role):
     if request.method == 'POST':
         try:

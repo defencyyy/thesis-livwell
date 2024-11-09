@@ -193,7 +193,7 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Always proceed to the next route
+  // If no conditions are met, continue to the next route
   next();
 });
 

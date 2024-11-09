@@ -69,12 +69,6 @@ export default {
     this.fetchCompany();
   },
   methods: {
-    getCSRFToken() {
-      const csrfToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken="));
-      return csrfToken ? csrfToken.split("=")[1] : "";
-    },
     async fetchCompany() {
       if (!this.userId || !this.companyId) {
         alert("Developer or Company ID not found. Please log in.");
@@ -90,7 +84,6 @@ export default {
               "Developer-ID": this.userId,
               "Company-ID": this.companyId,
               "Content-Type": "application/json",
-              "X-CSRFToken": this.getCSRFToken(),
             },
           }
         );
@@ -139,7 +132,6 @@ export default {
             headers: {
               "Developer-ID": this.userId,
               "Company-ID": this.companyId,
-              "X-CSRFToken": this.getCSRFToken(),
             },
           }
         );

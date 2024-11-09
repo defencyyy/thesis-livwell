@@ -63,7 +63,7 @@ class CompanyView(View):
             logger.error("Company not found")
             return JsonResponse({'error': 'Company not found'}, status=404)
 
-    @csrf_exempt
+    @method_decorator(ensure_csrf_cookie)
     def put(self, request, *args, **kwargs):
         developer_id = request.headers.get('Developer-ID')
         company_id = request.headers.get('Company-ID')
