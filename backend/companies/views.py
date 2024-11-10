@@ -1,20 +1,21 @@
-from rest_framework import generics
-from .models import Company
-from .serializers import CompanySerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from .models import Company
+from developers.models import Developer  # Import your custom Developer model
+from .serializers import CompanySerializer
 
-class CompanyView(generics.ListCreateAPIView):
-    serializer_class = CompanySerializer
+class CompanyView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        # Assuming the user has a foreign key to the Company model
-        return Company.objects.filter(developer=self.request.user)
+    def get(self, request):
+        # Adjust if request.user is not automatically mapped to a Developer instance
+        try:
+            developer = Developer.objects.get(email=request.user.email)  # Adjust if needed
+            company = developer.company
+        except Developer.DoesNotExist:
+            return Response({"error": "Developer not found"}, status=404)
 
-class CompanyDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        # Return only the company associated with the logged-in user
-        return Company.objects.filter(developer=self.request.user)
+        # Serialize the company data
+        serializer = CompanySerializer(company)
+        return Response(serializer.data)

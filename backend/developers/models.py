@@ -1,14 +1,16 @@
 from django.db import models
 from companies.models import Company
 from django.contrib.auth.hashers import make_password
+from django.core.validators import RegexValidator
 
 class Developer(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    email = models.EmailField(max_length=50)
+    email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
-    contact_number = models.CharField(max_length=20)
+    max_length=20,
+    validators=[RegexValidator(r'^\+?1?\d{9,15}$', message="Enter a valid phone number")],
     password = models.CharField(max_length=128, blank=True, null=True)
     last_login = models.DateTimeField(null=True, blank=True)  
 
@@ -25,3 +27,6 @@ class Developer(models.Model):
 
     def get_email_field_name(self):
         return 'email' 
+    
+    class Meta:
+        ordering = ['last_name', 'first_name']
