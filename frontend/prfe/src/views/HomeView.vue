@@ -48,7 +48,7 @@
 </nav>
 
 <section>
-<div class="d-flex justify-content-evenly bg-secondary">
+<!-- <div class="bods d-flex justify-content-evenly bg-secondary">
 
   <div class="home text-white">
     <img alt="Vue logo" src="@/assets/logo.png"/>
@@ -71,7 +71,35 @@
       <button @click="goToBrokerLogin">Broker Login</button>
     </div>
   </div>
+</div> -->
+
+<section class="hero overlay">
+    <div class="bods d-flex justify-content-evenly">
+
+<div class="home text-white">
+  <img alt="Vue logo" src="@/assets/logo.png"/>
+  <h1>Welcome to LivWell!</h1>
+  <p>Explore listings or manage your properties with ease.</p>
+
+  <div class="button-container">
+    <button @click="goToDeveloperLogin">Developer Login</button>
+  
+  </div>
 </div>
+
+<div class="home">
+  <img alt="Vue logo" src="@/assets/logo.png" />
+  <h1>Welcome to LivWell!</h1>
+  <p>Explore listings or manage your properties with ease.</p>
+
+  <div class="button-container">
+
+    <button @click="goToBrokerLogin">Broker Login</button>
+  </div>
+</div>
+</div>
+</section>
+
 </section>
 
 
@@ -79,7 +107,7 @@
           <p class="fs-1">FEATURES</p>
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="logos col-lg-4">
                         <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
                             <div class="features-icons-icon d-flex"><i class="bi-window m-auto text-primary"></i></div>
                             <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
@@ -87,7 +115,7 @@
                             <p class="lead mb-0">This theme will look great on any device, no matter the size!</p>
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="logos col-lg-4">
                         <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
                             <div class="features-icons-icon d-flex"><i class="bi-layers m-auto text-primary"></i></div>
                             <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
@@ -95,7 +123,7 @@
                             <p class="lead mb-0">Featuring the latest build of the new Bootstrap 5 framework!</p>
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="logos col-lg-4">
                         <div class="features-icons-item mx-auto mb-0 mb-lg-3">
                             <div class="features-icons-icon d-flex"><i class="bi-terminal m-auto text-primary"></i></div>
                             <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
@@ -108,35 +136,35 @@
 </section>
 
 <section class="showcase">
-      <div class="container-fluid p-0">
-                <div class="row g-0">
-                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+    <div class="container-fluid p-0">
+                <div class="imgpic row g-0">
+                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; border: 20px;"></div>
                     <div class="col-lg-6 order-lg-1 my-auto showcase-text ">
                         <h2 style="padding-top: 125px;">Fully Responsive Design</h2>
                         <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">When you use a theme created by Start Bootstrap, you know that the theme will look great on any device, whether it's a phone, tablet, or desktop the page will behave responsively!</p>
                     </div>
                 </div>
-                <div class="row g-0">
+                <div class="imgpic row g-0">
                     <div class="col-lg-6 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                     <div class="col-lg-6 my-auto showcase-text">
                         <h2 style="padding-top: 125px;">Updated For Bootstrap 5</h2>
-                        <p class="lead mb-0" style="padding-top: 25px;">Newly improved, and full of great utility classes, Bootstrap 5 is leading the way in mobile responsive web development! All of the themes on Start Bootstrap are now using Bootstrap 5!</p>
+                        <p class="lead mb-0" style="padding-top: 25px; text-align: left; margin-right: 60px; margin-left: 60px">Newly improved, and full of great utility classes, Bootstrap 5 is leading the way in mobile responsive web development! All of the themes on Start Bootstrap are now using Bootstrap 5!</p>
                     </div>
                 </div>
-                <div class="row g-0">
+                <div class="imgpic row g-0">
                     <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                     <div class="col-lg-6 order-lg-1 my-auto showcase-text">
                         <h2 style="padding-top: 125px;">Easy to Use & Customize</h2>
                         <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">Landing Page is just HTML and CSS with a splash of SCSS for users who demand some deeper customization options. Out of the box, just add your content and images, and your new landing page will be ready to go!</p>
                     </div>
                 </div>
-            </div>
+    </div>
 </section>
 
 
 <section class="FAQ bg-light">
             <div class="container">
-                <div class="row justify-content-center">
+                <div class="FAWS row justify-content-center">
                     <div class="col-lg-10">
                         <div class="card card-style1 border-0">
                             <div class="card-body p-4 p-md-5 p-xl-6">
@@ -211,7 +239,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+</section>
 
 
 
@@ -344,6 +372,11 @@ nav{
   height: 480px;
 }
 
+.bods {
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
 /* ABOUT */
 @keyframes fade-up{
     0% {
@@ -466,9 +499,9 @@ body{margin-top:20px;}
     border-top: none;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    border-left: 1px solid #15395a;
+    /* border-left: 1px solid #15395a;
     border-right: 1px solid #15395a;
-    border-bottom: 1px solid #15395a;
+    border-bottom: 1px solid #15395a; */
 }
 @media screen and (max-width: 767px) {
     .accordion-style .btn-link {
@@ -514,6 +547,7 @@ body{margin-top:20px;}
     margin-bottom: 10px;
     position: relative;
     display: inline-block;
+
 }
 .text-primary {
     color: #ceaa4d !important;
@@ -588,6 +622,75 @@ footer */
  }
 
 
+ /* FEATURES ANIMATION */
+ @keyframes appear {
+        from {
+          opacity: 0;
+          clip-path: inset(-100%);
+        }
+        to {
+          opacity: 1;
+          clip-path: inset(0 0 0 0);
+        }
+      }
+  
+      .logos, .imgpic, .FAWS {
+        animation: appear linear;
+        animation-timeline: view();
+        animation-range: entry 0% cover 50%;
+      }
+
+
+
+/* LOGIN CSS      */
+.overlay {
+  border-image: linear-gradient(hsla(0, 0%, 41%, 0.6), hsla(0, 1%, 39%, 0.6))
+    fill 1;
+}
+
+.hero {
+  background-image: url("https://philpropertyexpert.com/wp-content/uploads/2015/04/SMDC-Light-Residences-Condominium-Amenities-Area.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  min-block-size: 80vh;
+  place-content: center;
+  text-align: center;
+  animation: fade-up 1s;
+}
+.home
+{
+    animation: fade-up 2s;
+}
+
+@layer general-styling {
+  html {
+    color-scheme: dark light;
+    font-family: system-ui;
+    line-height: 1.6;
+  }
+
+  body {
+    font-size: 2rem;
+    margin: 1rem;
+  }
+
+  h1 {
+    line-height: 1;
+  }
+}
+
+@keyframes fade-up{
+    0% {
+        opacity: 0;
+        transform:  translateY(-30p) scale(0.9);
+    }
+
+    100%{
+        opacity: 1;
+        transform:  translateY(0px) scale(1);
+    }
+}
 
 </style>
 
