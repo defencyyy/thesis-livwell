@@ -48,56 +48,33 @@
 </nav>
 
 <section>
-<!-- <div class="bods d-flex justify-content-evenly bg-secondary">
-
-  <div class="home text-white">
-    <img alt="Vue logo" src="@/assets/logo.png"/>
-    <h1>Welcome to LivWell!</h1>
-    <p>Explore listings or manage your properties with ease.</p>
-
-    <div class="button-container">
-      <button @click="goToDeveloperLogin">Developer Login</button>
-    
-    </div>
-  </div>
-
-  <div class="home">
-    <img alt="Vue logo" src="@/assets/logo.png" />
-    <h1>Welcome to LivWell!</h1>
-    <p>Explore listings or manage your properties with ease.</p>
-
-    <div class="button-container">
-
-      <button @click="goToBrokerLogin">Broker Login</button>
-    </div>
-  </div>
-</div> -->
 
 <section class="hero overlay">
     <div class="bods d-flex justify-content-evenly">
 
-<div class="home text-white">
-  <img alt="Vue logo" src="@/assets/logo.png"/>
-  <h1>Welcome to LivWell!</h1>
-  <p>Explore listings or manage your properties with ease.</p>
+        <div class="home text-white">
+        <img alt="Vue logo" src="@/assets/logo.png"/>
+        <h1>Welcome to LivWell!</h1>
+        <p>Explore listings or manage your properties with ease.</p>
 
-  <div class="button-container">
-    <button @click="goToDeveloperLogin">Developer Login</button>
-  
-  </div>
-</div>
+        <div class="button-container">
+            <button @click="goToDeveloperLogin">Developer Login</button>
+        
+        </div>
+        </div>
 
-<div class="home">
-  <img alt="Vue logo" src="@/assets/logo.png" />
-  <h1>Welcome to LivWell!</h1>
-  <p>Explore listings or manage your properties with ease.</p>
+        <div class="home">
+        <img alt="Vue logo" src="@/assets/logo.png" />
+        <h1>Welcome to LivWell!</h1>
+        <p>Explore listings or manage your properties with ease.</p>
 
-  <div class="button-container">
+        <div class="button-container">
 
-    <button @click="goToBrokerLogin">Broker Login</button>
-  </div>
-</div>
-</div>
+            <button @click="goToBrokerLogin">Broker Login</button>
+        </div>
+        </div>
+    </div>
+
 </section>
 
 </section>
