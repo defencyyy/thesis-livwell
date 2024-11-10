@@ -44,8 +44,16 @@
   <style scoped>
  .navbar
  {
-    background-color:  #42b983;
-    
+    background-color: #FAD566;
+  }
+
+ .navbar-brand{
+  justify-content: flex-start
+ }
+
+ .navbar-nav
+ {
+  padding-left: 45%;
  }
   </style>
   

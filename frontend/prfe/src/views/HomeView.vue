@@ -1,4 +1,4 @@
-<template>
+<template class="all">
  
  <nav class="navbar navbar-expand-lg navbar-light fixed-top mask-custom shadow-0">
     <div class="container">
@@ -315,8 +315,8 @@ button {
   font-size: 16px;
   cursor: pointer;
   border: none;
-  background-color: #4caf50;
-  color: white;
+  background-color: #FFE79E;
+  color: black;
   border-radius: 5px;
   transition: background-color 0.3s;
 }
@@ -326,7 +326,7 @@ button:hover {
 }
 
 nav{
-  background-color: #4caf50;
+  background-color: #FFE79E;
 }
 
 .features-icons
@@ -344,6 +344,43 @@ nav{
   height: 480px;
 }
 
+/* ABOUT */
+@keyframes fade-up{
+    0% {
+        opacity: 0;
+        transform:  translateY(-30p) scale(0.9);
+    }
+
+    100%{
+        opacity: 1;
+        transform:  translateY(0px) scale(1);
+    }
+}
+
+.features-icons
+{
+    animation: fade-up 5s;
+}
+
+.showcase
+{
+    animation: fade-up 3s;
+}
+
+@keyframes fade-left{
+    0% {
+        opacity: 0;
+        transform:  translateY(-30px) scale(0.9);
+    }
+
+    100%{
+        opacity: 1;
+        transform:  translateY(0px) scale(1);
+    }
+}
+.container{
+    animation: fade-left 0.5s;
+}
 
 /* FAQ */
 body{margin-top:20px;}
@@ -549,6 +586,8 @@ footer */
      right: auto;
      width: 100%
  }
+
+
 
 </style>
 
