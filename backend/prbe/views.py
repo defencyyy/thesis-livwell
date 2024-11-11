@@ -481,36 +481,109 @@ def get_customers_for_broker(request, broker_id):
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+
+def fetch_sites(request):
+    # Filter sites that have available units
+    sites = Site.objects.filter(unit__status='available').distinct()
+
+    site_data = []
+    for site in sites:
+        site_data.append({
+            'id': site.id,
+            'name': site.name,  # Site name
+            'units': [
+                {
+                    'id': unit.id,
+                    'unit_title': unit.unit_title  # Unit title
+                }
+                for unit in site.unit_set.filter(status='available')  # Only available units for the site
+            ]
+        })
+
+    return JsonResponse({'sites': site_data}, safe=False)
+
+# View to fetch units for a specific site
+def fetch_units(request, site_id):
+    # Fetch the site based on the ID
+    site = get_object_or_404(Site, id=site_id)
     
+    # Get available units for the site
+    units = Unit.objects.filter(site=site, status='available')
+
+    unit_data = [
+        {
+            'id': unit.id,
+            'unit_title': unit.unit_title  # Return unit title
+        }
+        for unit in units
+    ]
+
+    return JsonResponse({'units': unit_data}, safe=False)
+def fetch_customers(request, broker_id):
+    
+        # Retrieve the broker by ID
+        broker = Broker.objects.get(id=broker_id)
+
+        # Filter customers based on the broker
+        customers = Customer.objects.filter(broker=broker)
+
+        # Prepare a list of customers with their full names
+        customer_list = [{
+            'id': customer.id,
+            'name': customer.name,  # Using the 'name' property to concatenate first and last name
+        } for customer in customers]
+
+        return JsonResponse({'customers': customer_list}, safe=False)
+
+
 @csrf_exempt
-def add_sale(request):
+def submit_sale(request):
     if request.method == 'POST':
         try:
-            # Extract data from the request
-            data = request.POST
-            broker_id = data.get('broker_id')
-            customer_id = data.get('customer_id')
-            unit_id = data.get('unit_id')
-            date_sold = data.get('date_sold')
-            status = data.get('status', 'pending')  # Default to 'pending'
+            # Parse JSON data from the request
+            data = json.loads(request.body)
+            print("Received data:", data)  # Print the incoming data to check what is being sent
+
+            # Print individual fields from the data
+            print("Site ID:", data.get('site'))
+            print("Unit ID:", data.get('unit'))
+            print("Broker ID:", data.get('broker'))
+            print("Company ID:", data.get('company'))
+
+            # Fetch related data from the database
+            site = Site.objects.get(id=data['site'])
+            print("Site fetched:", site)
+
+            unit = Unit.objects.get(id=data['unit'])
+            print("Unit fetched:", unit)
+
+            broker = Broker.objects.get(id=data['broker'])
+            print("Broker fetched:", broker)
+
+            company = broker.company
+            print("Company associated with broker:", company)
 
             # Create a new sale record
             sale = Sale.objects.create(
-                broker_id=broker_id,
-                customer_id=customer_id,
-                unit_id=unit_id,
-                date_sold=date_sold,
-                status=status,
+                customer=None,  # For now, set to None as customer is missing in the request
+                site=site,
+                unit=unit,
+                broker=broker,
+                company=company,
+                status='pending'  # Default status
             )
+            print("Sale record created:", sale)
 
-            # Return success response
-            return JsonResponse({"success": True, "message": "Sale added successfully!"})
+            # Return a success response
+            return JsonResponse({'message': 'Sale submitted successfully!'}, status=201)
 
+        except (Site.DoesNotExist, Unit.DoesNotExist, Broker.DoesNotExist) as e:
+            print(f"Error: {str(e)}")
+            return JsonResponse({'error': 'Invalid data or not found'}, status=400)
         except Exception as e:
-            return JsonResponse({"success": False, "message": str(e)}, status=500)
-
-    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
-
+            print(f"Unexpected error: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
 
 # Developers
 @csrf_exempt
