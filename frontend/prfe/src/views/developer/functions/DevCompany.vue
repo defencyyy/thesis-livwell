@@ -2,20 +2,46 @@
   <div class="developer-company-page">
     <SideNav />
     <div class="content">
-      <h1>Edit Company</h1>
-      <textarea
-        v-model="company.description"
-        placeholder="Enter description"
-      ></textarea>
-      <img :src="company.logo" alt="Company Logo" v-if="company.logo" />
-      <input type="file" @change="onFileChange" />
-      <button @click="updateCompany">Update Company</button>
+      <h2>Edit Company</h2>
+
+      <!-- Display user information -->
+      <div class="user-info">
+        <p><strong>User ID:</strong> {{ userId }}</p>
+        <p><strong>User Role:</strong> {{ userType }}</p>
+        <p><strong>Company ID:</strong> {{ companyId }}</p>
+      </div>
+
+      <!-- Debug: Display company data -->
+      <div class="company-data">
+        <h3>Company Data (Debug)</h3>
+        <pre>{{ company }}</pre>
+      </div>
+
+      <form @submit.prevent="updateCompany">
+        <div>
+          <label for="description">Description:</label>
+          <textarea v-model="company.description"></textarea>
+        </div>
+        <div>
+          <label for="logo">Logo:</label>
+          <input type="file" @change="onFileChange" />
+          <img
+            v-if="company.logo"
+            :src="company.logo"
+            alt="Company Logo"
+            width="100"
+          />
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   name: "DevCompany",
@@ -26,62 +52,57 @@ export default {
       newLogo: null, // Stores the new logo file
     };
   },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId,
+      userType: (state) => state.userType, // Corrected from userRole to userType
+      companyId: (state) => state.companyId,
+    }),
+  },
   mounted() {
+    console.log("Company ID from Vuex store:", this.companyId); // Debugging line
     this.fetchCompany();
   },
+
   methods: {
-    fetchCompany() {
-      const token = localStorage.getItem("authToken");
-
-      fetch("http://localhost:8000/api/companies/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Failed to fetch company data");
-          return response.json();
-        })
-        .then((data) => {
-          if (data.length === 0) throw new Error("No company found"); // Handle empty response
-          this.company = data[0]; // Assume the first company is the developer's
-        })
-        .catch((error) => {
-          console.error("Error fetching company:", error);
+    async fetchCompany() {
+      try {
+        const token = localStorage.getItem("authToken");
+        console.log("Using company ID:", this.companyId); // Debugging line
+        const response = await axios.get(`/developer/company/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-    },
 
-    updateCompany() {
-      const formData = new FormData();
-      formData.append("description", this.company.description);
-      if (this.newLogo) {
-        formData.append("logo", this.newLogo);
+        this.company = response.data;
+      } catch (error) {
+        console.error("Error fetching company data:", error);
       }
-
-      const token = localStorage.getItem("authToken");
-
-      fetch(`http://localhost:8000/api/companies/${this.company.id}/`, {
-        // Use dynamic ID
-        method: "PUT",
-        body: formData,
-        headers: {
-          Accept: "application/json", // Allow FormData
-          Authorization: `Token ${token}`,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Failed to update company");
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Company updated:", data);
-          this.company = data; // Refresh the company data
-        })
-        .catch((error) => {
-          console.error("Error updating company:", error);
+    },
+    onFileChange(event) {
+      this.newLogo = event.target.files[0];
+    },
+    async updateCompany() {
+      console.log("Attempting to update company..."); // Add this line
+      try {
+        const formData = new FormData();
+        formData.append("description", this.company.description);
+        if (this.newLogo) {
+          formData.append("logo", this.newLogo);
+        }
+        const token = localStorage.getItem("authToken");
+        const response = await axios.put(`/developer/company/`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         });
+        console.log("Update response:", response); // Log the response
+        alert("Company updated successfully!");
+      } catch (error) {
+        console.error("Error updating company:", error);
+      }
     },
   },
 };
@@ -91,10 +112,13 @@ export default {
 .developer-company-page {
   display: flex;
 }
-
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
+}
+.user-info {
+  margin-bottom: 20px;
+  text-align: left;
 }
 </style>

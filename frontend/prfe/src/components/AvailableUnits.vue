@@ -5,13 +5,32 @@
       <h2>Available Units for Site: {{ siteName }}</h2>
       <div v-if="units.length">
         <div class="units-container">
-          <div v-for="unit in units" :key="unit.id" class="unit-card">
-            <p>{{ unit.title }}</p> <!-- Display the unit title -->
+          <div 
+            v-for="unit in units" 
+            :key="unit.id" 
+            class="unit-card" 
+            @click="showUnitDetails(unit)"
+          >
+            <p>{{ unit.unit_title }}</p> <!-- Display the unit title -->
           </div>
         </div>
       </div>
       <div v-else>
         <p>No units available for this site.</p>
+      </div>
+
+      <!-- Modal -->
+      <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <img :src="selectedUnit.picture" alt="Unit Picture" class="unit-picture" />
+          <p>P{{ selectedUnit.price }} Bedroom: {{ selectedUnit.bedroom }} Bathroom: {{ selectedUnit.bathroom }} Floor Area: {{ selectedUnit.floor_area }}</p>
+          <hr>
+          <center>Details</center>
+          <p>Unit/Floor Number: {{ selectedUnit.floor }} Balcony: {{ selectedUnit.balcony }} Built(Year):{{ siteYear }} </p>
+          <p>Baths:{{ selectedUnit.bathroom }} Bedrooms: {{ selectedUnit.bedroom }}  Floor area(m<sup>2</sup>):{{ selectedUnit.floor_area }} </p>
+          <p>View: {{ selectedUnit.view }} </p>
+          <hr>
+        </div>
       </div>
     </div>
   </div>
@@ -31,6 +50,8 @@ export default {
       siteId: this.$route.params.siteId, // Get site ID from route params
       units: [],
       siteName: '', // To store the site's name
+      isModalVisible: false, // To control modal visibility
+      selectedUnit: null, // To store the selected unit details
     };
   },
   mounted() {
@@ -40,7 +61,7 @@ export default {
   methods: {
     async fetchAvailableUnits() {
       try {
-        const response = await axios.get(`http://localhost:8000/units/available/?site_id=${this.siteId}`); // Fetch units based on site ID
+        const response = await axios.get(`http://localhost:8000/units/available/?site_id=${this.siteId}`);
         this.units = response.data.units; // Assume your API returns a 'units' field
       } catch (error) {
         console.error("Error fetching available units:", error);
@@ -48,18 +69,26 @@ export default {
     },
     async fetchSiteName() {
       try {
-        const response = await axios.get(`http://localhost:8000/sites/${this.siteId}`); // Adjust the URL based on your API
-        this.siteName = response.data.name; // Assume your API returns a 'name' field
-      } catch (error) {
+        const response = await axios.get(`http://localhost:8000/sites/${this.siteId}`);
+        this.siteName = response.data.name;  // Store the site name
+        this.siteYear = response.data.created_year;  // Store the site's created year
+      }   catch (error) {
         console.error("Error fetching site name:", error);
       }
+    },
+    showUnitDetails(unit) {
+      this.selectedUnit = unit;
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
     },
   },
 };
 </script>
 
 <style scoped>
-.available-units-page{
+.available-units-page {
   display: flex;
   height: 100vh;
 }
@@ -69,17 +98,40 @@ export default {
   text-align: center;
 }
 .units-container {
-  display: grid; /* Use grid layout */
-  grid-template-columns: repeat(3, 1fr); /* Three cards per row */
-  gap: 20px; /* Space between cards */
-  margin: 0 auto; /* Center the container */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 0 auto;
 }
-
 .unit-card {
   border: 1px solid #ccc;
   margin: 10px;
   padding: 10px;
   text-align: center;
-  width: 150px; /* Set a consistent width */
+  cursor: pointer;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  max-height: 80vh; /* Set max height for the modal */
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+}
+.unit-picture {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
 }
 </style>

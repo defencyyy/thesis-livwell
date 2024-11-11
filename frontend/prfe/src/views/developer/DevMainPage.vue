@@ -37,6 +37,7 @@ export default {
           localStorage.removeItem("user_id");
           localStorage.removeItem("user_role");
           localStorage.removeItem("logged_in");
+          localStorage.removeItem("company_id");
 
           this.$router.push({ path: "/home" });
         } else {

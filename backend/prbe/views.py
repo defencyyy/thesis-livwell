@@ -68,7 +68,9 @@ def login_view(request, user_role):
                     "username": user.username,
                     "email": user.email,
                     "contact_number": user.contact_number,
-                    "user_role": user_role
+                    "user_role": user_role,
+                    "company_id": user.company.id,  # Include the company ID here
+                    "company_name": user.company.name,  # Include company name if needed
                 }
             }, status=200)
 
@@ -251,6 +253,7 @@ def add_customer(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 @csrf_exempt
 def get_broker(request, broker_id):
     if request.method == 'GET':
@@ -276,33 +279,33 @@ def get_broker(request, broker_id):
 
 def total_sales_view(request):
     if request.method == 'GET':
-        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        broker_id = request.GET.get('broker_id')
         if not broker_id:
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
-        # Calculate total sales for the given broker ID
-        total_sales = Sale.objects.filter(broker_id=broker_id).count()
+        # Calculate total sales with status "sold" for the given broker ID
+        total_sales = Sale.objects.filter(broker_id=broker_id, status='sold').count()
 
         return JsonResponse({'total_sales': total_sales})
-    
-@csrf_exempt  # If you need to exempt CSRF protection (for development purposes only)
+
+@csrf_exempt
 def total_commissions_view(request):
     if request.method == 'GET':
-        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        broker_id = request.GET.get('broker_id')
         if not broker_id:
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
-        # Get all sales made by the broker
-        sales = Sale.objects.filter(broker_id=broker_id)
+        # Get all "sold" sales made by the broker
+        sales = Sale.objects.filter(broker_id=broker_id, status='sold')
         
-        # Extract unit IDs from the sales
+        # Extract unit IDs from the "sold" sales
         unit_ids = sales.values_list('unit_id', flat=True)
 
         # Sum up the commissions for these units
         total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
 
         return JsonResponse({'total_commissions': total_commission})
-    
+
 @csrf_exempt
 def site_sales_view(request):
     if request.method == 'GET':
@@ -310,14 +313,14 @@ def site_sales_view(request):
         if not broker_id:
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
-        # Fetch sites and calculate total sales per site
+        # Fetch sites and calculate total "sold" sales per site
         sites = []
         for site in Site.objects.all():  # Assuming you have a Site model
-            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id).count()  # Adjust the filter based on your relationships
+            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id, status='sold').count()
             sites.append({
                 'id': site.id,
                 'name': site.name,
-                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,  # Use build_absolute_uri
+                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
                 'total_sales': total_sales,
             })
 
@@ -329,29 +332,29 @@ def sales_details_view(request):
         site_id = request.GET.get('site_id')
         broker_id = request.GET.get('broker_id')
 
-        # Check if site_id and broker_id are provided
         if not site_id or not broker_id:
             return JsonResponse({'error': 'Site ID or Broker ID not provided'}, status=400)
 
         try:
-            # Fetch sales related to the specified site and broker
+            # Fetch "sold" sales related to the specified site and broker
             sales = Sale.objects.filter(
-                unit__site_id=site_id,  # Filter sales by the site ID
-                broker_id=broker_id  # Filter sales by the broker ID
-            ).select_related('unit', 'customer')  # Use select_related for efficient querying
+                unit__site_id=site_id,
+                broker_id=broker_id,
+                status='sold'
+            ).select_related('unit', 'customer')
 
             sales_details = []
             for sale in sales:
                 sales_details.append({
-                    'unit_name': sale.unit.title,  # Get the unit title from Units_unit
-                    'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",  # Customer name from Customers_customer
-                    'date_sold': sale.date_sold.strftime("%Y-%m-%d")  # Sale date from Sales_sale
+                    'unit_name': sale.unit.unit_title,
+                    'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
+                    'date_sold': sale.date_sold.strftime("%Y-%m-%d")
                 })
 
             return JsonResponse({'sales': sales_details})
 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)  # Handle any unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
         
 @csrf_exempt
 def get_available_sites(request):
@@ -379,7 +382,11 @@ def get_site_name(request, site_id):
         try:
             # Fetch the site based on the provided site_id
             site = Site.objects.get(id=site_id)
-            return JsonResponse({'name': site.name}, status=200)  # Adjust 'name' to your actual field name
+            created_year = site.created_at.year  # Extract the year from the created_at field
+            return JsonResponse({
+                'name': site.name,
+                'created_year': created_year  # Return the creation year along with the site name
+            }, status=200)
 
         except Site.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Site not found'}, status=404)
@@ -388,6 +395,7 @@ def get_site_name(request, site_id):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 
 @csrf_exempt
 def get_available_units(request):
@@ -405,8 +413,16 @@ def get_available_units(request):
             for unit in units:
                 unit_data.append({
                     'id': unit.id,
-                    'title': unit.title,  # Adjust this to your actual field names
-                    # Add any additional fields you want to return
+                    'unit_title': unit.unit_title,  # Adjust this to your actual field names
+                    'picture':  request.build_absolute_uri(unit.picture.url) if unit.picture else None,
+  # Include the picture URL (if available)
+                    'price': unit.price,  # Include the price
+                    'bedroom':unit.bedroom,
+                    "bathroom":unit.bathroom,
+                    "floor_area":unit.floor_area,
+                    "floor":unit.floor,
+                    "balcony":unit.balcony,
+                    "view":unit.view,
                 })
 
             return JsonResponse({'units': unit_data}, status=200)
@@ -415,8 +431,166 @@ def get_available_units(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
-      
 
+
+@csrf_exempt
+def get_customers_for_broker(request, broker_id):
+    try:
+        # Fetch the broker
+        broker = get_object_or_404(Broker, pk=broker_id)
+        
+        include_sales = request.GET.get('include_sales', 'false') == 'true'
+
+
+        # Fetch customers for the broker
+        customers = Customer.objects.filter(broker_id=broker_id)
+
+        customer_data = []
+        for customer in customers:
+            # Basic customer info
+            customer_name = f"{customer.first_name} {customer.last_name}"
+            contact_number = customer.contact_number
+
+            # If include_sales is True, fetch sales and related data
+            if include_sales:
+                sales = Sale.objects.filter(customer_id=customer.id)
+                if sales.exists():
+                    # For each sale, get the related site and unit
+                    for sale in sales:
+                        site = Site.objects.get(id=sale.site_id)
+                        unit = Unit.objects.get(id=sale.unit_id)
+
+                        customer_data.append({
+                            'customer_name': customer_name,
+                            'contact_number': contact_number,
+                            'site': site.name,
+                            'unit': unit.unit_title,
+                            'document_status': "Pending",  # Adjust document status as needed
+                        })
+                else:
+                    customer_data.append({
+                        'customer_name': customer_name,
+                        'contact_number': contact_number,
+                        'site': "To be followed",
+                        'unit': "To be followed",
+                        'document_status': "Pending",
+                    })
+            else:
+                # If no sales data, return just basic info (id and name)
+                customer_data.append({
+                    'id': customer.id,
+                    'name': customer_name,
+                })
+
+        return JsonResponse({'success': True, 'customers': customer_data}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+def fetch_sites(request):
+    # Filter sites that have available units
+    sites = Site.objects.filter(unit__status='available').distinct()
+
+    site_data = []
+    for site in sites:
+        site_data.append({
+            'id': site.id,
+            'name': site.name,  # Site name
+            'units': [
+                {
+                    'id': unit.id,
+                    'unit_title': unit.unit_title  # Unit title
+                }
+                for unit in site.unit_set.filter(status='available')  # Only available units for the site
+            ]
+        })
+
+    return JsonResponse({'sites': site_data}, safe=False)
+
+# View to fetch units for a specific site
+def fetch_units(request, site_id):
+    # Fetch the site based on the ID
+    site = get_object_or_404(Site, id=site_id)
+    
+    # Get available units for the site
+    units = Unit.objects.filter(site=site, status='available')
+
+    unit_data = [
+        {
+            'id': unit.id,
+            'unit_title': unit.unit_title  # Return unit title
+        }
+        for unit in units
+    ]
+
+    return JsonResponse({'units': unit_data}, safe=False)
+
+
+@csrf_exempt
+def submit_sale(request):
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON request data
+            data = json.loads(request.body)
+
+            # Extract the sale data from the request
+            customer_id = data.get('customer')
+            site_id = data.get('site')
+            unit_id = data.get('unit')
+            broker_id = data.get('broker')
+            company_id = data.get('company')
+
+            # Fetch the related objects from the database
+            customer = Customer.objects.get(id=customer_id)
+            site = Site.objects.get(id=site_id)
+            unit = Unit.objects.get(id=unit_id)
+
+            # Create the Sale object
+            sale = Sale.objects.create(
+                customer=customer,
+                site=site,
+                unit=unit,
+                broker_id=broker_id,
+                company_id=company_id,
+                status='pending',  # Set a default status (you can customize this)
+            )
+            unit.status = 'pending'
+            unit.save()
+
+            # Return a success response
+            return JsonResponse({'message': 'Sale created successfully', 'sale_id': sale.id}, status=201)
+
+        except Exception as e:
+            # If something goes wrong, return an error response
+            return JsonResponse({'error': str(e)}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+def fetch_sales(request):
+    try:
+        # Fetch all sales
+        sales = Sale.objects.all().select_related(
+            'customer',  # Fetch related customer data
+            'site',      # Fetch related site data
+            'unit'       # Fetch related unit data
+        )
+
+        sales_data = []
+        for sale in sales:
+            # Add sale data to the list, including full names and titles
+            sales_data.append({
+                'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
+                'site_name': sale.site.name,
+                'unit_title': sale.unit.unit_title,
+                'status': sale.status,
+            })
+
+        return JsonResponse({'success': True, 'sales': sales_data}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

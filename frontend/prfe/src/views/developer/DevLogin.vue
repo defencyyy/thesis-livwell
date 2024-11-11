@@ -107,6 +107,7 @@ export default {
     ...mapActions(["login"]),
 
     getCookie(name) {
+      // Cookie helper function
       let cookieArr = document.cookie.split(";");
       for (let cookie of cookieArr) {
         let [key, value] = cookie.split("=");
@@ -139,9 +140,11 @@ export default {
 
           const data = await response.json();
           if (data.success) {
+            // Storing JWT and company data
             localStorage.setItem("authToken", data.tokens.access);
-            localStorage.setItem("user_role", data.user.user_role);
+            localStorage.setItem("company_id", data.user.company_id);
             localStorage.setItem("user_id", data.user.id);
+            localStorage.setItem("user_role", data.user.user_role);
             localStorage.setItem("logged_in", "true");
 
             this.$router.push("/developer/dashboard");

@@ -7,6 +7,7 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    # Brokers
     path('broker/login/', views.login_view_broker, name='broker_login'),
     path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
@@ -19,21 +20,32 @@ urlpatterns = [
     path('sales/details/', views.sales_details_view, name='sales-details'),
     path('brokers/<int:broker_id>/', views.get_broker, name='get_broker'),
     path('sites/available/', views.get_available_sites, name='get_available_sites'),
-    path('units/available/', views.get_available_units, name='get_available_units'),  # Add the new URL pattern
-    path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  # URL pattern for fetching site name
+    path('units/available/', views.get_available_units, name='get_available_units'),  
+    path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  
+    path('customers/broker/<int:broker_id>/', views.get_customers_for_broker, name='get_customers_for_broker'),
+    path('sites/', views.fetch_sites, name='fetch_sites'),
+    path('units/site/<int:site_id>/', views.fetch_units, name='fetch_units'),
+    path('sales/', views.fetch_sales, name='fetch_sales'),
+    
+    # Endpoint to submit a new sale (POST request)
+    path('sales/create/', views.submit_sale, name='submit_sale'),
+
 
 
 
     
 
 
+
+
+    # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
     path('developer/logout/', views.dev_logout_view, name='developer_logout'),
+    path('developer/company/', include('companies.urls')),
 
-    # APIs
-    path('api/companies/', include('companies.urls')),
+
 ]
 
 # Serve media files during development

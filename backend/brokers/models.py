@@ -1,12 +1,10 @@
 from django.db import models
 from companies.models import Company
-from affiliations.models import Affiliation
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone  
 
 class Broker(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    affiliations = models.ManyToManyField(Affiliation, related_name='brokers')
     email = models.EmailField(max_length=50)
     username = models.CharField(max_length=50, unique=True)
     last_name = models.CharField(max_length=50)
