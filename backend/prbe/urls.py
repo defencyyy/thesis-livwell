@@ -28,6 +28,7 @@ urlpatterns = [
     path('sales/', views.submit_sale, name='submit_sale'),
 
 
+
     
 
 
