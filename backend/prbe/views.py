@@ -11,6 +11,7 @@ from django.db import models
 from django.utils.timezone import now  
 from django.contrib.auth.hashers import check_password, make_password
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.middleware.csrf import get_token
 
 from brokers.models import Broker 
 from developers.models import Developer 
@@ -89,6 +90,10 @@ def login_view_broker(request):
 @csrf_exempt
 def login_view_developer(request):
     return login_view(request, user_role='developer')
+
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
 
 def validate_password_strength(password):
     if len(password) < 8:

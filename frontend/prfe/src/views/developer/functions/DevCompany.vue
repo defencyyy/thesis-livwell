@@ -4,9 +4,13 @@
     <div class="content">
       <h2>Edit Company</h2>
       <div class="user-info">
-        <p><strong>User ID:</strong> {{ userId }}</p>
+        <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
+        <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
+        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
+        <p>
+          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
+        </p>
         <p><strong>User Role:</strong> {{ userType }}</p>
-        <p><strong>Company ID:</strong> {{ companyId }}</p>
         <p><strong>Company Name:</strong> {{ company.name || "" }}</p>
         <p>
           <strong>Company Description:</strong> {{ company.description || "" }}
@@ -64,25 +68,57 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
+
+    // Computed properties for Vuex and localStorage values
+    vuexUserId() {
+      return this.userId;
+    },
+    vuexCompanyId() {
+      return this.companyId;
+    },
+    localStorageUserId() {
+      return localStorage.getItem("developer_id");
+    },
+    localStorageCompanyId() {
+      return localStorage.getItem("company_id");
+    },
   },
   mounted() {
     this.fetchCompany();
   },
   methods: {
+    getCookie(name) {
+      let cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookie = cookieArr[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          return cookie.substring(name.length + 1);
+        }
+      }
+      return null;
+    },
+    // Method to fetch company details
     async fetchCompany() {
-      if (!this.userId || !this.companyId) {
+      const userId = this.userId || localStorage.getItem("userId");
+      const companyId = this.companyId || localStorage.getItem("companyId");
+
+      if (!userId || !companyId) {
         alert("Developer or Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
       }
+
+      // Display the values for debugging
+      console.log("User ID (from Vuex or localStorage):", userId);
+      console.log("Company ID (from Vuex or localStorage):", companyId);
 
       try {
         const response = await axios.get(
           "http://localhost:8000/developer/company/",
           {
             headers: {
-              "Developer-ID": this.userId,
-              "Company-ID": this.companyId,
+              "Developer-ID": userId,
+              "Company-ID": companyId,
               "Content-Type": "application/json",
             },
           }
@@ -103,24 +139,32 @@ export default {
         alert("Error fetching company data.");
       }
     },
+
+    // Method to get logo URL
     getLogoUrl(logoPath) {
       return `http://localhost:8000${logoPath}`;
     },
+
+    // Method to handle logo file change
     onFileChange(event) {
       this.newLogo = event.target.files[0];
     },
-    async updateCompany() {
-      if (!this.userId || !this.companyId) {
-        alert("Developer or Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
-        return;
-      }
 
-      this.company.description = this.draftDescription;
+    // Method to update company details
+    async updateCompany() {
+      const csrfToken = this.getCookie("csrftoken");
+      console.log("csrfToken: " + csrfToken);
+      console.log("User ID:", this.userId);
+      console.log("Company ID:", this.companyId);
+      console.log("Local User ID:", localStorage.getItem("developer_id"));
+      console.log("what User ID:", localStorage.getItem("user_id"));
+      console.log("Local Company ID:", localStorage.getItem("company_id"));
 
       try {
         const formData = new FormData();
-        formData.append("description", this.company.description);
+        formData.append("description", this.draftDescription); // Send the updated description
+
+        // Append new logo if present
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
@@ -130,8 +174,10 @@ export default {
           formData,
           {
             headers: {
-              "Developer-ID": this.userId,
-              "Company-ID": this.companyId,
+              "X-CSRFToken": csrfToken,
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              "Developer-ID": localStorage.getItem("developer_id"), // Pass the developer ID from localStorage
+              "Company-ID": localStorage.getItem("company_id"), // Pass the company ID from localStorage
             },
           }
         );

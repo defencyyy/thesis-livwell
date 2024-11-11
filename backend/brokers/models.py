@@ -9,13 +9,18 @@ class Broker(models.Model):
     username = models.CharField(max_length=50, unique=True)
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
-    contact_number = models.CharField(max_length=20)
-    password = models.CharField(max_length=128, null=True)
+    contact_number = models.CharField(max_length=20, blank=True)  # contact_number is optional now
+    password = models.CharField(max_length=128, null=True)  # Default password will be handled in save method
     last_login = models.DateTimeField(null=True, blank=True) 
 
     def save(self, *args, **kwargs):
-        if self.password and not self.password.startswith('pbkdf2_'):
-            self.password = make_password(self.password)
+        if not self.password:
+            # Set password to username.12345 if not provided
+            self.password = f"{self.username}.12345"
+        
+        # Hash the password before saving it
+        self.password = make_password(self.password)
+        
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -25,4 +30,4 @@ class Broker(models.Model):
         return self.username 
 
     def get_email_field_name(self):
-        return 'email' 
+        return 'email'

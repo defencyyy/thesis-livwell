@@ -34,8 +34,7 @@ urlpatterns = [
     
     # API
     path('developer/company/', include('companies.urls')),
-
-
+    path('developer/brokers/', include('brokers.urls')),
 ]
 
 # Serve media files during development

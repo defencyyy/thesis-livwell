@@ -16,26 +16,24 @@
                     <br />
 
                     <div class="form-outline mb-4">
-                      <label class="form-label" for="form2Example11"
-                        >Username</label
-                      >
+                      <label class="form-label" for="username">Username</label>
                       <input
                         type="text"
                         id="username"
                         v-model="username"
+                        @input="error = null"
                         class="form-control"
                         required
                       />
                     </div>
 
                     <div class="form-outline mb-4">
-                      <label class="form-label" for="form2Example22"
-                        >Password</label
-                      >
+                      <label class="form-label" for="password">Password</label>
                       <input
                         type="password"
                         id="password"
                         v-model="password"
+                        @input="error = null"
                         class="form-control"
                         required
                       />
@@ -56,6 +54,7 @@
                     <div class="text-center pt-1 mb-5 pb-1">
                       <button
                         class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3"
+                        :disabled="loading"
                         type="submit"
                       >
                         Sign in
@@ -102,15 +101,16 @@ export default {
       username: "",
       password: "",
       error: null,
+      loading: false,
     };
   },
   methods: {
     ...mapActions(["login"]),
 
     getCookie(name) {
-      let cookieArr = document.cookie.split(";");
+      const cookieArr = document.cookie.split(";");
       for (let cookie of cookieArr) {
-        let [key, value] = cookie.split("=");
+        const [key, value] = cookie.split("=");
         if (key.trim() === name) return decodeURIComponent(value);
       }
       return null;
@@ -118,10 +118,17 @@ export default {
 
     async login() {
       this.error = null;
+      this.loading = true;
+
       if (this.username && this.password) {
         try {
           const csrftoken = this.getCookie("csrftoken");
-          console.log("CSRF Token in login:", csrftoken); // Debugging
+          if (!csrftoken) {
+            this.error =
+              "CSRF token not found. Please try refreshing the page.";
+            this.loading = false;
+            return;
+          }
 
           const response = await fetch(
             "http://localhost:8000/developer/login/",
@@ -135,30 +142,61 @@ export default {
                 username: this.username,
                 password: this.password,
               }),
-              credentials: "include", // Ensure cookies are sent with the request
+              credentials: "include",
             }
           );
 
-          const data = await response.json();
+          if (!response.ok) {
+            const errorData = await response.json();
+            this.error = errorData.message || "Invalid username or password.";
+            this.loading = false;
+            return;
+          }
 
+          const data = await response.json();
           if (data.success) {
+            // Store auth token and user data in localStorage
+            localStorage.setItem("authToken", data.tokens.access);
+            localStorage.setItem("user_role", "developer");
+            localStorage.setItem("logged_in", "true");
+            localStorage.setItem("developer_id", data.user.id);
+            localStorage.setItem("company_id", data.user.company_id); // Add company_id to localStorage
+            console.log(
+              "Developer ID stored:",
+              localStorage.getItem("developer_id")
+            );
+            console.log(
+              "Company ID stored:",
+              localStorage.getItem("company_id")
+            );
+            console.log(
+              "Developer ID (from localStorage):",
+              this.localStorageUserId
+            );
+            console.log(
+              "Company ID (from localStorage):",
+              this.localStorageCompanyId
+            );
+
+            // Dispatch login action to Vuex store
             const user = data.user;
             const token = data.tokens.access;
-
-            // Commit the login action to Vuex and set localStorage
             this.$store.dispatch("login", { user, token });
 
-            // Redirect to dashboard
+            // Redirect to the developer dashboard
             this.$router.push("/developer/dashboard");
           } else {
             this.error = data.message || "Invalid username or password.";
           }
         } catch (error) {
-          console.error("Login error:", error); // Debugging
+          console.error("Login error:", error);
           this.error = "An error occurred during login.";
+        } finally {
+          this.loading = false;
         }
       } else {
         this.error = "Please fill in both fields.";
+        this.loading = false;
       }
     },
   },
