@@ -8,6 +8,26 @@
       <!-- Add Sale Button -->
       <button @click="openModal">Add Sale</button>
 
+      <!-- Sales Table -->
+      <table v-if="sales.length > 0" class="sales-table">
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Site Name</th>
+            <th>Unit Title</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="sale in sales" :key="sale.id">
+            <td>{{ sale.customer_name }}</td>
+            <td>{{ sale.site_name }}</td>
+            <td>{{ sale.unit_title }}</td>
+            <td>{{ sale.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+
       <!-- Modal -->
       <div v-if="modalOpen" class="modal">
         <div class="modal-content">
@@ -15,8 +35,7 @@
 
           <!-- Form to collect sales data -->
           <form @submit.prevent="submitSale">
-
-            <!-- Customer Dropdown -->
+           <!-- Customer Dropdown -->
           <label for="customer">Customer:</label>
           <select v-model="selectedCustomer" id="customer" required v-if="customers.length > 0">
             <option value="" disabled>Select a customer</option>
@@ -27,7 +46,6 @@
           <!-- Fallback message if no customers -->
           <p v-else>No customers available</p>
 
-          
             <!-- Site Dropdown -->
             <label for="site">Site:</label>
             <select v-model="selectedSite" id="site" required @change="fetchUnits">
@@ -56,7 +74,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import SideNav from "@/components/SideNav.vue";
 
@@ -77,20 +94,44 @@ export default {
       brokerId: "",       // Broker ID (will be retrieved from local storage)
       companyId: "",      // Company ID fetched from broker data
       error: null,        // Error message placeholder
+      sales: [],          // List of sales data
     };
+  },
+  mounted() {
+    // Call fetchSales immediately after the component is mounted
+    this.fetchData(); // Fetch all necessary data when the page loads
   },
   methods: {
     openModal() {
       this.modalOpen = true;
-      this.fetchData(); // Fetch all necessary data when opening the modal
     },
     closeModal() {
       this.modalOpen = false;
     },
 
-    // Fetch all data needed for the modal
+    // Fetch sales data from the backend
+    async fetchSales() {
+      try {
+        const response = await fetch("http://localhost:8000/sales/");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.sales = data.sales;  // This should now have customer name, site name, and unit title
+          } else {
+            this.error = data.message || "Failed to fetch sales data.";
+          }
+        } else {
+          this.error = "Failed to fetch sales data.";
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching sales data.";
+      }
+    },
+
+    // Fetch all data needed for the modal (sites, broker data, etc.)
     async fetchData() {
       await Promise.all([this.fetchSites(), this.getBrokerData()]);
+      this.fetchSales();  // Fetch sales data after loading sites and broker data
     },
 
     // Fetch sites that have available units
@@ -99,7 +140,6 @@ export default {
         const response = await fetch(`http://localhost:8000/sites/`);
         if (response.ok) {
           const data = await response.json();
-          // Filter out sites that have no available units
           this.sites = data.sites.filter(site => site.units.length > 0);
         } else {
           this.error = "Failed to fetch sites.";
@@ -143,8 +183,8 @@ export default {
       }
     },
 
-    // Fetch customers for the logged-in broker (Updated function name)
-async fetchCustomers() {
+    // Fetch customers for the logged-in broker
+    async fetchCustomers() {
   const brokerId = localStorage.getItem("broker_id");
   
   if (!brokerId) {
@@ -171,36 +211,36 @@ async fetchCustomers() {
 },
 
     // Submit sale to the backend
-async submitSale() {
-  const saleData = {
-    site: this.selectedSite,
-    unit: this.selectedUnit,
-    customer: this.selectedCustomer, // Ensure this is being passed correctly
-    broker: this.brokerId,
-    company: this.companyId,  // Ensure this is passed correctly
-  };
+    async submitSale() {
+      const saleData = {
+        site: this.selectedSite,
+        unit: this.selectedUnit,
+        customer: this.selectedCustomer,
+        broker: this.brokerId,
+        company: this.companyId,
+      };
 
-  try {
-    const response = await fetch(`http://localhost:8000/sales/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(saleData),
-    });
+      try {
+        const response = await fetch("http://localhost:8000/sales/create/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(saleData),
+        });
 
-    if (response.ok) {
-      const data = await response.json();
-      alert(data.message);  // Show success message
-      this.closeModal();  // Close modal after successful submission
-    } else {
-      const errorData = await response.json();
-      alert(errorData.message || "Error occurred during sale submission.");
-    }
-  } catch (error) {
-    alert("An error occurred while submitting the sale.");
-  }
-},
+        if (response.ok) {
+          const data = await response.json();
+          alert(data.message);  // Show success message
+          this.closeModal();  // Close modal after successful submission
+        } else {
+          const errorData = await response.json();
+          alert(errorData.message || "Error occurred during sale submission.");
+        }
+      } catch (error) {
+        alert("An error occurred while submitting the sale.");
+      }
+    },
   },
 };
 </script>
@@ -236,5 +276,20 @@ async submitSale() {
   border-radius: 8px;
   width: 400px;
   text-align: left;
+}
+.sales-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.sales-table th,
+.sales-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.sales-table th {
+  background-color: #f4f4f4;
 }
 </style>

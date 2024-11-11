@@ -530,71 +530,67 @@ def fetch_units(request, site_id):
 def submit_sale(request):
     if request.method == 'POST':
         try:
-            # Parse JSON data from the request
+            # Parse the incoming JSON request data
             data = json.loads(request.body)
-            
-            # Fetch related data from the database
-            site = Site.objects.get(id=data['site'])
 
-            unit = Unit.objects.get(id=data['unit'])
+            # Extract the sale data from the request
+            customer_id = data.get('customer')
+            site_id = data.get('site')
+            unit_id = data.get('unit')
+            broker_id = data.get('broker')
+            company_id = data.get('company')
 
-            broker = Broker.objects.get(id=data['broker'])
+            # Fetch the related objects from the database
+            customer = Customer.objects.get(id=customer_id)
+            site = Site.objects.get(id=site_id)
+            unit = Unit.objects.get(id=unit_id)
 
-            company = broker.company
-
-            # Fetch the customer based on the ID received in the request
-            customer = Customer.objects.get(id=data['customer'])
-
-            # Create a new sale record with the customer field populated
+            # Create the Sale object
             sale = Sale.objects.create(
-                customer=customer,  # Now pass the actual customer
+                customer=customer,
                 site=site,
                 unit=unit,
-                broker=broker,
-                company=company,
-                status='pending'  # Default status
+                broker_id=broker_id,
+                company_id=company_id,
+                status='pending',  # Set a default status (you can customize this)
             )
-            print("Sale record created:", sale)
-
-            # Update the unit status to 'pending' once the sale is made
             unit.status = 'pending'
             unit.save()
 
             # Return a success response
-            return JsonResponse({'message': 'Sale submitted successfully!'}, status=201)
+            return JsonResponse({'message': 'Sale created successfully', 'sale_id': sale.id}, status=201)
 
-        except (Site.DoesNotExist, Unit.DoesNotExist, Broker.DoesNotExist, Customer.DoesNotExist) as e:
-            return JsonResponse({'error': 'Invalid data or not found'}, status=400)
         except Exception as e:
-            print(f"Unexpected error: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
-@csrf_exempt
+            # If something goes wrong, return an error response
+            return JsonResponse({'error': str(e)}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 def fetch_sales(request):
-    print("k")
     try:
-        # Fetch all sales data with related customer, site, and unit using select_related for optimization
-        sales_data = Sale.objects.all().select_related(
-            'customer',  # Fetch customer details
-            'site',      # Fetch site details
-            'unit'       # Fetch unit details
+        # Fetch all sales
+        sales = Sale.objects.all().select_related(
+            'customer',  # Fetch related customer data
+            'site',      # Fetch related site data
+            'unit'       # Fetch related unit data
         )
 
-        # Prepare the response data
-        sales = []
-        for sale in sales_data:
-            sales.append({
-                'id': sale.id,
+        sales_data = []
+        for sale in sales:
+            # Add sale data to the list, including full names and titles
+            sales_data.append({
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
                 'site_name': sale.site.name,
                 'unit_title': sale.unit.unit_title,
                 'status': sale.status,
             })
 
-        return JsonResponse({'sales': sales}, status=200)
+        return JsonResponse({'success': True, 'sales': sales_data}, status=200)
 
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
 
+    
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):
