@@ -15,16 +15,19 @@
 
           <!-- Form to collect sales data -->
           <form @submit.prevent="submitSale">
-            
-            <!-- Customer Dropdown -->
-            <label for="customer">Customer:</label>
-            <select v-model="selectedCustomer" id="customer" required>
-              <option value="" disabled>Select a customer</option>
-              <option v-for="customer in customers" :key="customer.id" :value="customer.id">
-                {{ customer.name }}
-              </option>
-            </select>
 
+            <!-- Customer Dropdown -->
+          <label for="customer">Customer:</label>
+          <select v-model="selectedCustomer" id="customer" required v-if="customers.length > 0">
+            <option value="" disabled>Select a customer</option>
+            <option v-for="customer in customers" :key="customer.id" :value="customer.id">
+              {{ customer.name }}
+            </option>
+          </select>
+          <!-- Fallback message if no customers -->
+          <p v-else>No customers available</p>
+
+          
             <!-- Site Dropdown -->
             <label for="site">Site:</label>
             <select v-model="selectedSite" id="site" required @change="fetchUnits">
@@ -87,7 +90,7 @@ export default {
 
     // Fetch all data needed for the modal
     async fetchData() {
-      await Promise.all([this.fetchSites(), this.getBrokerData(), this.fetchCustomers()]);
+      await Promise.all([this.fetchSites(), this.getBrokerData()]);
     },
 
     // Fetch sites that have available units
@@ -131,6 +134,7 @@ export default {
         if (response.ok) {
           const brokerData = await response.json();
           this.companyId = brokerData.company_id;
+          this.fetchCustomers();  // Fetch customers after getting broker data
         } else {
           this.error = "Failed to fetch broker data.";
         }
@@ -139,52 +143,64 @@ export default {
       }
     },
 
-    // Fetch customers for the logged-in broker
-    async fetchCustomers() {
-      try {
-        const response = await fetch(`http://localhost:8000/customers/broker/${this.brokerId}`);
-        if (response.ok) {
-          const data = await response.json();
-          this.customers = data.customers;
-        } else {
-          this.error = "Failed to fetch customers.";
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching customers.";
+    // Fetch customers for the logged-in broker (Updated function name)
+async fetchCustomers() {
+  const brokerId = localStorage.getItem("broker_id");
+  
+  if (!brokerId) {
+    this.error = "Broker ID not found. Please log in again.";
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        this.customers = data.customers; // This will exclude sales data
+      } else {
+        this.error = data.message || "Failed to fetch customer data.";
       }
-    },
+    } else {
+      const errorData = await response.json();
+      this.error = errorData.message || "Failed to fetch customer data.";
+    }
+  } catch (error) {
+    this.error = "An error occurred while fetching customer data.";
+  }
+},
 
     // Submit sale to the backend
-    async submitSale() {
-      const saleData = {
-        site: this.selectedSite,
-        unit: this.selectedUnit,
-        customer: this.selectedCustomer,
-        broker: this.brokerId,
-        company: this.companyId,  // Ensure this is passed correctly
-      };
+async submitSale() {
+  const saleData = {
+    site: this.selectedSite,
+    unit: this.selectedUnit,
+    customer: this.selectedCustomer, // Ensure this is being passed correctly
+    broker: this.brokerId,
+    company: this.companyId,  // Ensure this is passed correctly
+  };
 
-      try {
-        const response = await fetch(`http://localhost:8000/sales/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(saleData),
-        });
+  try {
+    const response = await fetch(`http://localhost:8000/sales/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(saleData),
+    });
 
-        if (response.ok) {
-          const data = await response.json();
-          alert(data.message);  // Show success message
-          this.closeModal();  // Close modal after successful submission
-        } else {
-          const errorData = await response.json();
-          alert(errorData.message || "Error occurred during sale submission.");
-        }
-      } catch (error) {
-        alert("An error occurred while submitting the sale.");
-      }
-    },
+    if (response.ok) {
+      const data = await response.json();
+      alert(data.message);  // Show success message
+      this.closeModal();  // Close modal after successful submission
+    } else {
+      const errorData = await response.json();
+      alert(errorData.message || "Error occurred during sale submission.");
+    }
+  } catch (error) {
+    alert("An error occurred while submitting the sale.");
+  }
+},
   },
 };
 </script>

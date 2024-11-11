@@ -436,52 +436,56 @@ def get_available_units(request):
 @csrf_exempt
 def get_customers_for_broker(request, broker_id):
     try:
-        # Fetch the broker (you can also validate this broker)
+        # Fetch the broker
         broker = get_object_or_404(Broker, pk=broker_id)
+        
+        include_sales = request.GET.get('include_sales', 'false') == 'true'
+
 
         # Fetch customers for the broker
         customers = Customer.objects.filter(broker_id=broker_id)
 
         customer_data = []
         for customer in customers:
-
-            # Get the customer details
+            # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
             contact_number = customer.contact_number
 
-            # Check if the customer has made any sales
-            sales = Sale.objects.filter(customer_id=customer.id)
+            # If include_sales is True, fetch sales and related data
+            if include_sales:
+                sales = Sale.objects.filter(customer_id=customer.id)
+                if sales.exists():
+                    # For each sale, get the related site and unit
+                    for sale in sales:
+                        site = Site.objects.get(id=sale.site_id)
+                        unit = Unit.objects.get(id=sale.unit_id)
 
-            if sales.exists():
-                # For each sale, get the related site and unit, create a row for each sale
-                for sale in sales:
-                    site = Site.objects.get(id=sale.site_id)
-                    unit = Unit.objects.get(id=sale.unit_id)
-
-                    # Add a new row for each sale the customer made
+                        customer_data.append({
+                            'customer_name': customer_name,
+                            'contact_number': contact_number,
+                            'site': site.name,
+                            'unit': unit.unit_title,
+                            'document_status': "Pending",  # Adjust document status as needed
+                        })
+                else:
                     customer_data.append({
                         'customer_name': customer_name,
                         'contact_number': contact_number,
-                        'site': site.name,
-                        'unit': unit.unit_title,
-                        'document_status': "Pending",  # Adjust document status as needed
+                        'site': "To be followed",
+                        'unit': "To be followed",
+                        'document_status': "Pending",
                     })
             else:
-                # If no sales, add a "To be followed" entry in a single row
+                # If no sales data, return just basic info (id and name)
                 customer_data.append({
-                    'customer_name': customer_name,
-                    'contact_number': contact_number,
-                    'site': "To be followed",
-                    'unit': "To be followed",
-                    'document_status': "Pending",  # Adjust document status as needed
+                    'id': customer.id,
+                    'name': customer_name,
                 })
-
 
         return JsonResponse({'success': True, 'customers': customer_data}, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
-
 
 def fetch_sites(request):
     # Filter sites that have available units
@@ -520,21 +524,6 @@ def fetch_units(request, site_id):
     ]
 
     return JsonResponse({'units': unit_data}, safe=False)
-def fetch_customers(request, broker_id):
-    
-        # Retrieve the broker by ID
-        broker = Broker.objects.get(id=broker_id)
-
-        # Filter customers based on the broker
-        customers = Customer.objects.filter(broker=broker)
-
-        # Prepare a list of customers with their full names
-        customer_list = [{
-            'id': customer.id,
-            'name': customer.name,  # Using the 'name' property to concatenate first and last name
-        } for customer in customers]
-
-        return JsonResponse({'customers': customer_list}, safe=False)
 
 
 @csrf_exempt
@@ -550,6 +539,7 @@ def submit_sale(request):
             print("Unit ID:", data.get('unit'))
             print("Broker ID:", data.get('broker'))
             print("Company ID:", data.get('company'))
+            print("Customer ID:", data.get('customer'))  # Print customer ID to ensure it's being passed
 
             # Fetch related data from the database
             site = Site.objects.get(id=data['site'])
@@ -564,9 +554,13 @@ def submit_sale(request):
             company = broker.company
             print("Company associated with broker:", company)
 
-            # Create a new sale record
+            # Fetch the customer based on the ID received in the request
+            customer = Customer.objects.get(id=data['customer'])
+            print("Customer fetched:", customer)
+
+            # Create a new sale record with the customer field populated
             sale = Sale.objects.create(
-                customer=None,  # For now, set to None as customer is missing in the request
+                customer=customer,  # Now pass the actual customer
                 site=site,
                 unit=unit,
                 broker=broker,
@@ -575,10 +569,15 @@ def submit_sale(request):
             )
             print("Sale record created:", sale)
 
+            # Update the unit status to 'pending' once the sale is made
+            unit.status = 'pending'
+            unit.save()
+            print("Unit status updated to 'pending'.")
+
             # Return a success response
             return JsonResponse({'message': 'Sale submitted successfully!'}, status=201)
 
-        except (Site.DoesNotExist, Unit.DoesNotExist, Broker.DoesNotExist) as e:
+        except (Site.DoesNotExist, Unit.DoesNotExist, Broker.DoesNotExist, Customer.DoesNotExist) as e:
             print(f"Error: {str(e)}")
             return JsonResponse({'error': 'Invalid data or not found'}, status=400)
         except Exception as e:
