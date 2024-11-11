@@ -432,6 +432,7 @@ def get_available_units(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
+
 @csrf_exempt
 def get_customers_for_broker(request, broker_id):
     try:
@@ -480,6 +481,36 @@ def get_customers_for_broker(request, broker_id):
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+    
+@csrf_exempt
+def add_sale(request):
+    if request.method == 'POST':
+        try:
+            # Extract data from the request
+            data = request.POST
+            broker_id = data.get('broker_id')
+            customer_id = data.get('customer_id')
+            unit_id = data.get('unit_id')
+            date_sold = data.get('date_sold')
+            status = data.get('status', 'pending')  # Default to 'pending'
+
+            # Create a new sale record
+            sale = Sale.objects.create(
+                broker_id=broker_id,
+                customer_id=customer_id,
+                unit_id=unit_id,
+                date_sold=date_sold,
+                status=status,
+            )
+
+            # Return success response
+            return JsonResponse({"success": True, "message": "Sale added successfully!"})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 
 # Developers
 @csrf_exempt

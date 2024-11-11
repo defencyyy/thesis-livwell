@@ -23,6 +23,9 @@ urlpatterns = [
     path('units/available/', views.get_available_units, name='get_available_units'),  
     path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  
     path('customers/broker/<int:broker_id>/', views.get_customers_for_broker, name='get_customers_for_broker'),
+    path('sales/add', views.add_sale, name='add_sale'),  
+    
+
 
 
 
