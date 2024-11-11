@@ -279,33 +279,33 @@ def get_broker(request, broker_id):
 
 def total_sales_view(request):
     if request.method == 'GET':
-        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        broker_id = request.GET.get('broker_id')
         if not broker_id:
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
-        # Calculate total sales for the given broker ID
-        total_sales = Sale.objects.filter(broker_id=broker_id).count()
+        # Calculate total sales with status "sold" for the given broker ID
+        total_sales = Sale.objects.filter(broker_id=broker_id, status='sold').count()
 
         return JsonResponse({'total_sales': total_sales})
-    
-@csrf_exempt  # If you need to exempt CSRF protection (for development purposes only)
+
+@csrf_exempt
 def total_commissions_view(request):
     if request.method == 'GET':
-        broker_id = request.GET.get('broker_id')  # Get broker ID from the request
+        broker_id = request.GET.get('broker_id')
         if not broker_id:
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
-        # Get all sales made by the broker
-        sales = Sale.objects.filter(broker_id=broker_id)
+        # Get all "sold" sales made by the broker
+        sales = Sale.objects.filter(broker_id=broker_id, status='sold')
         
-        # Extract unit IDs from the sales
+        # Extract unit IDs from the "sold" sales
         unit_ids = sales.values_list('unit_id', flat=True)
 
         # Sum up the commissions for these units
         total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
 
         return JsonResponse({'total_commissions': total_commission})
-    
+
 @csrf_exempt
 def site_sales_view(request):
     if request.method == 'GET':
@@ -313,14 +313,14 @@ def site_sales_view(request):
         if not broker_id:
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
-        # Fetch sites and calculate total sales per site
+        # Fetch sites and calculate total "sold" sales per site
         sites = []
         for site in Site.objects.all():  # Assuming you have a Site model
-            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id).count()  # Adjust the filter based on your relationships
+            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id, status='sold').count()
             sites.append({
                 'id': site.id,
                 'name': site.name,
-                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,  # Use build_absolute_uri
+                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
                 'total_sales': total_sales,
             })
 
@@ -332,29 +332,29 @@ def sales_details_view(request):
         site_id = request.GET.get('site_id')
         broker_id = request.GET.get('broker_id')
 
-        # Check if site_id and broker_id are provided
         if not site_id or not broker_id:
             return JsonResponse({'error': 'Site ID or Broker ID not provided'}, status=400)
 
         try:
-            # Fetch sales related to the specified site and broker
+            # Fetch "sold" sales related to the specified site and broker
             sales = Sale.objects.filter(
-                unit__site_id=site_id,  # Filter sales by the site ID
-                broker_id=broker_id  # Filter sales by the broker ID
-            ).select_related('unit', 'customer')  # Use select_related for efficient querying
+                unit__site_id=site_id,
+                broker_id=broker_id,
+                status='sold'
+            ).select_related('unit', 'customer')
 
             sales_details = []
             for sale in sales:
                 sales_details.append({
-                    'unit_name': sale.unit.unit_title,  # Get the unit title from Units_unit
-                    'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",  # Customer name from Customers_customer
-                    'date_sold': sale.date_sold.strftime("%Y-%m-%d")  # Sale date from Sales_sale
+                    'unit_name': sale.unit.unit_title,
+                    'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
+                    'date_sold': sale.date_sold.strftime("%Y-%m-%d")
                 })
 
             return JsonResponse({'sales': sales_details})
 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)  # Handle any unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
         
 @csrf_exempt
 def get_available_sites(request):
