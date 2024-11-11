@@ -84,9 +84,6 @@ import SideNav from "@/components/SideNav.vue";
 export default {
   name: "ManageSales",
   components: {
-    SideNav,
-    name: "ManageSales",
-    components: {
     SideNav, HeaderLivwell
   },
   data() {
@@ -249,8 +246,8 @@ export default {
       }
     },
   },
-}
-}
+};
+
 </script>
 
 <style scoped>
