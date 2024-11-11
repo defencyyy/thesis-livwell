@@ -2,18 +2,20 @@
   <div>
     
     <div :class="['sidebar', { collapsed: isCollapsed }]">
-      <h4 id="sidebar-title">Company Name and Logo</h4>
+      <h4 id="sidebar-title"></h4>
+      <img src="https://www.dmciholdings.com/storage/app/media/2023/Investment/New/fdmci-homestransparentnew0331.png" alt="">
       <nav class="mb-3">
         <b-button @click="toggleSidebar">{{
       isCollapsed ? "UnCollapse" : "Collapse"
     }}</b-button>
         <b-nav vertical>
           <template v-for="(item, index) in menuItems" :key="index">
+            
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
               {{ item.name }}
             </b-nav-item> 
 
-            <div v-else>
+            <div v-else class="sidetitle">
               <b-nav-item :to="item.link" exact custom class="parent-item">
                 {{ item.name }}
               </b-nav-item>
@@ -31,6 +33,7 @@
             </div>
           </template>
         </b-nav>
+        <button @click="logout" class="logout">Logout</button>
       </nav>
     </div>
   </div>
@@ -49,6 +52,7 @@ export default {
       isCollapsed: false,
     };
   },
+  
   created() {
     this.setMenuItems();
   },
@@ -88,6 +92,13 @@ export default {
     toggleSidebar() {
       this.isCollapsed = !this.isCollapsed;
     },
+    logout() {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("logged_in");
+      localStorage.removeItem("user_role");
+
+      this.$router.push({ path: "/home" });
+    },
   },
 };
 </script>
@@ -96,9 +107,18 @@ export default {
 .sidebar {
   width: 250px;
   transition: width 0.5s;
-  background-color: gray;
+  background-color: rgb(224, 224, 224);
   height: 100%;
+  padding-top: 50px;
+  color: black;
 }
+
+.sidebar img
+{
+  width: 200px;
+  height: 150px;
+}
+
 
 .sidebar.collapsed {
   width: 60px;
@@ -107,10 +127,12 @@ export default {
 
 .sidebar h4 {
   display: inline;
+
 }
 
 .parent-item {
   font-weight: bold;
+  
 }
 
 .child-menu {
@@ -131,6 +153,21 @@ export default {
 .sidebar:not(.collapsed) .b-nav-item {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* LOGOUT */
+.logout {
+  margin-top: 100%;
+  padding: 10px 20px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ff1a1a;
 }
 
 </style>

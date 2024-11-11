@@ -2,7 +2,7 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-black ">
       <div class="container">
-        <a class="navbar-brand" href="#">MyApp</a>
+        <a class="navbar-brand" href="#">Welcome Back, Broker!</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -23,7 +23,7 @@
               <a class="nav-link" href="#">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Services</a>
+              <img src="../assets/bell.png" alt="" width="25px" height="30px" href="#" type="button">
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Contact</a>
@@ -45,6 +45,7 @@
  .navbar
  {
     background-color: #FAD566;
+    padding-top: 10px;  
   }
 
  .navbar-brand{
@@ -53,7 +54,12 @@
 
  .navbar-nav
  {
-  padding-left: 45%;
+  padding-left: 85%;
+ }
+
+ .nav-item
+ {
+  padding-right: 20px;
  }
   </style>
   

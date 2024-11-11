@@ -23,5 +23,6 @@ import SideNav from '@/components/SideNav.vue';
  {
     background-color: #42b983;
  }
+
   </style>
   
