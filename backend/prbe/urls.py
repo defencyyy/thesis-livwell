@@ -27,6 +27,7 @@ urlpatterns = [
     path('units/site/<int:site_id>/', views.fetch_units, name='fetch_units'),
     path('sales/', views.submit_sale, name='submit_sale'),
 
+
     
 
 
