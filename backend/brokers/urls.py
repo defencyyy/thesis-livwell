@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import BrokerView
+from .views import BrokerListView, BrokerCreateView
 
 urlpatterns = [
-    path('create/', BrokerView.as_view(), name='create-broker'),  # Endpoint for creating brokers
-    path('', BrokerView.as_view(), name='get-brokers'),  # Endpoint for listing brokers
+    path('', BrokerListView.as_view(), name='get-brokers'),  # For GET request to list brokers
+    path('create/', BrokerCreateView.as_view(), name='create-broker'),  # For POST request to create a broker
 ]

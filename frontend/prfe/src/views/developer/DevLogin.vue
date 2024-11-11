@@ -107,15 +107,6 @@ export default {
   methods: {
     ...mapActions(["login"]),
 
-    getCookie(name) {
-      const cookieArr = document.cookie.split(";");
-      for (let cookie of cookieArr) {
-        const [key, value] = cookie.split("=");
-        if (key.trim() === name) return decodeURIComponent(value);
-      }
-      return null;
-    },
-
     async login() {
       this.error = null;
       this.loading = true;
@@ -156,7 +147,7 @@ export default {
           const data = await response.json();
           if (data.success) {
             // Store auth token and user data in localStorage
-            localStorage.setItem("authToken", data.tokens.access);
+            localStorage.setItem("authToken", data.token);
             localStorage.setItem("user_role", "developer");
             localStorage.setItem("logged_in", "true");
             localStorage.setItem("developer_id", data.user.id);
@@ -198,6 +189,21 @@ export default {
         this.error = "Please fill in both fields.";
         this.loading = false;
       }
+    },
+
+    getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
     },
   },
 };

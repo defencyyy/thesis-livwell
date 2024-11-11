@@ -2,8 +2,9 @@
   <div class="developer-brokers-page">
     <SideNav />
     <div class="content">
-      <h1>Total Brokers: {{ brokers.length }}</h1>
+      <h1>Total Brokers: {{ filteredBrokers.length }}</h1>
 
+      <!-- Add Broker Button -->
       <button @click="showModal = true">Add Broker</button>
 
       <!-- Search Bar -->
@@ -12,7 +13,7 @@
       </div>
 
       <!-- Broker Table -->
-      <table>
+      <table v-if="filteredBrokers.length" class="table">
         <thead>
           <tr>
             <th>Email</th>
@@ -32,8 +33,9 @@
           </tr>
         </tbody>
       </table>
+      <p v-if="!filteredBrokers.length">No brokers found for this developer.</p>
 
-      <!-- Modal -->
+      <!-- Modal for Adding Broker -->
       <b-modal v-model="showModal" title="Add Broker" hide-footer>
         <form @submit.prevent="addBroker">
           <div>
@@ -80,7 +82,6 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
-import { mapGetters } from "vuex";
 import axios from "axios";
 
 export default {
@@ -96,7 +97,7 @@ export default {
       contactNumber: "",
       lastName: "",
       firstName: "",
-      password: "",
+      password: "12345", // Default password can be pre-filled
       error: null,
       successMessage: null,
       brokers: [],
@@ -104,19 +105,16 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getCompanyId", "getUserId"]),
-    companyId() {
-      return this.getCompanyId; // Automatically use the company ID from Vuex
-    },
-    userId() {
-      return this.getUserId; // Automatically use the user ID from Vuex if needed
-    },
-    // Filter brokers based on the search query
     filteredBrokers() {
-      return this.brokers.filter((broker) =>
-        Object.values(broker).some((value) =>
-          String(value).toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
+      return this.brokers.filter(
+        (broker) =>
+          broker.first_name
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase()) ||
+          broker.last_name
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase()) ||
+          broker.email.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
   },
@@ -125,61 +123,46 @@ export default {
   },
   methods: {
     async fetchBrokers() {
-      if (!this.userId || !this.companyId) {
-        alert("Developer or Company ID not found. Please log in.");
-        return;
-      }
-
+      // const companyId = localStorage.getItem("company_id");
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/brokers/",
-          {
-            headers: {
-              "Developer-ID": this.userId,
-              "Company-ID": this.companyId,
-            },
-          }
+          `http://localhost:8000/developer/brokers/`
         );
-
         if (response.status === 200) {
-          this.brokers = response.data;
+          this.brokers = response.data.brokers;
         } else {
-          this.error = "Error fetching brokers.";
+          this.error = "Failed to fetch brokers.";
         }
       } catch (error) {
-        this.error = "An error occurred while fetching brokers.";
+        this.error = "An error occurred while fetching broker data.";
       }
     },
     async addBroker() {
+      const companyId = localStorage.getItem("company_id");
+
       try {
         const response = await axios.post(
-          "http://localhost:8000/developer/brokers/",
+          "http://localhost:8000/developer/brokers/create",
           {
             email: this.email,
             contact_number: this.contactNumber,
             last_name: this.lastName,
             first_name: this.firstName,
             password: this.password,
-          },
-          {
-            headers: {
-              "Developer-ID": this.userId,
-              "Company-ID": this.companyId,
-            },
+            company_id: companyId,
           }
         );
 
         if (response.status === 201) {
-          this.successMessage = "Broker created successfully!";
-          this.error = null;
+          this.successMessage = "Broker added successfully!";
+          this.fetchBrokers(); // Refresh broker list
           this.resetForm();
-          this.fetchBrokers(); // Refresh the broker list after creation
           this.showModal = false;
         } else {
-          this.error = "Failed to create broker.";
+          this.error = response.data.message || "Failed to add broker.";
         }
       } catch (error) {
-        this.error = "An error occurred while creating the broker.";
+        this.error = "An error occurred while adding the broker.";
       }
     },
     resetForm() {
@@ -187,8 +170,23 @@ export default {
       this.contactNumber = "";
       this.lastName = "";
       this.firstName = "";
-      this.password = "";
+      this.password = "12345"; // Reset to default
+      this.error = null;
+      this.successMessage = null;
     },
   },
 };
 </script>
+
+<style scoped>
+.developer-brokers-page {
+  display: flex;
+  height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+</style>

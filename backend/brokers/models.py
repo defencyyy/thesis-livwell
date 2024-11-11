@@ -9,7 +9,7 @@ class Broker(models.Model):
     username = models.CharField(max_length=50, unique=True)
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
-    contact_number = models.CharField(max_length=20, blank=True)  # contact_number is optional now
+    contact_number = models.CharField(max_length=20, blank=True, null=True)  # contact_number is optional now
     password = models.CharField(max_length=128, null=True)  # Default password will be handled in save method
     last_login = models.DateTimeField(null=True, blank=True) 
 

@@ -9,6 +9,10 @@
         <p><strong>User ID:</strong> {{ userId }}</p>
         <p><strong>User Role:</strong> {{ userType }}</p>
         <p><strong>Company ID:</strong> {{ companyId }}</p>
+        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
+        <p>
+          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
+        </p>
       </div>
     </div>
   </div>
@@ -29,6 +33,12 @@ export default {
       userType: (state) => state.userType || null,
       companyId: (state) => state.companyId || null,
     }),
+    localStorageUserId() {
+      return localStorage.getItem("developer_id");
+    },
+    localStorageCompanyId() {
+      return localStorage.getItem("company_id");
+    },
   },
   mounted() {
     if (!this.userId || !this.userType || !this.companyId) {
@@ -59,6 +69,7 @@ export default {
           localStorage.removeItem("user_role");
           localStorage.removeItem("logged_in");
           localStorage.removeItem("company_id");
+          localStorage.removeItem("developer_id");
 
           this.$router.push({ path: "/home" });
         } else {

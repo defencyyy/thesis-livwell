@@ -24,17 +24,16 @@ urlpatterns = [
     path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  
     path('customers/broker/<int:broker_id>/', views.get_customers_for_broker, name='get_customers_for_broker'),
 
-
-
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
     path('developer/logout/', views.dev_logout_view, name='developer_logout'),
+    path('developer/company/edit/', views.company_edit, name='company_edit'),
     
-    # API
-    path('developer/company/', include('companies.urls')),
-    path('developer/brokers/', include('brokers.urls')),
+    # API Endpoints
+    path('developer/company/', include('companies.urls')),  
+    path('developer/brokers/', include('brokers.urls')),  
 ]
 
 # Serve media files during development

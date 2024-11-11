@@ -46,7 +46,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
@@ -68,8 +67,6 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
-
-    // Computed properties for Vuex and localStorage values
     vuexUserId() {
       return this.userId;
     },
@@ -87,30 +84,16 @@ export default {
     this.fetchCompany();
   },
   methods: {
-    getCookie(name) {
-      let cookieArr = document.cookie.split(";");
-      for (let i = 0; i < cookieArr.length; i++) {
-        let cookie = cookieArr[i].trim();
-        if (cookie.startsWith(name + "=")) {
-          return cookie.substring(name.length + 1);
-        }
-      }
-      return null;
-    },
     // Method to fetch company details
     async fetchCompany() {
-      const userId = this.userId || localStorage.getItem("userId");
-      const companyId = this.companyId || localStorage.getItem("companyId");
+      const userId = this.userId || localStorage.getItem("developer_id");
+      const companyId = this.companyId || localStorage.getItem("company_id");
 
       if (!userId || !companyId) {
         alert("Developer or Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
       }
-
-      // Display the values for debugging
-      console.log("User ID (from Vuex or localStorage):", userId);
-      console.log("Company ID (from Vuex or localStorage):", companyId);
 
       try {
         const response = await axios.get(
@@ -152,32 +135,22 @@ export default {
 
     // Method to update company details
     async updateCompany() {
-      const csrfToken = this.getCookie("csrftoken");
-      console.log("csrfToken: " + csrfToken);
-      console.log("User ID:", this.userId);
-      console.log("Company ID:", this.companyId);
-      console.log("Local User ID:", localStorage.getItem("developer_id"));
-      console.log("what User ID:", localStorage.getItem("user_id"));
-      console.log("Local Company ID:", localStorage.getItem("company_id"));
-
       try {
         const formData = new FormData();
-        formData.append("description", this.draftDescription); // Send the updated description
+        formData.append("description", this.draftDescription);
 
-        // Append new logo if present
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
 
         const response = await axios.put(
-          "http://localhost:8000/developer/company/",
+          "http://localhost:8000/developer/company/edit/",
           formData,
           {
             headers: {
-              "X-CSRFToken": csrfToken,
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-              "Developer-ID": localStorage.getItem("developer_id"), // Pass the developer ID from localStorage
-              "Company-ID": localStorage.getItem("company_id"), // Pass the company ID from localStorage
+              "Developer-ID": localStorage.getItem("developer_id"),
+              "Company-ID": localStorage.getItem("company_id"),
             },
           }
         );
