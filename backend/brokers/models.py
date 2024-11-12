@@ -5,23 +5,13 @@ from django.utils import timezone
 
 class Broker(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    email = models.EmailField(max_length=50)
+    email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
     contact_number = models.CharField(max_length=20, blank=True, null=True)  # contact_number is optional now
-    password = models.CharField(max_length=128, null=True)  # Default password will be handled in save method
+    password = models.CharField(max_length=128)  # Default password will be handled in save method
     last_login = models.DateTimeField(null=True, blank=True) 
-
-    def save(self, *args, **kwargs):
-        if not self.password:
-            # Set password to username.12345 if not provided
-            self.password = f"{self.username}.12345"
-        
-        # Hash the password before saving it
-        self.password = make_password(self.password)
-        
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.last_name}, {self.first_name} "
