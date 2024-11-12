@@ -359,18 +359,21 @@ def sales_details_view(request):
 @csrf_exempt
 def get_available_sites(request):
     if request.method == 'GET':
-        # Fetch sites that are either 'preselling' or 'completed'
-        sites = Site.objects.filter(status__in=['preselling', 'completed'])        
-        # Prepare the response data
+        # Fetch sites that are either 'preselling' or 'completed' and have available units
+        sites = Site.objects.filter(status__in=['preselling', 'completed'])
+        
         site_data = []
         for site in sites:
-            site_data.append({
-                'id': site.id,
-                'name': site.name,
-                'description': site.description,
-                'location': site.location,
-                'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
-            })
+            # Check if there are any available units for this site
+            available_units = Unit.objects.filter(site=site, status='available')
+            if available_units.exists():  # Only add the site if there are available units
+                site_data.append({
+                    'id': site.id,
+                    'name': site.name,
+                    'description': site.description,
+                    'location': site.location,
+                    'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
+                })
         
         return JsonResponse({'sites': site_data}, status=200)
 
