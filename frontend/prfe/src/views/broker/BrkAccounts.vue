@@ -1,10 +1,11 @@
 <template>
-  <SideNav/>
-
-  <div class="accounts-page">
-  
-  
-      <div class="content row justify-content-center">
+  <header>
+  <HeaderLivwell/>
+  </header>
+  <div class="accounts-page"> 
+    <SideNav/>
+    <div>h1lw</div>
+      <!-- <div class="content row justify-content-center">
         <div class="col-md-6 col-lg-4">
           <div class="card mt-5">
             <div class="card-header text-center">
@@ -40,19 +41,19 @@
               </div>
           </div>        
         </div>
-      </div>
+      </div> -->
   </div>
 
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
-
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 
 export default {
   name: "BrkAccounts",
   components: {
-    SideNav,
+    SideNav, HeaderLivwell,
   },
   data() {
     return {
@@ -144,9 +145,14 @@ export default {
 <style scoped>
 .content{
   background-color: gray;
-  flex: 1;
   padding: 20px;
   text-align: center;
+  display: flex;
+}
+
+.accounts-page
+{
+  display: flex;
 }
 
 .sidebar {

@@ -47,37 +47,51 @@
     </div>
 </nav>
 
-<section>
+
 
 <section class="hero overlay">
-    <div class="bods d-flex justify-content-evenly">
-
-        <div class="home text-white">
-        <img alt="Vue logo" src="@/assets/logo.png"/>
-        <h1>Welcome to LivWell!</h1>
-        <p>Explore listings or manage your properties with ease.</p>
-
-        <div class="button-container">
-            <button @click="goToDeveloperLogin">Developer Login</button>
-        
+    <div id="hero-carousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
         </div>
+        <div class="carousel-inner">
+            <!-- First Slide -->
+            <div class="carousel-item active c-item">
+            <img src="https://i.pinimg.com/originals/fc/ac/19/fcac194ad03f8af8dfaf702db8db5b0f.jpg" class="d-block w-100 c-img" alt="Slide 1">
+            <div class="carousel-caption top-0 mt-4">
+                <p class="mt-5 fs-3 text-uppercase">Go to</p>
+                <h1 class="display-1 fw-bolder text-capitalize">DEVELOPER</h1>
+                <button @click="goToDeveloperLogin" class="bton btn-primary px-4 py-2 fs-5 mt-5">Developer Login</button>
+            </div>
+            
+            
+            </div>
+            
+            <!-- Second Slide -->
+            <div class="carousel-item c-item">
+            <img src="https://3.bp.blogspot.com/-QZdUc9EHQAw/VNSUfEba57I/AAAAAAAAB7k/AZhy1zYsiWI/s1600/Amenity%2BCore.jpg" class="d-block w-100 c-img" alt="Slide 2">
+            <div class="carousel-caption top-0 mt-4">
+                <p class="text-uppercase fs-3 mt-5">Go to</p>
+                <p class="display-1 fw-bolder text-capitalize">BROKER</p>
+                <button @click="goToBrokerLogin" class="bton btn-primary px-4 py-2 fs-5 mt-5" >Broker Login</button>
+            </div>
+            </div>
         </div>
-
-        <div class="home">
-        <img alt="Vue logo" src="@/assets/logo.png" />
-        <h1>Welcome to LivWell!</h1>
-        <p>Explore listings or manage your properties with ease.</p>
-
-        <div class="button-container">
-
-            <button @click="goToBrokerLogin">Broker Login</button>
-        </div>
-        </div>
+        <!-- Carousel Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#hero-carousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#hero-carousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
-
 </section>
 
-</section>
+
+
 
 
 <section class="features-icons bg-light text-center">
@@ -315,19 +329,15 @@ export default {
 }
 
 button {
-  margin: 0 10px;
-  padding: 10px 20px;
+  /* margin: 0 10px; */
+  /* padding: 10px 20px; */
   font-size: 16px;
   cursor: pointer;
   border: none;
-  background-color: #FFE79E;
+  /* background-color: #FFE79E; */
   color: black;
   border-radius: 5px;
   transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #45a049;
 }
 
 nav{
@@ -355,17 +365,6 @@ nav{
 }
 
 /* ABOUT */
-@keyframes fade-up{
-    0% {
-        opacity: 0;
-        transform:  translateY(-30p) scale(0.9);
-    }
-
-    100%{
-        opacity: 1;
-        transform:  translateY(0px) scale(1);
-    }
-}
 
 .features-icons
 {
@@ -375,21 +374,6 @@ nav{
 .showcase
 {
     animation: fade-up 3s;
-}
-
-@keyframes fade-left{
-    0% {
-        opacity: 0;
-        transform:  translateY(-30px) scale(0.9);
-    }
-
-    100%{
-        opacity: 1;
-        transform:  translateY(0px) scale(1);
-    }
-}
-.container{
-    animation: fade-left 0.5s;
 }
 
 /* FAQ */
@@ -620,15 +604,11 @@ footer */
 
 
 /* LOGIN CSS      */
-.overlay {
-  border-image: linear-gradient(hsla(0, 0%, 41%, 0.6), hsla(0, 1%, 39%, 0.6))
-    fill 1;
-}
+
 
 .hero {
-  background-image: url("https://philpropertyexpert.com/wp-content/uploads/2015/04/SMDC-Light-Residences-Condominium-Amenities-Area.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
+  
+  
 
   min-block-size: 80vh;
   place-content: center;
@@ -640,34 +620,27 @@ footer */
     animation: fade-up 2s;
 }
 
-@layer general-styling {
-  html {
-    color-scheme: dark light;
-    font-family: system-ui;
-    line-height: 1.6;
-  }
-
-  body {
-    font-size: 2rem;
-    margin: 1rem;
-  }
-
-  h1 {
-    line-height: 1;
-  }
+.c-item {
+  height: 780px;
 }
 
-@keyframes fade-up{
-    0% {
-        opacity: 0;
-        transform:  translateY(-30p) scale(0.9);
-    }
-
-    100%{
-        opacity: 1;
-        transform:  translateY(0px) scale(1);
-    }
+.c-img {
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6);
 }
+.bton{
+ background-color: #FFE79E;
+}
+.bton:hover{
+    background-color: white;
+}
+
+
+
+
+
+
 
 </style>
 
