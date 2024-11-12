@@ -4,6 +4,11 @@
     <div class="content">
       <h1>Total Brokers: {{ filteredBrokers.length }}</h1>
 
+      <!-- JWT Token Display -->
+      <div>
+        <p><strong>JWT Token:</strong> {{ token }}</p>
+      </div>
+
       <!-- Add Broker Button -->
       <button @click="showModal = true">Add Broker</button>
 
@@ -33,7 +38,7 @@
           </tr>
         </tbody>
       </table>
-      <p v-if="!filteredBrokers.length">No brokers found for this developer.</p>
+      <p v-if="!filteredBrokers.length">No brokers found for this company.</p>
 
       <!-- Modal for Adding Broker -->
       <b-modal v-model="showModal" title="Add Broker" hide-footer>
@@ -82,7 +87,6 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
-import axios from "axios";
 
 export default {
   name: "DevFuncBroker",
@@ -92,6 +96,7 @@ export default {
   },
   data() {
     return {
+      token: localStorage.getItem("authToken"), // Get token to display
       showModal: false,
       email: "",
       contactNumber: "",
@@ -123,70 +128,77 @@ export default {
   },
   methods: {
     async fetchBrokers() {
-      // const companyId = localStorage.getItem("company_id");
+      const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("authToken");
+      console.log(localStorage.getItem("authToken")); // Log to confirm token
+
       try {
-        const response = await axios.get(
-          `http://localhost:8000/developer/brokers/`
+        const response = await fetch(
+          "http://localhost:8000/developer/brokers/",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Ensure the token is prefixed with 'Bearer'
+              "Company-ID": companyId, // Pass the company ID in the headers
+            },
+          }
         );
-        if (response.status === 200) {
-          this.brokers = response.data.brokers;
+        if (response.ok) {
+          const data = await response.json();
+          this.brokers = data.brokers;
         } else {
-          this.error = "Failed to fetch brokers.";
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to fetch brokers data.";
         }
       } catch (error) {
-        this.error = "An error occurred while fetching broker data.";
+        this.error = "An error occurred while fetching brokers data.";
       }
     },
     async addBroker() {
       const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("authToken");
 
       try {
-        const response = await axios.post(
-          "http://localhost:8000/developer/brokers/create",
+        const response = await fetch(
+          "http://localhost:8000/developer/broker/create/",
           {
-            email: this.email,
-            contact_number: this.contactNumber,
-            last_name: this.lastName,
-            first_name: this.firstName,
-            password: this.password,
-            company_id: companyId,
+            method: "POST",
+            headers: {
+              Authorization: `Token ${token}`, // Pass the token in the Authorization header
+              "Content-Type": "application/json",
+              "Company-ID": companyId, // Pass the company ID in the headers
+            },
+            body: JSON.stringify({
+              email: this.email,
+              contact_number: this.contactNumber,
+              last_name: this.lastName,
+              first_name: this.firstName,
+              password: this.password,
+            }),
           }
         );
 
-        if (response.status === 201) {
+        if (response.ok) {
           this.successMessage = "Broker added successfully!";
-          this.fetchBrokers(); // Refresh broker list
+          this.error = null;
           this.resetForm();
           this.showModal = false;
+          this.fetchBrokers(); // Refresh the brokers list
         } else {
-          this.error = response.data.message || "Failed to add broker.";
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to add broker.";
         }
       } catch (error) {
         this.error = "An error occurred while adding the broker.";
       }
     },
+
     resetForm() {
       this.email = "";
       this.contactNumber = "";
       this.lastName = "";
       this.firstName = "";
-      this.password = "12345"; // Reset to default
-      this.error = null;
-      this.successMessage = null;
+      this.password = "";
     },
   },
 };
 </script>
-
-<style scoped>
-.developer-brokers-page {
-  display: flex;
-  height: 100vh;
-}
-
-.content {
-  flex: 1;
-  padding: 20px;
-  text-align: center;
-}
-</style>

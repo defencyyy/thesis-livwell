@@ -19,15 +19,13 @@ from developers.models import Developer
 from django.shortcuts import get_object_or_404
 
 from brokers.models import Broker 
-from developers.models import Developer 
 from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit
 from sites.models import Site
-
+ 
 import json
 import re
-
 import logging
 
 logger = logging.getLogger(__name__)
