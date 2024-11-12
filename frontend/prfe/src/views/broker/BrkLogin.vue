@@ -128,7 +128,6 @@ export default {
             localStorage.setItem("user_role", "broker");
             localStorage.setItem("logged_in", "true");
             localStorage.setItem("broker_id", data.user.id); // Store the broker ID
-            console.log(data.user.id);
 
             this.$router.push("/broker/dashboard");
           } else {

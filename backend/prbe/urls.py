@@ -33,7 +33,7 @@ urlpatterns = [
     
     # API Endpoints
     path('developer/company/', include('companies.urls')),  
-    path('developer/brokers/', include('brokers.urls')),  
+    # path('developer/brokers/', include('brokers.urls')),  
 ]
 
 # Serve media files during development
