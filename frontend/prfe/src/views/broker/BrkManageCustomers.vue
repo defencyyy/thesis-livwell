@@ -98,25 +98,35 @@ export default {
     };
   },
   mounted() {
-    // Call fetchCustomers when the component is mounted
+    // Ensure fetchCustomers is called properly in mounted hook
     this.fetchCustomers();
   },
   methods: {
-    async fetchCustomers() {
-      const brokerId = localStorage.getItem("broker_id");
-      try {
-        const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/`);
-        if (response.ok) {
-          const data = await response.json();
-          this.customers = data.customers;
-        } else {
-          const errorData = await response.json();
-          this.error = errorData.message || "Failed to fetch customer data.";
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching customer data.";
+ async fetchCustomers() {
+  const brokerId = localStorage.getItem("broker_id");
+  
+  if (!brokerId) {
+    this.error = "Broker ID not found. Please log in again.";
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        this.customers = data.customers; // This includes site, unit, document_status
+      } else {
+        this.error = data.message || "Failed to fetch customer data.";
       }
-    },
+    } else {
+      const errorData = await response.json();
+      this.error = errorData.message || "Failed to fetch customer data.";
+    }
+  } catch (error) {
+    this.error = "An error occurred while fetching customer data.";
+  }
+},
     async addCustomer() {
       const brokerId = localStorage.getItem("broker_id");
       const phonePattern = /^(?:\(\d{3}\)|\d{3}-)?\d{3}-\d{4}$/;

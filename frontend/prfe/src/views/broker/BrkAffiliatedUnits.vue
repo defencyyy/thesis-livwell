@@ -19,34 +19,34 @@
         </div>
       </div>
       <div v-else>
-        <p>No sites available.</p>
+        <p>No sites with available units.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
-import axios from 'axios'; // Ensure you have axios installed
-import { useRouter } from 'vue-router'; // Import useRouter
+import SideNav from "@/components/SideNav.vue"; 
+import axios from 'axios'; 
+import { useRouter } from 'vue-router'; 
 
 export default {
   name: "AffiliatedUnits",
   components: {
-    SideNav, // Registering the SideNav component
+    SideNav, 
   },
   setup() {
-    const router = useRouter(); // Use router for navigation
+    const router = useRouter();
 
     const redirectToUnits = (siteId) => {
-      router.push({ name: 'AvailableUnits', params: { siteId } }); // Redirect with site ID
+      router.push({ name: 'AvailableUnits', params: { siteId } }); 
     };
 
     return { redirectToUnits };
   },
   data() {
     return {
-      sites: [], // Array to hold site data
+      sites: [], 
     };
   },
   mounted() {
@@ -56,7 +56,7 @@ export default {
     async fetchAvailableSites() {
       try {
         const response = await axios.get('http://localhost:8000/sites/available/');
-        this.sites = response.data.sites; // Store the sites in the component's state
+        this.sites = response.data.sites; 
       } catch (error) {
         console.error("Error fetching available sites:", error);
       }
@@ -82,29 +82,29 @@ export default {
 }
 
 .site-card-container {
-  display: grid; /* Use grid layout */
-  grid-template-columns: repeat(3, 1fr); /* Three cards per row */
-  gap: 20px; /* Space between cards */
-  margin: 0 auto; /* Center the container */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 0 auto;
 }
 
 .site-card {
-  border: 1px solid #ccc; /* Optional: Add a border */
-  border-radius: 8px; /* Optional: Add rounded corners */
-  padding: 10px; /* Optional: Add padding */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
   text-align: center;
-  cursor: pointer; /* Indicate that the card is clickable */
-  transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+  cursor: pointer;
+  transition: box-shadow 0.3s;
 }
 
 .site-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .site-card img {
-  width: 100%; /* Make image take full width of the card */
-  height: 150px; /* Set a fixed height for the image */
-  object-fit: cover; /* Maintain aspect ratio and cover the area */
-  border-radius: 4px; /* Optional: Add rounded corners to the image */
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 </style>

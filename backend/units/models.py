@@ -12,6 +12,7 @@ class Unit(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
         ('sold', 'Sold'),
+        ('pending', 'Pending'),
     ]
     VIEW_CHOICES = [
         ('south', 'South'),

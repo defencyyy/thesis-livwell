@@ -23,6 +23,18 @@ urlpatterns = [
     path('units/available/', views.get_available_units, name='get_available_units'),  
     path('sites/<int:site_id>/', views.get_site_name, name='get_site_name'),  
     path('customers/broker/<int:broker_id>/', views.get_customers_for_broker, name='get_customers_for_broker'),
+    path('sites/', views.fetch_sites, name='fetch_sites'),
+    path('units/site/<int:site_id>/', views.fetch_units, name='fetch_units'),
+    path('sales/', views.fetch_sales, name='fetch_sales'),
+    
+    # Endpoint to submit a new sale (POST request)
+    path('sales/create/', views.submit_sale, name='submit_sale'),
+
+
+
+
+    
+
 
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 
