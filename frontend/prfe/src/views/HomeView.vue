@@ -50,7 +50,7 @@
 
 
 <section class="hero overlay">
-    <div id="hero-carousel" class="carousel slide" data-bs-ride="carousel">
+    <div id="hero-carousel" class="carousel slide overlay" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
             <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -604,12 +604,7 @@ footer */
 
 
 /* LOGIN CSS      */
-
-
 .hero {
-  
-  
-
   min-block-size: 80vh;
   place-content: center;
   text-align: center;
