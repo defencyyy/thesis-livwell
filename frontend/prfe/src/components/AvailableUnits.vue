@@ -19,7 +19,7 @@
         <p>No units available for this site.</p>
       </div>
 
-      <!-- Modal -->
+      <!-- Unit Details Modal -->
       <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
           <img :src="selectedUnit.picture" alt="Unit Picture" class="unit-picture" />
@@ -30,11 +30,67 @@
           <p>Baths:{{ selectedUnit.bathroom }} Bedrooms: {{ selectedUnit.bedroom }}  Floor area(m<sup>2</sup>):{{ selectedUnit.floor_area }} </p>
           <p>View: {{ selectedUnit.view }} </p>
           <hr>
+
+          <!-- Buttons -->
+          <div class="button-container">
+            <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
+            <button class="schedule-btn" @click="scheduleVisit">Schedule Visit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reserve Unit Modal -->
+      <div v-if="isReserveModalVisible" class="modal-overlay" @click="closeReserveModal">
+        <div class="modal-content" @click.stop>
+          <h3>Reserve Unit</h3>
+          <form @submit.prevent="submitReservation">
+            <!-- Customer Name Dropdown -->
+            <div class="form-group">
+              <label for="customerName">Customer Name</label>
+              <select v-model="reservationForm.customerName" id="customerName" required>
+                <option value="" disabled selected>Select Customer</option>
+                <option v-for="customer in customers" :key="customer.id" :value="customer.id">
+                  {{ customer.name }}
+                </option>
+              </select>
+            </div>
+            <!-- Payment Amount -->
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount</label>
+              <input type="number" v-model="reservationForm.paymentAmount" id="paymentAmount" required />
+            </div>
+            <!-- Payment Method -->
+            <div class="form-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select v-model="reservationForm.paymentMethod" id="paymentMethod" required>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="online_payment">Online Payment</option>
+              </select>
+            </div>
+            <!-- Payment Date -->
+            <div class="form-group">
+              <label for="paymentDate">Date of Payment</label>
+              <input type="date" v-model="reservationForm.paymentDate" id="paymentDate" required />
+            </div>
+            <!-- Payment Reference -->
+            <div class="form-group">
+              <label for="paymentReference">Payment Reference Number</label>
+              <input type="text" v-model="reservationForm.paymentReference" id="paymentReference" />
+            </div>
+            <!-- Submit Button -->
+            <div class="form-group">
+              <button type="submit" class="submit-btn">Submit Reservation</button>
+            </div>
+          </form>
+          <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+
 
 <script>
 import SideNav from "@/components/SideNav.vue";
@@ -49,20 +105,31 @@ export default {
     return {
       siteId: this.$route.params.siteId, // Get site ID from route params
       units: [],
-      siteName: '', // To store the site's name
-      isModalVisible: false, // To control modal visibility
-      selectedUnit: null, // To store the selected unit details
+      siteName: '',
+      siteYear: '',
+      isModalVisible: false,
+      selectedUnit: null,
+      isReserveModalVisible: false,  // Control visibility of reservation modal
+      reservationForm: {
+        customerName: '',
+        paymentAmount: '',
+        paymentMethod: '',
+        paymentDate: '',
+        paymentReference: ''
+      },
+      customers: [],  // List of customers for the dropdown
     };
   },
   mounted() {
     this.fetchAvailableUnits();
-    this.fetchSiteName(); // Fetch the site's name
+    this.fetchSiteName();
+    this.fetchCustomers();  // Fetch customers when the component is mounted
   },
   methods: {
     async fetchAvailableUnits() {
       try {
         const response = await axios.get(`http://localhost:8000/units/available/?site_id=${this.siteId}`);
-        this.units = response.data.units; // Assume your API returns a 'units' field
+        this.units = response.data.units;
       } catch (error) {
         console.error("Error fetching available units:", error);
       }
@@ -70,12 +137,37 @@ export default {
     async fetchSiteName() {
       try {
         const response = await axios.get(`http://localhost:8000/sites/${this.siteId}`);
-        this.siteName = response.data.name;  // Store the site name
-        this.siteYear = response.data.created_year;  // Store the site's created year
-      }   catch (error) {
+        this.siteName = response.data.name;
+        this.siteYear = response.data.created_year;
+      } catch (error) {
         console.error("Error fetching site name:", error);
       }
     },
+     async fetchCustomers() {
+  const brokerId = localStorage.getItem("broker_id");
+  
+  if (!brokerId) {
+    this.error = "Broker ID not found. Please log in again.";
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        this.customers = data.customers; // This will exclude sales data
+      } else {
+        this.error = data.message || "Failed to fetch customer data.";
+      }
+    } else {
+      const errorData = await response.json();
+      this.error = errorData.message || "Failed to fetch customer data.";
+    }
+  } catch (error) {
+    this.error = "An error occurred while fetching customer data.";
+  }
+},
     showUnitDetails(unit) {
       this.selectedUnit = unit;
       this.isModalVisible = true;
@@ -83,6 +175,24 @@ export default {
     closeModal() {
       this.isModalVisible = false;
     },
+    openReserveModal() {
+      this.isReserveModalVisible = true;
+    },
+    closeReserveModal() {
+      this.isReserveModalVisible = false;
+      this.reservationForm = {
+        customerName: '',
+        paymentAmount: '',
+        paymentMethod: '',
+        paymentDate: '',
+        paymentReference: ''
+      };
+    },
+    submitReservation() {
+      // Handle the form submission (e.g., call an API to save reservation details)
+      console.log("Reservation submitted:", this.reservationForm);
+      this.closeReserveModal();
+    }
   },
 };
 </script>
