@@ -7,9 +7,10 @@ from companies.models import Company
 
 class Sale(models.Model):
   STATUS_CHOICES = [
-        ('pending', 'Pending'),  # Waiting for documents or downpayment
-        ('under review', 'Under Review'),  # Awaiting developer's approval
-        ('sold', 'Sold')  # Sale confirmed by developer
+        ('available', 'Available'),
+        ('sold', 'Sold'),
+        ('pending reservation', 'Pending Reservation'),
+        ('Reserved', 'Reserved'), # Sale confirmed by developer
     ]
   site = models.ForeignKey(Site, on_delete=models.CASCADE)
   unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
