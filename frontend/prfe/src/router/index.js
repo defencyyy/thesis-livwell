@@ -34,9 +34,13 @@ import AvailableUnits from '@/components/AvailableUnits.vue'; // Adjust the path
 import BrkTest from "@/views/broker/BrkTest.vue";
 
 
+//Other Links
+import AboutUs from "@/components/AboutUs.vue";
+
 const routes = [
   { path: "/home", name: "Home", component: Home },
   { path: "/about", name: "About", component: About },
+  { pat: "/AboutUs", name: "AboutUs", component: AboutUs},
 
   // Developer Routes
   {
@@ -173,8 +177,6 @@ const routes = [
     component: BrkTest,
     meta: {requiresAuth: true, role: "broker"},
   },
-
-
   { path: "/", redirect: "/home" },
 ];
 

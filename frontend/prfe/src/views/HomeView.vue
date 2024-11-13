@@ -17,7 +17,7 @@
                     <a class="nav-link" href="#!">Features</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link">About</a>
+                    <a class="nav-link" href="../components/AboutUs.vue">About</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#!">Contact</a>
@@ -99,8 +99,7 @@
                 <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title display-6 fw-bolder text-capitalize">Monitoring of Sites, Units, Customers, and Brokers</h5>
-                  <p class="card-text">See More
-                </p>
+                  <a class="card-text text-opacity-75" href="#!">See More</a>
                 </div>
               </div>
         </div>
@@ -109,7 +108,7 @@
                 <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title display-6 fw-bolder text-capitalize pb-5">Management of Units to Customers</h5>
-                  <p class="card-text">See more</p>
+                    <a class="card-text text-warning" href="#!">See more</a>
                 </div>
               </div>
         </div>
@@ -118,7 +117,7 @@
                 <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title display-6 fw-bolder text-capitalize">Management of Sales and Commissions</h5>
-                  <p class="card-text">See More</p>
+                  <a class="card-text">See More</a>
                 </div>
               </div>
         </div>
@@ -412,7 +411,7 @@ nav{
 
 /* FEATURES */
 .card-title:hover{
-    cursor: pointer;
+   cursor: pointer;
     color: #FFE79E;
 }
 
