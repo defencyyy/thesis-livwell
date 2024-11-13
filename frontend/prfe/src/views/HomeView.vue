@@ -16,11 +16,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#!">Features</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!">Team</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link">About</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#!">Contact</a>
@@ -93,6 +90,42 @@
 
 
 
+<div class="container" id="featureswpic">
+    <h1 class="display-1 fw-bolder text-capitalize pt-5">FEATURES</h1>
+    <div class="cards row pt-5 pb-5">
+        
+        <div class="col">
+            <div class="card h-100">
+                <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title display-6 fw-bolder text-capitalize">Monitoring of Sites, Units, Customers, and Brokers</h5>
+                  <p class="card-text">See More
+                </p>
+                </div>
+              </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title display-6 fw-bolder text-capitalize pb-5">Management of Units to Customers</h5>
+                  <p class="card-text">See more</p>
+                </div>
+              </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title display-6 fw-bolder text-capitalize">Management of Sales and Commissions</h5>
+                  <p class="card-text">See More</p>
+                </div>
+              </div>
+        </div>
+    </div>
+</div>
+
+
 
 <section class="features-icons bg-light text-center">
           <p class="fs-1">FEATURES</p>
@@ -129,24 +162,24 @@
 <section class="showcase">
     <div class="container-fluid p-0">
                 <div class="imgpic row g-0">
-                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; border: 20px;"></div>
+                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://www.lamudi.com.ph/journal/wp-content/uploads/2023/07/Picar-main-photo.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; border: 20px;"></div>
                     <div class="col-lg-6 order-lg-1 my-auto showcase-text ">
-                        <h2 style="padding-top: 125px;">Fully Responsive Design</h2>
-                        <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">When you use a theme created by Start Bootstrap, you know that the theme will look great on any device, whether it's a phone, tablet, or desktop the page will behave responsively!</p>
+                        <h2 style="padding-top: 125px;" class="fw-bolder">Professional & Strategic Partnership-Focused</h2>
+                        <p class="lead mb-0 text-dark" style="padding-top: 25px; margin: 0px 60px; text-align: left;">At [Your Company Name], we are committed to transforming the real estate industry by fostering strategic partnerships between brokers and developers. Our platform provides a seamless connection between property developers and experienced brokers, enabling both sides to collaborate more effectively and efficiently in the condo market.</p>
                     </div>
                 </div>
                 <div class="imgpic row g-0">
-                    <div class="col-lg-6 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    <div class="col-lg-6 text-white showcase-img" style="background-image: url('https://www.lamudi.com.ph/journal/wp-content/uploads/2019/08/AE352B4C-41A7-46BB-BDE5-E45745E98BC2.jpeg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                     <div class="col-lg-6 my-auto showcase-text">
-                        <h2 style="padding-top: 125px;">Updated For Bootstrap 5</h2>
-                        <p class="lead mb-0" style="padding-top: 25px; text-align: left; margin-right: 60px; margin-left: 60px">Newly improved, and full of great utility classes, Bootstrap 5 is leading the way in mobile responsive web development! All of the themes on Start Bootstrap are now using Bootstrap 5!</p>
+                        <h2 style="padding-top: 125px;" class="fw-bolder">Innovative, Data-Driven, & Growth-Oriented</h2>
+                        <p class="lead mb-0 text-dark" style="padding-top: 25px; text-align: left; margin-right: 60px; margin-left: 60px">LivWell is an innovative platform designed to bridge the gap between condo developers and real estate brokers. By leveraging the latest technology and data-driven insights, we help companies like yours optimize every stage of the property development and sales process.</p>
                     </div>
                 </div>
                 <div class="imgpic row g-0">
                     <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                     <div class="col-lg-6 order-lg-1 my-auto showcase-text">
-                        <h2 style="padding-top: 125px;">Easy to Use & Customize</h2>
-                        <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">Landing Page is just HTML and CSS with a splash of SCSS for users who demand some deeper customization options. Out of the box, just add your content and images, and your new landing page will be ready to go!</p>
+                        <h2 style="padding-top: 125px;" class="fw-bolder">Collaborative & Results-Driven</h2>
+                        <p class="lead mb-0 text-dark" style="padding-top: 25px; margin: 0px 60px; text-align: left;">At LivWell, we specialize in connecting condo developers with experienced brokers, providing a platform designed to foster collaboration, enhance communication, and ultimately drive business success. Our mission is to facilitate effective partnerships that generate results — faster, more efficiently, and with greater transparency.At LivWell      , we specialize in connecting condo developers with experienced brokers, providing a platform designed to foster collaboration, enhance communication, and ultimately drive business success. Our mission is to facilitate effective partnerships that generate results — faster, more efficiently, and with greater transparency.</p>
                     </div>
                 </div>
     </div>
@@ -155,7 +188,7 @@
 
 <section class="FAQ bg-light">
             <div class="container">
-                <div class="FAWS row justify-content-center">
+                <div class="row justify-content-center">
                     <div class="col-lg-10">
                         <div class="card card-style1 border-0">
                             <div class="card-body p-4 p-md-5 p-xl-6">
@@ -238,18 +271,25 @@
     <div class="footer-top py-8">
         <div class="container">
             <div class="row gy-5">
+                <div class="col-lg-4 text-start">
+                    <h1 class="text-white footer-title-01 fs-5">LivWell</h1>
+                    <div>
+                        <p class="fs-sm text-white text-opacity-75">Official Website of LivWell</p>
+                    </div>
+                </div>
                 <div class="col-lg-8 pe-xxl-10">
                     <div class="row gy-5">
-                        <div class="col-6 col-lg-4">
-                            <h5 class="text-white footer-title-01">A propos</h5>
+                        <div class="col-6 col-lg-4 text-start">
+                            <h5 class="text-white footer-title-01">Useful Links</h5>
                             <ul class="list-unstyled footer-link-01 m-0">
                                 <li><a class="text-white text-opacity-75" href="#">About Us</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Blog</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Our ingredients</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Our resellers</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">Gallery</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">Offers</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">FAQ'S</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">Features</a></li>
                             </ul>
                         </div>
-                        <div class="col-6 col-lg-4">
+                        <div class="col-6 col-lg-4 text-start">
                             <h5 class="text-white footer-title-01">About</h5>
                             <ul class="list-unstyled footer-link-01 m-0">
                                 <li><a class="text-white text-opacity-75" href="#">Customer Service</a></li>
@@ -259,23 +299,16 @@
                                 <li><a class="text-white text-opacity-75" href="#">Terms of Use</a></li>
                             </ul>
                         </div>
-                        <div class="col-6 col-lg-4">
-                            <h5 class="text-white footer-title-01">Need Help?</h5>
+                        <div class="col-6 col-lg-4 text-start">
+                            <h5 class="text-white footer-title-01">Contact Us</h5>
+                            <ul class="list-unstyled footer-link-01 m-0 pb-2">
+                                <h6 class="text-white text-opacity-75"><b>Email:</b> LivWell@gmail.com</h6>
+                             
+                            </ul>
                             <ul class="list-unstyled footer-link-01 m-0">
-                                <li><a class="text-white text-opacity-75" href="#">Contact Us</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">FAQs</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Offers &amp; Kits</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Get the app</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Store locator</a></li>
+                                <h6 class="text-white text-opacity-75"><b>Phone:</b> 092-2421-432</h6>
                             </ul>
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="text-white footer-title-01 fs-5">Subscribe to our newsletter and get 15% off your next order.</h5>
-                    <div>
-                        <form class="d-flex flex-row mb-2 p-1 bg-white input-group"><input type="email" class="form-control rounded border-0" placeholder="Your Email"> <button class="btn btn-secondary flex-shrink-0" type="submit">Subscribe</button></form>
-                        <p class="fs-sm text-white text-opacity-75">I agree to receive Absolution newsletters</p>
                     </div>
                 </div>
             </div>
@@ -287,13 +320,13 @@
                 <div class="col-md-6 text-center text-md-start py-1">
                     <p class="m-0 text-white text-opacity-75">© Copyright. All Rights Reserved <a class="text-reset" href="#">Livwell</a></p>
                 </div>
-                <div class="col-md-6 text-center text-md-end py-1">
+                <!-- <div class="col-md-6 text-center text-md-end py-1">
                     <ul class="nav justify-content-center justify-content-md-end list-unstyled footer-link-01 m-0">
                         <li class="p-0 mx-3 ms-md-0 me-md-3"><a href="#" class="text-white text-opacity-75">Privace &amp; Policy</a></li>
                         <li class="p-0 mx-3 ms-md-0 me-md-3"><a href="#" class="text-white text-opacity-75">Faq's</a></li>
                         <li class="p-0 mx-3 ms-md-0 me-md-3"><a href="#" class="text-white text-opacity-75">Get a Quote</a></li>
                     </ul>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -374,6 +407,13 @@ nav{
 .showcase
 {
     animation: fade-up 3s;
+}
+
+
+/* FEATURES */
+.card-title:hover{
+    cursor: pointer;
+    color: #FFE79E;
 }
 
 /* FAQ */
@@ -595,7 +635,7 @@ footer */
         }
       }
   
-      .logos, .imgpic, .FAWS {
+      .logos, .imgpic, .cards {
         animation: appear linear;
         animation-timeline: view();
         animation-range: entry 0% cover 50%;
