@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Broker
 from django.contrib.auth.hashers import make_password
+from .models import Broker
 
 class BrokerAdmin(admin.ModelAdmin):
     broker_display = ('id', 'company', 'username', 'email', 'contact_number', 'first_name', 'last_name') 
