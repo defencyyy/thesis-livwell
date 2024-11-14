@@ -1,6 +1,6 @@
 # Django Lib
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
 from django.urls import reverse
@@ -11,16 +11,24 @@ from django.db import models
 from django.utils.timezone import now  
 from django.contrib.auth.hashers import check_password, make_password
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.middleware.csrf import get_token
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
+from companies.serializers import CompanySerializer
+from developers.models import Developer
+from django.shortcuts import get_object_or_404
 
 from brokers.models import Broker 
-from developers.models import Developer 
 from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit
 from sites.models import Site
-
+ 
 import json
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def login_view(request, user_role):
@@ -70,7 +78,6 @@ def login_view(request, user_role):
                     "contact_number": user.contact_number,
                     "user_role": user_role,
                     "company_id": user.company.id,  # Include the company ID here
-                    "company_name": user.company.name,  # Include company name if needed
                 }
             }, status=200)
 
@@ -82,6 +89,7 @@ def login_view(request, user_role):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
+
 @csrf_exempt
 def login_view_broker(request):
     return login_view(request, user_role='broker')
@@ -89,6 +97,10 @@ def login_view_broker(request):
 @csrf_exempt
 def login_view_developer(request):
     return login_view(request, user_role='developer')
+
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
 
 def validate_password_strength(password):
     if len(password) < 8:
@@ -228,7 +240,6 @@ def update_broker_view(request, broker_id):
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
-
 
 @csrf_exempt
 def add_customer(request):
@@ -664,3 +675,41 @@ def DevResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+@csrf_exempt
+def company_edit(request):
+    try:
+        developer_id = request.headers.get("Developer-ID")
+        company_description = request.POST.get("description")
+        company_logo = request.FILES.get("logo")
+
+        if not developer_id:
+            return JsonResponse({"success": False, "message": "Developer ID not provided"}, status=400)
+
+        developer = get_object_or_404(Developer, id=developer_id)
+        company = developer.company
+
+        # Prepare data with only non-null fields
+        data = {}
+        if company_description is not None:
+            data["description"] = company_description
+        if company_logo is not None:
+            data["logo"] = company_logo
+
+        # Debugging info
+        logger.debug(f"Updating with data: {data}")
+
+        # Pass the existing company instance and partial data to the serializer
+        serializer = CompanySerializer(company, data=data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse({"success": True, "message": "Company updated successfully"}, status=200)
+        else:
+            # Log validation errors
+            logger.error(f"Validation errors: {serializer.errors}")
+            return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
+
+    except Exception as e:
+        logger.exception("Error updating company")
+        return JsonResponse({"success": False, "message": "An unexpected error occurred"}, status=500)
