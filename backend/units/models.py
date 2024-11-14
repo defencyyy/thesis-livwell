@@ -24,7 +24,8 @@ class Unit(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
         ('sold', 'Sold'),
-        ('pending', 'Pending'),
+        ('pending reservation', 'Pending Reservation'),
+        ('Reserved', 'Reserved'),
     ]
     VIEW_CHOICES = [
         ('south', 'South'),
@@ -33,8 +34,8 @@ class Unit(models.Model):
         ('west', 'West'),
     ]
     BALCONY_CHOICES = [
-        ('has_balcony', 'Has Balcony'),
-        ('no_balcony', 'No Balcony'),
+        ('has balcony', 'Has Balcony'),
+        ('no balcony', 'No Balcony'),
     ]
 
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
