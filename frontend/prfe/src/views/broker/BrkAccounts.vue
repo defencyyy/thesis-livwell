@@ -5,43 +5,65 @@
   <div class="accounts-page">
     <SideNav />
     <div>h1lw</div>
-    <!-- <div class="content row justify-content-center">
-        <div class="col-md-6 col-lg-4">
-          <div class="card mt-5">
-            <div class="card-header text-center">
-                  <h1>Welcome to Account</h1>
-                  <p>Here you can manage your account</p>
-            </div>
-            <div class="card-body">
-                      <form @submit.prevent="updateAccount">
-                        <div class="form-group">
-                          <label for="username">Username:</label>
-                          <input type="text" class="form-control" v-model="username" id="username" />
-                        </div>
-
-                        <div class="form-group">
-                          <label for="email">Email:</label>
-                          <input type="email" class="form-control" v-model="email" id="email" />
-                        </div>
-
-                        <div class="form-group">
-                          <label for="contactNumber">Contact Number:</label>
-                          <input type="text" class="form-control" v-model="contactNumber" id="contactNumber" />
-                        </div>
-
-                        <div class="form-group">
-                          <label for="password">Password:</label>
-                          <input type="password" class="form-control" v-model="password" id="password" />
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" >Update Account</button>
-                      </form>
-                      
-                      <p v-if="error" class="text-danger">{{ error }}</p>
-                      <p v-if="successMessage">{{ successMessage }}</p>
+    <div class="content row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card mt-5">
+          <div class="card-header text-center">
+            <h1>Welcome to Account</h1>
+            <p>Here you can manage your account</p>
+          </div>
+          <div class="card-body">
+            <form @submit.prevent="updateAccount">
+              <div class="form-group">
+                <label for="username">Username:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="username"
+                  id="username"
+                />
               </div>
-          </div>        
+
+              <div class="form-group">
+                <label for="email">Email:</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  v-model="email"
+                  id="email"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="contactNumber">Contact Number:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="contactNumber"
+                  id="contactNumber"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password:</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  v-model="password"
+                  id="password"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">
+                Update Account
+              </button>
+            </form>
+
+            <p v-if="error" class="text-danger">{{ error }}</p>
+            <p v-if="successMessage">{{ successMessage }}</p>
+          </div>
         </div>
-      </div> -->
+      </div>
+    </div>
   </div>
 </template>
 
