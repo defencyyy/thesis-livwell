@@ -144,6 +144,12 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
   {
+    path: "/broker/manage-sales",
+    name: "ManageSales",
+    component: BrkManageSales,
+    meta: { requiresAuth: true, role: "broker" },
+  },
+  {
     path: "/broker/manage-customer",
     name: "ManageCustomers",
     component: BrkManageCustomers,

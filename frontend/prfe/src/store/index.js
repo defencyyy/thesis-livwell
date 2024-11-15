@@ -23,7 +23,7 @@ export default createStore({
       state.userType = user.user_role;
       state.companyId = user.company_id;
       state.loggedIn = true;
-
+      
       // Store in localStorage and Vuex
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("user_role", user.user_role);

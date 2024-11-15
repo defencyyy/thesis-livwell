@@ -77,7 +77,7 @@ CORS_ALLOW_HEADERS = [
     'accept', 'accept-encoding', 'x-csrftoken', 'access-control-allow-origin',
 ]
 
-# CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
+CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
 
 ROOT_URLCONF = 'prbe.urls'
 
@@ -96,6 +96,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -106,7 +106,6 @@ export default {
   },
   methods: {
     ...mapActions(["login"]),
-
     async login() {
       this.error = null;
       this.loading = true;

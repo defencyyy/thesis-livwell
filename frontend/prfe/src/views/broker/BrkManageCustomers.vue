@@ -13,6 +13,7 @@
       <button @click="showModal = true">Add Customer</button>
 
       <!-- Modal for Adding Customer -->
+
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
         <form @submit.prevent="addCustomer">
           <div>
