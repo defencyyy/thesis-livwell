@@ -36,16 +36,16 @@ urlpatterns = [
     
 
 
-
-
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
     path('developer/logout/', views.dev_logout_view, name='developer_logout'),
-    path('developer/company/', include('companies.urls')),
-
-
+    path('developer/company/edit/', views.company_edit, name='company_edit'),
+    
+    # API Endpoints
+    path('developer/company/', include('companies.urls')),  
+    # path('developer/brokers/', include('brokers.urls')),  
 ]
 
 # Serve media files during development

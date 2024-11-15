@@ -9,6 +9,9 @@ class CompanySerializer(serializers.ModelSerializer):
         read_only_fields = ['name', 'created_at', 'updated_at', 'is_active']
 
     def validate_logo(self, value):
+        if value is None:  # Allow `None` to pass through
+            return value
+
         max_size = 5 * 1024 * 1024  
         if value.size > max_size:
             raise serializers.ValidationError("Logo file size must be less than 5 MB.")

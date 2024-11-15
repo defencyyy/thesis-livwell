@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
 import About from "@/views/AboutView.vue";
@@ -11,7 +11,6 @@ import DevMainPage from "@/views/developer/DevMainPage.vue";
 
 // Dev Functions
 import DevFuncAccount from "@/views/developer/functions/DevAccount.vue";
-import DevFuncAffiliation from "@/views/developer/functions/DevAffiliation.vue";
 import DevFuncBroker from "@/views/developer/functions/DevBrokers.vue";
 import DevFuncCompany from "@/views/developer/functions/DevCompany.vue";
 import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
@@ -32,7 +31,6 @@ import BrkAccounts from "@/views/broker/BrkAccounts.vue";
 import BrkManageSales from "@/views/broker/BrkManageSales.vue";
 import AvailableUnits from '@/components/AvailableUnits.vue'; // Adjust the path as necessary
 import BrkTest from "@/views/broker/BrkTest.vue";
-
 
 //Other Links
 import AboutUs from "@/components/AboutUs.vue";
@@ -68,12 +66,6 @@ const routes = [
     path: "/developer/account",
     name: "DevFuncAccount",
     component: DevFuncAccount,
-    meta: { requiresAuth: true, role: "developer" },
-  },
-  {
-    path: "/developer/affiliation",
-    name: "DevFuncAffiliation",
-    component: DevFuncAffiliation,
     meta: { requiresAuth: true, role: "developer" },
   },
   {
@@ -140,8 +132,8 @@ const routes = [
 
   // other routes
   {
-    path: '/units/:siteId',
-    name: 'AvailableUnits',
+    path: "/units/:siteId",
+    name: "AvailableUnits",
     component: AvailableUnits,
   },
 
@@ -181,7 +173,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 
@@ -214,7 +206,7 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Always proceed to the next route
+  // If no conditions are met, continue to the next route
   next();
 });
 

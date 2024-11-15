@@ -13,6 +13,7 @@
     "bootstrap": "^5.3.3",
     "bootstrap-vue-3": "^0.5.1",
     "core-js": "^3.8.3",
+    "jwt-decode": "^4.0.0",
     "pinia": "^2.2.4",
     "postcss": "^8.4.47",
     "routerx": "^0.2.1",
