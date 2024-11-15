@@ -64,7 +64,6 @@ export default {
           { name: "Dashboard", link: "/developer/dashboard" },
           { name: "Company", link: "/developer/company" },
           { name: "Brokers", link: "/developer/brokers" },
-          { name: "Affiliations", link: "/developer/affiliation" },
           {
             name: "Sites",
             link: "/developer/sites",
@@ -76,7 +75,7 @@ export default {
       } else if (this.userRole === "broker") {
         this.menuItems = [
           { name: "Dashboard", link: "/broker/dashboard" },
-          { name: "Affiliated Units", link: "/broker/affiliated-units" },
+          { name: "Units", link: "/broker/affiliated-units" },
           { name: "Manage Sales ", link: "/broker/manage-sales" },
           { name: "Manage Customer", link: "/broker/manage-customer" },
           { name: "Milestones", link: "/broker/milestones" },

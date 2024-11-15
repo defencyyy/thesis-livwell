@@ -12,7 +12,7 @@
       <!-- Add Customer Button -->
       <button @click="showModal = true">Add Customer</button>
 
-      <!-- Modal -->
+      <!-- Modal for Adding Customer -->
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
         <form @submit.prevent="addCustomer">
           <div>
@@ -48,6 +48,44 @@
         <p v-if="successMessage">{{ successMessage }}</p>
       </b-modal>
 
+      <!-- Modal for Document Upload -->
+      <b-modal v-model="showDocumentModal" title="Upload Customer Documents" hide-footer>
+        <form @submit.prevent="uploadDocuments">
+          <div>
+            <label for="validId">Valid ID:</label>
+            <input type="file" id="validId" ref="validId" />
+          </div>
+
+          <div>
+            <label for="proofOfIncome">Proof of Income:</label>
+            <input type="file" id="proofOfIncome" ref="proofOfIncome" />
+          </div>
+
+          <div>
+            <label for="proofOfBilling">Proof of Billing:</label>
+            <input type="file" id="proofOfBilling" ref="proofOfBilling" />
+          </div>
+
+          <div>
+            <label for="reservationAgreement">Reservation Agreement:</label>
+            <input type="file" id="reservationAgreement" ref="reservationAgreement" />
+          </div>
+
+          <div>
+            <label for="salesAgreement">Sales Agreement:</label>
+            <input type="file" id="salesAgreement" ref="salesAgreement" />
+          </div>
+
+          <div>
+            <label for="tin">TIN:</label>
+            <input type="file" id="tin" ref="tin" />
+          </div>
+
+          <button type="submit">Submit Documents</button>
+          <button type="button" @click="showDocumentModal = false">Cancel</button>
+        </form>
+      </b-modal>
+
       <!-- Table to display the customers -->
       <table v-if="customers.length" class="table">
         <thead>
@@ -60,7 +98,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(customer, index) in customers" :key="index">
+          <tr v-for="(customer, index) in customers" :key="index" @click="openDocumentModal(customer)">
             <td>{{ customer.customer_name }}</td>
             <td>{{ customer.site }}</td>
             <td>{{ customer.unit }}</td>
@@ -78,6 +116,7 @@
   </div>
 </template>
 
+
 <script>
 import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
@@ -92,99 +131,85 @@ export default {
   },
   data() {
     return {
-      showModal: false, // Controls the visibility of the modal
+      showModal: false, // Controls the visibility of the Add Customer modal
+      showDocumentModal: false, // Controls the visibility of the Document Upload modal
       email: '',
       contactNumber: '',
       affiliatedLink: '',
       lastName: '',
       firstName: '',
       customers: [],  // This will hold the list of customers
+      selectedCustomer: null, // To hold the currently selected customer
       error: null,
       successMessage: null,
     };
   },
   mounted() {
-    // Ensure fetchCustomers is called properly in mounted hook
     this.fetchCustomers();
   },
   methods: {
- async fetchCustomers() {
-  const brokerId = localStorage.getItem("broker_id");
-  
-  if (!brokerId) {
-    this.error = "Broker ID not found. Please log in again.";
-    return;
-  }
-
-  try {
-    const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success) {
-        this.customers = data.customers; // This includes site, unit, document_status
-      } else {
-        this.error = data.message || "Failed to fetch customer data.";
-      }
-    } else {
-      const errorData = await response.json();
-      this.error = errorData.message || "Failed to fetch customer data.";
-    }
-  } catch (error) {
-    this.error = "An error occurred while fetching customer data.";
-  }
-},
-    async addCustomer() {
+    async fetchCustomers() {
       const brokerId = localStorage.getItem("broker_id");
-      const phonePattern = /^(?:\(\d{3}\)|\d{3}-)?\d{3}-\d{4}$/;
-
-      if (!phonePattern.test(this.contactNumber)) {
-        this.error = "Please enter a valid phone number format (e.g., 123-456-7890).";
-        this.successMessage = null;
+      if (!brokerId) {
+        this.error = "Broker ID not found. Please log in again.";
         return;
       }
 
       try {
-        const brokerResponse = await fetch(`http://localhost:8000/brokers/${brokerId}/`);
-        if (!brokerResponse.ok) {
-          const errorData = await brokerResponse.json();
-          this.error = errorData.message || "Failed to fetch broker data.";
-          this.successMessage = null;
-          return;
+        const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.customers = data.customers;
+          } else {
+            this.error = data.message || "Failed to fetch customer data.";
+          }
+        } else {
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to fetch customer data.";
         }
-        const brokerData = await brokerResponse.json();
-        const companyId = brokerData.company_id;
+      } catch (error) {
+        this.error = "An error occurred while fetching customer data.";
+      }
+    },
 
-        const response = await fetch('http://localhost:8000/customers/', {
+    // Opens the document upload modal for the selected customer
+    openDocumentModal(customer) {
+      this.selectedCustomer = customer; // Set the selected customer
+      this.showDocumentModal = true; // Open the document upload modal
+    },
+
+    async uploadDocuments() {
+      const formData = new FormData();
+      formData.append("valid_id", this.$refs.validId.files[0]);
+      formData.append("proof_of_income", this.$refs.proofOfIncome.files[0]);
+      formData.append("proof_of_billing", this.$refs.proofOfBilling.files[0]);
+      formData.append("reservation_agreement", this.$refs.reservationAgreement.files[0]);
+      formData.append("sales_agreement", this.$refs.salesAgreement.files[0]);
+      formData.append("tin", this.$refs.tin.files[0]);
+
+      try {
+        const response = await fetch(`http://localhost:8000/customers/${this.selectedCustomer.id}/upload-documents`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            broker: brokerId,
-            company_id: companyId,
-            email: this.email,
-            contact_number: this.contactNumber,
-            affiliated_link: this.affiliatedLink,
-            last_name: this.lastName,
-            first_name: this.firstName,
-          }),
+          body: formData,
         });
 
         if (response.ok) {
-          this.successMessage = "Customer added successfully!";
+          this.successMessage = "Documents uploaded successfully!";
           this.error = null;
-          this.resetForm();
-          this.showModal = false; // Close the modal after submission
+          this.showDocumentModal = false; // Close the modal after success
         } else {
           const errorData = await response.json();
-          this.error = errorData.message || "Failed to add customer.";
+          this.error = errorData.message || "Failed to upload documents.";
           this.successMessage = null;
         }
       } catch (error) {
-        this.error = "An error occurred while adding the customer.";
+        this.error = "An error occurred while uploading documents.";
         this.successMessage = null;
       }
     },
+    
+    // Reset the form when the modal is closed
     resetForm() {
       this.email = '';
       this.contactNumber = '';
@@ -195,6 +220,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .manage-customers-page {

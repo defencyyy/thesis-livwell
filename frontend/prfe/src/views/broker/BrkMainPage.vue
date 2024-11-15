@@ -51,6 +51,8 @@ export default {
       localStorage.removeItem("authToken");
       localStorage.removeItem("logged_in");
       localStorage.removeItem("user_role");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("company_id");
 
       this.$router.push({ path: "/home" });
     },
