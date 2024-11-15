@@ -2,15 +2,9 @@
   <div class="developer-company-page">
     <SideNav />
     <div class="content">
-      <h2>Edit Company</h2>
-      <div class="user-info">
-        <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
-        <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
-        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
-        <p>
-          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
-        </p>
-        <p><strong>User Role:</strong> {{ userType }}</p>
+      <!-- Main Company Details -->
+      <h2>Company Details</h2>
+      <div class="company-info">
         <p><strong>Company Name:</strong> {{ company.name || "" }}</p>
         <p>
           <strong>Company Description:</strong> {{ company.description || "" }}
@@ -26,6 +20,9 @@
           <span v-else>No Logo Available</span>
         </div>
       </div>
+
+      <!-- Edit Company Section -->
+      <h3>Edit Company</h3>
       <form @submit.prevent="updateCompany">
         <div>
           <label for="description">Description:</label>
@@ -43,9 +40,22 @@
         </div>
         <button type="submit">Save Changes</button>
       </form>
+
+      <!-- Debugging Information -->
+      <h3>Debugging Information</h3>
+      <div class="debug-info">
+        <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
+        <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
+        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
+        <p>
+          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
+        </p>
+        <p><strong>User Role:</strong> {{ userType }}</p>
+      </div>
     </div>
   </div>
 </template>
+
 <script>
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
