@@ -2,7 +2,7 @@
  
  <nav class="navbar navbar-expand-lg navbar-light fixed-top mask-custom shadow-0">
     <div class="container">
-        <a class="navbar-brand" href="#!"><span style="color: black;">Liv</span><span style="color: #fff;">Well</span></a>
+        <a class="navbar-brand" href="./HomeView.vue"><span style="color: black;">Liv</span><span style="color: #fff;">Well</span></a>
         <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
             data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -17,7 +17,7 @@
                     <a class="nav-link" href="#!">Features</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link" href="../components/AboutUs.vue">About</a>
+                   <router-link to="/AboutUs"><a class="nav-link" href="">About</a></router-link> 
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#!">Contact</a>
