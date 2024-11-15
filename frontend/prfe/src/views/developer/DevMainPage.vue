@@ -5,18 +5,48 @@
       <h1>Welcome, Dev! You Are Logged In!</h1>
       <p>This is the main page for developers.</p>
       <button @click="logout">Logout</button>
+      <div class="user-info">
+        <p><strong>User ID:</strong> {{ userId }}</p>
+        <p><strong>User Role:</strong> {{ userType }}</p>
+        <p><strong>Company ID:</strong> {{ companyId }}</p>
+        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
+        <p>
+          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "DevMainPage",
   components: {
     SideNav,
   },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId || null,
+      userType: (state) => state.userType || null,
+      companyId: (state) => state.companyId || null,
+    }),
+    localStorageUserId() {
+      return localStorage.getItem("developer_id");
+    },
+    localStorageCompanyId() {
+      return localStorage.getItem("company_id");
+    },
+  },
+  mounted() {
+    if (!this.userId || !this.userType || !this.companyId) {
+      // Reload the page to ensure state is synced
+      this.$router.push({ name: "DevLogin" });
+    }
+  },
+
   methods: {
     async logout() {
       try {
@@ -34,9 +64,12 @@ export default {
 
         const data = await response.json();
         if (data.success) {
+          localStorage.removeItem("authToken");
           localStorage.removeItem("user_id");
           localStorage.removeItem("user_role");
           localStorage.removeItem("logged_in");
+          localStorage.removeItem("company_id");
+          localStorage.removeItem("developer_id");
 
           this.$router.push({ path: "/home" });
         } else {

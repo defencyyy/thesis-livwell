@@ -1,4 +1,4 @@
-<template>
+<template class="all">
  
  <nav class="navbar navbar-expand-lg navbar-light fixed-top mask-custom shadow-0">
     <div class="container">
@@ -16,11 +16,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#!">Features</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#!">Team</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="../components/AboutUs.vue">About</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#!">Contact</a>
@@ -47,39 +44,93 @@
     </div>
 </nav>
 
-<section>
-<div class="d-flex justify-content-evenly bg-secondary">
 
-  <div class="home text-white">
-    <img alt="Vue logo" src="@/assets/logo.png"/>
-    <h1>Welcome to LivWell!</h1>
-    <p>Explore listings or manage your properties with ease.</p>
 
-    <div class="button-container">
-      <button @click="goToDeveloperLogin">Developer Login</button>
-    
+<section class="hero overlay">
+    <div id="hero-carousel" class="carousel slide overlay" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        </div>
+        <div class="carousel-inner">
+            <!-- First Slide -->
+            <div class="carousel-item active c-item">
+            <img src="https://i.pinimg.com/originals/fc/ac/19/fcac194ad03f8af8dfaf702db8db5b0f.jpg" class="d-block w-100 c-img" alt="Slide 1">
+            <div class="carousel-caption top-0 mt-4">
+                <p class="mt-5 fs-3 text-uppercase">Go to</p>
+                <h1 class="display-1 fw-bolder text-capitalize">DEVELOPER</h1>
+                <button @click="goToDeveloperLogin" class="bton btn-primary px-4 py-2 fs-5 mt-5">Developer Login</button>
+            </div>
+            
+            
+            </div>
+            
+            <!-- Second Slide -->
+            <div class="carousel-item c-item">
+            <img src="https://3.bp.blogspot.com/-QZdUc9EHQAw/VNSUfEba57I/AAAAAAAAB7k/AZhy1zYsiWI/s1600/Amenity%2BCore.jpg" class="d-block w-100 c-img" alt="Slide 2">
+            <div class="carousel-caption top-0 mt-4">
+                <p class="text-uppercase fs-3 mt-5">Go to</p>
+                <p class="display-1 fw-bolder text-capitalize">BROKER</p>
+                <button @click="goToBrokerLogin" class="bton btn-primary px-4 py-2 fs-5 mt-5" >Broker Login</button>
+            </div>
+            </div>
+        </div>
+        <!-- Carousel Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#hero-carousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#hero-carousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
-  </div>
-
-  <div class="home">
-    <img alt="Vue logo" src="@/assets/logo.png" />
-    <h1>Welcome to LivWell!</h1>
-    <p>Explore listings or manage your properties with ease.</p>
-
-    <div class="button-container">
-
-      <button @click="goToBrokerLogin">Broker Login</button>
-    </div>
-  </div>
-</div>
 </section>
+
+
+
+
+<div class="container" id="featureswpic">
+    <h1 class="display-1 fw-bolder text-capitalize pt-5">FEATURES</h1>
+    <div class="cards row pt-5 pb-5">
+        
+        <div class="col">
+            <div class="card h-100">
+                <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title display-6 fw-bolder text-capitalize">Monitoring of Sites, Units, Customers, and Brokers</h5>
+                  <a class="card-text text-opacity-75" href="#!">See More</a>
+                </div>
+              </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title display-6 fw-bolder text-capitalize pb-5">Management of Units to Customers</h5>
+                    <a class="card-text text-warning" href="#!">See more</a>
+                </div>
+              </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="https://images.livspace-cdn.com/w:1024/h:630/plain/https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/3/2021/07/22060733/cover-1.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title display-6 fw-bolder text-capitalize">Management of Sales and Commissions</h5>
+                  <a class="card-text">See More</a>
+                </div>
+              </div>
+        </div>
+    </div>
+</div>
+
 
 
 <section class="features-icons bg-light text-center">
           <p class="fs-1">FEATURES</p>
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="logos col-lg-4">
                         <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
                             <div class="features-icons-icon d-flex"><i class="bi-window m-auto text-primary"></i></div>
                             <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
@@ -87,7 +138,7 @@
                             <p class="lead mb-0">This theme will look great on any device, no matter the size!</p>
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="logos col-lg-4">
                         <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
                             <div class="features-icons-icon d-flex"><i class="bi-layers m-auto text-primary"></i></div>
                             <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
@@ -95,7 +146,7 @@
                             <p class="lead mb-0">Featuring the latest build of the new Bootstrap 5 framework!</p>
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="logos col-lg-4">
                         <div class="features-icons-item mx-auto mb-0 mb-lg-3">
                             <div class="features-icons-icon d-flex"><i class="bi-terminal m-auto text-primary"></i></div>
                             <img src="../assets/instagram.png" alt="instagram" style="width: 30%; height: 30%; padding-bottom: 20px;">
@@ -108,29 +159,29 @@
 </section>
 
 <section class="showcase">
-      <div class="container-fluid p-0">
-                <div class="row g-0">
-                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+    <div class="container-fluid p-0">
+                <div class="imgpic row g-0">
+                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://www.lamudi.com.ph/journal/wp-content/uploads/2023/07/Picar-main-photo.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; border: 20px;"></div>
                     <div class="col-lg-6 order-lg-1 my-auto showcase-text ">
-                        <h2 style="padding-top: 125px;">Fully Responsive Design</h2>
-                        <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">When you use a theme created by Start Bootstrap, you know that the theme will look great on any device, whether it's a phone, tablet, or desktop the page will behave responsively!</p>
+                        <h2 style="padding-top: 125px;" class="fw-bolder">Professional & Strategic Partnership-Focused</h2>
+                        <p class="lead mb-0 text-dark" style="padding-top: 25px; margin: 0px 60px; text-align: left;">At [Your Company Name], we are committed to transforming the real estate industry by fostering strategic partnerships between brokers and developers. Our platform provides a seamless connection between property developers and experienced brokers, enabling both sides to collaborate more effectively and efficiently in the condo market.</p>
                     </div>
                 </div>
-                <div class="row g-0">
-                    <div class="col-lg-6 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                <div class="imgpic row g-0">
+                    <div class="col-lg-6 text-white showcase-img" style="background-image: url('https://www.lamudi.com.ph/journal/wp-content/uploads/2019/08/AE352B4C-41A7-46BB-BDE5-E45745E98BC2.jpeg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                     <div class="col-lg-6 my-auto showcase-text">
-                        <h2 style="padding-top: 125px;">Updated For Bootstrap 5</h2>
-                        <p class="lead mb-0" style="padding-top: 25px;">Newly improved, and full of great utility classes, Bootstrap 5 is leading the way in mobile responsive web development! All of the themes on Start Bootstrap are now using Bootstrap 5!</p>
+                        <h2 style="padding-top: 125px;" class="fw-bolder">Innovative, Data-Driven, & Growth-Oriented</h2>
+                        <p class="lead mb-0 text-dark" style="padding-top: 25px; text-align: left; margin-right: 60px; margin-left: 60px">LivWell is an innovative platform designed to bridge the gap between condo developers and real estate brokers. By leveraging the latest technology and data-driven insights, we help companies like yours optimize every stage of the property development and sales process.</p>
                     </div>
                 </div>
-                <div class="row g-0">
+                <div class="imgpic row g-0">
                     <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('https://i.pinimg.com/originals/a5/4a/49/a54a49b134fb37f98478d7d029feac14.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                     <div class="col-lg-6 order-lg-1 my-auto showcase-text">
-                        <h2 style="padding-top: 125px;">Easy to Use & Customize</h2>
-                        <p class="lead mb-0" style="padding-top: 25px; margin: 0px 60px; text-align: left;">Landing Page is just HTML and CSS with a splash of SCSS for users who demand some deeper customization options. Out of the box, just add your content and images, and your new landing page will be ready to go!</p>
+                        <h2 style="padding-top: 125px;" class="fw-bolder">Collaborative & Results-Driven</h2>
+                        <p class="lead mb-0 text-dark" style="padding-top: 25px; margin: 0px 60px; text-align: left;">At LivWell, we specialize in connecting condo developers with experienced brokers, providing a platform designed to foster collaboration, enhance communication, and ultimately drive business success. Our mission is to facilitate effective partnerships that generate results — faster, more efficiently, and with greater transparency.At LivWell      , we specialize in connecting condo developers with experienced brokers, providing a platform designed to foster collaboration, enhance communication, and ultimately drive business success. Our mission is to facilitate effective partnerships that generate results — faster, more efficiently, and with greater transparency.</p>
                     </div>
                 </div>
-            </div>
+    </div>
 </section>
 
 
@@ -211,7 +262,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+</section>
 
 
 
@@ -219,18 +270,25 @@
     <div class="footer-top py-8">
         <div class="container">
             <div class="row gy-5">
+                <div class="col-lg-4 text-start">
+                    <h1 class="text-white footer-title-01 fs-5">LivWell</h1>
+                    <div>
+                        <p class="fs-sm text-white text-opacity-75">Official Website of LivWell</p>
+                    </div>
+                </div>
                 <div class="col-lg-8 pe-xxl-10">
                     <div class="row gy-5">
-                        <div class="col-6 col-lg-4">
-                            <h5 class="text-white footer-title-01">A propos</h5>
+                        <div class="col-6 col-lg-4 text-start">
+                            <h5 class="text-white footer-title-01">Useful Links</h5>
                             <ul class="list-unstyled footer-link-01 m-0">
                                 <li><a class="text-white text-opacity-75" href="#">About Us</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Blog</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Our ingredients</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Our resellers</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">Gallery</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">Offers</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">FAQ'S</a></li>
+                                <li><a class="text-white text-opacity-75" href="#">Features</a></li>
                             </ul>
                         </div>
-                        <div class="col-6 col-lg-4">
+                        <div class="col-6 col-lg-4 text-start">
                             <h5 class="text-white footer-title-01">About</h5>
                             <ul class="list-unstyled footer-link-01 m-0">
                                 <li><a class="text-white text-opacity-75" href="#">Customer Service</a></li>
@@ -240,23 +298,16 @@
                                 <li><a class="text-white text-opacity-75" href="#">Terms of Use</a></li>
                             </ul>
                         </div>
-                        <div class="col-6 col-lg-4">
-                            <h5 class="text-white footer-title-01">Need Help?</h5>
+                        <div class="col-6 col-lg-4 text-start">
+                            <h5 class="text-white footer-title-01">Contact Us</h5>
+                            <ul class="list-unstyled footer-link-01 m-0 pb-2">
+                                <h6 class="text-white text-opacity-75"><b>Email:</b> LivWell@gmail.com</h6>
+                             
+                            </ul>
                             <ul class="list-unstyled footer-link-01 m-0">
-                                <li><a class="text-white text-opacity-75" href="#">Contact Us</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">FAQs</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Offers &amp; Kits</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Get the app</a></li>
-                                <li><a class="text-white text-opacity-75" href="#">Store locator</a></li>
+                                <h6 class="text-white text-opacity-75"><b>Phone:</b> 092-2421-432</h6>
                             </ul>
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="text-white footer-title-01 fs-5">Subscribe to our newsletter and get 15% off your next order.</h5>
-                    <div>
-                        <form class="d-flex flex-row mb-2 p-1 bg-white input-group"><input type="email" class="form-control rounded border-0" placeholder="Your Email"> <button class="btn btn-secondary flex-shrink-0" type="submit">Subscribe</button></form>
-                        <p class="fs-sm text-white text-opacity-75">I agree to receive Absolution newsletters</p>
                     </div>
                 </div>
             </div>
@@ -268,13 +319,13 @@
                 <div class="col-md-6 text-center text-md-start py-1">
                     <p class="m-0 text-white text-opacity-75">© Copyright. All Rights Reserved <a class="text-reset" href="#">Livwell</a></p>
                 </div>
-                <div class="col-md-6 text-center text-md-end py-1">
+                <!-- <div class="col-md-6 text-center text-md-end py-1">
                     <ul class="nav justify-content-center justify-content-md-end list-unstyled footer-link-01 m-0">
                         <li class="p-0 mx-3 ms-md-0 me-md-3"><a href="#" class="text-white text-opacity-75">Privace &amp; Policy</a></li>
                         <li class="p-0 mx-3 ms-md-0 me-md-3"><a href="#" class="text-white text-opacity-75">Faq's</a></li>
                         <li class="p-0 mx-3 ms-md-0 me-md-3"><a href="#" class="text-white text-opacity-75">Get a Quote</a></li>
                     </ul>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -310,23 +361,19 @@ export default {
 }
 
 button {
-  margin: 0 10px;
-  padding: 10px 20px;
+  /* margin: 0 10px; */
+  /* padding: 10px 20px; */
   font-size: 16px;
   cursor: pointer;
   border: none;
-  background-color: #4caf50;
-  color: white;
+  /* background-color: #FFE79E; */
+  color: black;
   border-radius: 5px;
   transition: background-color 0.3s;
 }
 
-button:hover {
-  background-color: #45a049;
-}
-
 nav{
-  background-color: #4caf50;
+  background-color: #FFE79E;
 }
 
 .features-icons
@@ -344,6 +391,29 @@ nav{
   height: 480px;
 }
 
+.bods {
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
+/* ABOUT */
+
+.features-icons
+{
+    animation: fade-up 5s;
+}
+
+.showcase
+{
+    animation: fade-up 3s;
+}
+
+
+/* FEATURES */
+.card-title:hover{
+   cursor: pointer;
+    color: #FFE79E;
+}
 
 /* FAQ */
 body{margin-top:20px;}
@@ -429,9 +499,9 @@ body{margin-top:20px;}
     border-top: none;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    border-left: 1px solid #15395a;
+    /* border-left: 1px solid #15395a;
     border-right: 1px solid #15395a;
-    border-bottom: 1px solid #15395a;
+    border-bottom: 1px solid #15395a; */
 }
 @media screen and (max-width: 767px) {
     .accordion-style .btn-link {
@@ -477,6 +547,7 @@ body{margin-top:20px;}
     margin-bottom: 10px;
     position: relative;
     display: inline-block;
+
 }
 .text-primary {
     color: #ceaa4d !important;
@@ -549,6 +620,61 @@ footer */
      right: auto;
      width: 100%
  }
+
+
+ /* FEATURES ANIMATION */
+ @keyframes appear {
+        from {
+          opacity: 0;
+          clip-path: inset(-100%);
+        }
+        to {
+          opacity: 1;
+          clip-path: inset(0 0 0 0);
+        }
+      }
+  
+      .logos, .imgpic, .cards {
+        animation: appear linear;
+        animation-timeline: view();
+        animation-range: entry 0% cover 50%;
+      }
+
+
+
+/* LOGIN CSS      */
+.hero {
+  min-block-size: 80vh;
+  place-content: center;
+  text-align: center;
+  animation: fade-up 1s;
+}
+.home
+{
+    animation: fade-up 2s;
+}
+
+.c-item {
+  height: 780px;
+}
+
+.c-img {
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6);
+}
+.bton{
+ background-color: #FFE79E;
+}
+.bton:hover{
+    background-color: white;
+}
+
+
+
+
+
+
 
 </style>
 
