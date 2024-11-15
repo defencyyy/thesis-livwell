@@ -1,22 +1,26 @@
 <template>
   <div>
-    
-    <div :class="['sidebar', { collapsed: isCollapsed }]">
-      <h4 id="sidebar-title"></h4>
-      <img src="https://www.dmciholdings.com/storage/app/media/2023/Investment/New/fdmci-homestransparentnew0331.png" alt="">
-      <nav class="mb-3">
-        <b-button @click="toggleSidebar">{{
-      isCollapsed ? "UnCollapse" : "Collapse"
-    }}</b-button>
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img
+          src="https://via.placeholder.com/150"
+          alt="Logo"
+          class="sidebar-logo"
+        />
+        <h4 id="sidebar-title" class="text-white">Company Name</h4>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="menu-title">Main Menu</div>
         <b-nav vertical>
           <template v-for="(item, index) in menuItems" :key="index">
-            
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
-              {{ item.name }}
-            </b-nav-item> 
+              <i :class="item.icon" class="menu-icon"></i>
+        {{ item.name }}
+            </b-nav-item>
 
-            <div v-else class="sidetitle">
+            <div v-else>
               <b-nav-item :to="item.link" exact custom class="parent-item">
+                <i :class="item.icon" class="menu-icon"></i>
                 {{ item.name }}
               </b-nav-item>
               <div class="child-menu">
@@ -33,27 +37,23 @@
             </div>
           </template>
         </b-nav>
-        <button @click="logout" class="logout">Logout</button>
       </nav>
     </div>
   </div>
-
 </template>
 
 <script>
-import { BButton, BNav, BNavItem } from "bootstrap-vue-3";
+import { BNav, BNavItem } from "bootstrap-vue-3";
 
 export default {
   name: "SideNav",
-  components: { BButton, BNav, BNavItem },
+  components: { BNav, BNavItem },
   data() {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
       menuItems: [],
-      isCollapsed: false,
     };
   },
-  
   created() {
     this.setMenuItems();
   },
@@ -89,73 +89,97 @@ export default {
         ];
       }
     },
-    toggleSidebar() {
-      this.isCollapsed = !this.isCollapsed;
-    },
-    logout() {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("logged_in");
-      localStorage.removeItem("user_role");
-
-      this.$router.push({ path: "/home" });
-    },
   },
 };
 </script>
 
 <style scoped>
+.menu-title {
+  font-size: 9px;
+  font-weight: bold;
+  padding: 15px;
+  color: #adb5bd;
+  text-transform: uppercase;
+}
+
+.menu-icon {
+  font-size: 16px;
+  margin-right: 12px;
+  color: #ced4da;
+}
+
 .sidebar {
   width: 250px;
-  transition: width 0.5s;
-  background-color: rgb(224, 224, 224);
-  height: 100%;
-  padding-top: 50px;
-  color: black;
+  background-color: #343a40;
+  height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* Fix sidebar to the left */
+  transition: width 0.3s;
 }
 
-.sidebar img
-{
-  width: 200px;
-  height: 150px;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #23272b;
+  border-bottom: 1px solid #444;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+#sidebar-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.sidebar-nav {
+  padding: 0;
+  text-align: left; /* Align all items in the sidebar to the left */
+  margin-left: 8px;
+  margin-top: 15px;
+}
+
+.sidebar .b-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to the left */
+}
+
+.sidebar .b-nav-item {
+  width: 100%; /* Ensure items span the full width of the sidebar */
+  padding: 10px 15px;
+  text-align: left; /* Align text within the item to the left */
+  display: block; /* Ensure full block layout */
 }
 
 
-.sidebar.collapsed {
-  width: 60px;
-  overflow: hidden;
-}
-
-.sidebar h4 {
-  display: inline;
-
+.sidebar .b-nav-item:hover {
+  background-color: #495057;
 }
 
 .parent-item {
   font-weight: bold;
-  
+  color: #ced4da;
 }
 
 .child-menu {
   margin-left: 20px;
 }
 
-.sidebar .b-nav-item {
-  white-space: nowrap;
-  display: inline-block;
-  transition: opacity 0.3s;
+.sidebar .b-nav-item.active,
+.sidebar .b-nav-item:focus,
+.sidebar .b-nav-item:hover {
+  background-color: #007bff;
+  color: white;
 }
 
-.sidebar.collapsed .b-nav-item {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.sidebar:not(.collapsed) .b-nav-item {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* LOGOUT */
 .logout {
   margin-top: 100%;
   padding: 10px 20px;

@@ -29,12 +29,7 @@ urlpatterns = [
     
     # Endpoint to submit a new sale (POST request)
     path('sales/create/', views.submit_sale, name='submit_sale'),
-
-
-
-
-    
-
+    path('reserve-unit/', views.reserve_unit, name='reserve-unit'),
 
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 

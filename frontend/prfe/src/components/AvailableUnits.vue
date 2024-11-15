@@ -11,7 +11,7 @@
             class="unit-card" 
             @click="showUnitDetails(unit)"
           >
-            <p>{{ unit.unit_title }}</p> <!-- Display the unit title -->
+            <p>{{ unit.unit_title }}</p>
           </div>
         </div>
       </div>
@@ -19,19 +19,32 @@
         <p>No units available for this site.</p>
       </div>
 
+      <!-- Success Message Pop-up -->
+      <div v-if="successMessage" class="popup-overlay">
+        <div class="popup-content">
+          <p>{{ successMessage }}</p>
+          <button @click="closePopup" class="ok-btn">OK</button>
+        </div>
+      </div>
+
       <!-- Unit Details Modal -->
       <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
-          <img :src="selectedUnit.picture" alt="Unit Picture" class="unit-picture" />
+          <div v-if="selectedUnit.images.length">
+            <img v-for="(image, index) in selectedUnit.images" 
+                 :key="index" 
+                 :src="image" 
+                 alt="Unit Picture" 
+                 class="unit-picture" />
+          </div>
           <p>P{{ selectedUnit.price }} Bedroom: {{ selectedUnit.bedroom }} Bathroom: {{ selectedUnit.bathroom }} Floor Area: {{ selectedUnit.floor_area }}</p>
           <hr>
           <center>Details</center>
           <p>Unit/Floor Number: {{ selectedUnit.floor }} Balcony: {{ selectedUnit.balcony }} Built(Year):{{ siteYear }} </p>
-          <p>Baths:{{ selectedUnit.bathroom }} Bedrooms: {{ selectedUnit.bedroom }}  Floor area(m<sup>2</sup>):{{ selectedUnit.floor_area }} </p>
+          <p>Baths:{{ selectedUnit.bathroom }} Bedrooms: {{ selectedUnit.bedroom }} Floor area(m<sup>2</sup>):{{ selectedUnit.floor_area }} </p>
           <p>View: {{ selectedUnit.view }} </p>
           <hr>
 
-          <!-- Buttons -->
           <div class="button-container">
             <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
             <button class="schedule-btn" @click="scheduleVisit">Schedule Visit</button>
@@ -54,6 +67,11 @@
                 </option>
               </select>
             </div>
+            <!-- File Upload -->
+            <div class="form-group">
+              <label for="fileUpload">Upload File (Required)</label>
+              <input type="file" @change="handleFileUpload" id="fileUpload" required />
+            </div>
             <!-- Payment Amount -->
             <div class="form-group">
               <label for="paymentAmount">Payment Amount</label>
@@ -73,10 +91,10 @@
               <label for="paymentDate">Date of Payment</label>
               <input type="date" v-model="reservationForm.paymentDate" id="paymentDate" required />
             </div>
-            <!-- Payment Reference -->
-            <div class="form-group">
+            <!-- Payment Reference (only if payment method is not cash) -->
+            <div class="form-group" v-if="reservationForm.paymentMethod !== 'cash'">
               <label for="paymentReference">Payment Reference Number</label>
-              <input type="text" v-model="reservationForm.paymentReference" id="paymentReference" />
+              <input type="text" v-model="reservationForm.paymentReference" id="paymentReference" required />
             </div>
             <!-- Submit Button -->
             <div class="form-group">
@@ -90,8 +108,6 @@
   </div>
 </template>
 
-
-
 <script>
 import SideNav from "@/components/SideNav.vue";
 import axios from 'axios';
@@ -103,37 +119,46 @@ export default {
   },
   data() {
     return {
-      siteId: this.$route.params.siteId, // Get site ID from route params
+      siteId: this.$route.params.siteId,
       units: [],
       siteName: '',
       siteYear: '',
       isModalVisible: false,
       selectedUnit: null,
-      isReserveModalVisible: false,  // Control visibility of reservation modal
+      isReserveModalVisible: false,
       reservationForm: {
         customerName: '',
         paymentAmount: '',
         paymentMethod: '',
         paymentDate: '',
-        paymentReference: ''
+        paymentReference: '',
+        file: null, // This will hold the file
       },
-      customers: [],  // List of customers for the dropdown
+      customers: [],
+      successMessage: '',  // Success message
+      errorMessage: '',    // Error message
     };
   },
+
   mounted() {
     this.fetchAvailableUnits();
     this.fetchSiteName();
-    this.fetchCustomers();  // Fetch customers when the component is mounted
+    this.fetchCustomers();
   },
+
   methods: {
     async fetchAvailableUnits() {
       try {
         const response = await axios.get(`http://localhost:8000/units/available/?site_id=${this.siteId}`);
-        this.units = response.data.units;
+        this.units = response.data.units.map(unit => ({
+          ...unit,
+          company_id: unit.company_id
+        }));
       } catch (error) {
         console.error("Error fetching available units:", error);
       }
     },
+
     async fetchSiteName() {
       try {
         const response = await axios.get(`http://localhost:8000/sites/${this.siteId}`);
@@ -143,41 +168,40 @@ export default {
         console.error("Error fetching site name:", error);
       }
     },
-     async fetchCustomers() {
-  const brokerId = localStorage.getItem("broker_id");
-  
-  if (!brokerId) {
-    this.error = "Broker ID not found. Please log in again.";
-    return;
-  }
 
-  try {
-    const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success) {
-        this.customers = data.customers; // This will exclude sales data
-      } else {
-        this.error = data.message || "Failed to fetch customer data.";
+    async fetchCustomers() {
+      const brokerId = localStorage.getItem("broker_id");
+      if (!brokerId) {
+        this.errorMessage = "Broker ID not found. Please log in again.";
+        return;
       }
-    } else {
-      const errorData = await response.json();
-      this.error = errorData.message || "Failed to fetch customer data.";
-    }
-  } catch (error) {
-    this.error = "An error occurred while fetching customer data.";
-  }
-},
+
+      try {
+        const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
+        const data = await response.json();
+        if (data && data.customers) {
+          this.customers = data.customers;
+        } else {
+          this.errorMessage = "No customers found.";
+        }
+      } catch (error) {
+        this.errorMessage = "Failed to fetch customer data.";
+      }
+    },
+
     showUnitDetails(unit) {
       this.selectedUnit = unit;
       this.isModalVisible = true;
     },
+
     closeModal() {
       this.isModalVisible = false;
     },
+
     openReserveModal() {
       this.isReserveModalVisible = true;
     },
+
     closeReserveModal() {
       this.isReserveModalVisible = false;
       this.reservationForm = {
@@ -185,19 +209,110 @@ export default {
         paymentAmount: '',
         paymentMethod: '',
         paymentDate: '',
-        paymentReference: ''
+        paymentReference: '',
+        file: null,
       };
     },
-    submitReservation() {
-      // Handle the form submission (e.g., call an API to save reservation details)
-      console.log("Reservation submitted:", this.reservationForm);
-      this.closeReserveModal();
-    }
-  },
+
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.reservationForm.file = file;
+      }
+    },
+
+    async submitReservation() {
+      // Check if all required fields are filled, including the file
+      if (!this.reservationForm.customerName || !this.reservationForm.paymentAmount || 
+          !this.reservationForm.paymentMethod || !this.reservationForm.paymentDate || 
+          !this.reservationForm.file || (this.reservationForm.paymentMethod !== 'cash' && !this.reservationForm.paymentReference)) {
+        this.errorMessage = "All fields are required except the payment reference (if payment method is 'cash').";
+        return;
+      }
+
+      const data = {
+        customer_name: this.reservationForm.customerName,
+        site_id: parseInt(this.siteId, 10),  // Convert to integer
+        unit_id: this.selectedUnit.id,
+        broker_id: parseInt(localStorage.getItem("broker_id"), 10),  // Convert to integer
+        company_id: this.selectedUnit.company_id,  // Ensure this is correctly passed
+        payment_amount: this.reservationForm.paymentAmount,
+        payment_method: this.reservationForm.paymentMethod,
+        payment_reference: this.reservationForm.paymentReference || null, // Payment reference is optional if payment is "cash"
+        reservation_file: this.reservationForm.file ? this.reservationForm.file.name : null // Ensure file is present
+      };
+
+      try {
+        const response = await axios.post('http://localhost:8000/reserve-unit/', data, {
+          headers: {
+            'Content-Type': 'application/json',  // Sending JSON data
+          }
+        });
+
+        // Set the success message to display in the pop-up
+        this.successMessage = "Reservation submitted successfully!";
+
+        // Close the modal after success
+        this.closeReserveModal();
+
+        // Reset the reservation form
+        this.reservationForm = {
+          customerName: '',
+          paymentAmount: '',
+          paymentMethod: '',
+          paymentDate: '',
+          paymentReference: '',
+          file: null,
+        };
+
+        console.log("Sale created:", response.data);
+
+      } catch (error) {
+        console.error("Error submitting reservation:", error);
+        this.errorMessage = "There was an error submitting the reservation. Please try again.";  // Display error message
+      }
+    },
+
+    closePopup() {
+      this.successMessage = '';  // Hide the success message pop-up
+      this.$router.push({ name: 'AffiliatedUnits' });  // Redirect to the 'AffiliatedUnits' page
+    },
+  }
 };
 </script>
-
 <style scoped>
+  .popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Ensure it appears on top of other content */
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px; /* Set a fixed width */
+}
+
+.ok-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.ok-btn:hover {
+  background: #0056b3;
+}
 .available-units-page {
   display: flex;
   height: 100vh;
@@ -219,6 +334,11 @@ export default {
   padding: 10px;
   text-align: center;
   cursor: pointer;
+}
+.unit-picture {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
 }
 .modal-overlay {
   position: fixed;
