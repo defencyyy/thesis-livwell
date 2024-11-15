@@ -38,7 +38,7 @@ import AboutUs from "@/components/AboutUs.vue";
 const routes = [
   { path: "/home", name: "Home", component: Home },
   { path: "/about", name: "About", component: About },
-  { pat: "/AboutUs", name: "AboutUs", component: AboutUs},
+  { path: "/AboutUs", name: "AboutUs", component: AboutUs},
 
   // Developer Routes
   {
