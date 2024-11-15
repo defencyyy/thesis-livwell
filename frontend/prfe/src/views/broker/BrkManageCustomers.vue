@@ -41,7 +41,6 @@
         </form>
 
         <p v-if="error" class="text-danger">{{ error }}</p>
-        <p v-if="successMessage">{{ successMessage }}</p>
       </b-modal>
 
       <!-- Modal for Document Upload -->
@@ -105,13 +104,14 @@
       </table>
       <p v-if="!customers.length">No customers found for this broker.</p>
 
-      <!-- Error and Success Messages -->
-      <p v-if="error" class="text-danger">{{ error }}</p>
-      <p v-if="successMessage">{{ successMessage }}</p>
+      <!-- Notification Pop-up (Success/Failure) -->
+      <b-modal v-model="showNotification" :title="notificationTitle" hide-footer>
+        <p>{{ notificationMessage }}</p>
+        <button type="button" @click="showNotification = false">Close</button>
+      </b-modal>
     </div>
   </div>
 </template>
-
 
 <script>
 import SideNav from "@/components/SideNav.vue";
@@ -127,6 +127,7 @@ export default {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
+      showNotification: false, // Controls the visibility of the notification modal
       email: '',
       contactNumber: '',
       affiliatedLink: '',
@@ -134,8 +135,9 @@ export default {
       firstName: '',
       customers: [],  // This will hold the list of customers
       selectedCustomer: null, // To hold the currently selected customer
-      error: null,
-      successMessage: null,
+      error: null, // Error message for form submission
+      notificationTitle: '', // Title for the notification modal (Success/Failure)
+      notificationMessage: '', // Message for the notification modal
     };
   },
   mounted() {
@@ -189,20 +191,71 @@ export default {
         });
 
         if (response.ok) {
-          this.successMessage = "Documents uploaded successfully!";
-          this.error = null;
-          this.showDocumentModal = false; // Close the modal after success
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Documents uploaded successfully!";
+          this.showNotification = true; // Show the notification modal
+          this.showDocumentModal = false; // Close the document upload modal
         } else {
           const errorData = await response.json();
-          this.error = errorData.message || "Failed to upload documents.";
-          this.successMessage = null;
+          this.notificationTitle = "Error!";
+          this.notificationMessage = errorData.message || "Failed to upload documents.";
+          this.showNotification = true; // Show the notification modal
         }
       } catch (error) {
-        this.error = "An error occurred while uploading documents.";
-        this.successMessage = null;
+        this.notificationTitle = "Error!";
+        this.notificationMessage = "An error occurred while uploading documents.";
+        this.showNotification = true; // Show the notification modal
       }
     },
-    
+
+    // Add a new customer
+    async addCustomer() {
+      const brokerId = localStorage.getItem("broker_id");
+      if (!brokerId) {
+        this.error = "Broker ID not found. Please log in again.";
+        return;
+      }
+
+      const customerData = {
+        broker: brokerId,
+        email: this.email,
+        contact_number: this.contactNumber,
+        affiliated_link: this.affiliatedLink || '',
+        last_name: this.lastName,
+        first_name: this.firstName,
+        company_id: 1, // Replace with the actual company_id if available
+      };
+
+      try {
+        const response = await fetch('http://localhost:8000/customers/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.getCookie('csrftoken') // Add CSRF token if needed
+          },
+          body: JSON.stringify(customerData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Customer added successfully!";
+          this.showNotification = true; // Show the notification modal
+          this.showModal = false; // Close the modal
+          this.fetchCustomers(); // Refresh customer list
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage = data.message || "Failed to add customer.";
+          this.showNotification = true; // Show the notification modal
+        }
+      } catch (error) {
+        this.notificationTitle = "Error!";
+        this.notificationMessage = "An error occurred while adding the customer.";
+        this.showNotification = true; // Show the notification modal
+      }
+    },
+
     // Reset the form when the modal is closed
     resetForm() {
       this.email = '';
@@ -210,6 +263,13 @@ export default {
       this.affiliatedLink = '';
       this.lastName = '';
       this.firstName = '';
+    },
+
+    // Get the CSRF token (if necessary)
+    getCookie(name) {
+      let value = "; " + document.cookie;
+      let parts = value.split("; " + name + "=");
+      if (parts.length === 2) return parts.pop().split(";").shift();
     },
   },
 };
