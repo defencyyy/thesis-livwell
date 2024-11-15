@@ -1,9 +1,32 @@
 from django.db import models
 from companies.models import Company
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import RegexValidator
 
-class Developer(models.Model):
+class DeveloperManager(BaseUserManager):
+    """
+    Custom manager for Developer model.
+    """
+    def create_user(self, username, email, first_name, last_name, password=None, **extra_fields):
+        if not email:
+            raise ValueError("The Email field must be set")
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, first_name=first_name, last_name=last_name, **extra_fields)
+        if password:
+            user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_developer(self, username, email, first_name, last_name, password=None, **extra_fields):
+        """
+        Create and return a developer user.
+        """
+        return self.create_user(username, email, first_name, last_name, password, **extra_fields)
+
+class Developer(AbstractBaseUser):
+    """
+    Custom Developer model inheriting from AbstractBaseUser (no PermissionsMixin).
+    """
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)
@@ -21,21 +44,25 @@ class Developer(models.Model):
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
     password = models.CharField(max_length=128)
-    last_login = models.DateTimeField(null=True, blank=True)  
+    last_login = models.DateTimeField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        if self.password and not self.password.startswith('pbkdf2_'):
-            self.password = make_password(self.password)
-        super().save(*args, **kwargs)
+    # Add the required fields for user creation
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+
+    # Custom Manager
+    objects = DeveloperManager()
 
     def __str__(self):
-        return f"{self.last_name}, {self.first_name}"
+        return f"{self.first_name} {self.last_name}"
 
-    def get_username(self):
-        return self.username  
+    def get_full_name(self):
+        """Return the full name of the developer."""
+        return f"{self.first_name} {self.last_name}"
 
-    def get_email_field_name(self):
-        return 'email' 
-    
+    def get_short_name(self):
+        """Return the short name of the developer (first name)."""
+        return self.first_name
+
     class Meta:
         ordering = ['last_name', 'first_name']

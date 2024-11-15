@@ -65,11 +65,11 @@ CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
 CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_SECURE = True  # Disable secure cookies in dev
+CSRF_COOKIE_SECURE = False  # Disable secure cookies for dev
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False  # Disable secure cookies for dev 
 
  # Custom headers 
 CORS_ALLOW_HEADERS = [
@@ -172,12 +172,13 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Adjust as needed
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Adjust as needed
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Adjust as needed
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+AUTH_USER_MODEL = 'developers.Developer'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

@@ -3,20 +3,24 @@
     <SideNav />
     <div class="main-content">
       <AppHeader />
-    <div class="content">
-      <h1>Welcome, Dev! You Are Logged In!</h1>
-      <p>This is the main page for developers.</p>
-      <button @click="logout">Logout</button>
-      <div class="user-info">
-        <p><strong>User ID:</strong> {{ userId }}</p>
-        <p><strong>User Role:</strong> {{ userType }}</p>
-        <p><strong>Company ID:</strong> {{ companyId }}</p>
-        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
-        <p>
-          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
-        </p>
+      <div class="content">
+        <h1>Welcome, Dev! You Are Logged In!</h1>
+        <p>This is the main page for developers.</p>
+        <button @click="logout">Logout</button>
+        <div class="user-info">
+          <p><strong>User ID:</strong> {{ userId }}</p>
+          <p><strong>User Role:</strong> {{ userType }}</p>
+          <p><strong>Company ID:</strong> {{ companyId }}</p>
+          <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
+          <p>
+            <strong>LocalStorage Company ID:</strong>
+            {{ localStorageCompanyId }}
+          </p>
+          <p>
+            <strong>Logged In Status:</strong> {{ loggedIn ? "Yes" : "No" }}
+          </p>
+        </div>
       </div>
-    </div>
     </div>
   </div>
 </template>
@@ -25,64 +29,84 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
-
+import axios from "axios";
 
 export default {
   name: "DevMainPage",
   components: {
-    SideNav, AppHeader
+    SideNav,
+    AppHeader,
   },
   computed: {
     ...mapState({
       userId: (state) => state.userId || null,
       userType: (state) => state.userType || null,
       companyId: (state) => state.companyId || null,
+      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
     }),
     localStorageUserId() {
-      return localStorage.getItem("developer_id");
+      return localStorage.getItem("user_id");
     },
     localStorageCompanyId() {
       return localStorage.getItem("company_id");
     },
   },
   mounted() {
-    if (!this.userId || !this.userType || !this.companyId) {
-      // Reload the page to ensure state is synced
-      this.$router.push({ name: "DevLogin" });
+    // Check if the user is logged in, has a developer role, and belongs to the correct company
+    if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
+      this.redirectToLogin();
     }
   },
-
+  watch: {
+    loggedIn(newVal) {
+      if (!newVal || this.userType !== "developer" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    userType(newVal) {
+      if (newVal !== "developer" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    companyId(newVal) {
+      if (!newVal || this.userType !== "developer") {
+        this.redirectToLogin();
+      }
+    },
+  },
   methods: {
     async logout() {
       try {
-        const response = await fetch(
-          "http://localhost:8000/developer/logout/",
+        // Notify backend about logout
+        await axios.post(
+          "http://localhost:8000/developer/logout/", // Update URL to match Django endpoint
+          {},
           {
-            method: "POST",
-            credentials: "include", // Include cookies for proper logout
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        // Clear localStorage and Vuex state
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("developer_id");
+        localStorage.removeItem("company_id");
 
-        const data = await response.json();
-        if (data.success) {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("user_id");
-          localStorage.removeItem("user_role");
-          localStorage.removeItem("logged_in");
-          localStorage.removeItem("company_id");
-          localStorage.removeItem("developer_id");
+        // Call Vuex mutation to reset user state
+        this.$store.commit("clearUser");
 
-          this.$router.push({ path: "/home" });
-        } else {
-          console.error("Logout failed:", data.message);
-        }
+        // Redirect to login page
+        this.redirectToLogin();
       } catch (error) {
-        console.error("Logout request failed:", error);
+        console.error("Error during logout:", error);
+        alert("Logout failed. Please try again.");
       }
+    },
+
+    redirectToLogin() {
+      this.$router.push({ name: "DevLogin" });
     },
   },
 };

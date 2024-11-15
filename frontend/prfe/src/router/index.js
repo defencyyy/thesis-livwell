@@ -29,7 +29,7 @@ import BrkManageCustomers from "@/views/broker/BrkManageCustomers.vue";
 import BrkMilestones from "@/views/broker/BrkMilestones.vue";
 import BrkAccounts from "@/views/broker/BrkAccounts.vue";
 import BrkManageSales from "@/views/broker/BrkManageSales.vue";
-import AvailableUnits from '@/components/AvailableUnits.vue'; // Adjust the path as necessary
+import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path as necessary
 import BrkTest from "@/views/broker/BrkTest.vue";
 
 //Other Links
@@ -38,7 +38,7 @@ import AboutUs from "@/components/AboutUs.vue";
 const routes = [
   { path: "/home", name: "Home", component: Home },
   { path: "/about", name: "About", component: About },
-  { pat: "/AboutUs", name: "AboutUs", component: AboutUs},
+  { path: "/AboutUs", name: "AboutUs", component: AboutUs },
 
   // Developer Routes
   {
@@ -128,8 +128,6 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
 
-
-
   // other routes
   {
     path: "/units/:siteId",
@@ -137,12 +135,6 @@ const routes = [
     component: AvailableUnits,
   },
 
-  {
-    path: "/broker/manage-sales",
-    name: "ManageSales",
-    component: BrkManageSales,
-    meta: { requiresAuth: true, role: "broker" },
-  },
   {
     path: "/broker/manage-sales",
     name: "ManageSales",
@@ -173,7 +165,7 @@ const routes = [
     path: "/broker/test",
     name: "BrkTest",
     component: BrkTest,
-    meta: {requiresAuth: true, role: "broker"},
+    meta: { requiresAuth: true, role: "broker" },
   },
   { path: "/", redirect: "/home" },
 ];

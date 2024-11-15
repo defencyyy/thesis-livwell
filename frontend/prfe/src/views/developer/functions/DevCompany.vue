@@ -129,7 +129,7 @@ export default {
       return this.companyId;
     },
     localStorageUserId() {
-      return localStorage.getItem("developer_id");
+      return localStorage.getItem("user_id");
     },
     localStorageCompanyId() {
       return localStorage.getItem("company_id");
@@ -140,67 +140,83 @@ export default {
   },
   methods: {
     async fetchCompany() {
-      const userId = this.userId || localStorage.getItem("developer_id");
-      const companyId = this.companyId || localStorage.getItem("company_id");
+      const companyId = this.vuexCompanyId; // Now pulling from Vuex
 
-      if (!userId || !companyId) {
-        alert("Developer or Company ID not found. Please log in.");
+      if (!companyId) {
+        alert("Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
       }
 
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/company/",
+          `http://localhost:8000/developer/company/`,
           {
             headers: {
-              "Developer-ID": userId,
-              "Company-ID": companyId,
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               "Content-Type": "application/json",
             },
           }
         );
-
         if (response.status === 200) {
-          this.company = {
-            name: response.data.company_name,
-            description: response.data.company_description,
-            logo: response.data.company_logo,
-          };
+          this.company = response.data;
         } else {
-          alert("Error fetching company data.");
+          alert("Error fetching company details.");
         }
       } catch (error) {
-        console.error("Error fetching company data:", error);
-        alert("Error fetching company data.");
+        if (error.response.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchCompany(); // Retry after refreshing
+          }
+        } else {
+          console.error("Error fetching company data:", error);
+          alert("Error fetching company data.");
+        }
       }
     },
-    getLogoUrl(logoPath) {
-      return logoPath ? `http://localhost:8000${logoPath}` : null;
-    },
-    onFileChange(event) {
-      this.newLogo = event.target.files[0];
-      if (this.newLogo) {
-        this.previewLogo = URL.createObjectURL(this.newLogo);
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          {
+            refresh: refreshToken,
+          }
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
+        } else {
+          this.handleTokenRefreshFailure();
+        }
+      } catch (error) {
+        this.handleTokenRefreshFailure();
       }
+    },
+    handleTokenRefreshFailure() {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      this.$router.push({ name: "DevLogin" });
     },
     async updateCompany() {
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
+        formData.append("developer_id", this.vuexUserId); // Explicitly send developer_id
 
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
 
         const response = await axios.put(
-          "http://localhost:8000/developer/company/edit/",
+          `http://localhost:8000/developer/company/edit/`,
           formData,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-              "Developer-ID": localStorage.getItem("developer_id"),
-              "Company-ID": localStorage.getItem("company_id"),
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -217,6 +233,20 @@ export default {
         console.error("Error updating company:", error);
         alert("Error updating company. Please try again.");
       }
+    },
+    onFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.newLogo = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.previewLogo = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    getLogoUrl(logo) {
+      return `http://localhost:8000${logo}`;
     },
   },
 };

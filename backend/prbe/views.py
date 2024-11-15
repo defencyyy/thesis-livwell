@@ -30,6 +30,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.hashers import check_password
+from django.http import JsonResponse
+import json
+from django.utils.timezone import now
+
 @csrf_exempt
 def login_view(request, user_role):
     if request.method == 'POST':
@@ -45,16 +51,18 @@ def login_view(request, user_role):
                 )
 
             # Fetch the user based on user_role
-            if user_role == 'broker':
-                user = Broker.objects.filter(username=username).first()
-            elif user_role == 'developer':
+            if user_role == 'developer':
                 user = Developer.objects.filter(username=username).first()
+            elif user_role == 'broker':
+                user = Broker.objects.filter(username=username).first()
             else:
-                return JsonResponse({"success": False, "message": "Invalid user type."}, status=400)
+                return JsonResponse({"success": False, "message": "Invalid user role."}, status=400)
 
-            # Validate credentials
-            if user is None or not check_password(password, user.password):
-                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
+            if user is None:
+                return JsonResponse({"success": False, "message": "User not found."}, status=404)
+
+            if not check_password(password, user.password):
+                return JsonResponse({"success": False, "message": "Invalid password."}, status=401)
 
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
@@ -64,7 +72,6 @@ def login_view(request, user_role):
             user.last_login = now()
             user.save()
 
-            # Return tokens and user data
             return JsonResponse({
                 "success": True,
                 "tokens": {
@@ -77,7 +84,7 @@ def login_view(request, user_role):
                     "email": user.email,
                     "contact_number": user.contact_number,
                     "user_role": user_role,
-                    "company_id": user.company.id,  # Include the company ID here
+                    "company_id": user.company.id,
                 }
             }, status=200)
 
@@ -89,31 +96,19 @@ def login_view(request, user_role):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
+@csrf_exempt
+def login_view_developer(request):
+    return login_view(request, user_role='developer')
 
 @csrf_exempt
 def login_view_broker(request):
     return login_view(request, user_role='broker')
 
-@csrf_exempt
-def login_view_developer(request):
-    return login_view(request, user_role='developer')
 
 def get_csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
 
-def validate_password_strength(password):
-    if len(password) < 8:
-        return "Password must be at least 8 characters long."
-    if not re.search(r'[A-Z]', password):
-        return "Password must contain at least one uppercase letter."
-    if not re.search(r'[a-z]', password):
-        return "Password must contain at least one lowercase letter."
-    if not re.search(r'\d', password):
-        return "Password must contain at least one number."
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return "Password must contain at least one special character."
-    return None
 
 @csrf_exempt
 def refresh_token_view(request):
@@ -141,6 +136,20 @@ def dev_logout_view(request):
         response.delete_cookie('refresh_token')
         return response
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+
+def validate_password_strength(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+    if not re.search(r'[A-Z]', password):
+        return "Password must contain at least one uppercase letter."
+    if not re.search(r'[a-z]', password):
+        return "Password must contain at least one lowercase letter."
+    if not re.search(r'\d', password):
+        return "Password must contain at least one number."
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return "Password must contain at least one special character."
+    return None
 
 # Brokers
 @csrf_exempt
