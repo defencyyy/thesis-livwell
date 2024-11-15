@@ -21,7 +21,7 @@ from django.shortcuts import get_object_or_404
 from brokers.models import Broker 
 from customers.models import Customer
 from sales.models import Sale
-from units.models import Unit
+from units.models import Unit, UnitImage
 from sites.models import Site
  
 import json
@@ -410,7 +410,6 @@ def get_site_name(request, site_id):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
-
 @csrf_exempt
 def get_available_units(request):
     if request.method == 'GET':
@@ -425,18 +424,26 @@ def get_available_units(request):
             # Prepare the response data
             unit_data = []
             for unit in units:
+                # Fetch all images associated with this unit using the UnitImage model
+                images = UnitImage.objects.filter(unit_id=unit.id)
+
+                    
+                # Get URLs for all images
+                image_urls = [request.build_absolute_uri(image.image.url) for image in images]
+
                 unit_data.append({
                     'id': unit.id,
-                    'unit_title': unit.unit_title,  # Adjust this to your actual field names
-                    'picture':  request.build_absolute_uri(unit.picture.url) if unit.picture else None,
-  # Include the picture URL (if available)
-                    'price': unit.price,  # Include the price
-                    'bedroom':unit.bedroom,
-                    "bathroom":unit.bathroom,
-                    "floor_area":unit.floor_area,
-                    "floor":unit.floor,
-                    "balcony":unit.balcony,
-                    "view":unit.view,
+                    'unit_title': unit.unit_title,
+                    'images': image_urls,  # List of image URLs
+                    'price': unit.price,
+                    'bedroom': unit.bedroom,
+                    'bathroom': unit.bathroom,
+                    'floor_area': unit.floor_area,
+                    'floor': unit.floor,
+                    'balcony': unit.balcony,
+                    'view': unit.view,
+                    'company_id': unit.company.id,  # Add the company_id to the response
+                    
                 })
 
             return JsonResponse({'units': unit_data}, status=200)
@@ -604,7 +611,58 @@ def fetch_sales(request):
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
-    
+@csrf_exempt
+def reserve_unit(request):
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON request data
+            data = json.loads(request.body)
+
+            # Ensure the IDs are integers (if they are not already)
+            customer_id = data.get('customer_name')
+            site_id = int(data.get('site_id'))  # Convert to integer
+            unit_id = int(data.get('unit_id'))  # Convert to integer
+            broker_id = int(data.get('broker_id'))  # Convert to integer
+            company_id = int(data.get('company_id'))  # Ensure company_id is an integer
+            payment_amount = data.get('payment_amount')
+            payment_method = data.get('payment_method')
+            payment_reference = data.get('payment_reference')
+            reservation_file = data.get('reservation_file')  # Just the filename in this case
+
+            # Fetch the related objects from the database
+            customer = Customer.objects.get(id=customer_id)
+            site = Site.objects.get(id=site_id)
+            unit = Unit.objects.get(id=unit_id)
+            broker = Broker.objects.get(id=broker_id)
+
+            # Create the Sale object
+            sale = Sale.objects.create(
+                customer=customer,
+                site=site,
+                unit=unit,
+                broker=broker,
+                company_id=company_id,
+                status='pending reservation',  # Set to pending reservation
+                reservation_fee=payment_amount,
+                payment_method=payment_method,
+                payment_reference=payment_reference,
+                reservation_file=reservation_file if reservation_file else None
+            )
+
+            # Update the unit status to pending_reservation
+            unit.status = 'pending reservation'
+            unit.save()
+
+            # Return a success response
+            return JsonResponse({'message': 'Sale created successfully', 'sale_id': sale.id}, status=201)
+
+        except Exception as e:
+            # If something goes wrong, return an error response
+            return JsonResponse({'error': str(e)}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):
