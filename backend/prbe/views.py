@@ -546,47 +546,8 @@ def fetch_units(request, site_id):
 
     return JsonResponse({'units': unit_data}, safe=False)
 
-
+    
 @csrf_exempt
-def submit_sale(request):
-    if request.method == 'POST':
-        try:
-            # Parse the incoming JSON request data
-            data = json.loads(request.body)
-
-            # Extract the sale data from the request
-            customer_id = data.get('customer')
-            site_id = data.get('site')
-            unit_id = data.get('unit')
-            broker_id = data.get('broker')
-            company_id = data.get('company')
-
-            # Fetch the related objects from the database
-            customer = Customer.objects.get(id=customer_id)
-            site = Site.objects.get(id=site_id)
-            unit = Unit.objects.get(id=unit_id)
-
-            # Create the Sale object
-            sale = Sale.objects.create(
-                customer=customer,
-                site=site,
-                unit=unit,
-                broker_id=broker_id,
-                company_id=company_id,
-                status='pending',  # Set a default status (you can customize this)
-            )
-            unit.status = 'pending'
-            unit.save()
-
-            # Return a success response
-            return JsonResponse({'message': 'Sale created successfully', 'sale_id': sale.id}, status=201)
-
-        except Exception as e:
-            # If something goes wrong, return an error response
-            return JsonResponse({'error': str(e)}, status=400)
-
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
 def fetch_sales(request):
     try:
         # Fetch all sales
