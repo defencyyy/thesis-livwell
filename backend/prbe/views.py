@@ -241,7 +241,7 @@ def update_broker_view(request, broker_id):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
-@csrf_exempt
+@csrf_exempt  # This decorator is optional if you are using CSRF tokens correctly in your request
 def add_customer(request):
     if request.method == 'POST':
         try:
@@ -253,7 +253,7 @@ def add_customer(request):
                 company_id=data['company_id'],  # Include company_id
                 email=data['email'],
                 contact_number=data['contact_number'],
-                affiliated_link=data.get('affiliated_link', ''),
+                affiliated_link=data.get('affiliated_link', ''),  # optional field
                 last_name=data['last_name'],
                 first_name=data['first_name']
             )
