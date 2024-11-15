@@ -1,141 +1,119 @@
 <template>
   <div class="developer-company-page">
-    <SideNav /> <!-- Sidebar on the left -->
+    <SideNav />
     <div class="main-content">
-      <AppHeader /> <!-- Top bar aligned horizontally, after the sidebar -->
+      <AppHeader />
       <div class="container mt-5">
-        <!-- Title aligned with the left edge of the card -->
+        <!-- Display Company Details -->
         <div class="title-wrapper">
-          <div class="title-icon"></div> 
+          <div class="title-icon"></div>
+          <div class="edit-title">Company Details</div>
+        </div>
+        <div class="company-info">
+          <p><strong>Company Name:</strong> {{ company.name || "N/A" }}</p>
+          <p>
+            <strong>Company Description:</strong>
+            {{ company.description || "N/A" }}
+          </p>
+          <div>
+            <strong>Company Logo:</strong>
+            <img
+              v-if="company.logo"
+              :src="getLogoUrl(company.logo)"
+              alt="Company Logo"
+              width="100"
+            />
+            <span v-else>No Logo Available</span>
+          </div>
+        </div>
+        <!-- Edit Company Details -->
+        <div class="title-wrapper">
+          <div class="title-icon"></div>
           <div class="edit-title">Edit Company Details</div>
         </div>
-        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px;">
+        <div
+          class="card shadow-lg border-0 rounded-3 mx-auto"
+          style="max-width: 900px"
+        >
           <div class="card-body">
             <div class="row">
-              <!-- Left Section: Logo Upload with Preview -->
+              <!-- Left Section -->
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="description" class="form-label">Description</label>
-                  <textarea class="form-control" id="description" v-model="company.description" rows="6"
-                    placeholder="Enter company description"></textarea>
+                  <label for="description" class="form-label"
+                    >Description</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="description"
+                    v-model="company.description"
+                    rows="6"
+                    placeholder="Enter company description"
+                  ></textarea>
                 </div>
-
                 <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                  <button @click="updateCompany" class="btn btn-primary">
+                    Save Changes
+                  </button>
                 </div>
               </div>
-
-              <!-- Right Section: Description and Save Button -->
+              <!-- Right Section -->
               <div class="col-md-6 d-flex flex-column align-items-center">
                 <div class="mb-3">
                   <label for="logo" class="form-label">Upload Logo</label>
-                  <input type="file" class="form-control" id="logo" accept="image/*" @change="onFileChange" />
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="logo"
+                    accept="image/*"
+                    @change="onFileChange"
+                  />
                 </div>
                 <div class="mb-3">
-                  <!-- Preview Image -->
-                  <img v-if="company.logo" :src="company.logo"  alt="Company Logo" width="100" />
-                  <p v-else>No logo uploaded</p>
+                  <strong>Preview:</strong>
+                  <img
+                    v-if="previewLogo"
+                    :src="previewLogo"
+                    alt="Logo Preview"
+                    width="100"
+                  />
+                  <p v-else>No logo selected</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <!-- Debug Information -->
+        <h3>Debugging Information</h3>
+        <div class="debug-info">
+          <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
+          <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
+          <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
+          <p>
+            <strong>LocalStorage Company ID:</strong>
+            {{ localStorageCompanyId }}
+          </p>
+          <p><strong>User Role:</strong> {{ userType }}</p>
+        </div>
       </div>
-
-      <!-- <div class="content">
-        <h2>Edit Company</h2>
-        <form @submit.prevent="updateCompany">
-          <div>
-            <label for="description">Description:</label>
-            <textarea v-model="company.description"></textarea>
-          </div>
-          <div>
-            <label for="logo">Logo:</label>
-            <input type="file" @change="onFileChange" />
-            <img
-              v-if="company.logo"
-              :src="company.logo"
-              alt="Company Logo"
-              width="100"
-            />
-          </div>
-          <button type="submit">Save Changes</button>
-        </form>
-      </div> -->
     </div>
   </div>
-
-  <!-- <div class="developer-company-page">
-    <SideNav />
-    <AppHeader />
-    <div class="content">
-    <!-- Main Company Details -->
-      <h2>Company Details</h2>
-      <div class="company-info">
-        <p><strong>Company Name:</strong> {{ company.name || "" }}</p>
-        <p>
-          <strong>Company Description:</strong> {{ company.description || "" }}
-        </p>
-        <div>
-          <strong>Company Logo:</strong>
-          <img
-            v-if="company.logo"
-            :src="getLogoUrl(company.logo)"
-            alt="Company Logo"
-            width="100"
-          />
-          <span v-else>No Logo Available</span>
-        </div>
-      </div>
-      <h2>Edit Company</h2>
-      <form @submit.prevent="updateCompany">
-        <div>
-          <label for="description">Description:</label>
-          <textarea v-model="company.description"></textarea>
-        </div>
-        <div>
-          <label for="logo">Logo:</label>
-          <input type="file" @change="onFileChange" />
-          <img
-            v-if="company.logo"
-            :src="company.logo"
-            alt="Company Logo"
-            width="100"
-          />
-        </div>
-        <button type="submit">Save Changes</button>
-      </form>
-
-      <!-- Debugging Information -->
-      <h3>Debugging Information</h3>
-      <div class="debug-info">
-        <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
-        <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
-        <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
-        <p>
-          <strong>LocalStorage Company ID:</strong> {{ localStorageCompanyId }}
-        </p>
-        <p><strong>User Role:</strong> {{ userType }}</p>
-      </div>
-
-    </div>
-  </div> -->
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import axios from "axios";
 import { mapState } from "vuex";
-
 
 export default {
   name: "DevCompany",
   components: { SideNav, AppHeader },
   data() {
     return {
-      company: {},
-      draftDescription: "",
-      newLogo: null,
+      company: {}, // Holds company details
+      newLogo: null, // Stores uploaded file
+      previewLogo: null, // Temporary preview of the uploaded logo
     };
   },
   computed: {
@@ -161,7 +139,6 @@ export default {
     this.fetchCompany();
   },
   methods: {
-  // Method to fetch company details
     async fetchCompany() {
       const userId = this.userId || localStorage.getItem("developer_id");
       const companyId = this.companyId || localStorage.getItem("company_id");
@@ -190,7 +167,6 @@ export default {
             description: response.data.company_description,
             logo: response.data.company_logo,
           };
-          this.draftDescription = this.company.description;
         } else {
           alert("Error fetching company data.");
         }
@@ -199,23 +175,24 @@ export default {
         alert("Error fetching company data.");
       }
     },
-
-
+    getLogoUrl(logoPath) {
+      return logoPath ? `http://localhost:8000${logoPath}` : null;
+    },
     onFileChange(event) {
       this.newLogo = event.target.files[0];
-      this.company.logo = URL.createObjectURL(this.newLogo);
+      if (this.newLogo) {
+        this.previewLogo = URL.createObjectURL(this.newLogo);
+      }
     },
-   // Method to update company details
     async updateCompany() {
       try {
         const formData = new FormData();
-        formData.append("description", this.company.description); // Use company.description from frontend_cujardo
+        formData.append("description", this.company.description);
 
         if (this.newLogo) {
           formData.append("logo", this.newLogo);
         }
 
-        // Sending the request with backend_florendo headers and URL
         const response = await axios.put(
           "http://localhost:8000/developer/company/edit/",
           formData,
@@ -231,15 +208,13 @@ export default {
 
         if (response.status === 200) {
           alert("Company updated successfully!");
+          this.fetchCompany(); // Refresh details after update
+          this.previewLogo = null; // Clear preview
         } else {
           alert("Error updating company.");
         }
       } catch (error) {
         console.error("Error updating company:", error);
-        if (error.response) {
-          console.error(error.response.data);
-          console.error(error.response.status);
-        }
         alert("Error updating company. Please try again.");
       }
     },
@@ -272,7 +247,7 @@ export default {
 
 .title-wrapper {
   display: flex; /* Align line and title horizontally */
-  align-items: center; 
+  align-items: center;
   width: 100%;
   max-width: 900px;
   /* Ensure the title width matches the card's width */
@@ -288,7 +263,6 @@ export default {
   /* Align the text to the left */
   background-color: #fff;
   /* Match background with card */
-
 }
 
 .title-icon {
@@ -299,7 +273,6 @@ export default {
   margin-right: 10px; /* Space between the icon and the title */
   margin-bottom: 15px;
 }
-
 
 /* Styling for the file input and image preview section */
 input[type="file"] {
@@ -337,7 +310,6 @@ textarea:focus {
   border-color: #004085;
 }
 
-
 /* .developer-company-page {
   display: flex;
 }
@@ -348,10 +320,8 @@ textarea:focus {
 
 } */
 
-}
 .user-info {
   margin-bottom: 20px;
   text-align: left;
 }
-
 </style>
