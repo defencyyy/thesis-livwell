@@ -1,5 +1,9 @@
 <template>
+  <header>
+    <HeaderLivwell/>
+  </header>
   <div class="manage-customers-page">
+  
     <SideNav />
     <div class="content">
       <h1>Manage Customers</h1>
@@ -114,6 +118,7 @@
 
 
 <script>
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 
@@ -122,6 +127,7 @@ export default {
   components: {
     SideNav,
     BModal,
+    HeaderLivwell,
   },
   data() {
     return {

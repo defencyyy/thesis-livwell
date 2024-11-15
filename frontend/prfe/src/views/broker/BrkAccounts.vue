@@ -1,44 +1,59 @@
 <template>
-  <div class="accounts-page">
-    <SideNav />
-    
-    <div class="content">
-      <h1>Welcome to Account</h1>
-      <p>Here you can manage your account</p>
-      
-      <form @submit.prevent="updateAccount">
-        <div>
-          <label for="username">Username:</label>
-          <input type="text" v-model="username" id="username" />
+  <header>
+  <HeaderLivwell/>
+  </header>
+  <div class="accounts-page"> 
+    <SideNav/>
+    <div>h1lw</div>
+      <!-- <div class="content row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+          <div class="card mt-5">
+            <div class="card-header text-center">
+                  <h1>Welcome to Account</h1>
+                  <p>Here you can manage your account</p>
+            </div>
+            <div class="card-body">
+                      <form @submit.prevent="updateAccount">
+                        <div class="form-group">
+                          <label for="username">Username:</label>
+                          <input type="text" class="form-control" v-model="username" id="username" />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="email">Email:</label>
+                          <input type="email" class="form-control" v-model="email" id="email" />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="contactNumber">Contact Number:</label>
+                          <input type="text" class="form-control" v-model="contactNumber" id="contactNumber" />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="password">Password:</label>
+                          <input type="password" class="form-control" v-model="password" id="password" />
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" >Update Account</button>
+                      </form>
+                      
+                      <p v-if="error" class="text-danger">{{ error }}</p>
+                      <p v-if="successMessage">{{ successMessage }}</p>
+              </div>
+          </div>        
         </div>
-        <div>
-          <label for="email">Email:</label>
-          <input type="email" v-model="email" id="email" />
-        </div>
-        <div>
-          <label for="contactNumber">Contact Number:</label>
-          <input type="text" v-model="contactNumber" id="contactNumber" />
-        </div>
-        <div>
-          <label for="password">Password:</label>
-          <input type="password" v-model="password" id="password" />
-        </div>
-        <button type="submit">Update Account</button>
-      </form>
-      
-      <p v-if="error" class="text-danger">{{ error }}</p>
-      <p v-if="successMessage">{{ successMessage }}</p>
-    </div>
+      </div> -->
   </div>
+
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 
 export default {
   name: "BrkAccounts",
   components: {
-    SideNav,
+    SideNav, HeaderLivwell,
   },
   data() {
     return {
@@ -126,3 +141,24 @@ export default {
 },
 };
 </script>
+
+<style scoped>
+.content{
+  background-color: gray;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+}
+
+.accounts-page
+{
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  transition: width 0.5s;
+  background-color: gray;
+  height: 96%;
+}
+</style>

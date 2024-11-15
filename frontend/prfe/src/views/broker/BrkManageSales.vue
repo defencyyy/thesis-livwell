@@ -1,4 +1,7 @@
 <template>
+  <header>
+    <HeaderLivwell/>
+  </header>
   <div class="manage-sales-page">
     <SideNav />
     <div class="content">
@@ -75,12 +78,13 @@
   </div>
 </template>
 <script>
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 
 export default {
   name: "ManageSales",
   components: {
-    SideNav,
+    SideNav, HeaderLivwell
   },
   data() {
     return {
@@ -243,6 +247,7 @@ export default {
     },
   },
 };
+
 </script>
 
 <style scoped>
