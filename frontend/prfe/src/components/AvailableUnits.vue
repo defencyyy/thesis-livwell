@@ -69,8 +69,8 @@
             </div>
             <!-- File Upload -->
             <div class="form-group">
-              <label for="fileUpload">Upload File (Optional)</label>
-              <input type="file" @change="handleFileUpload" id="fileUpload" />
+              <label for="fileUpload">Upload File (Required)</label>
+              <input type="file" @change="handleFileUpload" id="fileUpload" required />
             </div>
             <!-- Payment Amount -->
             <div class="form-group">
@@ -91,10 +91,10 @@
               <label for="paymentDate">Date of Payment</label>
               <input type="date" v-model="reservationForm.paymentDate" id="paymentDate" required />
             </div>
-            <!-- Payment Reference -->
-            <div class="form-group">
+            <!-- Payment Reference (only if payment method is not cash) -->
+            <div class="form-group" v-if="reservationForm.paymentMethod !== 'cash'">
               <label for="paymentReference">Payment Reference Number</label>
-              <input type="text" v-model="reservationForm.paymentReference" id="paymentReference" />
+              <input type="text" v-model="reservationForm.paymentReference" id="paymentReference" required />
             </div>
             <!-- Submit Button -->
             <div class="form-group">
@@ -222,6 +222,14 @@ export default {
     },
 
     async submitReservation() {
+      // Check if all required fields are filled, including the file
+      if (!this.reservationForm.customerName || !this.reservationForm.paymentAmount || 
+          !this.reservationForm.paymentMethod || !this.reservationForm.paymentDate || 
+          !this.reservationForm.file || (this.reservationForm.paymentMethod !== 'cash' && !this.reservationForm.paymentReference)) {
+        this.errorMessage = "All fields are required except the payment reference (if payment method is 'cash').";
+        return;
+      }
+
       const data = {
         customer_name: this.reservationForm.customerName,
         site_id: parseInt(this.siteId, 10),  // Convert to integer
@@ -230,8 +238,8 @@ export default {
         company_id: this.selectedUnit.company_id,  // Ensure this is correctly passed
         payment_amount: this.reservationForm.paymentAmount,
         payment_method: this.reservationForm.paymentMethod,
-        payment_reference: this.reservationForm.paymentReference,
-        reservation_file: this.reservationForm.file ? this.reservationForm.file.name : null
+        payment_reference: this.reservationForm.paymentReference || null, // Payment reference is optional if payment is "cash"
+        reservation_file: this.reservationForm.file ? this.reservationForm.file.name : null // Ensure file is present
       };
 
       try {
@@ -264,14 +272,14 @@ export default {
         this.errorMessage = "There was an error submitting the reservation. Please try again.";  // Display error message
       }
     },
+
     closePopup() {
-    this.successMessage = '';  // Hide the success message pop-up
-    this.$router.push({ name: 'AffiliatedUnits' });  // Redirect to the 'AffiliatedUnits' page
-  },
+      this.successMessage = '';  // Hide the success message pop-up
+      this.$router.push({ name: 'AffiliatedUnits' });  // Redirect to the 'AffiliatedUnits' page
+    },
   }
 };
 </script>
-
 <style scoped>
   .popup-overlay {
   position: fixed;
