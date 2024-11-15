@@ -1,6 +1,8 @@
 <template>
   <div class="main-page">
     <SideNav />
+    <div class="main-content">
+      <AppHeader />
     <div class="content">
       <h1>Welcome, Dev! You Are Logged In!</h1>
       <p>This is the main page for developers.</p>
@@ -15,17 +17,20 @@
         </p>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
+
 
 export default {
   name: "DevMainPage",
   components: {
-    SideNav,
+    SideNav, AppHeader
   },
   computed: {
     ...mapState({
@@ -87,6 +92,33 @@ export default {
 .main-page {
   display: flex;
   height: 100vh;
+}
+
+.SideNav {
+  width: 250px; /* Set fixed width for the sidebar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeader {
+  width: 100%;
+  height: 60px; /* Adjust height as needed */
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.main-content {
+  display: flex;
+  margin-left: 250px; /* Set margin equal to sidebar width */
+  flex-direction: column;
+  /* Stack header and content vertically */
+  flex: 1;
 }
 
 .content {
