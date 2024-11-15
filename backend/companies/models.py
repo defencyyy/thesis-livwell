@@ -1,9 +1,15 @@
 from django.db import models
-import os
+import os, re
 
 def logo_upload_path(instance, filename):
-  company_id = instance.id if instance.id else 'new'
-  return os.path.join('photos', str(company_id), 'logo', filename)
+    company_name = instance.name if instance.name else 'new_company'  
+    company_name = re.sub(r'\s+', '_', company_name) 
+    company_name = re.sub(r'[^\w\s-]', '', company_name) 
+
+    filename = filename or 'company_logo.jpg' 
+
+    return os.path.join('photos', str(company_name), 'logo', filename)
+
 
 class Company(models.Model):
   name = models.CharField(max_length=100, unique=True, editable=True)

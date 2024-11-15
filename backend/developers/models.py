@@ -7,12 +7,20 @@ class Developer(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)
-    contact_number = models.CharField(max_length=20)
+    contact_number = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                r'^\+?1?\d{9,15}$',
+                message="Enter a valid phone number (9 to 15 digits)."
+            )
+        ]
+    )
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
-    max_length=20,
-    validators=[RegexValidator(r'^\+?1?\d{9,15}$', message="Enter a valid phone number")],
-    password = models.CharField(max_length=128, blank=True, null=True)
+    password = models.CharField(max_length=128)
     last_login = models.DateTimeField(null=True, blank=True)  
 
     def save(self, *args, **kwargs):
@@ -21,7 +29,7 @@ class Developer(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.last_name}, {self.first_name} "
+        return f"{self.last_name}, {self.first_name}"
 
     def get_username(self):
         return self.username  
