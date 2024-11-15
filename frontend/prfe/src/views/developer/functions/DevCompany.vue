@@ -154,8 +154,28 @@ export default {
   height: 100vh;
 }
 
+.SideNav {
+  width: 250px; /* Set fixed width for the sidebar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeader {
+  width: 100%;
+  height: 60px; /* Adjust height as needed */
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
 .main-content {
   display: flex;
+  margin-left: 250px; /* Set margin equal to sidebar width */
   flex-direction: column;
   /* Stack header and content vertically */
   flex: 1;
