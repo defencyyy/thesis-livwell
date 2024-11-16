@@ -55,7 +55,62 @@
             </select>
           </div>
 
-          <!-- Downpayment and Financing Inputs -->
+          <!-- Spot Cash Plan -->
+          <div v-if="selectedPaymentPlan === 'spot_cash'">
+            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
+
+            <!-- Spot Cash Discount -->
+            <div class="form-group">
+              <label for="spotCashDiscount">Spot Cash Discount</label>
+              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+
+            <!-- Unit Price after Spot Discount -->
+            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+
+            <!-- TLP Discount -->
+            <div class="form-group">
+              <label for="tlpDiscount">TLP Discount (Optional)</label>
+              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+                <option value="0">None</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+
+            <!-- Net Unit Price -->
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+
+            <!-- Other Charges -->
+            <div class="form-group">
+              <label for="otherChargesPercentage">Other Charges (%)</label>
+              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails">
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+
+            <!-- Total Amount Payable -->
+            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+
+            <!-- Reservation Fee -->
+            <p><strong>Less Reservation Fee (10%):</strong> ₱{{ reservationFee }}</p>
+
+            <!-- Net Full Payment -->
+            <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+          </div>
+
+          <!-- Bank Financing and In-House Financing Fields (unchanged) -->
           <div v-if="selectedPaymentPlan === 'bank_financing' || selectedPaymentPlan === 'in_house_financing'">
             <div class="form-group">
               <label for="downpayment">Downpayment (Amount):</label>
@@ -71,16 +126,14 @@
               <label for="interestRate">Interest Rate (%):</label>
               <input type="number" v-model="interestRate" id="interestRate" @input="updatePaymentDetails" />
             </div>
-          </div>
 
-          <!-- Display Payment Plan Details -->
-          <div v-if="paymentDetails">
-            <h4>Payment Plan Details</h4>
-            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-            <p><strong>Discounts Applied:</strong> ₱{{ discount }}</p>
-            <p><strong>Downpayment:</strong> ₱{{ downpaymentAmount }}</p>
-            <p><strong>Loan Amount:</strong> ₱{{ loanAmount }}</p>
-            <p><strong>Monthly Amortization:</strong> ₱{{ monthlyAmortization }}</p>
+            <div v-if="paymentDetails">
+              <h4>Payment Plan Details</h4>
+              <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
+              <p><strong>Downpayment:</strong> ₱{{ downpaymentAmount }}</p>
+              <p><strong>Loan Amount:</strong> ₱{{ loanAmount }}</p>
+              <p><strong>Monthly Amortization:</strong> ₱{{ monthlyAmortization }}</p>
+            </div>
           </div>
 
           <div class="button-container">
@@ -146,6 +199,7 @@
   </div>
 </template>
 
+
 <script>
 import SideNav from "@/components/SideNav.vue";
 import axios from 'axios';
@@ -178,14 +232,23 @@ export default {
 
       // Payment Scheme Data
       selectedPaymentPlan: 'spot_cash', // Default payment plan
-      unitPrice: 1000, // Example price of the unit
-      discount: 0, // Discount on the unit
-      downpaymentAmount: 0, // Downpayment Amount (fixed value)
-      loanTerm: 10, // Loan Term in years
-      interestRate: 7, // Interest rate for bank or in-house financing
-      loanAmount: 0, // Calculated loan amount after downpayment
-      monthlyAmortization: 0, // Monthly amortization
-      paymentDetails: null, // Stores the final computed payment details
+      unitPrice: 0, // Example price of the unit
+      spotCashDiscount: 0,
+      tlpDiscount: 0,
+      spotDiscount: 0, 
+      unitPriceAfterSpotDiscount: 0,
+      tlpDiscountAmount: 0,
+      netUnitPrice: 0,
+      otherChargesPercentage: 0,
+      otherCharges: 0,
+      totalAmountPayable: 0,
+      reservationFee: 0,
+      netFullPayment: 0,
+      downpaymentAmount: 0, // Downpayment for financing plans
+      loanTerm: 10, // Loan term for financing plans
+      interestRate: 7, // Interest rate for financing
+      loanAmount: 0, // Loan amount
+      monthlyAmortization: 0, // Monthly payment for financing
     };
   },
 
@@ -278,11 +341,39 @@ export default {
     },
 
     updatePaymentDetails() {
-      if (this.selectedPaymentPlan === "spot_cash") {
+      if (this.selectedPaymentPlan === 'spot_cash') {
         this.applySpotCashDiscount();
+        this.applyTLPDiscount();
+        this.applyOtherCharges();
       } else {
         this.calculateLoanDetails();
       }
+    },
+
+    applySpotCashDiscount() {
+      const discountPercentage = parseInt(this.spotCashDiscount);
+      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
+      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
+      this.updateNetUnitPrice();
+    },
+
+    applyTLPDiscount() {
+      const discountPercentage = parseInt(this.tlpDiscount);
+      this.tlpDiscountAmount = (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
+      this.updateNetUnitPrice();
+    },
+
+    updateNetUnitPrice() {
+      this.netUnitPrice = this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
+      this.applyOtherCharges();
+    },
+
+    applyOtherCharges() {
+      const otherChargesPercentage = parseInt(this.otherChargesPercentage);
+      this.otherCharges = (this.unitPrice * otherChargesPercentage) / 100;
+      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
+      this.reservationFee = this.unitPrice * 0.1; // 10% reservation fee
+      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
     },
 
     calculateLoanDetails() {
@@ -304,15 +395,7 @@ export default {
       };
     },
 
-    applySpotCashDiscount() {
-      // Example: Spot Cash gets a 10% discount
-      this.discount = this.unitPrice * 0.1;
-      this.paymentDetails = {
-        discount: this.discount,
-        loanAmount: 0,
-        monthlyAmortization: 0,
-      };
-    },
+    
 
     async submitReservation() {
       // Check if all required fields are filled, including the file
