@@ -205,42 +205,48 @@ export default {
       try {
         const formData = new FormData();
         formData.append("description", this.company.description);
-        formData.append("developer_id", this.vuexUserId); // Explicitly send developer_id
 
         if (this.newLogo) {
-          formData.append("logo", this.newLogo);
+          formData.append("logo", this.newLogo); // Include logo if selected
         }
 
+        // Make PUT request to update company details
         const response = await axios.put(
-          `http://localhost:8000/developer/company/edit/`,
+          "http://localhost:8000/developer/company/edit/",
           formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "multipart/form-data", // Explicitly set for file uploads
             },
           }
         );
 
         if (response.status === 200) {
           alert("Company updated successfully!");
-          this.fetchCompany(); // Refresh details after update
-          this.previewLogo = null; // Clear preview
+          this.fetchCompany(); // Refresh company data
+          this.previewLogo = null; // Clear preview after successful update
         } else {
           alert("Error updating company.");
         }
       } catch (error) {
         console.error("Error updating company:", error);
-        alert("Error updating company. Please try again.");
+        alert(
+          error.response?.data?.error ||
+            "Error updating company. Please try again."
+        );
       }
+      console.log("Fetched company data:", this.company);
     },
     onFileChange(event) {
       const file = event.target.files[0];
+      console.log("File selected:", file);
       if (file) {
         this.newLogo = file;
         const reader = new FileReader();
         reader.onload = () => {
           this.previewLogo = reader.result;
+          console.log("Preview logo set:", this.previewLogo);
         };
         reader.readAsDataURL(file);
       }

@@ -2,11 +2,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .admin import custom_admin_site
+from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', custom_admin_site.urls),
 
     # Brokers
     # path('broker/login/', views.login_view_broker, name='broker_login'),
@@ -37,7 +38,6 @@ urlpatterns = [
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
     path('developer/logout/', views.dev_logout_view, name='developer_logout'),
-    path('developer/company/edit/', views.company_edit, name='company_edit'),
     
     # API Endpoints
     path('api/token/developer/', views.login_view_developer, name='login_developer'),

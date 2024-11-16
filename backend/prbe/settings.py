@@ -51,25 +51,26 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',  # Ensure security headers are set first
+    'corsheaders.middleware.CorsMiddleware',  # Add CORS headers after security
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Session handling for user sessions
+    'django.middleware.common.CommonMiddleware',  # General request/response tweaks
+    'django.middleware.csrf.CsrfViewMiddleware',  # CSRF protection for forms
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Handles authentication via session
+    'django.contrib.messages.middleware.MessageMiddleware',  # Flash messages
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Clickjacking protection
 ]
+
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
 CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_SECURE = False  # Disable secure cookies for dev
-CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True   # Disable secure cookies for dev
+CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = False  # Disable secure cookies for dev 
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True   # Disable secure cookies for dev 
 
  # Custom headers 
 CORS_ALLOW_HEADERS = [
@@ -177,6 +178,11 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
+
 
 AUTH_USER_MODEL = 'developers.Developer'
 
