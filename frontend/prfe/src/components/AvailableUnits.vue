@@ -99,6 +99,7 @@
               </select>
             </div>
             <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+            <p v-if="unitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
 
             <!-- Total Amount Payable -->
             <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
