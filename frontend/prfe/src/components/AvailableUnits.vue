@@ -93,7 +93,7 @@
             <div class="form-group">
               <label for="otherChargesPercentage">Other Charges (%)</label>
               <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails">
-                <option value="5">5%</option>
+                <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
               </select>
@@ -109,32 +109,103 @@
             <!-- Net Full Payment -->
             <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
           </div>
+          <!-- In-House Financing Plan -->
+          <div v-if="selectedPaymentPlan === 'in_house_financing'">
+            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
-          <!-- Bank Financing and In-House Financing Fields (unchanged) -->
-          <div v-if="selectedPaymentPlan === 'bank_financing' || selectedPaymentPlan === 'in_house_financing'">
+            <!-- Spot Discount -->
             <div class="form-group">
-              <label for="downpayment">Downpayment (Amount):</label>
-              <input type="number" v-model="downpaymentAmount" id="downpayment" @input="updatePaymentDetails" />
+              <label for="spotDiscount">Spot Discount</label>
+              <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="1">1%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
             </div>
+            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
 
+            <!-- Unit Price after Spot Discount -->
+            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+
+            <!-- TLP Discount -->
             <div class="form-group">
-              <label for="loanTerm">Loan Term (Years):</label>
-              <input type="number" v-model="loanTerm" id="loanTerm" @input="updatePaymentDetails" />
+              <label for="tlpDiscount">TLP Discount</label>
+              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+                <option value="0">None</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
             </div>
+            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
 
+            <!-- Net Unit Price -->
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+
+            <!-- Other Charges -->
             <div class="form-group">
-              <label for="interestRate">Interest Rate (%):</label>
-              <input type="number" v-model="interestRate" id="interestRate" @input="updatePaymentDetails" />
+              <label for="otherCharges">Other Charges</label>
+              <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails">
+                <option value="8.5">8.5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
             </div>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
 
-            <div v-if="paymentDetails">
-              <h4>Payment Plan Details</h4>
-              <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-              <p><strong>Downpayment:</strong> ₱{{ downpaymentAmount }}</p>
-              <p><strong>Loan Amount:</strong> ₱{{ loanAmount }}</p>
-              <p><strong>Monthly Amortization:</strong> ₱{{ monthlyAmortization }}</p>
+            <!-- VAT Calculation -->
+            <p v-if="unitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+
+            <!-- Total Amount Payable -->
+            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+
+            <!-- Spot Downpayment -->
+            <div class="form-group">
+              <label for="spotDownpayment">Spot Downpayment</label>
+              <select v-model="spotDownpaymentPercentage" id="spotDownpayment" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
             </div>
+            <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+
+            <!-- Reservation Fee -->
+            <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+
+            <!-- Net Downpayment -->
+            <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+
+            <!-- Spread Downpayment -->
+            <div class="form-group">
+              <label for="spreadDownpayment">Spread Downpayment</label>
+              <select v-model="spreadDownpaymentPercentage" id="spreadDownpayment" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+
+            <!-- Payable in Months -->
+            <div class="form-group">
+              <label for="months">Months to Pay</label>
+              <select v-model="payableMonths" id="months" @change="updatePaymentDetails">
+                <option value="40">40 months</option>
+                <option value="47">47 months</option>
+                <option value="48">48 months</option>
+                <option value="50">50 months</option>
+              </select>
+            </div>
+            <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+
+            <!-- Balance Upon Turnover -->
+            <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
           </div>
+
 
           <div class="button-container">
             <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
@@ -142,7 +213,6 @@
           </div>
         </div>
       </div>
-
       <!-- Reserve Unit Modal -->
       <div v-if="isReserveModalVisible" class="modal-overlay" @click="closeReserveModal">
         <div class="modal-content" @click.stop>
@@ -244,11 +314,13 @@ export default {
       totalAmountPayable: 0,
       reservationFee: 0,
       netFullPayment: 0,
-      downpaymentAmount: 0, // Downpayment for financing plans
-      loanTerm: 10, // Loan term for financing plans
-      interestRate: 7, // Interest rate for financing
-      loanAmount: 0, // Loan amount
-      monthlyAmortization: 0, // Monthly payment for financing
+      spotDownpaymentPercentage: 0,
+      spotDownpayment: 0,
+      spreadDownpaymentPercentage: 0,
+      spreadDownpayment: 0,
+      payableMonths: 40,
+      payablePerMonth: 0,
+      balanceUponTurnover: 0,
     };
   },
 
@@ -345,20 +417,26 @@ export default {
         this.applySpotCashDiscount();
         this.applyTLPDiscount();
         this.applyOtherCharges();
-      } else {
-        this.calculateLoanDetails();
+      }
+       else if (this.selectedPaymentPlan === 'in_house_financing') {
+        this.applySpotCashDiscount();
+        this.applyTLPDiscount();
+        this.applyOtherCharges();
+        this.calculateVAT();
+        this.calculateFinancingDetails();
       }
     },
 
     applySpotCashDiscount() {
-      const discountPercentage = parseInt(this.spotCashDiscount);
+      const discountPercentage = parseFloat(this.spotCashDiscount);
       this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
       this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
       this.updateNetUnitPrice();
     },
+    
 
     applyTLPDiscount() {
-      const discountPercentage = parseInt(this.tlpDiscount);
+      const discountPercentage = parseFloat(this.tlpDiscount);
       this.tlpDiscountAmount = (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
       this.updateNetUnitPrice();
     },
@@ -369,34 +447,35 @@ export default {
     },
 
     applyOtherCharges() {
-      const otherChargesPercentage = parseInt(this.otherChargesPercentage);
-      this.otherCharges = (this.unitPrice * otherChargesPercentage) / 100;
+      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
+      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
       this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.reservationFee = this.unitPrice * 0.1; // 10% reservation fee
+      this.reservationFee = "30000" // 10% reservation fee
       this.netFullPayment = this.totalAmountPayable - this.reservationFee;
     },
-
-    calculateLoanDetails() {
-      // Calculate the loan amount (Price minus the fixed downpayment)
-      this.loanAmount = this.unitPrice - this.downpaymentAmount;
-
-      // Calculate the monthly amortization using the loan amount, interest rate, and loan term
-      const interestRatePerMonth = this.interestRate / 100 / 12;
-      const numberOfMonths = this.loanTerm * 12;
-      const factor = (interestRatePerMonth * Math.pow(1 + interestRatePerMonth, numberOfMonths)) / (Math.pow(1 + interestRatePerMonth, numberOfMonths) - 1);
-
-      this.monthlyAmortization = this.loanAmount * factor;
-
-      // Create an object to store and display the details
-      this.paymentDetails = {
-        discount: this.discount,
-        loanAmount: this.loanAmount,
-        monthlyAmortization: this.monthlyAmortization.toFixed(2),
-      };
+    calculateVAT() {
+      if (this.unitPrice > 3600000) {
+        this.vatAmount = this.netUnitPrice * 0.12;
+        this.totalAmountPayable += this.vatAmount;
+      }
     },
 
-    
+    calculateFinancingDetails() {
+      this.spotDownpayment = this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+      this.spreadDownpayment = this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+      if (this.spotDownpaymentPercentage == '0') {
+        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
+        this.payablePerMonth = this.netDownpayment / this.payableMonths;
+      }
+      else {
+        this.netDownpayment = this.spotDownpayment - this.reservationFee;
+        this.payablePerMonth = this.spreadDownpayment / this.payableMonths; 
+      }
+      this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
+      console.log(this.balanceUponTurnover, this.spotDownpaymentPercentage, this.spreadDownpaymentPercentage);
+    },
 
+       
     async submitReservation() {
       // Check if all required fields are filled, including the file
       if (!this.reservationForm.customerName || !this.reservationForm.paymentAmount || 
