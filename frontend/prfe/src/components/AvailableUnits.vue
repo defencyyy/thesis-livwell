@@ -99,8 +99,7 @@
               </select>
             </div>
             <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-            <p v-if="unitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-
+            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
             <!-- Total Amount Payable -->
             <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
 
@@ -110,6 +109,7 @@
             <!-- Net Full Payment -->
             <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
           </div>
+
           <!-- In-House Financing Plan -->
           <div v-if="selectedPaymentPlan === 'in_house_financing'">
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
@@ -156,7 +156,7 @@
             <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
 
             <!-- VAT Calculation -->
-            <p v-if="unitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
 
             <!-- Total Amount Payable -->
             <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
@@ -418,6 +418,8 @@ export default {
         this.applySpotCashDiscount();
         this.applyTLPDiscount();
         this.applyOtherCharges();
+        this.calculateVAT();
+
       }
        else if (this.selectedPaymentPlan === 'in_house_financing') {
         this.applySpotCashDiscount();
@@ -455,7 +457,7 @@ export default {
       this.netFullPayment = this.totalAmountPayable - this.reservationFee;
     },
     calculateVAT() {
-      if (this.unitPrice > 3600000) {
+      if (this.netUnitPrice > 3600000) {
         this.vatAmount = this.netUnitPrice * 0.12;
         this.totalAmountPayable += this.vatAmount;
       }
