@@ -45,6 +45,44 @@
           <p>View: {{ selectedUnit.view }} </p>
           <hr>
 
+          <!-- Payment Plan Section -->
+          <div class="form-group">
+            <label for="paymentPlan">Payment Plan</label>
+            <select v-model="selectedPaymentPlan" id="paymentPlan" required>
+              <option value="spot_cash">Spot Cash</option>
+              <option value="bank_financing">Bank Financing</option>
+              <option value="in_house_financing">In-House Financing</option>
+            </select>
+          </div>
+
+          <!-- Downpayment and Financing Inputs -->
+          <div v-if="selectedPaymentPlan === 'bank_financing' || selectedPaymentPlan === 'in_house_financing'">
+            <div class="form-group">
+              <label for="downpayment">Downpayment (Amount):</label>
+              <input type="number" v-model="downpaymentAmount" id="downpayment" @input="updatePaymentDetails" />
+            </div>
+
+            <div class="form-group">
+              <label for="loanTerm">Loan Term (Years):</label>
+              <input type="number" v-model="loanTerm" id="loanTerm" @input="updatePaymentDetails" />
+            </div>
+
+            <div class="form-group">
+              <label for="interestRate">Interest Rate (%):</label>
+              <input type="number" v-model="interestRate" id="interestRate" @input="updatePaymentDetails" />
+            </div>
+          </div>
+
+          <!-- Display Payment Plan Details -->
+          <div v-if="paymentDetails">
+            <h4>Payment Plan Details</h4>
+            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
+            <p><strong>Discounts Applied:</strong> ₱{{ discount }}</p>
+            <p><strong>Downpayment:</strong> ₱{{ downpaymentAmount }}</p>
+            <p><strong>Loan Amount:</strong> ₱{{ loanAmount }}</p>
+            <p><strong>Monthly Amortization:</strong> ₱{{ monthlyAmortization }}</p>
+          </div>
+
           <div class="button-container">
             <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
             <button class="schedule-btn" @click="scheduleVisit">Schedule Visit</button>
@@ -137,6 +175,17 @@ export default {
       customers: [],
       successMessage: '',  // Success message
       errorMessage: '',    // Error message
+
+      // Payment Scheme Data
+      selectedPaymentPlan: 'spot_cash', // Default payment plan
+      unitPrice: 1000, // Example price of the unit
+      discount: 0, // Discount on the unit
+      downpaymentAmount: 0, // Downpayment Amount (fixed value)
+      loanTerm: 10, // Loan Term in years
+      interestRate: 7, // Interest rate for bank or in-house financing
+      loanAmount: 0, // Calculated loan amount after downpayment
+      monthlyAmortization: 0, // Monthly amortization
+      paymentDetails: null, // Stores the final computed payment details
     };
   },
 
@@ -144,6 +193,9 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
+
+    // Call updatePaymentDetails to show the default payment details
+    this.updatePaymentDetails();
   },
 
   methods: {
@@ -191,7 +243,11 @@ export default {
 
     showUnitDetails(unit) {
       this.selectedUnit = unit;
+      this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
+
+      // Recalculate payment details when the unit is selected
+      this.updatePaymentDetails();
     },
 
     closeModal() {
@@ -219,6 +275,43 @@ export default {
       if (file) {
         this.reservationForm.file = file;
       }
+    },
+
+    updatePaymentDetails() {
+      if (this.selectedPaymentPlan === "spot_cash") {
+        this.applySpotCashDiscount();
+      } else {
+        this.calculateLoanDetails();
+      }
+    },
+
+    calculateLoanDetails() {
+      // Calculate the loan amount (Price minus the fixed downpayment)
+      this.loanAmount = this.unitPrice - this.downpaymentAmount;
+
+      // Calculate the monthly amortization using the loan amount, interest rate, and loan term
+      const interestRatePerMonth = this.interestRate / 100 / 12;
+      const numberOfMonths = this.loanTerm * 12;
+      const factor = (interestRatePerMonth * Math.pow(1 + interestRatePerMonth, numberOfMonths)) / (Math.pow(1 + interestRatePerMonth, numberOfMonths) - 1);
+
+      this.monthlyAmortization = this.loanAmount * factor;
+
+      // Create an object to store and display the details
+      this.paymentDetails = {
+        discount: this.discount,
+        loanAmount: this.loanAmount,
+        monthlyAmortization: this.monthlyAmortization.toFixed(2),
+      };
+    },
+
+    applySpotCashDiscount() {
+      // Example: Spot Cash gets a 10% discount
+      this.discount = this.unitPrice * 0.1;
+      this.paymentDetails = {
+        discount: this.discount,
+        loanAmount: 0,
+        monthlyAmortization: 0,
+      };
     },
 
     async submitReservation() {
@@ -280,6 +373,8 @@ export default {
   }
 };
 </script>
+
+
 <style scoped>
   .popup-overlay {
   position: fixed;
