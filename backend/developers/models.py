@@ -2,6 +2,7 @@ from django.db import models
 from companies.models import Company
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.validators import RegexValidator
+from django.contrib.auth.hashers import make_password
 
 class DeveloperManager(BaseUserManager):
     """
@@ -72,6 +73,28 @@ class Developer(AbstractBaseUser, PermissionsMixin):
 
     # Custom Manager
     objects = DeveloperManager()
+
+    def save(self, *args, **kwargs):
+        """
+        Ensure the password is hashed before saving.
+        """
+        if self.password and not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password) 
+        super().save(*args, **kwargs)
+
+    def set_password(self, raw_password):
+        """
+        Hash and set the password.
+        """
+        self.password = make_password(raw_password)
+        self.save()
+
+    def check_password(self, raw_password):
+        """
+        Verify if the raw password matches the hashed password.
+        """
+        from django.contrib.auth.hashers import check_password
+        return check_password(raw_password, self.password)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

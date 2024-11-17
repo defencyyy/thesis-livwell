@@ -4,7 +4,6 @@
   </header>
   <div class="accounts-page">
     <SideNav />
-    <div>h1lw</div>
     <div class="content row justify-content-center">
       <div class="col-md-6 col-lg-4">
         <div class="card mt-5">
@@ -53,13 +52,20 @@
                   id="password"
                 />
               </div>
-              <button type="submit" class="btn btn-primary btn-block">
-                Update Account
+
+              <button
+                type="submit"
+                class="btn btn-primary btn-block"
+                :disabled="loading"
+              >
+                {{ loading ? "Updating..." : "Update Account" }}
               </button>
             </form>
 
             <p v-if="error" class="text-danger">{{ error }}</p>
-            <p v-if="successMessage">{{ successMessage }}</p>
+            <p v-if="successMessage" class="text-success">
+              {{ successMessage }}
+            </p>
           </div>
         </div>
       </div>
@@ -68,6 +74,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import SideNav from "@/components/SideNav.vue";
 import HeaderLivwell from "@/components/HeaderLivwell.vue";
 
@@ -85,9 +92,12 @@ export default {
       password: "",
       error: null,
       successMessage: null,
+      loading: false, // For showing loading state
     };
   },
-
+  computed: {
+    ...mapGetters(["getUserId", "getAuthToken"]),
+  },
   methods: {
     async updateAccount() {
       // Validate password on client-side
@@ -119,48 +129,60 @@ export default {
         }
       }
 
-      const brokerId = localStorage.getItem("broker_id");
-      if (brokerId) {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/broker/manage-account/${brokerId}/`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-              },
-              body: JSON.stringify({
-                username: this.username || undefined,
-                email: this.email || undefined,
-                contact_number: this.contactNumber || undefined,
-                password: this.password || undefined,
-              }),
-            }
-          );
+      const brokerId = this.getUserId; // Fetch brokerId from Vuex
+      const authToken = this.getAuthToken; // Fetch authToken from Vuex
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            this.error = errorData.message || "Failed to update account.";
-            this.successMessage = null;
-            return;
+      if (!brokerId || !authToken) {
+        this.error =
+          "No broker ID or authentication token found. Please log in again.";
+        return;
+      }
+
+      this.loading = true; // Set loading state
+
+      try {
+        const response = await fetch(
+          `http://localhost:8000/broker/manage-account/${brokerId}/`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              username: this.username || undefined,
+              email: this.email || undefined,
+              contact_number: this.contactNumber || undefined,
+              password: this.password || undefined,
+            }),
           }
+        );
 
+        if (!response.ok) {
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to update account.";
+          this.successMessage = null;
+        } else {
           const data = await response.json();
           if (data.success) {
             this.successMessage = "Account updated successfully!";
             this.error = null;
+            // Reset form fields
+            this.username = "";
+            this.email = "";
+            this.contactNumber = "";
+            this.password = "";
           } else {
             this.error = data.message || "Failed to update account.";
             this.successMessage = null;
           }
-        } catch (error) {
-          console.error("Error updating account:", error);
-          this.error = "An error occurred while updating your account.";
-          this.successMessage = null;
         }
-      } else {
-        this.error = "No broker ID found in localStorage.";
+      } catch (error) {
+        console.error("Error updating account:", error);
+        this.error = "An error occurred while updating your account.";
+        this.successMessage = null;
+      } finally {
+        this.loading = false; // Reset loading state
       }
     },
   },
@@ -184,5 +206,10 @@ export default {
   transition: width 0.5s;
   background-color: gray;
   height: 96%;
+}
+
+button:disabled {
+  background-color: #c0c0c0;
+  cursor: not-allowed;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <header>
-    <HeaderLivwell/>
+    <HeaderLivwell />
   </header>
   <div class="manage-sales-page">
     <SideNav />
@@ -10,6 +10,8 @@
 
       <!-- Add Sale Button -->
       <button @click="openModal">Add Sale</button>
+
+      <div v-if="loading" class="loading-spinner">Loading...</div>
 
       <!-- Sales Table -->
       <table v-if="sales.length > 0" class="sales-table">
@@ -38,20 +40,34 @@
 
           <!-- Form to collect sales data -->
           <form @submit.prevent="submitSale">
-           <!-- Customer Dropdown -->
-          <label for="customer">Customer:</label>
-          <select v-model="selectedCustomer" id="customer" required v-if="customers.length > 0">
-            <option value="" disabled>Select a customer</option>
-            <option v-for="customer in customers" :key="customer.id" :value="customer.id">
-              {{ customer.name }}
-            </option>
-          </select>
-          <!-- Fallback message if no customers -->
-          <p v-else>No customers available</p>
+            <!-- Customer Dropdown -->
+            <label for="customer">Customer:</label>
+            <select
+              v-model="selectedCustomer"
+              id="customer"
+              required
+              v-if="customers.length > 0"
+            >
+              <option value="" disabled>Select a customer</option>
+              <option
+                v-for="customer in customers"
+                :key="customer.id"
+                :value="customer.id"
+              >
+                {{ customer.name }}
+              </option>
+            </select>
+            <!-- Fallback message if no customers -->
+            <p v-else>No customers available</p>
 
             <!-- Site Dropdown -->
             <label for="site">Site:</label>
-            <select v-model="selectedSite" id="site" required @change="fetchUnits">
+            <select
+              v-model="selectedSite"
+              id="site"
+              required
+              @change="fetchUnits"
+            >
               <option value="" disabled>Select a site</option>
               <option v-for="site in sites" :key="site.id" :value="site.id">
                 {{ site.name }}
@@ -62,7 +78,11 @@
             <label for="unit">Unit:</label>
             <select v-model="selectedUnit" id="unit" required>
               <option value="" disabled>Select a unit</option>
-              <option v-for="unit in availableUnits" :key="unit.id" :value="unit.id">
+              <option
+                v-for="unit in availableUnits"
+                :key="unit.id"
+                :value="unit.id"
+              >
                 {{ unit.unit_title }}
               </option>
             </select>
@@ -77,35 +97,42 @@
     </div>
   </div>
 </template>
+
 <script>
 import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ManageSales",
   components: {
-    SideNav, HeaderLivwell
+    SideNav,
+    HeaderLivwell,
   },
   data() {
     return {
-      modalOpen: false,  // To toggle modal visibility
-      sites: [],         // List of available sites
-      availableUnits: [], // List of units available for the selected site
-      customers: [],      // List of customers for the broker
-      selectedSite: "",    // Selected site ID
-      selectedUnit: "",    // Selected unit ID
-      selectedCustomer: "", // Selected customer ID
-      brokerId: "",       // Broker ID (will be retrieved from local storage)
-      companyId: "",      // Company ID fetched from broker data
-      error: null,        // Error message placeholder
-      sales: [],          // List of sales data
+      modalOpen: false,
+      sites: [],
+      availableUnits: [],
+      customers: [],
+      selectedSite: "",
+      selectedUnit: "",
+      selectedCustomer: "",
+      companyId: "",
+      error: null,
+      sales: [],
+      loading: false,
     };
   },
+  computed: {
+    ...mapGetters(["getUserId"]), // Use Vuex getter to access userId (broker ID)
+  },
   mounted() {
-    // Call fetchSales immediately after the component is mounted
-    this.fetchData(); // Fetch all necessary data when the page loads
+    this.fetchData();
   },
   methods: {
+    ...mapActions(["fetchUserId"]), // Map Vuex actions (if necessary)
+
     openModal() {
       this.modalOpen = true;
     },
@@ -113,14 +140,13 @@ export default {
       this.modalOpen = false;
     },
 
-    // Fetch sales data from the backend
     async fetchSales() {
       try {
         const response = await fetch("http://localhost:8000/sales/");
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            this.sales = data.sales;  // This should now have customer name, site name, and unit title
+            this.sales = data.sales;
           } else {
             this.error = data.message || "Failed to fetch sales data.";
           }
@@ -129,22 +155,22 @@ export default {
         }
       } catch (error) {
         this.error = "An error occurred while fetching sales data.";
+      } finally {
+        this.loading = false;
       }
     },
 
-    // Fetch all data needed for the modal (sites, broker data, etc.)
     async fetchData() {
       await Promise.all([this.fetchSites(), this.getBrokerData()]);
-      this.fetchSales();  // Fetch sales data after loading sites and broker data
+      this.fetchSales();
     },
 
-    // Fetch sites that have available units
     async fetchSites() {
       try {
         const response = await fetch(`http://localhost:8000/sites/`);
         if (response.ok) {
           const data = await response.json();
-          this.sites = data.sites.filter(site => site.units.length > 0);
+          this.sites = data.sites.filter((site) => site.units.length > 0);
         } else {
           this.error = "Failed to fetch sites.";
         }
@@ -153,12 +179,13 @@ export default {
       }
     },
 
-    // Fetch available units for the selected site
     async fetchUnits() {
       if (!this.selectedSite) return;
-      
+
       try {
-        const response = await fetch(`http://localhost:8000/units/site/${this.selectedSite}`);
+        const response = await fetch(
+          `http://localhost:8000/units/site/${this.selectedSite}`
+        );
         if (response.ok) {
           const data = await response.json();
           this.availableUnits = data.units;
@@ -170,15 +197,17 @@ export default {
       }
     },
 
-    // Fetch broker data, including company_id
     async getBrokerData() {
-      this.brokerId = localStorage.getItem("broker_id");
+      const brokerId = this.getUserId; // Fetch brokerId from Vuex
+
       try {
-        const response = await fetch(`http://localhost:8000/brokers/${this.brokerId}/`);
+        const response = await fetch(
+          `http://localhost:8000/brokers/${brokerId}/`
+        );
         if (response.ok) {
           const brokerData = await response.json();
           this.companyId = brokerData.company_id;
-          this.fetchCustomers();  // Fetch customers after getting broker data
+          this.fetchCustomers();
         } else {
           this.error = "Failed to fetch broker data.";
         }
@@ -187,40 +216,46 @@ export default {
       }
     },
 
-    // Fetch customers for the logged-in broker
     async fetchCustomers() {
-  const brokerId = localStorage.getItem("broker_id");
-  
-  if (!brokerId) {
-    this.error = "Broker ID not found. Please log in again.";
-    return;
-  }
+      const brokerId = this.getUserId;
+      const authToken = this.$store.getters.getAuthToken;
 
-  try {
-    const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success) {
-        this.customers = data.customers; // This will exclude sales data
-      } else {
-        this.error = data.message || "Failed to fetch customer data.";
+      if (!brokerId) {
+        this.error = "Broker ID not found. Please log in again.";
+        return;
       }
-    } else {
-      const errorData = await response.json();
-      this.error = errorData.message || "Failed to fetch customer data.";
-    }
-  } catch (error) {
-    this.error = "An error occurred while fetching customer data.";
-  }
-},
 
-    // Submit sale to the backend
+      try {
+        const response = await fetch(
+          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.customers = data.customers;
+          } else {
+            this.error = data.message || "Failed to fetch customer data.";
+          }
+        } else {
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to fetch customer data.";
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching customer data.";
+      }
+    },
+
     async submitSale() {
       const saleData = {
         site: this.selectedSite,
         unit: this.selectedUnit,
         customer: this.selectedCustomer,
-        broker: this.brokerId,
+        broker: this.getUserId, // Using Vuex's brokerId
         company: this.companyId,
       };
 
@@ -235,8 +270,8 @@ export default {
 
         if (response.ok) {
           const data = await response.json();
-          alert(data.message);  // Show success message
-          this.closeModal();  // Close modal after successful submission
+          alert(data.message);
+          this.closeModal();
         } else {
           const errorData = await response.json();
           alert(errorData.message || "Error occurred during sale submission.");

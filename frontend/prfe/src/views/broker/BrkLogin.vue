@@ -123,51 +123,55 @@ export default {
       this.error = null;
       this.loading = true;
 
-      if (!this.username || !this.password) {
-        this.error = "Please enter both username and password.";
-        this.loading = false;
-        return;
-      }
+      if (this.username && this.password) {
+        try {
+          const response = await fetch(
+            "http://localhost:8000/broker/login/", // Replace with the correct endpoint
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: this.username,
+                password: this.password,
+              }),
+            }
+          );
 
-      try {
-        const response = await fetch("http://localhost:8000/broker/login/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: this.username,
-            password: this.password,
-          }),
-        });
+          const data = await response.json();
 
-        const data = await response.json();
+          if (response.ok && data.tokens) {
+            // Store JWT tokens in localStorage
+            localStorage.setItem("accessToken", data.tokens.access);
+            localStorage.setItem("refreshToken", data.tokens.refresh);
 
-        if (response.ok) {
-          // Vuex action for centralized state management
-          this.$store.dispatch("login", {
-            user: {
+            // Assuming the response contains user details
+            const user = {
               id: data.user.id,
               user_role: data.user.user_role,
-            },
-            token: data.tokens.access,
-          });
+              company_id: data.user.company_id,
+            };
 
-          // Store tokens and other details locally if needed
-          localStorage.setItem("authToken", data.tokens.access);
-          localStorage.setItem("refreshToken", data.tokens.refresh);
-          localStorage.setItem("user_id", data.user.id);
-          localStorage.setItem("user_role", data.user.user_role);
-          localStorage.setItem("logged_in", "true");
+            // Dispatch login action to Vuex store
+            this.$store.dispatch("login", {
+              user: user,
+              token: data.tokens.access, // You can also store this in the store
+            });
 
-          // Redirect to broker dashboard
-          this.$router.push("/broker/dashboard");
-        } else {
-          this.error = data.message || "Login failed. Please try again.";
+            // Redirect to the broker dashboard (adjust as needed)
+            this.$router.push("/broker/dashboard");
+          } else {
+            this.error = data.message || "Login failed. Please try again.";
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+          this.error = "An error occurred during login.";
+        } finally {
+          this.loading = false;
         }
-      } catch (err) {
-        console.error("Login error:", err);
-        this.error =
-          "An error occurred while trying to log in. Please try again.";
-      } finally {
+      } else {
+        this.error = "Please fill in both fields.";
         this.loading = false;
       }
     },

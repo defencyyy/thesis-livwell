@@ -1,6 +1,6 @@
 <template>
   <header>
-    <HeaderLivwell/>
+    <HeaderLivwell />
   </header>
   <div class="affiliated-units-page">
     <SideNav />
@@ -8,11 +8,11 @@
       <h1>Welcome to Affiliated Units</h1>
       <div v-if="sites.length" class="site-sales">
         <div class="site-card-container">
-          <div 
-            v-for="site in sites" 
-            :key="site.id" 
-            class="site-card" 
-            @click="() => redirectToUnits(site.id)"  
+          <div
+            v-for="site in sites"
+            :key="site.id"
+            class="site-card"
+            @click="() => redirectToUnits(site.id)"
           >
             <img :src="site.picture" alt="Site Picture" />
             <h2>{{ site.name }}</h2>
@@ -31,26 +31,28 @@
 <script>
 import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
-import axios from 'axios'; // Ensure you have axios installed
-import { useRouter } from 'vue-router'; // Import useRouter
+import axios from "axios"; // Ensure you have axios installed
+import { useRouter } from "vue-router"; // Import useRouter
 
 export default {
   name: "AffiliatedUnits",
   components: {
-    SideNav, HeaderLivwell // Registering the SideNav component
+    SideNav,
+    HeaderLivwell, // Registering the SideNav component
   },
   setup() {
     const router = useRouter();
 
     const redirectToUnits = (siteId) => {
-      router.push({ name: 'AvailableUnits', params: { siteId } }); 
+      router.push({ name: "AvailableUnits", params: { siteId } });
     };
 
     return { redirectToUnits };
   },
   data() {
     return {
-      sites: [], 
+      sites: [],
+      loading: true,
     };
   },
   mounted() {
@@ -59,10 +61,14 @@ export default {
   methods: {
     async fetchAvailableSites() {
       try {
-        const response = await axios.get('http://localhost:8000/sites/available/');
-        this.sites = response.data.sites; 
+        const response = await axios.get(
+          "http://localhost:8000/sites/available/"
+        );
+        this.sites = response.data.sites;
       } catch (error) {
         console.error("Error fetching available sites:", error);
+      } finally {
+        this.loading = false;
       }
     },
   },

@@ -91,7 +91,7 @@ export default {
       try {
         // Notify backend about logout
         await axios.post(
-          "http://localhost:8000/broker/logout/", // Update URL to match backend endpoint
+          "http://localhost:8000/api/token/brklogout/", // Update URL to match backend endpoint
           {},
           {
             headers: {
