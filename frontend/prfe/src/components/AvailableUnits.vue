@@ -50,8 +50,7 @@
             <label for="paymentPlan">Payment Plan</label>
             <select v-model="selectedPaymentPlan" id="paymentPlan" required>
               <option value="spot_cash">Spot Cash</option>
-              <option value="bank_financing">Bank Financing</option>
-              <option value="in_house_financing">In-House Financing</option>
+              <option value="in_house_financing">Deffered Payment</option>
             </select>
           </div>
 
@@ -192,12 +191,12 @@
             </div>
             <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
 
-          <!-- Payable in Months -->
-<div class="form-group">
-  <label for="months">Months to Pay</label>
-  <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1" />
-</div>
-<p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+            <!-- Payable in Months -->
+            <div class="form-group">
+              <label for="months">Months to Pay</label>
+              <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1" />
+            </div>
+            <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
 
 
             <!-- Balance Upon Turnover -->
