@@ -22,7 +22,7 @@
             v-for="sale in sales"
             :key="sale.id"
             @click="openSalesAgreementModal(sale)"
-            style="cursor: pointer;"
+            style="cursor: pointer"
           >
             <td>{{ sale.customer_name }}</td>
             <td>{{ sale.site_name }}</td>
@@ -46,7 +46,11 @@
           <form @submit.prevent="submitSalesAgreement">
             <div>
               <label for="payment-plan">Payment Plan</label>
-              <select id="payment-plan" v-model="salesAgreement.payment_plan" required>
+              <select
+                id="payment-plan"
+                v-model="salesAgreement.payment_plan"
+                required
+              >
                 <option value="spot_cash">Spot Cash</option>
                 <option value="bank_financing">Bank Financing</option>
                 <option value="in_house_financing">In-House Financing</option>
@@ -86,7 +90,6 @@
 
             <button type="submit">Save Sales Agreement</button>
             <button type="button" @click="closeModal">Cancel</button>
-
           </form>
         </div>
       </div>
@@ -115,6 +118,7 @@ export default {
         down_payment: "",
         installment_term: "",
         special_terms: "",
+      },
       modalOpen: false,
       error: null,
       loading: false,
@@ -123,17 +127,11 @@ export default {
   computed: {
     ...mapGetters(["getUserId"]), // Use Vuex getter to access userId (broker ID)
   },
-  mounted() {
-    this.fetchData();
-  },
   methods: {
     ...mapActions(["fetchUserId"]), // Map Vuex actions (if necessary)
 
     openModal() {
       this.modalOpen = true;
-    },
-    closeModal() {
-      this.modalOpen = false;
     },
     async fetchSales() {
       try {
@@ -142,7 +140,6 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.sales = data.sales;
-
           } else {
             console.error(data.message || "Failed to fetch sales data.");
           }
@@ -175,7 +172,6 @@ export default {
       // Placeholder for handling form submission
       console.log("Sales Agreement Data:", this.salesAgreement);
       this.closeModal();
-
     },
   },
   mounted() {
