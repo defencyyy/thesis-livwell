@@ -61,16 +61,16 @@ export default {
     setMenuItems() {
       if (this.userRole === "developer") {
         this.menuItems = [
-          { name: "Dashboard", link: "/developer/dashboard" },
-          { name: "Company", link: "/developer/company" },
-          { name: "Brokers", link: "/developer/brokers" },
+          { name: "Dashboard", link: "/developer/dashboard", icon: "fa-solid fa-chart-line" },
+          { name: "Company", link: "/developer/company", icon: "fa-solid fa-building" },
+          { name: "Brokers", link: "/developer/brokers", icon: "fa-solid fa-user-tie" },
           {
             name: "Sites",
-            link: "/developer/sites",
-            children: [{ name: "Units", link: "/developer/units" }],
+            link: "/developer/sites", icon: "fa-solid fa-map-marker-alt",
+            // children: [{ name: "Units", link: "/developer/units" }],
           },
-          { name: "Payment Schedules", link: "/developer/payment-schedule" },
-          { name: "Account", link: "/developer/account" },
+          { name: "Payment Schedules", link: "/developer/payment-schedule", icon: "fa-solid fa-calendar-check"},
+          // { name: "Account", link: "/developer/account", icon: "fa-solid fa-chart-line" },
         ];
       } else if (this.userRole === "broker") {
         this.menuItems = [
@@ -118,6 +118,7 @@ export default {
   position: fixed; /* Fix sidebar to the left */
   transition: width 0.3s;
 }
+
 
 .sidebar-header {
   display: flex;

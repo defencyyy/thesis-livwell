@@ -4,7 +4,32 @@
     <div class="main-content">
       <AppHeader />
       <div class="container mt-5">
-        <!-- Display Company Details -->
+        <!-- Company Details Section -->
+        <div class="title-wrapper">
+          <div class="title-icon"></div>
+          <div class="edit-title">Company Details</div>
+        </div>
+        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px">
+          <div class="card-body">
+            <div class="row">
+              <!-- Company Information -->
+              <div class="col-md-8">
+                <p class="mb-2"><strong>Company Name:</strong> {{ company.name || "N/A" }}</p>
+                <p><strong>Company Description:</strong> {{ company.description || "N/A" }}</p>
+              </div>
+              <!-- Company Logo -->
+              <div class="col-md-4 text-center">
+                <strong>Company Logo:</strong>
+                <div class="mt-2">
+                  <img v-if="company.logo" :src="getLogoUrl(company.logo)" alt="Company Logo"
+                    class="img-fluid rounded shadow-sm" style="max-width: 150px; max-height: 150px;" />
+                  <span v-else>No Logo Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Display Company Details
         <div class="title-wrapper">
           <div class="title-icon"></div>
           <div class="edit-title">Company Details</div>
@@ -17,39 +42,24 @@
           </p>
           <div>
             <strong>Company Logo:</strong>
-            <img
-              v-if="company.logo"
-              :src="getLogoUrl(company.logo)"
-              alt="Company Logo"
-              width="100"
-            />
+            <img v-if="company.logo" :src="getLogoUrl(company.logo)" alt="Company Logo" width="100" />
             <span v-else>No Logo Available</span>
           </div>
-        </div>
+        </div> -->
         <!-- Edit Company Details -->
         <div class="title-wrapper">
           <div class="title-icon"></div>
           <div class="edit-title">Edit Company Details</div>
         </div>
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 900px"
-        >
+        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px">
           <div class="card-body">
             <div class="row">
-              <!-- Left Section -->
-              <div class="col-md-6">
+              <!-- Right Section: Description -->
+              <div class="col-md-6 order-md-2">
                 <div class="mb-3">
-                  <label for="description" class="form-label"
-                    >Description</label
-                  >
-                  <textarea
-                    class="form-control"
-                    id="description"
-                    v-model="company.description"
-                    rows="6"
-                    placeholder="Enter company description"
-                  ></textarea>
+                  <label for="description" class="form-label">Description</label>
+                  <textarea class="form-control" id="description" v-model="company.description" rows="6"
+                    placeholder="Enter company description"></textarea>
                 </div>
                 <div class="d-flex justify-content-end">
                   <button @click="updateCompany" class="btn btn-primary">
@@ -57,34 +67,27 @@
                   </button>
                 </div>
               </div>
-              <!-- Right Section -->
-              <div class="col-md-6 d-flex flex-column align-items-center">
+
+              <!-- Left Section: Upload Photo -->
+              <div class="col-md-6 order-md-1 d-flex flex-column align-items-center">
                 <div class="mb-3">
                   <label for="logo" class="form-label">Upload Logo</label>
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="logo"
-                    accept="image/*"
-                    @change="onFileChange"
-                  />
+                  <input type="file" class="form-control" id="logo" accept="image/*" @change="onFileChange" />
                 </div>
                 <div class="mb-3">
                   <strong>Preview:</strong>
-                  <img
-                    v-if="previewLogo"
-                    :src="previewLogo"
-                    alt="Logo Preview"
-                    width="100"
-                  />
+                  <img v-if="previewLogo" :src="previewLogo" alt="Logo Preview" width="100" />
                   <p v-else>No logo selected</p>
                 </div>
               </div>
             </div>
+
+
+
           </div>
         </div>
         <!-- Debug Information -->
-        <h3>Debugging Information</h3>
+        <!-- <h3>Debugging Information</h3>
         <div class="debug-info">
           <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
           <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
@@ -94,7 +97,7 @@
             {{ localStorageCompanyId }}
           </p>
           <p><strong>User Role:</strong> {{ userType }}</p>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -229,7 +232,8 @@ export default {
 }
 
 .SideNav {
-  width: 250px; /* Set fixed width for the sidebar */
+  width: 250px;
+  /* Set fixed width for the sidebar */
   position: fixed;
   top: 0;
   left: 0;
@@ -240,7 +244,8 @@ export default {
 
 .AppHeader {
   width: 100%;
-  height: 60px; /* Adjust height as needed */
+  height: 60px;
+  /* Adjust height as needed */
   background-color: #343a40;
   display: flex;
   align-items: center;
@@ -249,16 +254,19 @@ export default {
 
 .main-content {
   display: flex;
-  margin-left: 250px; /* Set margin equal to sidebar width */
   flex-direction: column;
-  /* Stack header and content vertically */
+  margin-top: 30px;
+  /* Offset for header height */
   flex: 1;
+  margin-left: 250px;
+  /* Set margin equal to sidebar width */
 }
 
 .card {
   border-radius: 16px;
   background-color: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
 }
 
 .card-body {
@@ -266,19 +274,22 @@ export default {
 }
 
 .title-wrapper {
-  display: flex; /* Align line and title horizontally */
+  display: flex;
+  /* Align line and title horizontally */
   align-items: center;
   width: 100%;
   max-width: 900px;
+
   /* Ensure the title width matches the card's width */
   margin-left: auto;
   margin-right: auto;
+  margin-top: 20px;
   /* Center the wrapper */
 }
 
 .edit-title {
   color: #000000;
-  margin-bottom: 1rem;
+  margin-bottom: .8rem;
   text-align: left;
   /* Align the text to the left */
   background-color: #fff;
@@ -286,11 +297,16 @@ export default {
 }
 
 .title-icon {
-  width: 15px; /* Short horizontal line */
-  height: 5px; /* Thin line */
-  background-color: #6c757d; /* Line color */
-  border-radius: 5px; /* Rounded corners */
-  margin-right: 10px; /* Space between the icon and the title */
+  width: 15px;
+  /* Short horizontal line */
+  height: 5px;
+  /* Thin line */
+  background-color: #6c757d;
+  /* Line color */
+  border-radius: 5px;
+  /* Rounded corners */
+  margin-right: 10px;
+  /* Space between the icon and the title */
   margin-bottom: 15px;
 }
 
