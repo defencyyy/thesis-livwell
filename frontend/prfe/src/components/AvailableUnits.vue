@@ -120,6 +120,7 @@
               <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails">
                 <option value="0">0%</option>
                 <option value="1">1%</option>
+                <option value="5">5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
               </select>
@@ -191,17 +192,13 @@
             </div>
             <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
 
-            <!-- Payable in Months -->
-            <div class="form-group">
-              <label for="months">Months to Pay</label>
-              <select v-model="payableMonths" id="months" @change="updatePaymentDetails">
-                <option value="40">40 months</option>
-                <option value="47">47 months</option>
-                <option value="48">48 months</option>
-                <option value="50">50 months</option>
-              </select>
-            </div>
-            <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+          <!-- Payable in Months -->
+<div class="form-group">
+  <label for="months">Months to Pay</label>
+  <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1" />
+</div>
+<p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+
 
             <!-- Balance Upon Turnover -->
             <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
