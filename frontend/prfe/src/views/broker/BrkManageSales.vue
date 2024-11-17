@@ -7,12 +7,6 @@
     <div class="content">
       <h1>Welcome to the Manage Sales Page</h1>
       <p>This is where you can manage sales data for brokers and developers.</p>
-
-      <!-- Add Sale Button -->
-      <button @click="openModal">Add Sale</button>
-
-      <div v-if="loading" class="loading-spinner">Loading...</div>
-
       <!-- Sales Table -->
       <table v-if="sales.length > 0" class="sales-table">
         <thead>
@@ -24,7 +18,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sale in sales" :key="sale.id">
+          <tr
+            v-for="sale in sales"
+            :key="sale.id"
+            @click="openSalesAgreementModal(sale)"
+            style="cursor: pointer;"
+          >
             <td>{{ sale.customer_name }}</td>
             <td>{{ sale.site_name }}</td>
             <td>{{ sale.unit_title }}</td>
@@ -33,65 +32,62 @@
         </tbody>
       </table>
 
-      <!-- Modal -->
-      <div v-if="modalOpen" class="modal">
+      <!-- No customers found message -->
+      <p v-if="!sales.length">No sales found.</p>
+
+      <!-- Sales Agreement Modal -->
+      <div v-if="showModal" class="modal">
         <div class="modal-content">
-          <h2>Add Sale</h2>
+          <h2>Sales Agreement</h2>
+          <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
+          <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
+          <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
 
-          <!-- Form to collect sales data -->
-          <form @submit.prevent="submitSale">
-            <!-- Customer Dropdown -->
-            <label for="customer">Customer:</label>
-            <select
-              v-model="selectedCustomer"
-              id="customer"
-              required
-              v-if="customers.length > 0"
-            >
-              <option value="" disabled>Select a customer</option>
-              <option
-                v-for="customer in customers"
-                :key="customer.id"
-                :value="customer.id"
-              >
-                {{ customer.name }}
-              </option>
-            </select>
-            <!-- Fallback message if no customers -->
-            <p v-else>No customers available</p>
+          <form @submit.prevent="submitSalesAgreement">
+            <div>
+              <label for="payment-plan">Payment Plan</label>
+              <select id="payment-plan" v-model="salesAgreement.payment_plan" required>
+                <option value="spot_cash">Spot Cash</option>
+                <option value="bank_financing">Bank Financing</option>
+                <option value="in_house_financing">In-House Financing</option>
+              </select>
+            </div>
 
-            <!-- Site Dropdown -->
-            <label for="site">Site:</label>
-            <select
-              v-model="selectedSite"
-              id="site"
-              required
-              @change="fetchUnits"
-            >
-              <option value="" disabled>Select a site</option>
-              <option v-for="site in sites" :key="site.id" :value="site.id">
-                {{ site.name }}
-              </option>
-            </select>
+            <div>
+              <label for="down-payment">Down Payment Amount</label>
+              <input
+                type="number"
+                id="down-payment"
+                v-model="salesAgreement.down_payment"
+                placeholder="Enter amount"
+                required
+              />
+            </div>
 
-            <!-- Unit Dropdown -->
-            <label for="unit">Unit:</label>
-            <select v-model="selectedUnit" id="unit" required>
-              <option value="" disabled>Select a unit</option>
-              <option
-                v-for="unit in availableUnits"
-                :key="unit.id"
-                :value="unit.id"
-              >
-                {{ unit.unit_title }}
-              </option>
-            </select>
+            <div>
+              <label for="installment-term">Installment Term (months)</label>
+              <input
+                type="number"
+                id="installment-term"
+                v-model="salesAgreement.installment_term"
+                placeholder="Enter term"
+                required
+              />
+            </div>
 
-            <!-- Submit Button -->
-            <button type="submit">Submit</button>
+            <div>
+              <label for="special-terms">Special Terms</label>
+              <textarea
+                id="special-terms"
+                v-model="salesAgreement.special_terms"
+                placeholder="Any special conditions or terms?"
+              ></textarea>
+            </div>
+
+            <button type="submit">Save Sales Agreement</button>
+            <button type="button" @click="closeModal">Cancel</button>
+
           </form>
-
-          <button @click="closeModal">Close</button>
         </div>
       </div>
     </div>
@@ -111,16 +107,16 @@ export default {
   },
   data() {
     return {
+      sales: [], // List of sales data
+      showModal: false,
+      selectedSale: null, // Currently selected sale row
+      salesAgreement: {
+        payment_plan: "",
+        down_payment: "",
+        installment_term: "",
+        special_terms: "",
       modalOpen: false,
-      sites: [],
-      availableUnits: [],
-      customers: [],
-      selectedSite: "",
-      selectedUnit: "",
-      selectedCustomer: "",
-      companyId: "",
       error: null,
-      sales: [],
       loading: false,
     };
   },
@@ -139,7 +135,6 @@ export default {
     closeModal() {
       this.modalOpen = false;
     },
-
     async fetchSales() {
       try {
         const response = await fetch("http://localhost:8000/sales/");
@@ -147,139 +142,44 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.sales = data.sales;
+
           } else {
-            this.error = data.message || "Failed to fetch sales data.";
+            console.error(data.message || "Failed to fetch sales data.");
           }
         } else {
-          this.error = "Failed to fetch sales data.";
+          console.error("Failed to fetch sales data.");
         }
       } catch (error) {
-        this.error = "An error occurred while fetching sales data.";
-      } finally {
-        this.loading = false;
+        console.error("An error occurred while fetching sales data.");
       }
     },
 
-    async fetchData() {
-      await Promise.all([this.fetchSites(), this.getBrokerData()]);
-      this.fetchSales();
+    // Open the sales agreement modal
+    openSalesAgreementModal(sale) {
+      this.selectedSale = sale;
+      this.showModal = true;
     },
 
-    async fetchSites() {
-      try {
-        const response = await fetch(`http://localhost:8000/sites/`);
-        if (response.ok) {
-          const data = await response.json();
-          this.sites = data.sites.filter((site) => site.units.length > 0);
-        } else {
-          this.error = "Failed to fetch sites.";
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching sites.";
-      }
-    },
-
-    async fetchUnits() {
-      if (!this.selectedSite) return;
-
-      try {
-        const response = await fetch(
-          `http://localhost:8000/units/site/${this.selectedSite}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          this.availableUnits = data.units;
-        } else {
-          this.error = "Failed to fetch units.";
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching units.";
-      }
-    },
-
-    async getBrokerData() {
-      const brokerId = this.getUserId; // Fetch brokerId from Vuex
-
-      try {
-        const response = await fetch(
-          `http://localhost:8000/brokers/${brokerId}/`
-        );
-        if (response.ok) {
-          const brokerData = await response.json();
-          this.companyId = brokerData.company_id;
-          this.fetchCustomers();
-        } else {
-          this.error = "Failed to fetch broker data.";
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching broker data.";
-      }
-    },
-
-    async fetchCustomers() {
-      const brokerId = this.getUserId;
-      const authToken = this.$store.getters.getAuthToken;
-
-      if (!brokerId) {
-        this.error = "Broker ID not found. Please log in again.";
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            this.customers = data.customers;
-          } else {
-            this.error = data.message || "Failed to fetch customer data.";
-          }
-        } else {
-          const errorData = await response.json();
-          this.error = errorData.message || "Failed to fetch customer data.";
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching customer data.";
-      }
-    },
-
-    async submitSale() {
-      const saleData = {
-        site: this.selectedSite,
-        unit: this.selectedUnit,
-        customer: this.selectedCustomer,
-        broker: this.getUserId, // Using Vuex's brokerId
-        company: this.companyId,
+    // Close the modal
+    closeModal() {
+      this.showModal = false;
+      this.salesAgreement = {
+        payment_plan: "",
+        down_payment: "",
+        installment_term: "",
+        special_terms: "",
       };
-
-      try {
-        const response = await fetch("http://localhost:8000/sales/create/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(saleData),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          alert(data.message);
-          this.closeModal();
-        } else {
-          const errorData = await response.json();
-          alert(errorData.message || "Error occurred during sale submission.");
-        }
-      } catch (error) {
-        alert("An error occurred while submitting the sale.");
-      }
     },
+    // Submit the sales agreement
+    submitSalesAgreement() {
+      // Placeholder for handling form submission
+      console.log("Sales Agreement Data:", this.salesAgreement);
+      this.closeModal();
+
+    },
+  },
+  mounted() {
+    this.fetchSales(); // Fetch sales data when the page loads
   },
 };
 </script>
@@ -296,7 +196,22 @@ export default {
   text-align: center;
 }
 
-/* Modal styles */
+.sales-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.sales-table th,
+.sales-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.sales-table th {
+  background-color: #f4f4f4;
+}
+
 .modal {
   position: fixed;
   top: 0;
@@ -315,20 +230,5 @@ export default {
   border-radius: 8px;
   width: 400px;
   text-align: left;
-}
-.sales-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-}
-
-.sales-table th,
-.sales-table td {
-  padding: 8px;
-  border: 1px solid #ccc;
-}
-
-.sales-table th {
-  background-color: #f4f4f4;
 }
 </style>
