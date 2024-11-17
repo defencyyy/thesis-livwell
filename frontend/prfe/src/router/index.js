@@ -30,10 +30,15 @@ import BrkMilestones from "@/views/broker/BrkMilestones.vue";
 import BrkAccounts from "@/views/broker/BrkAccounts.vue";
 import BrkManageSales from "@/views/broker/BrkManageSales.vue";
 import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path as necessary
+import BrkTest from "@/views/broker/BrkTest.vue";
+
+//Other Links
+import AboutUs from "@/components/AboutUs.vue";
 
 const routes = [
   { path: "/home", name: "Home", component: Home },
   { path: "/about", name: "About", component: About },
+  { path: "/AboutUs", name: "AboutUs", component: AboutUs },
 
   // Developer Routes
   {
@@ -156,6 +161,12 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
 
+  {
+    path: "/broker/test",
+    name: "BrkTest",
+    component: BrkTest,
+    meta: { requiresAuth: true, role: "broker" },
+  },
   { path: "/", redirect: "/home" },
 ];
 
