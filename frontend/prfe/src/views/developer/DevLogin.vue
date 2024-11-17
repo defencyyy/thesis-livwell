@@ -113,7 +113,7 @@ export default {
       if (this.username && this.password) {
         try {
           const response = await fetch(
-            "http://localhost:8000/api/token/developer/", // Ensure this endpoint is correct for developer login
+            "http://localhost:8000/api/token/developer/",
             {
               method: "POST",
               headers: {

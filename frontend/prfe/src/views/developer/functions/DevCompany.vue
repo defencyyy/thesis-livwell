@@ -46,7 +46,7 @@
                   <textarea
                     class="form-control"
                     id="description"
-                    v-model="company.description"
+                    v-model="tempDescription"
                     rows="6"
                     placeholder="Enter company description"
                   ></textarea>
@@ -83,18 +83,6 @@
             </div>
           </div>
         </div>
-        <!-- Debug Information -->
-        <h3>Debugging Information</h3>
-        <div class="debug-info">
-          <p><strong>Vuex User ID:</strong> {{ vuexUserId }}</p>
-          <p><strong>Vuex Company ID:</strong> {{ vuexCompanyId }}</p>
-          <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
-          <p>
-            <strong>LocalStorage Company ID:</strong>
-            {{ localStorageCompanyId }}
-          </p>
-          <p><strong>User Role:</strong> {{ userType }}</p>
-        </div>
       </div>
     </div>
   </div>
@@ -111,11 +99,13 @@ export default {
   components: { SideNav, AppHeader },
   data() {
     return {
-      company: {}, // Holds company details
-      newLogo: null, // Stores uploaded file
-      previewLogo: null, // Temporary preview of the uploaded logo
+      company: {},
+      tempDescription: "",
+      newLogo: null,
+      previewLogo: null,
     };
   },
+
   computed: {
     ...mapState({
       userId: (state) => state.userId,
@@ -140,7 +130,7 @@ export default {
   },
   methods: {
     async fetchCompany() {
-      const companyId = this.vuexCompanyId; // Now pulling from Vuex
+      const companyId = this.vuexCompanyId;
 
       if (!companyId) {
         alert("Company ID not found. Please log in.");
@@ -160,6 +150,7 @@ export default {
         );
         if (response.status === 200) {
           this.company = response.data;
+          this.tempDescription = response.data.description; // Set tempDescription
         } else {
           alert("Error fetching company details.");
         }
@@ -204,26 +195,29 @@ export default {
     async updateCompany() {
       try {
         const formData = new FormData();
-        formData.append("description", this.company.description);
+
+        if (this.tempDescription !== this.company.description) {
+          formData.append("description", this.tempDescription); // Use tempDescription
+        }
 
         if (this.newLogo) {
           formData.append("logo", this.newLogo); // Include logo if selected
         }
 
-        // Make PUT request to update company details
         const response = await axios.put(
           "http://localhost:8000/developer/company/edit/",
           formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data", // Explicitly set for file uploads
+              "Content-Type": "multipart/form-data",
             },
           }
         );
 
         if (response.status === 200) {
           alert("Company updated successfully!");
+          this.company.description = this.tempDescription; // Update company description after saving
           this.fetchCompany(); // Refresh company data
           this.previewLogo = null; // Clear preview after successful update
         } else {
@@ -236,7 +230,6 @@ export default {
             "Error updating company. Please try again."
         );
       }
-      console.log("Fetched company data:", this.company);
     },
     onFileChange(event) {
       const file = event.target.files[0];

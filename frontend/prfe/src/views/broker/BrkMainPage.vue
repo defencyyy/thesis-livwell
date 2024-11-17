@@ -1,7 +1,5 @@
 <template>
-  <Header>
-    <HeaderLivwell />
-  </Header>
+  <HeaderLivwell />
   <div class="main-page">
     <SideNav />
     <div class="content">
@@ -40,33 +38,93 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+// import AppHeader from "@/components/Header.vue";
 import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import { mapState } from "vuex";
+import axios from "axios";
 
 export default {
   name: "BrkMainPage",
   components: {
     SideNav,
     HeaderLivwell,
+    // AppHeader,
+  },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId || null,
+      userType: (state) => state.userType || null,
+      companyId: (state) => state.companyId || null,
+      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
+    }),
+    localStorageUserId() {
+      return localStorage.getItem("user_id");
+    },
+    localStorageCompanyId() {
+      return localStorage.getItem("company_id");
+    },
+  },
+  mounted() {
+    if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
+      this.redirectToLogin();
+    }
+  },
+  watch: {
+    loggedIn(newVal) {
+      if (!newVal || this.userType !== "broker" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    userType(newVal) {
+      if (newVal !== "broker" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    companyId(newVal) {
+      if (!newVal || this.userType !== "broker") {
+        this.redirectToLogin();
+      }
+    },
   },
   methods: {
-    logout() {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("logged_in");
-      localStorage.removeItem("user_role");
-      localStorage.removeItem("user_id");
-      localStorage.removeItem("company_id");
+    async logout() {
+      try {
+        // Notify backend about logout
+        await axios.post(
+          "http://localhost:8000/broker/logout/", // Update URL to match backend endpoint
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
 
-      this.$router.push({ path: "/home" });
+        // Clear localStorage and Vuex state
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("broker_id");
+        localStorage.removeItem("company_id");
+
+        // Call Vuex mutation to reset user state
+        this.$store.commit("clearUser");
+
+        // Redirect to login page
+        this.redirectToLogin();
+      } catch (error) {
+        console.error("Error during logout:", error);
+        alert("Logout failed. Please try again.");
+      }
+    },
+
+    redirectToLogin() {
+      this.$router.push({ name: "BrkLogin" });
     },
   },
 };
 </script>
 
 <style scoped>
-header {
-  background-color: #42b983;
-}
-
 .main-page {
   display: flex;
   height: 100vh;

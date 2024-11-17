@@ -183,7 +183,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default backend
 ]
 
-
 AUTH_USER_MODEL = 'developers.Developer'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

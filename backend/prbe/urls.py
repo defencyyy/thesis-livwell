@@ -10,10 +10,10 @@ urlpatterns = [
     path('admin/', custom_admin_site.urls),
 
     # Brokers
-    # path('broker/login/', views.login_view_broker, name='broker_login'),
+    path('broker/login/', views.login_view_broker, name='broker_login'),
     path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
-    # path('broker/logout/', views.brk_logout_view, name='broker_logout'),
+    path('api/token/brklogout/', views.brk_logout_view, name='broker_logout'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
     path('sales/total/', views.total_sales_view, name='total_sales'),
@@ -37,11 +37,11 @@ urlpatterns = [
     # path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
-    path('developer/logout/', views.dev_logout_view, name='developer_logout'),
+    path('api/token/devlogout/', views.dev_logout_view, name='developer_logout'),
     
     # API Endpoints
     path('api/token/developer/', views.login_view_developer, name='login_developer'),
-    path('api/token/broker/', views.login_view_broker, name='login_broker'),
+    # path('api/token/broker/', views.login_view_broker, name='login_broker'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('developer/company/', include('companies.urls')),  
     # path('developer/brokers/', include('brokers.urls')),  

@@ -79,7 +79,7 @@ export default {
       try {
         // Notify backend about logout
         await axios.post(
-          "http://localhost:8000/developer/logout/", // Update URL to match Django endpoint
+          "http://localhost:8000/api/token/devlogout/", // Update URL to match Django endpoint
           {},
           {
             headers: {

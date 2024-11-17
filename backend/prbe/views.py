@@ -109,7 +109,6 @@ def get_csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
 
-
 @csrf_exempt
 def refresh_token_view(request):
     refresh_token = request.COOKIES.get('refresh_token')
@@ -137,6 +136,14 @@ def dev_logout_view(request):
         return response
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
+@csrf_exempt
+def brk_logout_view(request):
+    if request.method == 'POST':
+        response = JsonResponse({'success': True})
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
 def validate_password_strength(password):
     if len(password) < 8:

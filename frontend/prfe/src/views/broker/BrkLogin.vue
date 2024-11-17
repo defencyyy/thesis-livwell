@@ -51,17 +51,15 @@
                         >Forgot Password</router-link
                       >
                       <div class="flex-grow-1"></div>
-                      <router-link
-                        class="text-muted"
-                        to="/broker/dashboard"
+                      <router-link class="text-muted" to="/broker/dashboard"
                         >Back to home</router-link
                       >
-                    
                     </div>
 
                     <div class="text-center pt-1 mb-5 pb-1">
                       <button
                         class="btn btn-warning w-100 btn-block fa-lg gradient-custom-2 mb-3"
+                        :disabled="loading"
                         type="submit"
                       >
                         Sign in
@@ -72,18 +70,21 @@
                   </form>
                 </div>
               </div>
-              <div class="col-lg-6 d-flex align-items-center gradient-custom-2 custom-bg-color" style="border-radius: 8px;">
+              <div
+                class="col-lg-6 d-flex align-items-center gradient-custom-2 custom-bg-color"
+                style="border-radius: 8px"
+              >
                 <div class="text-black px-3 py-4 p-md-5 mx-md-4">
                   <div
                     style="
                       width: 250px;
                       height: 200px;
-                     
+
                       background-image: url(https://sid.dmcihomes.com/images/OnlineCRF/DMCI2019.png);
                       background-size: contain; /* Ensures the image scales to fit the div without cropping */
                       background-position: center; /* Centers the image within the div */
-                      background-repeat: no-repeat; 
-                     
+                      background-repeat: no-repeat;
+
                       border-radius: 50%;
                       margin: 0 auto 0px;
                     "
@@ -105,81 +106,78 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+
 export default {
   data() {
     return {
       username: "",
       password: "",
       error: null,
+      loading: false,
     };
   },
   methods: {
+    ...mapActions(["login"]),
     async login() {
-      this.error = null; // Reset error before making the request
-      if (this.username && this.password) {
-        try {
-          // Get the CSRF token from Django's cookies
-          const csrftoken = this.getCookie("csrftoken");
+      this.error = null;
+      this.loading = true;
 
-          const response = await fetch("http://localhost:8000/broker/login/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken, // Include CSRF token in the headers
+      if (!this.username || !this.password) {
+        this.error = "Please enter both username and password.";
+        this.loading = false;
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8000/broker/login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Vuex action for centralized state management
+          this.$store.dispatch("login", {
+            user: {
+              id: data.user.id,
+              user_role: data.user.user_role,
             },
-            body: JSON.stringify({
-              username: this.username,
-              password: this.password,
-            }),
+            token: data.tokens.access,
           });
 
-          const data = await response.json();
-          if (data.success) {
-            // Store the token and logged-in status
-            localStorage.setItem("authToken", data.token);
-            localStorage.setItem("user_role", "broker");
-            localStorage.setItem("logged_in", "true");
-            localStorage.setItem("broker_id", data.user.id); // Store the broker ID
+          // Store tokens and other details locally if needed
+          localStorage.setItem("authToken", data.tokens.access);
+          localStorage.setItem("refreshToken", data.tokens.refresh);
+          localStorage.setItem("user_id", data.user.id);
+          localStorage.setItem("user_role", data.user.user_role);
+          localStorage.setItem("logged_in", "true");
 
-            this.$router.push("/broker/dashboard");
-          } else {
-            // Set the error message if login fails
-            this.error = data.message;
-          }
-        } catch (error) {
-          // Set a generic error message if the fetch fails
-          this.error = "An error occurred during login.";
+          // Redirect to broker dashboard
+          this.$router.push("/broker/dashboard");
+        } else {
+          this.error = data.message || "Login failed. Please try again.";
         }
-      } else {
-        // Handle empty input fields
-        this.error = "Please fill in both fields.";
+      } catch (err) {
+        console.error("Login error:", err);
+        this.error =
+          "An error occurred while trying to log in. Please try again.";
+      } finally {
+        this.loading = false;
       }
-    },
-
-    // Function to get the CSRF token from cookies
-    getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === name + "=") {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
     },
   },
 };
 </script>
 
 <style>
-
-
- /* Add a background image to the body or container */
- .overlay {
+/* Add a background image to the body or container */
+.overlay {
   border-image: linear-gradient(hsla(57, 100%, 74%, 0.6), hsla(0, 0%, 61%, 0.6))
     fill 1;
 }
@@ -196,16 +194,13 @@ export default {
 }
 
 .custom-bg-color {
-  background-color: #D4D6CD !important;
+  background-color: #d4d6cd !important;
 }
 
 /* underline after the welcome back */
 .underline {
-  border-bottom: 1px solid #5e5e5e; 
-  
+  border-bottom: 1px solid #5e5e5e;
 }
-
-
 
 @layer general-styling {
   html {
@@ -223,6 +218,4 @@ export default {
     line-height: 1;
   }
 }
-
-
 </style>
