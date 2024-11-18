@@ -106,6 +106,16 @@
             />
           </div>
 
+          <div class="form-group">
+            <label for="editPassword">Password:</label>
+            <input
+              type="password"
+              v-model="editBroker.password"
+              id="editPassword"
+            />
+            <p class="text-muted">Leave blank to keep the existing password.</p>
+          </div>
+
           <button type="submit">Submit</button>
           <button type="button" @click="editModalVisible = false">
             Cancel
@@ -298,23 +308,27 @@ export default {
     },
 
     async confirmEdit() {
-      // Validate contact number
       if (
         this.editBroker.contact_number &&
         !/^\+?1?\d{9,15}$/.test(this.editBroker.contact_number)
       ) {
         this.contactNumberError =
           "Enter a valid phone number (9 to 15 digits).";
-        return; // Prevent submission if the contact number is invalid
+        return;
       } else {
-        this.contactNumberError = null; // Clear any previous error if the number is valid
+        this.contactNumberError = null;
       }
 
       if (confirm("Are you sure you want to save these changes?")) {
         try {
+          const payload = { ...this.editBroker };
+          if (!payload.password) {
+            delete payload.password; // Remove password if not updated
+          }
+
           const response = await axios.put(
             `http://localhost:8000/developer/brokers/${this.editBroker.id}/`,
-            this.editBroker,
+            payload,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -404,6 +418,7 @@ export default {
           const response = await axios.post(
             "http://localhost:8000/developer/brokers/add/",
             {
+              company: this.vuexCompanyId,
               email: this.email,
               contact_number: this.contactNumber,
               last_name: this.lastName,
@@ -429,7 +444,6 @@ export default {
         }
       }
     },
-
     resetForm() {
       this.email = "";
       this.contactNumber = "";

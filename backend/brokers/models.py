@@ -7,7 +7,7 @@ from django.utils import timezone
 class Broker(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
     email = models.EmailField(max_length=50, unique=True)
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=100, unique=True, editable=True)  # Set editable=False to prevent manual input
     contact_number = models.CharField(
         max_length=20,
         blank=True,
@@ -25,15 +25,15 @@ class Broker(models.Model):
     last_login = models.DateTimeField(null=True, blank=True)
     archived = models.BooleanField(default=False)
 
-    # Helper fields for token-based authentication
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
+        # Hash the password if not already hashed
         if self.password and not self.password.startswith('pbkdf2_'):
-            self.password = make_password(self.password) 
+            self.password = make_password(self.password)
         super().save(*args, **kwargs)
 
     def set_password(self, raw_password):

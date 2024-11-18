@@ -7,7 +7,10 @@ class DeveloperBrokerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Broker
-        fields = ['id', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password']
+        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password']
+        extra_kwargs = {
+            'username': {'required': False},  # Allow username to be set later
+        }
 
     def create(self, validated_data):
         if 'username' not in validated_data:
@@ -26,7 +29,8 @@ class EditBrokerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Broker
-        fields = ['email', 'username', 'contact_number', 'first_name', 'last_name', 'password']
+        fields = ['company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password']
+        read_only_fields = ['company']
 
     def update(self, instance, validated_data):
         # If password is provided, hash it before saving
