@@ -244,8 +244,24 @@
       </table>
     </div>
           </div>
+          <!-- Required Documents Section (Always Displayed) -->
+          <div class="form-group">
+            <h3>Required Documents</h3>
+            <ul>
+              <li><strong>Reservation Agreement:</strong>
+                <input type="file" id="reservationAgreement" required />
+              </li>
+              <li><strong>Valid ID (Front and Back):</strong> A clear copy of a government-issued ID with a signature.</li>
+              <li><strong>Proof of Billing:</strong> A recent utility bill or bank statement showing the customer's name and address.</li>
+              <li><strong>Proof of Income:</strong> A recent payslip or income tax return (ITR).</li>
+               <li><strong>Sales Agreement:</strong> To be followed (after the contract is signed).</li>
+              <li><strong>TIN:</strong> A clear copy of the customer's Taxpayer Identification Number (TIN) certificate.</li>
+              </ul>
+          </div>
+        <button @click="closeModal">Close</button>
+
         </div>
-      </div>
+        </div>
     </div>
   </div>
 </template>

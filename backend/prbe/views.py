@@ -566,6 +566,9 @@ def fetch_sales(request):
                 'unit_title': sale.unit.unit_title,
                 'price': sale.unit.price,  # Add the price from the unit table
                 'status': sale.status,
+                'email': sale.customer.email,
+
+                
             })
         return JsonResponse({'success': True, 'sales': sales_data}, status=200)
 
