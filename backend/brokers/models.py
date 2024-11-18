@@ -23,6 +23,7 @@ class Broker(models.Model):
     first_name = models.CharField(max_length=50)
     password = models.CharField(max_length=128)
     last_login = models.DateTimeField(null=True, blank=True)
+    archived = models.BooleanField(default=False)
 
     # Helper fields for token-based authentication
     is_active = models.BooleanField(default=True)

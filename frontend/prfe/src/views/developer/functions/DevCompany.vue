@@ -125,9 +125,11 @@ export default {
       return localStorage.getItem("company_id");
     },
   },
+
   mounted() {
     this.fetchCompany();
   },
+
   methods: {
     async fetchCompany() {
       const companyId = this.vuexCompanyId;
