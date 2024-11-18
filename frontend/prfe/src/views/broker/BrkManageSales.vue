@@ -327,7 +327,7 @@ export default {
         console.error("An error occurred while fetching sales data.");
       }
     },
-
+    
     // Open the sales agreement modal
     openSalesAgreementModal(sale) {
       this.selectedSale = sale;

@@ -627,6 +627,7 @@ def reserve_unit(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):
