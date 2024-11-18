@@ -163,14 +163,18 @@
 
             <!-- Spot Downpayment -->
             <div class="form-group">
-              <label for="spotDownpayment">Spot Downpayment</label>
-              <select v-model="spotDownpaymentPercentage" id="spotDownpayment" @change="updatePaymentDetails">
-                <option value="0">0%</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
+            <label for="spotDownpayment">Spot Downpayment</label>
+            <input 
+              type="number" 
+              id="spotDownpayment" 
+              v-model="spotDownpaymentPercentage" 
+              @input="updatePaymentDetails"
+              min="0"
+              step="5"
+              placeholder="Enter downpayment percentage"
+            />
+          </div>
+
             <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
 
             <!-- Reservation Fee -->
