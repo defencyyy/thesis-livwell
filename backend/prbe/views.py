@@ -564,9 +564,9 @@ def fetch_sales(request):
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
                 'site_name': sale.site.name,
                 'unit_title': sale.unit.unit_title,
+                'price': sale.unit.price,  # Add the price from the unit table
                 'status': sale.status,
             })
-
         return JsonResponse({'success': True, 'sales': sales_data}, status=200)
 
     except Exception as e:
