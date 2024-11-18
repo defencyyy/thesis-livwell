@@ -15,6 +15,7 @@
           <option value="site_desc">Site (Z-A)</option>
         </select>
       </div>
+      
 
       <!-- Add Customer Button -->
       <button @click="showModal = true">Add Customer</button>
@@ -308,8 +309,6 @@ export default {
   },
 };
 </script>
-
-
 
 
 <style scoped>
