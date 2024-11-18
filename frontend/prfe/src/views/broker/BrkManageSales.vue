@@ -1,12 +1,10 @@
 <template>
-  <header>
-    <HeaderLivwell />
-  </header>
   <div class="manage-sales-page">
     <SideNav />
     <div class="content">
       <h1>Welcome to the Manage Sales Page</h1>
       <p>This is where you can manage sales data for brokers and developers.</p>
+
       <!-- Sales Table -->
       <table v-if="sales.length > 0" class="sales-table">
         <thead>
@@ -86,7 +84,6 @@
 
             <button type="submit">Save Sales Agreement</button>
             <button type="button" @click="closeModal">Cancel</button>
-
           </form>
         </div>
       </div>
@@ -95,15 +92,12 @@
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
-import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ManageSales",
   components: {
     SideNav,
-    HeaderLivwell,
   },
   data() {
     return {
@@ -115,34 +109,18 @@ export default {
         down_payment: "",
         installment_term: "",
         special_terms: "",
-      modalOpen: false,
-      error: null,
-      loading: false,
+      },
     };
   },
-  computed: {
-    ...mapGetters(["getUserId"]), // Use Vuex getter to access userId (broker ID)
-  },
-  mounted() {
-    this.fetchData();
-  },
   methods: {
-    ...mapActions(["fetchUserId"]), // Map Vuex actions (if necessary)
-
-    openModal() {
-      this.modalOpen = true;
-    },
-    closeModal() {
-      this.modalOpen = false;
-    },
+    // Fetch sales data from the backend
     async fetchSales() {
       try {
         const response = await fetch("http://localhost:8000/sales/");
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            this.sales = data.sales;
-
+            this.sales = data.sales; // This should now have customer name, site name, and unit title
           } else {
             console.error(data.message || "Failed to fetch sales data.");
           }
@@ -170,12 +148,12 @@ export default {
         special_terms: "",
       };
     },
+
     // Submit the sales agreement
     submitSalesAgreement() {
       // Placeholder for handling form submission
       console.log("Sales Agreement Data:", this.salesAgreement);
       this.closeModal();
-
     },
   },
   mounted() {

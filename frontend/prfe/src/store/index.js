@@ -1,4 +1,3 @@
-// store/index.js
 import { createStore } from "vuex";
 
 export default createStore({
@@ -7,7 +6,8 @@ export default createStore({
     userType: localStorage.getItem("user_role") || null,
     companyId: localStorage.getItem("company_id") || null,
     loggedIn: localStorage.getItem("logged_in") === "true",
-    authToken: localStorage.getItem("authToken") || null, // Store auth token
+    authToken: localStorage.getItem("authToken") || null,
+    csrfToken: localStorage.getItem("csrfToken") || null, // CSRF token
   },
   getters: {
     isLoggedIn: (state) => state.loggedIn,
@@ -15,6 +15,7 @@ export default createStore({
     getUserId: (state) => state.userId,
     getCompanyId: (state) => state.companyId,
     getAuthToken: (state) => state.authToken,
+    getCSRFToken: (state) => state.csrfToken, // Getter for CSRF token
   },
   mutations: {
     setUser(state, user) {
@@ -29,9 +30,11 @@ export default createStore({
       localStorage.setItem("company_id", user.company_id);
       localStorage.setItem("logged_in", "true");
     },
-    setAuthToken(state, authToken) {
+    setAuthToken(state, { authToken, csrfToken }) {
       state.authToken = authToken;
-      localStorage.setItem("authToken", authToken); // Store authToken in localStorage
+      state.csrfToken = csrfToken;
+      localStorage.setItem("authToken", authToken);
+      localStorage.setItem("csrfToken", csrfToken); // Store CSRF token in localStorage
     },
     clearUser(state) {
       state.userId = null;
@@ -39,18 +42,20 @@ export default createStore({
       state.companyId = null;
       state.loggedIn = false;
       state.authToken = null;
+      state.csrfToken = null;
 
       localStorage.removeItem("user_id");
       localStorage.removeItem("user_role");
       localStorage.removeItem("company_id");
       localStorage.removeItem("authToken");
+      localStorage.removeItem("csrfToken");
       localStorage.setItem("logged_in", "false");
     },
   },
   actions: {
-    login({ commit }, { user, token }) {
+    login({ commit }, { user, token, csrfToken }) {
       commit("setUser", user);
-      commit("setAuthToken", token);
+      commit("setAuthToken", { authToken: token, csrfToken });
     },
     logout({ commit }) {
       commit("clearUser");
