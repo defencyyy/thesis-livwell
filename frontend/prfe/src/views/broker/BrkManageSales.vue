@@ -69,8 +69,9 @@
 
             <!-- Submit Button -->
             <button type="submit">Submit</button>
+           
           </form>
-
+     
           <button @click="closeModal">Close</button>
         </div>
       </div>
@@ -274,13 +275,109 @@ export default {
   align-items: center;
 }
 
-.modal-content {
-  background-color: white;
+/* .modal-content {
+  background-color: rgb(255, 255, 255);
   padding: 20px;
   border-radius: 8px;
   width: 400px;
   text-align: left;
+  display: flex;
+} */
+
+/* Modal container background color */
+.modal-content {
+  background-color: rgb(255, 255, 255); /* White background for the modal */
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-sizing: border-box;
 }
+
+/* Form background color */
+form {
+  background-color: rgb(255, 255, 255); /* Set form background to white */
+  padding: 10px;
+  border-radius: 8px; /* Rounded corners */
+}
+
+/* Label styling */
+label {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Select dropdown styling */
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #ffffff; /* Ensure background is white */
+  box-sizing: border-box; /* Include padding in width */
+}
+
+/* Input and button background color */
+input, button {
+  background-color: #ffffff; /* Set button background to white */
+  color: #333; /* Set text color to dark */
+  border: 1px solid #ccc;
+}
+
+/* Center the submit button */
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  width: auto; /* Button will adjust to its content */
+
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Styling for the "No customers available" message */
+p {
+  color: #f44336;  /* Red color for error messages */
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%; /* Make modal slightly wider on smaller screens */
+  }
+}
+
+
+
+/* Overriding Bootstrap or other global styles */
+.modal-content select {
+  background-color: #000000 !important; /* Forces white background */
+}
+
+.modal-content input {
+  background-color: #006eff !important; /* Forces white background */
+}
+
+.modal-content button {
+  background-color: #007bff !important; /* Forces blue button background */
+}
+
+
 .sales-table {
   width: 100%;
   margin-top: 20px;

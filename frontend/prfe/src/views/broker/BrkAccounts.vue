@@ -2,9 +2,11 @@
   <header>
     <HeaderLivwell />
   </header>
+
+  <SideNav />
+ 
   <div class="accounts-page">
-    <SideNav />
-    <div>h1lw</div>
+    
     <div class="content row justify-content-center">
       <div class="col-md-6 col-lg-4">
         <div class="card mt-5">
@@ -168,9 +170,8 @@ export default {
 </script>
 
 <style scoped>
-.content {
-  background-color: gray;
-  padding: 20px;
+/* .content {
+ 
   text-align: center;
   display: flex;
 }
@@ -185,4 +186,65 @@ export default {
   background-color: gray;
   height: 96%;
 }
+
+ */
+
+
+/* Ensure the whole page content is centered */
+/* Center the account page horizontally, but push content higher */
+.accounts-page {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: flex-start; /* Align to the top of the page */
+  min-height: 80vh;
+  padding: 20px;
+  padding-top: 50px; /* Optional: add space from the top of the screen */
+}
+
+/* Adjust the content inside the account page */
+.content {
+  display: flex;
+  justify-content: center;
+  padding-left: 10%;
+  width: 100%;
+}
+
+/* Modify the card width to make it wider */
+.card {
+  width: 100%;
+  max-width: 700px; /* Set maximum width for the card */
+  min-height: 500px; /* Set a minimum height to make it longer */
+  border-radius: 8px; /* Optional: Add rounded corners to the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow to the card */
+  background-color: white; /* Ensure the background is white */
+}
+
+
+
+/* Add padding inside the card */
+.card-body {
+  padding: 30px; /* More padding to make the form appear longer */
+}
+
+/* Space above the button */
+button[type="submit"] {
+  margin-top: 20px; /* Adds space between the form fields and the button */
+}
+
+/* Additional spacing for form fields */
+.form-group {
+  margin-bottom: 20px; /* Adds space between each form input */
+}
+
+/* Optional: Add responsiveness for smaller screens */
+@media (max-width: 768px) {
+  .card {
+    max-width: 90%; /* On smaller screens, make the card take more width */
+  }
+
+  .card-body {
+    padding: 20px; /* Adjust padding on smaller screens */
+  }
+}
+
 </style>
