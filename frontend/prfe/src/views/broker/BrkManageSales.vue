@@ -458,6 +458,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden; /* Hide any overflowed content */
 }
 
 .modal-content {
@@ -465,8 +466,10 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 400px;
-  text-align: left;
+  max-height: 90%; /* Ensure the modal doesn't exceed 90% of the viewport height */
+  overflow-y: auto; /* Make the content scrollable if it overflows */
 }
+
 .payment-summary {
   margin-bottom: 20px;
 }
@@ -511,4 +514,5 @@ th {
 td {
   text-align: right;
 }
+
 </style>
