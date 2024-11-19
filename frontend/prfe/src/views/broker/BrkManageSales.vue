@@ -258,6 +258,7 @@
               <li><strong>TIN:</strong> A clear copy of the customer's Taxpayer Identification Number (TIN) certificate.</li>
               </ul>
           </div>
+        <button @click="submitToCustomer">Submit to Customer</button>
         <button @click="closeModal">Close</button>
 
         </div>
@@ -268,7 +269,7 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
-
+import axios from "axios";
 export default {
   name: "ManageSales",
   components: {
@@ -332,7 +333,6 @@ export default {
     openSalesAgreementModal(sale) {
       this.selectedSale = sale;
       this.unitPrice = sale.price;  // Set unitPrice to the selected sale's unit price
-
       this.showModal = true;
     },
     updatePaymentDetails() {
@@ -397,9 +397,37 @@ export default {
         this.payablePerMonth = this.spreadDownpayment / this.payableMonths; 
       }
       this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
-      console.log(this.balanceUponTurnover, this.spotDownpaymentPercentage, this.spreadDownpaymentPercentage);
     },
+async submitToCustomer() {
+      const salesData = {
+        customer_name: this.selectedSale.customer_name,  // Assuming customer_name is set
+        customer_email: this.selectedSale.email,  
+        unit_title: this.selectedSale.unit_title,
+        unit_price: this.unitPrice,
+        payment_plan: this.selectedPaymentPlan,           // Make sure to use the selected payment plan
+        spot_discount: this.spotDiscount,
+        net_unit_price: this.netUnitPrice,
+        total_amount_payable: this.totalAmountPayable,
+        reservation_fee: this.reservationFee,
+        net_full_payment: this.netFullPayment,
+        spot_downpayment: this.spotDownpayment,
+        spread_downpayment: this.spreadDownpayment,
+        payable_months: this.payableMonths,
+        payable_per_month: this.payablePerMonth,
+        balance_upon_turnover: this.balanceUponTurnover
+      };
 
+      try {
+        const response = await axios.post('http://localhost:8000/api/sales-agreement/', salesData);
+        
+        if (response.data.success) {
+          alert('Sales agreement submitted successfully to the customer!');
+        }
+      } catch (error) {
+        console.error('Error submitting sales agreement:', error);
+        alert('There was an error submitting the sales agreement.');
+      }
+    },
 
     // Close the modal
     closeModal() {

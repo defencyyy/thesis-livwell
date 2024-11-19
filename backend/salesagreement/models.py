@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse  # Import reverse
 import uuid
 
 class SalesAgreement (models.Model):
@@ -23,8 +24,8 @@ class SalesAgreement (models.Model):
   created_at = models.DateTimeField(default=timezone.now)
   uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
-  def _str_(self):
+def __str__(self):
     return f"Sales Agreement for {self.customer_name}"
   
-  def get_absolute_url(self):
-    return f"/sales-agreement/{self.uuid}/"
+def get_absolute_url(self):
+    return reverse('sales-agreement-detail', kwargs={'uuid': self.uuid})
