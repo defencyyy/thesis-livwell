@@ -193,8 +193,8 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
-import axios from "axios";
 import { mapState } from "vuex";
+import axios from "axios";
 
 export default {
   name: "DeveloperBrokers",

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 from .admin import custom_admin_site
 from . import views
 
@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('developer/company/', include('companies.urls')),  
     path('developer/brokers/', include('brokers.urls')), 
+    path('developer/sites/', include('sites.urls')), 
     # # path('api/token/broker/', views.login_view_broker, name='login_broker'), 
 ]
 
