@@ -27,7 +27,7 @@ from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit, UnitImage
 from sites.models import Site
-from salesagreement.models import SalesAgreement
+from salesdetails.models import SalesDetails
  
 import json
 import re
@@ -559,26 +559,33 @@ def fetch_sales(request):
         sales = Sale.objects.all().select_related(
             'customer',  # Fetch related customer data
             'site',      # Fetch related site data
-            'unit'       # Fetch related unit data
+            'unit',      # Fetch related unit data
+            'broker'     # Fetch related broker data (assuming you have a 'broker' field)
         )
 
         sales_data = []
         for sale in sales:
-            # Add sale data to the list, including full names and titles
+            # Add sale data to the list, including IDs and other relevant information
             sales_data.append({
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
+                'customer_id': sale.customer.id,   # customer_id
                 'site_name': sale.site.name,
+                'site_id': sale.site.id,           # site_id
                 'unit_title': sale.unit.unit_title,
-                'price': sale.unit.price,  # Add the price from the unit table
+                'unit_id': sale.unit.id,           # unit_id
+                'price': sale.unit.price,
                 'status': sale.status,
                 'email': sale.customer.email,
+                'broker_id': sale.broker.id if sale.broker else None, # broker_id
+                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name
 
                 
-            })
+            })      
         return JsonResponse({'success': True, 'sales': sales_data}, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+
 
 @csrf_exempt
 def reserve_unit(request):
@@ -633,107 +640,121 @@ def reserve_unit(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
-def submit_sales_agreement(request):
+def submit_sales(request):
     if request.method == 'POST':
         try:
-            # Parse incoming JSON data
-            data = json.loads(request.body)
-            # Extract data
-            customer_name = data['customer_name']
-            customer_email = data['customer_email']
-            unit_title = data['unit_title']
-            unit_price = float(data['unit_price'])  # Ensure correct type (float)
-            spot_discount = data['spot_discount']
-            net_unit_price = data['net_unit_price']
-            total_amount_payable = data['total_amount_payable']
-            reservation_fee = int(data['reservation_fee'])  # Ensure correct type (int)
-            net_full_payment = data['net_full_payment']
-            spot_downpayment = data['spot_downpayment']
-            spread_downpayment = data['spread_downpayment']
-            payable_months = data['payable_months']
-            payable_per_month = data['payable_per_month']
-            balance_upon_turnover = data['balance_upon_turnover']
+            data = json.loads(request.body)  # Parse the incoming JSON data
 
+            # Extract values from the request data
+            customer_id = data.get('customer_id')
+            site_id = data.get('site_id')
+            unit_id = data.get('unit_id')
+            broker_id = data.get('broker_id')
+            payment_plan = data.get('payment_plan')
+            spot_discount_percent = data.get('spot_discount_percent')
+            tlp_discount_percent = data.get('tlp_discount_percent')
+            other_charges_percent = data.get('other_charges_percent')
+            spot_downpayment_percent = data.get('spot_downpayment_percent')
+            reservation_fee = data.get('reservation_fee')
+            spread_downpayment_percent = data.get('spread_downpayment_percent')
+            payable_months = data.get('payable_months')
+            payable_per_month = data.get('payable_per_month')
+            balance_upon_turnover = data.get('balance_upon_turnover')
+            net_unit_price = data.get('net_unit_price')
+            total_amount_payable = data.get('total_amount_payable')
+            net_full_payment = data.get('net_full_payment')
+            customer_email = data.get('customer_email')
 
-            # Create the SalesAgreement instance
-            agreement = SalesAgreement.objects.create(
-                customer_name=customer_name,
-                customer_email=customer_email,
-                unit_title=unit_title,
-                unit_price=unit_price,
-                payment_plan=data['payment_plan'],  # Ensure payment_plan is a valid option
-                spot_discount=spot_discount,
-                net_unit_price=net_unit_price,
-                total_amount_payable=total_amount_payable,
+            # Create a new SalesDetails entry
+            sales_detail = SalesDetails.objects.create(
+                customer_id=customer_id,
+                site_id=site_id,
+                unit_id=unit_id,
+                broker_id=broker_id,
+                payment_plan=payment_plan,
+                spot_discount_percent=spot_discount_percent,
+                tlp_discount_percent=tlp_discount_percent,
+                other_charges_percent=other_charges_percent,
+                spot_downpayment_percent=spot_downpayment_percent,
                 reservation_fee=reservation_fee,
-                net_full_payment=net_full_payment,
-                spot_downpayment=spot_downpayment,
-                spread_downpayment=spread_downpayment,
+                spread_downpayment_percent=spread_downpayment_percent,
                 payable_months=payable_months,
                 payable_per_month=payable_per_month,
-                balance_upon_turnover=balance_upon_turnover
+                balance_upon_turnover=balance_upon_turnover,
+                net_unit_price=net_unit_price,
+                total_amount_payable=total_amount_payable,
+                net_full_payment=net_full_payment,
             )
-            print(agreement)
 
-            # Generate the absolute URL for the sales agreement detail page
-            agreement_url = request.build_absolute_url(reverse('sales-agreement-detail', args=[agreement.uuid]))
-            # Create the email content
-            email_subject = f"Sales Agreement for {customer_name}"
-            email_body = format_html(
-                """
-                <h2>Sales Agreement Details</h2>
-                <p>Hello {}</p>
-                <p>Your sales agreement has been processed. Please review the details by clicking the link below:</p>
-                <p><a href="{}">View Sales Agreement</a></p>
-                <p>Thank you!</p>
-                """, customer_name, agreement_url
-            )
-            print(f"Email body: {email_body}")
+            # Optionally, send a confirmation email to the customer
+            send_confirmation_email(request, customer_email, sales_detail.id)
 
-            # Send email to customer
-            send_mail(
-                email_subject,
-                email_body,
-                [customer_email],
-                fail_silently=False,
-                html_message=email_body
-            )
-            
-            
-
-            return JsonResponse({'success': True, 'message': 'Sales agreement submitted and email sent.'})
+            return JsonResponse({'success': True, 'message': 'Sales agreement submitted successfully.'}, status=200)
 
         except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)})
+            return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+    return JsonResponse({'success': False, 'message': 'Invalid method.'}, status=405)
 
+def get_sales_detail(request, sales_detail_id):
+    sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
 
-def sales_agreement_detail(request, uuid):
-    # Fetch the sales agreement using the provided UUID
-    agreement = get_object_or_404(SalesAgreement, uuid=uuid)
+    # Fetch the related site, broker, customer, and unit
+    site = get_object_or_404(Site, id=sales_detail.site_id)
+    broker = get_object_or_404(Broker, id=sales_detail.broker_id)
+    customer = get_object_or_404(Customer, id=sales_detail.customer_id)
+    unit = get_object_or_404(Unit, id=sales_detail.unit_id)
 
-    # Prepare the data to be sent as JSON
-    agreement_data = {
-        'customer_name': agreement.customer_name,
-        'customer_email': agreement.customer_email,
-        'unit_title': agreement.unit_title,
-        'unit_price': str(agreement.unit_price),  # Convert Decimal to string for JSON compatibility
-        'payment_plan': agreement.payment_plan,
-        'spot_discount': str(agreement.spot_discount),
-        'net_unit_price': str(agreement.net_unit_price),
-        'total_amount_payable': str(agreement.total_amount_payable),
-        'reservation_fee': str(agreement.reservation_fee),
-        'net_full_payment': str(agreement.net_full_payment),
-        'spot_downpayment': str(agreement.spot_downpayment),
-        'spread_downpayment': str(agreement.spread_downpayment),
-        'payable_months': agreement.payable_months,
-        'payable_per_month': str(agreement.payable_per_month),
-        'balance_upon_turnover': str(agreement.balance_upon_turnover),
-        'created_at': agreement.created_at.isoformat(),
+    # Prepare the response data with all related information
+    sales_detail_data = {
+        'customer_id': sales_detail.customer_id,
+        'site_id': sales_detail.site_id,
+        'unit_id': sales_detail.unit_id,
+        'broker_id': sales_detail.broker_id,
+        'payment_plan': sales_detail.payment_plan,
+        'spot_discount_percent': sales_detail.spot_discount_percent,
+        'tlp_discount_percent': sales_detail.tlp_discount_percent,
+        'other_charges_percent': sales_detail.other_charges_percent,
+        'spot_downpayment_percent': sales_detail.spot_downpayment_percent,
+        'reservation_fee': sales_detail.reservation_fee,
+        'spread_downpayment_percent': sales_detail.spread_downpayment_percent,
+        'payable_months': sales_detail.payable_months,
+        'payable_per_month': sales_detail.payable_per_month,
+        'balance_upon_turnover': sales_detail.balance_upon_turnover,
+        'net_unit_price': sales_detail.net_unit_price,
+        'total_amount_payable': sales_detail.total_amount_payable,
+        'net_full_payment': sales_detail.net_full_payment,
+        
+        # Add related data
+        'unit_price':unit.price,
+        'site_name': site.name,  # Site name
+        'broker_name': f"{broker.first_name} {broker.last_name}",  # Broker full name
+        'customer_name': f"{customer.first_name} {customer.last_name}",  # Customer full name
+        'unit_name': unit.unit_title  # Unit title
     }
 
-    return JsonResponse(agreement_data)
+    return JsonResponse(sales_detail_data)
+
+def send_confirmation_email(request, customer_email, sales_detail_id):
+    frontend_base_url = 'http://localhost:8080'  # Or use settings if you'd prefer dynamic configuration
+    
+    # Generate the URL to view the sales details on the frontend
+    sales_detail_url = f"{frontend_base_url}/sales-details/{sales_detail_id}/"
+
+    # Compose the email content
+    subject = 'Your Sales Agreement Details'
+    message = f"Dear Customer,\n\nThank you for your purchase! You can view the details of your sales agreement using the link below:\n{sales_detail_url}\n\nBest regards,\nThe Sales Team"
+    from_email = settings.DEFAULT_FROM_EMAIL  # Make sure to configure this in settings.py
+
+    # Send the email
+    send_mail(subject, message, from_email, [customer_email])
+
+
+
+
+
+
+
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

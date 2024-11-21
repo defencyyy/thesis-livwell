@@ -44,19 +44,19 @@
           <div class="form-group">
             <label for="paymentPlan">Payment Plan</label>
             <select v-model="selectedPaymentPlan" id="paymentPlan" required>
-              <option value="spot_cash">Spot Cash</option>
-              <option value="in_house_financing">Deffered Payment</option>
+              <option value="Spot Cash">Spot Cash</option>
+              <option value="Deffered Payment">Deffered Payment</option>
             </select>
           </div>
 
           <!-- Spot Cash Plan -->
-          <div v-if="selectedPaymentPlan === 'spot_cash'">
+          <div v-if="selectedPaymentPlan === 'Spot Cash'">
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
             <!-- Spot Cash Discount -->
             <div class="form-group">
               <label for="spotCashDiscount">Spot Cash Discount</label>
-              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails">
+              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails" required>
                 <option value="0">0%</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -71,7 +71,7 @@
             <!-- TLP Discount -->
             <div class="form-group">
               <label for="tlpDiscount">TLP Discount (Optional)</label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails" required>
                 <option value="0">None</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -86,7 +86,7 @@
             <!-- Other Charges -->
             <div class="form-group">
               <label for="otherChargesPercentage">Other Charges (%)</label>
-              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails">
+              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails" required>
                 <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
@@ -105,13 +105,13 @@
           </div>
 
           <!-- In-House Financing Plan -->
-          <div v-if="selectedPaymentPlan === 'in_house_financing'">
+          <div v-if="selectedPaymentPlan === 'Deffered Payment'">
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
             <!-- Spot Discount -->
             <div class="form-group">
               <label for="spotDiscount">Spot Discount</label>
-              <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails">
+              <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails" required>
                 <option value="0">0%</option>
                 <option value="1">1%</option>
                 <option value="5">5%</option>
@@ -127,7 +127,7 @@
             <!-- TLP Discount -->
             <div class="form-group">
               <label for="tlpDiscount">TLP Discount</label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails" required>
                 <option value="0">None</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -142,7 +142,7 @@
             <!-- Other Charges -->
             <div class="form-group">
               <label for="otherCharges">Other Charges</label>
-              <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails">
+              <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails" required>
                 <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
@@ -167,6 +167,7 @@
               min="0"
               step="5"
               placeholder="Enter downpayment percentage"
+              required
             />
           </div>
 
@@ -181,7 +182,7 @@
             <!-- Spread Downpayment -->
             <div class="form-group">
               <label for="spreadDownpayment">Spread Downpayment</label>
-              <select v-model="spreadDownpaymentPercentage" id="spreadDownpayment" @change="updatePaymentDetails">
+              <select v-model="spreadDownpaymentPercentage" id="spreadDownpayment" @change="updatePaymentDetails" required>
                 <option value="0">0%</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -193,7 +194,7 @@
             <!-- Payable in Months -->
             <div class="form-group">
               <label for="months">Months to Pay</label>
-              <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1" />
+              <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1"  required />
             </div>
             <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
             <!-- Balance Upon Turnover -->
@@ -269,7 +270,8 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
-import axios from "axios";
+import axios from 'axios';
+
 export default {
   name: "ManageSales",
   components: {
@@ -336,14 +338,14 @@ export default {
       this.showModal = true;
     },
     updatePaymentDetails() {
-      if (this.selectedPaymentPlan === 'spot_cash') {
+      if (this.selectedPaymentPlan === 'Spot Cash') {
         this.applySpotCashDiscount();
         this.applyTLPDiscount();
         this.applyOtherCharges();
         this.calculateVAT();
 
       }
-       else if (this.selectedPaymentPlan === 'in_house_financing') {
+       else if (this.selectedPaymentPlan === 'Deffered Payment') {
         this.applySpotCashDiscount();
         this.applyTLPDiscount();
         this.applyOtherCharges();
@@ -383,6 +385,7 @@ export default {
         this.vatAmount = this.netUnitPrice * 0.12;
         this.totalAmountPayable += this.vatAmount;
       }
+
     },
 
     calculateFinancingDetails() {
@@ -399,36 +402,60 @@ export default {
       this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
     },
 async submitToCustomer() {
-      const salesData = {
-        customer_name: this.selectedSale.customer_name,  // Assuming customer_name is set
-        customer_email: this.selectedSale.email,  
-        unit_title: this.selectedSale.unit_title,
-        unit_price: this.unitPrice,
-        payment_plan: this.selectedPaymentPlan,           // Make sure to use the selected payment plan
-        spot_discount: this.spotDiscount,
-        net_unit_price: this.netUnitPrice,
-        total_amount_payable: this.totalAmountPayable,
-        reservation_fee: this.reservationFee,
-        net_full_payment: this.netFullPayment,
-        spot_downpayment: this.spotDownpayment,
-        spread_downpayment: this.spreadDownpayment,
-        payable_months: this.payableMonths,
-        payable_per_month: this.payablePerMonth,
-        balance_upon_turnover: this.balanceUponTurnover
-      };
+    // Collect data to send to the backend
+    const data = {
+      customer_id: this.selectedSale.customer_id,
+      site_id: this.selectedSale.site_id,
+      unit_id: this.selectedSale.unit_id,
+      broker_id: this.selectedSale.broker_id,
+      payment_plan: this.selectedPaymentPlan,
+      spot_discount_percent: this.spotCashDiscount,
+      tlp_discount_percent: this.tlpDiscount,
+      other_charges_percent: this.otherChargesPercentage,
+      spot_downpayment_percent: this.spotDownpaymentPercentage,
+      reservation_fee: this.reservationFee,
+      spread_downpayment_percent: this.spreadDownpaymentPercentage,
+      payable_months: this.payableMonths,
+      payable_per_month: this.payablePerMonth,
+      balance_upon_turnover: this.balanceUponTurnover,
+      net_unit_price: this.netUnitPrice,
+      total_amount_payable: this.totalAmountPayable,
+      net_full_payment: this.netFullPayment,
+      customer_email: this.selectedSale.email  // Include the customer email
+    };
+    console.log("Sending data to backend:", data);
 
-      try {
-        const response = await axios.post('http://localhost:8000/api/sales-agreement/', salesData);
-        
-        if (response.data.success) {
-          alert('Sales agreement submitted successfully to the customer!');
-        }
-      } catch (error) {
-        console.error('Error submitting sales agreement:', error);
-        alert('There was an error submitting the sales agreement.');
+  try {
+    const response = await axios.post('http://localhost:8000/submit-sales/', data, {
+      headers: {
+        'Content-Type': 'application/json',  // Sending JSON data
       }
-    },
+    });
 
+    // Axios automatically parses the JSON response, so you can directly use response.data
+    if (response.data.success) {
+      alert("Sales agreement submitted successfully!");
+      this.closeModal(); // Close the modal after submission
+    } else {
+      alert("Error: " + response.data.message);
+    }
+  } catch (error) {
+    // Handle any errors that occur
+    if (error.response) {
+      // Server responded with a status code outside 2xx range
+      console.error("Response error:", error.response.data);
+      alert("Error: " + (error.response.data.message || "Failed to submit sales agreement."));
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("Request error:", error.request);
+      alert("No response from server. Please try again later.");
+    } else {
+      // Something else caused the error
+      console.error("Error:", error.message);
+      alert("An error occurred while submitting the sales agreement: " + error.message);
+    }
+  }
+  },
     // Close the modal
     closeModal() {
       this.showModal = false;
