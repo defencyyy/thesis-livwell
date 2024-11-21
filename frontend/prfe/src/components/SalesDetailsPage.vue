@@ -21,15 +21,13 @@
     <p><strong>Spot Downpayment Percentage:</strong> {{ salesDetail.spot_downpayment_percent }}%</p>
     <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
     <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Spot cash' "><strong>Net Full Payment(for spot change later):</strong> ₱{{ netFullPayment }}</p>
     <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
     <p><strong>Spread Downpayment Percentage:</strong> {{ salesDetail.spread_downpayment_percent }}%</p>
     <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
     <p><strong>Payable Months:</strong> {{ salesDetail.payable_months }}</p>
     <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
     <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
-    <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-    <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-    <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
   </div>
 </template>
 
@@ -122,7 +120,7 @@ export default {
       const spreadDownpaymentPercentage = parseFloat(this.salesDetail.spread_downpayment_percent);
       this.spotDownpayment = this.totalAmountPayable * (spotDownpaymentPercentage / 100);
       this.spreadDownpayment = this.totalAmountPayable * (spreadDownpaymentPercentage / 100);
-      
+      this.reservationFee = this.salesDetail.reservation_fee;
       if (spotDownpaymentPercentage === 0) {
         this.netDownpayment = this.spreadDownpayment - this.reservationFee;
         this.payablePerMonth = this.netDownpayment / this.salesDetail.payable_months;
