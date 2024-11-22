@@ -4,21 +4,48 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1>Welcome, Dev! You Are Logged In!</h1>
-        <p>This is the main page for developers.</p>
-        <button @click="logout">Logout</button>
-        <div class="user-info">
-          <p><strong>User ID:</strong> {{ userId }}</p>
-          <p><strong>User Role:</strong> {{ userType }}</p>
-          <p><strong>Company ID:</strong> {{ companyId }}</p>
-          <p><strong>LocalStorage User ID:</strong> {{ localStorageUserId }}</p>
-          <p>
-            <strong>LocalStorage Company ID:</strong>
-            {{ localStorageCompanyId }}
-          </p>
-          <p>
-            <strong>Logged In Status:</strong> {{ loggedIn ? "Yes" : "No" }}
-          </p>
+        <div class="dashboard-container">
+          <!-- Top Row -->
+          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+            <div class="card-body">
+              <h5 class="card-title">Total Number of Units</h5>
+            </div>
+          </div>
+          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+            <div class="card-body">
+              <h5 class="card-title">Available Units</h5>
+            </div>
+          </div>
+          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+            <div class="card-body">
+              <h5 class="card-title">Sold Units</h5>
+            </div>
+          </div>
+
+          <!-- Large Center Box -->
+          <div class="card shadow-lg border-0 rounded-3 mx-auto large-box">
+            <div class="card-body">
+              <h5 class="card-title">Overview</h5>
+            </div>
+          </div>
+
+          <!-- Bottom Row -->
+          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+            <div class="card-body">
+              <h5 class="card-title">BROKER of the MONTH!</h5>
+            </div>
+          </div>
+          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+            <div class="card-body">
+              <h5 class="card-title">Achievements</h5>
+            </div>
+          </div>
+          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+            <div class="card-body">
+              <h5 class="card-title">Upcoming Goals</h5>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -119,7 +146,7 @@ export default {
 }
 
 .SideNav {
-  width: 250px; /* Set fixed width for the sidebar */
+  width: 250px;
   position: fixed;
   top: 0;
   left: 0;
@@ -130,42 +157,25 @@ export default {
 
 .AppHeader {
   width: 100%;
-  height: 60px; /* Adjust height as needed */
+  height: 60px;
   background-color: #343a40;
   display: flex;
   align-items: center;
   padding-left: 10px;
+  color: #ffffff;
 }
 
 .main-content {
   display: flex;
-  margin-left: 250px; /* Set margin equal to sidebar width */
+  margin-left: 250px;
   flex-direction: column;
-  /* Stack header and content vertically */
   flex: 1;
+  margin-top: 60px;
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
-}
-
-h1 {
-  color: #42b983;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #ff1a1a;
 }
 </style>
