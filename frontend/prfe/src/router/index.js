@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
-import About from "@/views/AboutView.vue";
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -33,13 +32,8 @@ import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path
 import SalesDetailsPage from "@/components/SalesDetailsPage.vue";
 import BrkTest from "@/views/broker/BrkTest.vue";
 
-//Other Links
-import AboutUs from "@/components/AboutUs.vue";
-
 const routes = [
   { path: "/home", name: "Home", component: Home },
-  { path: "/about", name: "About", component: About },
-  { path: "/AboutUs", name: "AboutUs", component: AboutUs },
 
   // Developer Routes
   {
