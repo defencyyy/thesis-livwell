@@ -71,6 +71,12 @@
           </tbody>
         </table>
       </div>
+      <p><strong>Valid ID (Front and Back):</strong> A clear copy of a government-issued ID with a signature.</p>
+<p><strong>Proof of Billing:</strong> A recent utility bill or bank statement showing the customer's name and address.</p>
+<p><strong>Proof of Income:</strong> A recent payslip or income tax return (ITR).</p>
+<p><strong>Sales Agreement:</strong> To be followed (after the contract is signed).</p>
+<p><strong>TIN:</strong> A clear copy of the customer's Taxpayer Identification Number (TIN) certificate.</p>
+
     </div>
   </div>
 </template>

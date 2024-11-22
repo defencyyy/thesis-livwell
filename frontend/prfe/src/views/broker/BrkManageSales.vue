@@ -215,6 +215,9 @@
             <p>Submitting...</p>
           </div>
         </div>
+        <!-- Display error message if there's an error -->
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
 
 
         </div>
@@ -259,6 +262,8 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       file: null,
+      errorMessage: '',    // Error message
+
 
       showDetailedSchedule: false, // To toggle detailed payment schedule
       loading: false, // Track loading state
@@ -369,8 +374,21 @@ export default {
     },
   
  async submitToCustomer() {
-  this.loading = true;
+   this.loading = true;
+  this.updatePaymentDetails();
 
+
+   // Check if the selected payment plan is "Spot Cash" and validate required fields
+  if (!this.file) {
+      this.errorMessage = "All fields are required except the payment reference.";
+      this.loading = false;
+      return; // Stop further processing if validation fails
+   } 
+   if (this.selectedPaymentPlan === "Deffered Payment" && this.netDownpayment < 0) {
+      this.errorMessage = "Select Down Payment Percent";
+      this.loading = false;
+      return; // Stop further processing if validation fails
+   }
   const formData = new FormData();
   // Add sales details
   formData.append('customer_id', this.selectedSale.customer_id);
@@ -395,7 +413,8 @@ export default {
   // Add the reservation agreement file
   if (this.file) {
     formData.append('reservation_agreement', this.file);
-  }
+   }
+
 
   try {
     const response = await axios.post('http://localhost:8000/submit-sales/', formData, {
@@ -558,6 +577,11 @@ td {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 </style>

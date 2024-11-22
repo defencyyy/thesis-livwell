@@ -754,8 +754,6 @@ def get_sales_detail(request, sales_detail_id):
         reservation_agreement_url = base_url + settings.MEDIA_URL + str(sales_detail.reservation_agreement)
 
         # Debugging: print the full URL
-        print(f"Reservation Agreement URL: {reservation_agreement_url}")
-
         # Add the URL to the response data
         sales_detail_data['reservation_agreement_url'] = reservation_agreement_url
     else:
