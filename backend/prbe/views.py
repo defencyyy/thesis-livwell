@@ -265,7 +265,6 @@ def add_customer(request):
                 company_id=data['company_id'],  # Include company_id
                 email=data['email'],
                 contact_number=data['contact_number'],
-                affiliated_link=data.get('affiliated_link', ''),  # optional field
                 last_name=data['last_name'],
                 first_name=data['first_name']
             )
