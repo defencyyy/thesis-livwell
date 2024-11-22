@@ -54,63 +54,6 @@
             </select>
           </div>
 
-          <!-- Spot Cash Plan -->
-          <div v-if="selectedPaymentPlan === 'spot_cash'">
-            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-
-            <!-- Spot Cash Discount -->
-            <div class="form-group">
-              <label for="spotCashDiscount">Spot Cash Discount</label>
-              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails">
-                <option value="0">0%</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-
-            <!-- Unit Price after Spot Discount -->
-            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
-
-            <!-- TLP Discount -->
-            <div class="form-group">
-              <label for="tlpDiscount">TLP Discount (Optional)</label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
-                <option value="0">None</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-            <!-- Net Unit Price -->
-            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-            <!-- Other Charges -->
-            <div class="form-group">
-              <label for="otherChargesPercentage">Other Charges (%)</label>
-              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails">
-                <option value="8.5">8.5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-            <!-- Total Amount Payable -->
-            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-
-            <!-- Reservation Fee -->
-            <p><strong>Less Reservation Fee (10%):</strong> ₱{{ reservationFee }}</p>
-
-            <!-- Net Full Payment -->
-            <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
-          </div>
-
-          <!-- In-House Financing Plan -->
-          <div v-if="selectedPaymentPlan === 'in_house_financing'">
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
             <!-- Spot Discount -->
@@ -179,10 +122,13 @@
 
             <!-- Reservation Fee -->
             <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+            <p v-if="selectedPaymentPlan === 'spot_cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+
 
             <!-- Net Downpayment -->
             <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
 
+            <div v-if="selectedPaymentPlan === 'in_house_financing'">
             <!-- Spread Downpayment -->
             <div class="form-group">
               <label for="spreadDownpayment">Spread Downpayment</label>
