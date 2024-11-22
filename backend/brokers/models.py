@@ -2,6 +2,7 @@ from django.db import models
 from companies.models import Company
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone  
+from django.core.validators import RegexValidator
 
 class Broker(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
