@@ -17,17 +17,17 @@
     <p><strong>Other Charges Percentage:</strong> {{ salesDetail.other_charges_percent }}%</p>
     <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
     <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-    <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-    <p><strong>Spot Downpayment Percentage:</strong> {{ salesDetail.spot_downpayment_percent }}%</p>
-    <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+    <p ><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetail.spot_downpayment_percent }}%</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
     <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Spot cash' "><strong>Net Full Payment(for spot change later):</strong> ₱{{ netFullPayment }}</p>
-    <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
-    <p><strong>Spread Downpayment Percentage:</strong> {{ salesDetail.spread_downpayment_percent }}%</p>
-    <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-    <p><strong>Payable Months:</strong> {{ salesDetail.payable_months }}</p>
-    <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-    <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Spot Cash' "><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetail.spread_downpayment_percent }}%</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetail.payable_months }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
   </div>
 </template>
 
