@@ -1,7 +1,4 @@
 <template>
-  <header>
-    <HeaderLivwell />
-  </header>
   <div class="manage-sales-page">
     <SideNav />
     <div class="content">
@@ -304,7 +301,6 @@
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
 import { mapGetters, mapActions } from "vuex";
@@ -313,7 +309,6 @@ export default {
   name: "ManageSales",
   components: {
     SideNav,
-    HeaderLivwell,
   },
   data() {
     return {
