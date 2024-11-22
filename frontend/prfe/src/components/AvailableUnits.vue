@@ -105,7 +105,7 @@
             <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
 
             <!-- Spot Downpayment -->
-            <div class="form-group">
+            <div  v-if="selectedPaymentPlan === 'in_house_financing'" class="form-group">
             <label for="spotDownpayment">Spot Downpayment</label>
             <input 
               type="number" 
@@ -118,7 +118,7 @@
             />
           </div>
 
-            <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+            <p  v-if="selectedPaymentPlan === 'in_house_financing'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
 
             <!-- Reservation Fee -->
             <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
@@ -126,7 +126,7 @@
 
 
             <!-- Net Downpayment -->
-            <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+            <p v-if="selectedPaymentPlan === 'in_house_financing'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
 
             <div v-if="selectedPaymentPlan === 'in_house_financing'">
             <!-- Spread Downpayment -->

@@ -49,63 +49,8 @@
             </select>
           </div>
 
-          <!-- Spot Cash Plan -->
-          <div v-if="selectedPaymentPlan === 'Spot Cash'">
-            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-
-            <!-- Spot Cash Discount -->
-            <div class="form-group">
-              <label for="spotCashDiscount">Spot Cash Discount</label>
-              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails" required>
-                <option value="0">0%</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-
-            <!-- Unit Price after Spot Discount -->
-            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
-
-            <!-- TLP Discount -->
-            <div class="form-group">
-              <label for="tlpDiscount">TLP Discount (Optional)</label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails" required>
-                <option value="0">None</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-            <!-- Net Unit Price -->
-            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-            <!-- Other Charges -->
-            <div class="form-group">
-              <label for="otherChargesPercentage">Other Charges (%)</label>
-              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails" required>
-                <option value="8.5">8.5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-            <!-- Total Amount Payable -->
-            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-
-            <!-- Reservation Fee -->
-            <p><strong>Less Reservation Fee (10%):</strong> ₱{{ reservationFee }}</p>
-
-            <!-- Net Full Payment -->
-            <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
-          </div>
-
+        
           <!-- In-House Financing Plan -->
-          <div v-if="selectedPaymentPlan === 'Deffered Payment'">
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
             <!-- Spot Discount -->
@@ -155,9 +100,8 @@
 
             <!-- Total Amount Payable -->
             <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-
             <!-- Spot Downpayment -->
-            <div class="form-group">
+            <div v-if="selectedPaymentPlan === 'Deffered Payment'" class="form-group">
             <label for="spotDownpayment">Spot Downpayment</label>
             <input 
               type="number" 
@@ -171,14 +115,17 @@
             />
           </div>
 
-            <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+            <p v-if="selectedPaymentPlan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
 
             <!-- Reservation Fee -->
             <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+            <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+
 
             <!-- Net Downpayment -->
-            <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
-
+            <p v-if="selectedPaymentPlan === 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+            
+            <div v-if="selectedPaymentPlan === 'Deffered Payment'">
             <!-- Spread Downpayment -->
             <div class="form-group">
               <label for="spreadDownpayment">Spread Downpayment</label>
@@ -283,7 +230,7 @@ export default {
       showModal: false,
       selectedSale: null, // Currently selected sale row
       // Payment Scheme Data
-      selectedPaymentPlan: 'spot_cash', // Default payment plan
+      selectedPaymentPlan: 'Spot Cash', // Default payment plan
       unitPrice: 0, // Example price of the unit
       spotCashDiscount: 0,
       tlpDiscount: 0,
@@ -336,6 +283,8 @@ export default {
       this.selectedSale = sale;
       this.unitPrice = sale.price;  // Set unitPrice to the selected sale's unit price
       this.showModal = true;
+      this.updatePaymentDetails();
+
     },
     updatePaymentDetails() {
       if (this.selectedPaymentPlan === 'Spot Cash') {
@@ -469,8 +418,6 @@ async submitToCustomer() {
   },
   mounted() {
     this.fetchSales(); // Fetch sales data when the page loads
-    this.updatePaymentDetails();
-
   },
 };
 </script>
