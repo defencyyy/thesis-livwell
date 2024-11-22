@@ -75,7 +75,7 @@
   
   <style scoped>
   .top-bar {
-    background-color: #333;
+    background-color: #343a40;
     color: #fff;
     padding: 10px 20px;
     display: flex;
