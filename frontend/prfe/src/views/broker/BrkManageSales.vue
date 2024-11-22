@@ -1,10 +1,12 @@
 <template>
+  <header>
+    <HeaderLivwell />
+  </header>
   <div class="manage-sales-page">
     <SideNav />
     <div class="content">
       <h1>Welcome to the Manage Sales Page</h1>
       <p>This is where you can manage sales data for brokers and developers.</p>
-
       <!-- Sales Table -->
       <table v-if="sales.length > 0" class="sales-table">
         <thead>
@@ -38,16 +40,8 @@
         <div class="modal-content">
           <h2>Sales Agreement</h2>
           <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
-          <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
           <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
-          <!-- Payment Plan Section -->
-          <div class="form-group">
-            <label for="paymentPlan">Payment Plan</label>
-            <select v-model="selectedPaymentPlan" id="paymentPlan" required>
-              <option value="Spot Cash">Spot Cash</option>
-              <option value="Deffered Payment">Deffered Payment</option>
-            </select>
-          </div>
+          <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
 
           <!-- In-House Financing Plan -->
           <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
@@ -171,7 +165,6 @@
                 <option value="15">15%</option>
               </select>
             </div>
-            <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
 
             <!-- Payable in Months -->
             <div class="form-group">
@@ -311,13 +304,16 @@
 </template>
 
 <script>
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ManageSales",
   components: {
     SideNav,
+    HeaderLivwell,
   },
   data() {
     return {
@@ -593,7 +589,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* Hide any overflowed content */
 }
 
 .modal-content {

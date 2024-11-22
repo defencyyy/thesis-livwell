@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Site
+from prbe.admin import custom_admin_site
 
 class SiteAdmin(admin.ModelAdmin):
   site_display = ('id', 'company', 'name', 'created_at', 'status')  
@@ -7,4 +8,4 @@ class SiteAdmin(admin.ModelAdmin):
   search_fields = ('name', 'company', 'description')
   site_per_page = 25 
 
-admin.site.register(Site, SiteAdmin)
+custom_admin_site.register(Site, SiteAdmin)

@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import CompanyView
+from .views import CompanyDetailView, CompanyUpdateView
 
 urlpatterns = [
-    path('',  CompanyView.as_view(), name='company'), 
+    path('', CompanyDetailView.as_view(), name='company-detail'),
+    path('edit/', CompanyUpdateView.as_view(), name='company-update'),
 ]
