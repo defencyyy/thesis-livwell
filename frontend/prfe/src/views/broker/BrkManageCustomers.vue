@@ -29,12 +29,6 @@
               required
             />
           </div>
-
-          <div>
-            <label for="affiliatedLink">Affiliated Link:</label>
-            <input type="url" v-model="affiliatedLink" id="affiliatedLink" />
-          </div>
-
           <div>
             <label for="lastName">Last Name:</label>
             <input type="text" v-model="lastName" id="lastName" required />
@@ -144,6 +138,7 @@
 import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
+import { mapState } from "vuex";
 
 export default {
   name: "ManageCustomers",
@@ -152,6 +147,19 @@ export default {
     BModal,
     HeaderLivwell,
   },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId,
+      userType: (state) => state.userType,
+      companyId: (state) => state.companyId,
+    }),
+  },
+  vuexUserId() {
+    return this.userId;
+  },
+  vuexCompanyId() {
+    return this.companyId;
+  },
   data() {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
@@ -159,7 +167,6 @@ export default {
       showNotification: false, // Controls the visibility of the notification modal
       email: "",
       contactNumber: "",
-      affiliatedLink: "",
       lastName: "",
       firstName: "",
       customers: [], // This will hold the list of customers
@@ -174,15 +181,14 @@ export default {
   },
   methods: {
     async fetchCustomers() {
-      const brokerId = this.$store.getters.getUserId; // Get the user_id from Vuex store
-      if (!brokerId) {
+      if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
       }
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`
+          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=true`
         );
         if (response.ok) {
           const data = await response.json();
@@ -200,7 +206,6 @@ export default {
       }
     },
 
-    // Opens the document upload modal for the selected customer
     openDocumentModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer directly
       console.log("Selected customer:", this.selectedCustomer); // Directly log the selected customer data
@@ -257,22 +262,20 @@ export default {
         this.showNotification = true; // Show the notification modal
       }
     },
-    // Add a new customer
     async addCustomer() {
-      const brokerId = this.$store.getters.getUserId;
-      if (!brokerId) {
+      const companyId = this.companyId; // Directly access the mapped state
+      if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
       }
 
       const customerData = {
-        broker: brokerId,
+        broker: this.userId,
         email: this.email,
         contact_number: this.contactNumber,
-        affiliated_link: this.affiliatedLink || "",
         last_name: this.lastName,
         first_name: this.firstName,
-        company_id: 1, // Replace with the actual company_id if available
+        company_id: companyId,
       };
 
       try {
@@ -280,7 +283,6 @@ export default {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": this.getCookie("csrftoken"), // Add CSRF token if needed
           },
           body: JSON.stringify(customerData),
         });
@@ -305,12 +307,9 @@ export default {
         this.showNotification = true; // Show the notification modal
       }
     },
-
-    // Reset the form when the modal is closed
     resetForm() {
       this.email = "";
       this.contactNumber = "";
-      this.affiliatedLink = "";
       this.lastName = "";
       this.firstName = "";
     },
