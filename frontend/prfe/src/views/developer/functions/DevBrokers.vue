@@ -2,6 +2,7 @@
   <div class="developer-brokers-page">
     <SideNav />
     <div class="content">
+      <AppHeader />
       <!-- Header Section -->
       <div class="header">
         <h1>Total Brokers: {{ filteredBrokers.length }}</h1>
@@ -192,6 +193,8 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
+
 import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 import axios from "axios";
@@ -201,6 +204,7 @@ export default {
   components: {
     SideNav,
     BModal,
+    AppHeader
   },
   data() {
     return {
