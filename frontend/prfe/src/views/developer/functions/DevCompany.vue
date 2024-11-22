@@ -389,17 +389,4 @@ textarea:focus {
   background-color: #0056b3;
   border-color: #004085;
 }
-
-/* .developer-company-page {
-  display: flex;
-}
-.content {
-  flex: 1;
-  padding: 20px;
-  text-align: center;
-}
-.user-info {
-  margin-bottom: 20px;
-  text-align: left;
-}
 </style>
