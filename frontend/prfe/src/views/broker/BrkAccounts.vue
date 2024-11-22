@@ -3,18 +3,18 @@
     <SideNav />
     
     <div class="content">
-      <h1>Welcome to Account</h1>
-      <p>Here you can manage your account</p>
-      
-      <form @submit.prevent="updateAccount">
-        <div>
-          <label for="username">Username:</label>
-          <input type="text" v-model="username" id="username" />
-        </div>
-        <div>
-          <label for="email">Email:</label>
-          <input type="email" v-model="email" id="email" />
-        </div>
+        <h1>Welcome to Account</h1>
+        <p>Here you can manage your account</p>
+        
+        <form @submit.prevent="updateAccount">
+          <div>
+            <label for="username">Username:</label>
+            <input type="text" v-model="username" id="username" />
+          </div>
+          <div>
+            <label for="email">Email:</label>
+            <input type="email" v-model="email" id="email" />
+          </div>
         <div>
           <label for="contactNumber">Contact Number:</label>
           <input type="text" v-model="contactNumber" id="contactNumber" />
