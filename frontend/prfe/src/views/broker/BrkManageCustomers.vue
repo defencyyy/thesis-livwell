@@ -1,26 +1,18 @@
 <template>
+  <header>
+    <HeaderLivwell />
+  </header>
   <div class="manage-customers-page">
     <SideNav />
     <div class="content">
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
-      <!-- Single Sorting Dropdown -->
-      <div class="sort-options">
-        <label for="sortBy">Sort by:</label>
-        <select id="sortBy" v-model="sortBy" @change="sortCustomers">
-          <option value="name_asc">Name (A-Z)</option>
-          <option value="name_desc">Name (Z-A)</option>
-          <option value="site_asc">Site (A-Z)</option>
-          <option value="site_desc">Site (Z-A)</option>
-        </select>
-      </div>
-      
-
       <!-- Add Customer Button -->
       <button @click="showModal = true">Add Customer</button>
 
       <!-- Modal for Adding Customer -->
+
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
         <form @submit.prevent="addCustomer">
           <div>
@@ -30,7 +22,12 @@
 
           <div>
             <label for="contactNumber">Contact Number:</label>
-            <input type="text" v-model="contactNumber" id="contactNumber" required />
+            <input
+              type="text"
+              v-model="contactNumber"
+              id="contactNumber"
+              required
+            />
           </div>
 
           <div>
@@ -56,7 +53,11 @@
       </b-modal>
 
       <!-- Modal for Document Upload -->
-      <b-modal v-model="showDocumentModal" title="Upload Customer Documents" hide-footer>
+      <b-modal
+        v-model="showDocumentModal"
+        title="Upload Customer Documents"
+        hide-footer
+      >
         <form @submit.prevent="uploadDocuments">
           <div>
             <label for="validId">Valid ID:</label>
@@ -75,7 +76,11 @@
 
           <div>
             <label for="reservationAgreement">Reservation Agreement:</label>
-            <input type="file" id="reservationAgreement" ref="reservationAgreement" />
+            <input
+              type="file"
+              id="reservationAgreement"
+              ref="reservationAgreement"
+            />
           </div>
 
           <div>
@@ -89,7 +94,9 @@
           </div>
 
           <button type="submit">Submit Documents</button>
-          <button type="button" @click="showDocumentModal = false">Cancel</button>
+          <button type="button" @click="showDocumentModal = false">
+            Cancel
+          </button>
         </form>
       </b-modal>
 
@@ -105,7 +112,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(customer, index) in customers" :key="index" @click="openDocumentModal(customer)">
+          <tr
+            v-for="(customer, index) in customers"
+            :key="index"
+            @click="openDocumentModal(customer)"
+          >
             <td>{{ customer.customer_name }}</td>
             <td>{{ customer.site }}</td>
             <td>{{ customer.unit }}</td>
@@ -117,7 +128,11 @@
       <p v-if="!customers.length">No customers found for this broker.</p>
 
       <!-- Notification Pop-up (Success/Failure) -->
-      <b-modal v-model="showNotification" :title="notificationTitle" hide-footer>
+      <b-modal
+        v-model="showNotification"
+        :title="notificationTitle"
+        hide-footer
+      >
         <p>{{ notificationMessage }}</p>
         <button type="button" @click="showNotification = false">Close</button>
       </b-modal>
@@ -125,9 +140,8 @@
   </div>
 </template>
 
-
-
 <script>
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 
@@ -136,44 +150,44 @@ export default {
   components: {
     SideNav,
     BModal,
+    HeaderLivwell,
   },
   data() {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showNotification: false, // Controls the visibility of the notification modal
-      email: '',
-      contactNumber: '',
-      affiliatedLink: '',
-      lastName: '',
-      firstName: '',
-      customers: [],  // This will hold the list of customers
+      email: "",
+      contactNumber: "",
+      affiliatedLink: "",
+      lastName: "",
+      firstName: "",
+      customers: [], // This will hold the list of customers
       selectedCustomer: null, // To hold the currently selected customer
       error: null, // Error message for form submission
-      notificationTitle: '', // Title for the notification modal (Success/Failure)
-      notificationMessage: '', // Message for the notification modal
-      sortBy: 'name_asc', // Selected sorting option (default is "Name (A-Z)")
+      notificationTitle: "", // Title for the notification modal (Success/Failure)
+      notificationMessage: "", // Message for the notification modal
     };
   },
   mounted() {
     this.fetchCustomers();
   },
   methods: {
-    // Fetch customer data from API
     async fetchCustomers() {
-      const brokerId = localStorage.getItem("broker_id");
+      const brokerId = this.$store.getters.getUserId; // Get the user_id from Vuex store
       if (!brokerId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
       }
 
       try {
-        const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`);
+        const response = await fetch(
+          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=true`
+        );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
-            this.sortCustomers(); // Apply the initial sorting
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -186,44 +200,43 @@ export default {
       }
     },
 
-    // Sort customers based on selected option
-    sortCustomers() {
-      switch (this.sortBy) {
-        case 'name_asc':
-          this.customers.sort((a, b) => a.customer_name.localeCompare(b.customer_name));
-          break;
-        case 'name_desc':
-          this.customers.sort((a, b) => b.customer_name.localeCompare(a.customer_name));
-          break;
-        case 'site_asc':
-          this.customers.sort((a, b) => a.site.localeCompare(b.site));
-          break;
-        case 'site_desc':
-          this.customers.sort((a, b) => b.site.localeCompare(a.site));
-          break;
-      }
-    },
-
     // Opens the document upload modal for the selected customer
     openDocumentModal(customer) {
-      this.selectedCustomer = customer; // Set the selected customer
+      this.selectedCustomer = customer; // Set the selected customer directly
+      console.log("Selected customer:", this.selectedCustomer); // Directly log the selected customer data
       this.showDocumentModal = true; // Open the document upload modal
     },
-
     async uploadDocuments() {
+      const customer = this.selectedCustomer; // Directly use selectedCustomer
+      console.log("Selected customer data:", customer); // Log the actual customer data
+
+      if (!customer || !customer.id) {
+        this.notificationTitle = "Error!";
+        this.notificationMessage =
+          "No customer selected or invalid customer data.";
+        this.showNotification = true; // Show the notification modal
+        return; // Exit the function if no customer is selected or invalid
+      }
+
       const formData = new FormData();
       formData.append("valid_id", this.$refs.validId.files[0]);
       formData.append("proof_of_income", this.$refs.proofOfIncome.files[0]);
       formData.append("proof_of_billing", this.$refs.proofOfBilling.files[0]);
-      formData.append("reservation_agreement", this.$refs.reservationAgreement.files[0]);
+      formData.append(
+        "reservation_agreement",
+        this.$refs.reservationAgreement.files[0]
+      );
       formData.append("sales_agreement", this.$refs.salesAgreement.files[0]);
       formData.append("tin", this.$refs.tin.files[0]);
 
       try {
-        const response = await fetch(`http://localhost:8000/customers/${this.selectedCustomer.id}/upload-documents`, {
-          method: 'POST',
-          body: formData,
-        });
+        const response = await fetch(
+          `http://localhost:8000/customers/${customer.id}/upload-documents`, // Use customer.id
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
         if (response.ok) {
           this.notificationTitle = "Success!";
@@ -233,19 +246,20 @@ export default {
         } else {
           const errorData = await response.json();
           this.notificationTitle = "Error!";
-          this.notificationMessage = errorData.message || "Failed to upload documents.";
+          this.notificationMessage =
+            errorData.message || "Failed to upload documents.";
           this.showNotification = true; // Show the notification modal
         }
       } catch (error) {
         this.notificationTitle = "Error!";
-        this.notificationMessage = "An error occurred while uploading documents.";
+        this.notificationMessage =
+          "An error occurred while uploading documents.";
         this.showNotification = true; // Show the notification modal
       }
     },
-
     // Add a new customer
     async addCustomer() {
-      const brokerId = localStorage.getItem("broker_id");
+      const brokerId = this.$store.getters.getUserId;
       if (!brokerId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
@@ -255,18 +269,18 @@ export default {
         broker: brokerId,
         email: this.email,
         contact_number: this.contactNumber,
-        affiliated_link: this.affiliatedLink || '',
+        affiliated_link: this.affiliatedLink || "",
         last_name: this.lastName,
         first_name: this.firstName,
         company_id: 1, // Replace with the actual company_id if available
       };
 
       try {
-        const response = await fetch('http://localhost:8000/customers/', {
-          method: 'POST',
+        const response = await fetch("http://localhost:8000/customers/", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': this.getCookie('csrftoken') // Add CSRF token if needed
+            "Content-Type": "application/json",
+            "X-CSRFToken": this.getCookie("csrftoken"), // Add CSRF token if needed
           },
           body: JSON.stringify(customerData),
         });
@@ -286,30 +300,23 @@ export default {
         }
       } catch (error) {
         this.notificationTitle = "Error!";
-        this.notificationMessage = "An error occurred while adding the customer.";
+        this.notificationMessage =
+          "An error occurred while adding the customer.";
         this.showNotification = true; // Show the notification modal
       }
     },
 
     // Reset the form when the modal is closed
     resetForm() {
-      this.email = '';
-      this.contactNumber = '';
-      this.affiliatedLink = '';
-      this.lastName = '';
-      this.firstName = '';
-    },
-
-    // Get the CSRF token (if necessary)
-    getCookie(name) {
-      let value = "; " + document.cookie;
-      let parts = value.split("; " + name + "=");
-      if (parts.length === 2) return parts.pop().split(";").shift();
+      this.email = "";
+      this.contactNumber = "";
+      this.affiliatedLink = "";
+      this.lastName = "";
+      this.firstName = "";
     },
   },
 };
 </script>
-
 
 <style scoped>
 .manage-customers-page {
@@ -322,25 +329,4 @@ export default {
   padding: 20px;
   text-align: center;
 }
-
-/* Add some space for the sorting options */
-.sort-options {
-  margin-bottom: 20px;
-}
-
-.sort-options select {
-  margin-left: 10px;
-}
-
-/* Table Hover Effect */
-.table tbody tr:hover {
-  cursor: pointer;
-  background-color: #f1f1f1;
-}
-
-.table tbody tr.active {
-  background-color: #d3d3d3;
-}
-
 </style>
-

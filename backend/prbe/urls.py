@@ -7,7 +7,7 @@ from .admin import custom_admin_site
 from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', custom_admin_site.urls),
 
     # Brokers
     path('broker/login/', views.login_view_broker, name='broker_login'),
@@ -28,19 +28,16 @@ urlpatterns = [
     path('units/site/<int:site_id>/', views.fetch_units, name='fetch_units'),
     path('sales/', views.fetch_sales, name='fetch_sales'),
     path('reserve-unit/', views.reserve_unit, name='reserve-unit'),
-    path('submit-sales/', views.submit_sales, name='submit_sales'),
-    path('sales-detail/<int:sales_detail_id>/', views.get_sales_detail, name='view_sales_detail'),
-    path('download_reservation_agreement/<int:sales_detail_id>/', views.download_reservation_agreement, name='download_reservation_agreement'),
-
 
     # Developers
-    path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
-    path('developer/logout/', views.dev_logout_view, name='developer_logout'),
-    path('developer/company/edit/', views.company_edit, name='company_edit'),
-    
+
     # API Endpoints
+    path('api/token/developer/', views.login_view_developer, name='login_developer'),
+    path('api/token/devlogout/', views.dev_logout_view, name='developer_logout'),
+    path('api/token/brklogout/', views.brk_logout_view, name='broker_logout'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('developer/company/', include('companies.urls')),  
     path('developer/brokers/', include('brokers.urls')), 
     path('developer/sites/', include('sites.urls')), 

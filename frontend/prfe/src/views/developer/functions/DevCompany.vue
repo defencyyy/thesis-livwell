@@ -9,33 +9,20 @@
           <div class="title-icon"></div>
           <div class="edit-title">Company Details</div>
         </div>
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 900px"
-        >
+        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px">
           <div class="card-body">
             <div class="row">
               <!-- Company Information -->
               <div class="col-md-8">
-                <p class="mb-2">
-                  <strong>Company Name:</strong> {{ company.name || "N/A" }}
-                </p>
-                <p>
-                  <strong>Company Description:</strong>
-                  {{ company.description || "N/A" }}
-                </p>
+                <p class="mb-2"><strong>Company Name:</strong> {{ company.name || "N/A" }}</p>
+                <p><strong>Company Description:</strong> {{ company.description || "N/A" }}</p>
               </div>
               <!-- Company Logo -->
               <div class="col-md-4 text-center">
                 <strong>Company Logo:</strong>
                 <div class="mt-2">
-                  <img
-                    v-if="company.logo"
-                    :src="getLogoUrl(company.logo)"
-                    alt="Company Logo"
-                    class="img-fluid rounded shadow-sm"
-                    style="max-width: 150px; max-height: 150px"
-                  />
+                  <img v-if="company.logo" :src="getLogoUrl(company.logo)" alt="Company Logo"
+                    class="img-fluid rounded shadow-sm" style="max-width: 150px; max-height: 150px;" />
                   <span v-else>No Logo Available</span>
                 </div>
               </div>
@@ -64,25 +51,15 @@
           <div class="title-icon"></div>
           <div class="edit-title">Edit Company Details</div>
         </div>
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 900px"
-        >
+        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px">
           <div class="card-body">
             <div class="row">
               <!-- Right Section: Description -->
               <div class="col-md-6 order-md-2">
                 <div class="mb-3">
-                  <label for="description" class="form-label"
-                    >Description</label
-                  >
-                  <textarea
-                    class="form-control"
-                    id="description"
-                    v-model="company.description"
-                    rows="6"
-                    placeholder="Enter company description"
-                  ></textarea>
+                  <label for="description" class="form-label">Description</label>
+                  <textarea class="form-control" id="description" v-model="company.description" rows="6"
+                    placeholder="Enter company description"></textarea>
                 </div>
                 <div class="d-flex justify-content-end">
                   <button @click="updateCompany" class="btn btn-primary">
@@ -92,69 +69,46 @@
               </div>
 
               <!-- Left Section: Upload Photo -->
-              <div
-                class="col-md-6 order-md-1 d-flex flex-column align-items-center"
-              >
+              <div class="col-md-6 order-md-1 d-flex flex-column align-items-center">
                 <div class="mb-3">
                   <label for="logo" class="form-label">Upload Logo</label>
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="logo"
-                    accept="image/*"
-                    @change="onFileChange"
-                  />
+                  <input type="file" class="form-control" id="logo" accept="image/*" @change="onFileChange" />
                 </div>
                 <div class="mb-3">
                   <strong>Preview:</strong>
-                  <img
-                    v-if="previewLogo"
-                    :src="previewLogo"
-                    alt="Logo Preview"
-                    width="100"
-                  />
+                  <img v-if="previewLogo" :src="previewLogo" alt="Logo Preview" width="100" />
                   <p v-else>No logo selected</p>
                 </div>
               </div>
             </div>
+
+
+
           </div>
         </div>
       </div>
-      <form @submit.prevent="updateCompany">
-        <div>
-          <label for="description">Description:</label>
-          <textarea v-model="draftDescription"></textarea>
-        </div>
-        <div>
-          <label for="logo">Logo:</label>
-          <input type="file" @change="onFileChange" />
-          <img
-            v-if="company.logo"
-            :src="getLogoUrl(company.logo)"
-            alt="Company Logo"
-            width="100"
-          />
-        </div>
-        <button type="submit">Save Changes</button>
-      </form>
     </div>
   </div>
 </template>
+
 <script>
 import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 import { mapState } from "vuex";
 
 export default {
   name: "DevCompany",
-  components: { SideNav },
+  components: { SideNav, AppHeader },
   data() {
     return {
       company: {},
-      draftDescription: "",
+      tempDescription: "",
       newLogo: null,
+      previewLogo: null,
     };
   },
+
   computed: {
     ...mapState({
       userId: (state) => state.userId,
@@ -168,7 +122,7 @@ export default {
       return this.companyId;
     },
     localStorageUserId() {
-      return localStorage.getItem("developer_id");
+      return localStorage.getItem("user_id");
     },
     localStorageCompanyId() {
       return localStorage.getItem("company_id");
@@ -180,63 +134,79 @@ export default {
   },
 
   methods: {
-    // Method to fetch company details
     async fetchCompany() {
-      const userId = this.userId || localStorage.getItem("developer_id");
-      const companyId = this.companyId || localStorage.getItem("company_id");
+      const companyId = this.vuexCompanyId;
 
-      if (!userId || !companyId) {
-        alert("Developer or Company ID not found. Please log in.");
+      if (!companyId) {
+        alert("Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
       }
 
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/company/",
+          `http://localhost:8000/developer/company/`,
           {
             headers: {
-              "Developer-ID": userId,
-              "Company-ID": companyId,
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               "Content-Type": "application/json",
             },
           }
         );
-
         if (response.status === 200) {
-          this.company = {
-            name: response.data.company_name,
-            description: response.data.company_description,
-            logo: response.data.company_logo,
-          };
-          this.draftDescription = this.company.description;
+          this.company = response.data;
+          this.tempDescription = response.data.description; // Set tempDescription
         } else {
-          alert("Error fetching company data.");
+          alert("Error fetching company details.");
         }
       } catch (error) {
-        console.error("Error fetching company data:", error);
-        alert("Error fetching company data.");
+        if (error.response.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchCompany(); // Retry after refreshing
+          }
+        } else {
+          console.error("Error fetching company data:", error);
+          alert("Error fetching company data.");
+        }
       }
     },
-
-    // Method to get logo URL
-    getLogoUrl(logoPath) {
-      return `http://localhost:8000${logoPath}`;
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          {
+            refresh: refreshToken,
+          }
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
+        } else {
+          this.handleTokenRefreshFailure();
+        }
+      } catch (error) {
+        this.handleTokenRefreshFailure();
+      }
     },
-
-    // Method to handle logo file change
-    onFileChange(event) {
-      this.newLogo = event.target.files[0];
+    handleTokenRefreshFailure() {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      this.$router.push({ name: "DevLogin" });
     },
-
-    // Method to update company details
     async updateCompany() {
       try {
         const formData = new FormData();
-        formData.append("description", this.draftDescription);
+
+        if (this.tempDescription !== this.company.description) {
+          formData.append("description", this.tempDescription); // Use tempDescription
+        }
 
         if (this.newLogo) {
-          formData.append("logo", this.newLogo);
+          formData.append("logo", this.newLogo); // Include logo if selected
         }
 
         const response = await axios.put(
@@ -244,26 +214,43 @@ export default {
           formData,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-              "Developer-ID": localStorage.getItem("developer_id"),
-              "Company-ID": localStorage.getItem("company_id"),
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
 
         if (response.status === 200) {
           alert("Company updated successfully!");
+          this.company.description = this.tempDescription; // Update company description after saving
+          this.fetchCompany(); // Refresh company data
+          this.previewLogo = null; // Clear preview after successful update
         } else {
           alert("Error updating company.");
         }
       } catch (error) {
         console.error("Error updating company:", error);
-        if (error.response) {
-          console.error(error.response.data);
-          console.error(error.response.status);
-        }
-        alert("Error updating company. Please try again.");
+        alert(
+          error.response?.data?.error ||
+            "Error updating company. Please try again."
+        );
       }
+    },
+    onFileChange(event) {
+      const file = event.target.files[0];
+      console.log("File selected:", file);
+      if (file) {
+        this.newLogo = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.previewLogo = reader.result;
+          console.log("Preview logo set:", this.previewLogo);
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    getLogoUrl(logo) {
+      return `http://localhost:8000${logo}`;
     },
   },
 };
@@ -397,7 +384,9 @@ textarea:focus {
   flex: 1;
   padding: 20px;
   text-align: center;
-}
+
+} */
+
 .user-info {
   margin-bottom: 20px;
   text-align: left;
