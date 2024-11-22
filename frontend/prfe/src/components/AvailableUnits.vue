@@ -5,10 +5,10 @@
       <h2>Available Units for Site: {{ siteName }}</h2>
       <div v-if="units.length">
         <div class="units-container">
-          <div 
-            v-for="unit in units" 
-            :key="unit.id" 
-            class="unit-card" 
+          <div
+            v-for="unit in units"
+            :key="unit.id"
+            class="unit-card"
             @click="showUnitDetails(unit)"
           >
             <p>{{ unit.unit_title }}</p>
@@ -31,38 +31,227 @@
       <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
           <div v-if="selectedUnit.images.length">
-            <img v-for="(image, index) in selectedUnit.images" 
-                 :key="index" 
-                 :src="image" 
-                 alt="Unit Picture" 
-                 class="unit-picture" />
+            <img
+              v-for="(image, index) in selectedUnit.images"
+              :key="index"
+              :src="image"
+              alt="Unit Picture"
+              class="unit-picture"
+            />
           </div>
-          <p>P{{ selectedUnit.price }} Bedroom: {{ selectedUnit.bedroom }} Bathroom: {{ selectedUnit.bathroom }} Floor Area: {{ selectedUnit.floor_area }}</p>
-          <hr>
+          <p>
+            P{{ selectedUnit.price }} Bedroom:
+            {{ selectedUnit.bedroom }} Bathroom:
+            {{ selectedUnit.bathroom }} Floor Area:
+            {{ selectedUnit.floor_area }}
+          </p>
+          <hr />
           <center>Details</center>
-          <p>Unit/Floor Number: {{ selectedUnit.floor }} Balcony: {{ selectedUnit.balcony }} Built(Year):{{ siteYear }} </p>
-          <p>Baths:{{ selectedUnit.bathroom }} Bedrooms: {{ selectedUnit.bedroom }} Floor area(m<sup>2</sup>):{{ selectedUnit.floor_area }} </p>
-          <p>View: {{ selectedUnit.view }} </p>
-          <hr>
+          <p>
+            Unit/Floor Number: {{ selectedUnit.floor }} Balcony:
+            {{ selectedUnit.balcony }} Built(Year):{{ siteYear }}
+          </p>
+          <p>
+            Baths:{{ selectedUnit.bathroom }} Bedrooms:
+            {{ selectedUnit.bedroom }} Floor area(m<sup>2</sup>):{{
+              selectedUnit.floor_area
+            }}
+          </p>
+          <p>View: {{ selectedUnit.view }}</p>
+          <hr />
+
+          <!-- Payment Plan Section -->
+          <div class="form-group">
+            <label for="paymentPlan">Payment Plan</label>
+            <select v-model="selectedPaymentPlan" id="paymentPlan" required>
+              <option value="spot_cash">Spot Cash</option>
+              <option value="in_house_financing">Deffered Payment</option>
+            </select>
+          </div>
+
+          <!-- Spot Cash Plan -->
+          <div v-if="selectedPaymentPlan === 'spot_cash'">
+            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
+
+            <!-- Spot Cash Discount -->
+            <div class="form-group">
+              <label for="spotCashDiscount">Spot Cash Discount</label>
+              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+
+            <!-- Unit Price after Spot Discount -->
+            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+
+            <!-- TLP Discount -->
+            <div class="form-group">
+              <label for="tlpDiscount">TLP Discount (Optional)</label>
+              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+                <option value="0">None</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+
+            <!-- Net Unit Price -->
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+
+            <!-- Other Charges -->
+            <div class="form-group">
+              <label for="otherChargesPercentage">Other Charges (%)</label>
+              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails">
+                <option value="8.5">8.5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+            <!-- Total Amount Payable -->
+            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+
+            <!-- Reservation Fee -->
+            <p><strong>Less Reservation Fee (10%):</strong> ₱{{ reservationFee }}</p>
+
+            <!-- Net Full Payment -->
+            <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+          </div>
+
+          <!-- In-House Financing Plan -->
+          <div v-if="selectedPaymentPlan === 'in_house_financing'">
+            <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
+
+            <!-- Spot Discount -->
+            <div class="form-group">
+              <label for="spotDiscount">Spot Discount</label>
+              <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="1">1%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+
+            <!-- Unit Price after Spot Discount -->
+            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+
+            <!-- TLP Discount -->
+            <div class="form-group">
+              <label for="tlpDiscount">TLP Discount</label>
+              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+                <option value="0">None</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+
+            <!-- Net Unit Price -->
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+
+            <!-- Other Charges -->
+            <div class="form-group">
+              <label for="otherCharges">Other Charges</label>
+              <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails">
+                <option value="8.5">8.5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+
+            <!-- VAT Calculation -->
+            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+
+            <!-- Total Amount Payable -->
+            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+
+            <!-- Spot Downpayment -->
+            <div class="form-group">
+              <label for="spotDownpayment">Spot Downpayment</label>
+              <select v-model="spotDownpaymentPercentage" id="spotDownpayment" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+
+            <!-- Reservation Fee -->
+            <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+
+            <!-- Net Downpayment -->
+            <p><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+
+            <!-- Spread Downpayment -->
+            <div class="form-group">
+              <label for="spreadDownpayment">Spread Downpayment</label>
+              <select v-model="spreadDownpaymentPercentage" id="spreadDownpayment" @change="updatePaymentDetails">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+
+            <!-- Payable in Months -->
+            <div class="form-group">
+              <label for="months">Months to Pay</label>
+              <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1" />
+            </div>
+            <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+
+
+            <!-- Balance Upon Turnover -->
+            <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+          </div>
+
 
           <div class="button-container">
-            <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
-            <button class="schedule-btn" @click="scheduleVisit">Schedule Visit</button>
+            <button class="reserve-btn" @click="openReserveModal">
+              Reserve Unit
+            </button>
+            <button class="schedule-btn" @click="scheduleVisit">
+              Schedule Visit
+            </button>
           </div>
         </div>
       </div>
-
       <!-- Reserve Unit Modal -->
-      <div v-if="isReserveModalVisible" class="modal-overlay" @click="closeReserveModal">
+      <div
+        v-if="isReserveModalVisible"
+        class="modal-overlay"
+        @click="closeReserveModal"
+      >
         <div class="modal-content" @click.stop>
           <h3>Reserve Unit</h3>
           <form @submit.prevent="submitReservation">
             <!-- Customer Name Dropdown -->
             <div class="form-group">
               <label for="customerName">Customer Name</label>
-              <select v-model="reservationForm.customerName" id="customerName" required>
+              <select
+                v-model="reservationForm.customerName"
+                id="customerName"
+                required
+              >
                 <option value="" disabled selected>Select Customer</option>
-                <option v-for="customer in customers" :key="customer.id" :value="customer.id">
+                <option
+                  v-for="customer in customers"
+                  :key="customer.id"
+                  :value="customer.id"
+                >
                   {{ customer.name }}
                 </option>
               </select>
@@ -70,17 +259,31 @@
             <!-- File Upload -->
             <div class="form-group">
               <label for="fileUpload">Upload File (Required)</label>
-              <input type="file" @change="handleFileUpload" id="fileUpload" required />
+              <input
+                type="file"
+                @change="handleFileUpload"
+                id="fileUpload"
+                required
+              />
             </div>
             <!-- Payment Amount -->
             <div class="form-group">
               <label for="paymentAmount">Payment Amount</label>
-              <input type="number" v-model="reservationForm.paymentAmount" id="paymentAmount" required />
+              <input
+                type="number"
+                v-model="reservationForm.paymentAmount"
+                id="paymentAmount"
+                required
+              />
             </div>
             <!-- Payment Method -->
             <div class="form-group">
               <label for="paymentMethod">Payment Method</label>
-              <select v-model="reservationForm.paymentMethod" id="paymentMethod" required>
+              <select
+                v-model="reservationForm.paymentMethod"
+                id="paymentMethod"
+                required
+              >
                 <option value="bank_transfer">Bank Transfer</option>
                 <option value="cash">Cash</option>
                 <option value="online_payment">Online Payment</option>
@@ -89,16 +292,31 @@
             <!-- Payment Date -->
             <div class="form-group">
               <label for="paymentDate">Date of Payment</label>
-              <input type="date" v-model="reservationForm.paymentDate" id="paymentDate" required />
+              <input
+                type="date"
+                v-model="reservationForm.paymentDate"
+                id="paymentDate"
+                required
+              />
             </div>
             <!-- Payment Reference (only if payment method is not cash) -->
-            <div class="form-group" v-if="reservationForm.paymentMethod !== 'cash'">
+            <div
+              class="form-group"
+              v-if="reservationForm.paymentMethod !== 'cash'"
+            >
               <label for="paymentReference">Payment Reference Number</label>
-              <input type="text" v-model="reservationForm.paymentReference" id="paymentReference" required />
+              <input
+                type="text"
+                v-model="reservationForm.paymentReference"
+                id="paymentReference"
+                required
+              />
             </div>
             <!-- Submit Button -->
             <div class="form-group">
-              <button type="submit" class="submit-btn">Submit Reservation</button>
+              <button type="submit" class="submit-btn">
+                Submit Reservation
+              </button>
             </div>
           </form>
           <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
@@ -108,9 +326,10 @@
   </div>
 </template>
 
+
 <script>
 import SideNav from "@/components/SideNav.vue";
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   name: "AvailableUnits",
@@ -121,22 +340,44 @@ export default {
     return {
       siteId: this.$route.params.siteId,
       units: [],
-      siteName: '',
-      siteYear: '',
+      siteName: "",
+      siteYear: "",
       isModalVisible: false,
       selectedUnit: null,
       isReserveModalVisible: false,
       reservationForm: {
-        customerName: '',
-        paymentAmount: '',
-        paymentMethod: '',
-        paymentDate: '',
-        paymentReference: '',
+        customerName: "",
+        paymentAmount: "",
+        paymentMethod: "",
+        paymentDate: "",
+        paymentReference: "",
         file: null, // This will hold the file
       },
       customers: [],
       successMessage: '',  // Success message
       errorMessage: '',    // Error message
+
+      // Payment Scheme Data
+      selectedPaymentPlan: 'spot_cash', // Default payment plan
+      unitPrice: 0, // Example price of the unit
+      spotCashDiscount: 0,
+      tlpDiscount: 0,
+      spotDiscount: 0, 
+      unitPriceAfterSpotDiscount: 0,
+      tlpDiscountAmount: 0,
+      netUnitPrice: 0,
+      otherChargesPercentage: 0,
+      otherCharges: 0,
+      totalAmountPayable: 0,
+      reservationFee: 0,
+      netFullPayment: 0,
+      spotDownpaymentPercentage: 0,
+      spotDownpayment: 0,
+      spreadDownpaymentPercentage: 0,
+      spreadDownpayment: 0,
+      payableMonths: 40,
+      payablePerMonth: 0,
+      balanceUponTurnover: 0,
     };
   },
 
@@ -144,15 +385,20 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
+
+    // Call updatePaymentDetails to show the default payment details
+    this.updatePaymentDetails();
   },
 
   methods: {
     async fetchAvailableUnits() {
       try {
-        const response = await axios.get(`http://localhost:8000/units/available/?site_id=${this.siteId}`);
-        this.units = response.data.units.map(unit => ({
+        const response = await axios.get(
+          `http://localhost:8000/units/available/?site_id=${this.siteId}`
+        );
+        this.units = response.data.units.map((unit) => ({
           ...unit,
-          company_id: unit.company_id
+          company_id: unit.company_id,
         }));
       } catch (error) {
         console.error("Error fetching available units:", error);
@@ -161,7 +407,9 @@ export default {
 
     async fetchSiteName() {
       try {
-        const response = await axios.get(`http://localhost:8000/sites/${this.siteId}`);
+        const response = await axios.get(
+          `http://localhost:8000/sites/${this.siteId}`
+        );
         this.siteName = response.data.name;
         this.siteYear = response.data.created_year;
       } catch (error) {
@@ -170,14 +418,16 @@ export default {
     },
 
     async fetchCustomers() {
-      const brokerId = localStorage.getItem("broker_id");
+      const brokerId = this.$store.getters.getUserId; // Use Vuex getter to get broker ID
       if (!brokerId) {
         this.errorMessage = "Broker ID not found. Please log in again.";
         return;
       }
 
       try {
-        const response = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
+        const response = await fetch(
+          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
+        );
         const data = await response.json();
         if (data && data.customers) {
           this.customers = data.customers;
@@ -191,7 +441,11 @@ export default {
 
     showUnitDetails(unit) {
       this.selectedUnit = unit;
+      this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
+
+      // Recalculate payment details when the unit is selected
+      this.updatePaymentDetails();
     },
 
     closeModal() {
@@ -205,11 +459,11 @@ export default {
     closeReserveModal() {
       this.isReserveModalVisible = false;
       this.reservationForm = {
-        customerName: '',
-        paymentAmount: '',
-        paymentMethod: '',
-        paymentDate: '',
-        paymentReference: '',
+        customerName: "",
+        paymentAmount: "",
+        paymentMethod: "",
+        paymentDate: "",
+        paymentReference: "",
         file: null,
       };
     },
@@ -221,33 +475,112 @@ export default {
       }
     },
 
+    updatePaymentDetails() {
+      if (this.selectedPaymentPlan === 'spot_cash') {
+        this.applySpotCashDiscount();
+        this.applyTLPDiscount();
+        this.applyOtherCharges();
+        this.calculateVAT();
+
+      }
+       else if (this.selectedPaymentPlan === 'in_house_financing') {
+        this.applySpotCashDiscount();
+        this.applyTLPDiscount();
+        this.applyOtherCharges();
+        this.calculateVAT();
+        this.calculateFinancingDetails();
+      }
+    },
+
+    applySpotCashDiscount() {
+      const discountPercentage = parseFloat(this.spotCashDiscount);
+      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
+      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
+      this.updateNetUnitPrice();
+    },
+    
+
+    applyTLPDiscount() {
+      const discountPercentage = parseFloat(this.tlpDiscount);
+      this.tlpDiscountAmount = (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
+      this.updateNetUnitPrice();
+    },
+
+    updateNetUnitPrice() {
+      this.netUnitPrice = this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
+      this.applyOtherCharges();
+    },
+
+    applyOtherCharges() {
+      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
+      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
+      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
+      this.reservationFee = "30000" // 10% reservation fee
+      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
+    },
+    calculateVAT() {
+      if (this.netUnitPrice > 3600000) {
+        this.vatAmount = this.netUnitPrice * 0.12;
+        this.totalAmountPayable += this.vatAmount;
+      }
+    },
+
+    calculateFinancingDetails() {
+      this.spotDownpayment = this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+      this.spreadDownpayment = this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+      if (this.spotDownpaymentPercentage == '0') {
+        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
+        this.payablePerMonth = this.netDownpayment / this.payableMonths;
+      }
+      else {
+        this.netDownpayment = this.spotDownpayment - this.reservationFee;
+        this.payablePerMonth = this.spreadDownpayment / this.payableMonths; 
+      }
+      this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
+      console.log(this.balanceUponTurnover, this.spotDownpaymentPercentage, this.spreadDownpaymentPercentage);
+    },
+
+       
     async submitReservation() {
       // Check if all required fields are filled, including the file
-      if (!this.reservationForm.customerName || !this.reservationForm.paymentAmount || 
-          !this.reservationForm.paymentMethod || !this.reservationForm.paymentDate || 
-          !this.reservationForm.file || (this.reservationForm.paymentMethod !== 'cash' && !this.reservationForm.paymentReference)) {
-        this.errorMessage = "All fields are required except the payment reference (if payment method is 'cash').";
+      if (
+        !this.reservationForm.customerName ||
+        !this.reservationForm.paymentAmount ||
+        !this.reservationForm.paymentMethod ||
+        !this.reservationForm.paymentDate ||
+        !this.reservationForm.file ||
+        (this.reservationForm.paymentMethod !== "cash" &&
+          !this.reservationForm.paymentReference)
+      ) {
+        this.errorMessage =
+          "All fields are required except the payment reference (if payment method is 'cash').";
         return;
       }
 
       const data = {
         customer_name: this.reservationForm.customerName,
-        site_id: parseInt(this.siteId, 10),  // Convert to integer
+        site_id: parseInt(this.siteId, 10), // Convert to integer
         unit_id: this.selectedUnit.id,
-        broker_id: parseInt(localStorage.getItem("broker_id"), 10),  // Convert to integer
-        company_id: this.selectedUnit.company_id,  // Ensure this is correctly passed
+        broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
+        company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
         payment_amount: this.reservationForm.paymentAmount,
         payment_method: this.reservationForm.paymentMethod,
         payment_reference: this.reservationForm.paymentReference || null, // Payment reference is optional if payment is "cash"
-        reservation_file: this.reservationForm.file ? this.reservationForm.file.name : null // Ensure file is present
+        reservation_file: this.reservationForm.file
+          ? this.reservationForm.file.name
+          : null, // Ensure file is present
       };
 
       try {
-        const response = await axios.post('http://localhost:8000/reserve-unit/', data, {
-          headers: {
-            'Content-Type': 'application/json',  // Sending JSON data
+        const response = await axios.post(
+          "http://localhost:8000/reserve-unit/",
+          data,
+          {
+            headers: {
+              "Content-Type": "application/json", // Sending JSON data
+            },
           }
-        });
+        );
 
         // Set the success message to display in the pop-up
         this.successMessage = "Reservation submitted successfully!";
@@ -257,31 +590,32 @@ export default {
 
         // Reset the reservation form
         this.reservationForm = {
-          customerName: '',
-          paymentAmount: '',
-          paymentMethod: '',
-          paymentDate: '',
-          paymentReference: '',
+          customerName: "",
+          paymentAmount: "",
+          paymentMethod: "",
+          paymentDate: "",
+          paymentReference: "",
           file: null,
         };
 
         console.log("Sale created:", response.data);
-
       } catch (error) {
         console.error("Error submitting reservation:", error);
-        this.errorMessage = "There was an error submitting the reservation. Please try again.";  // Display error message
+        this.errorMessage =
+          "There was an error submitting the reservation. Please try again."; // Display error message
       }
     },
 
     closePopup() {
-      this.successMessage = '';  // Hide the success message pop-up
-      this.$router.push({ name: 'AffiliatedUnits' });  // Redirect to the 'AffiliatedUnits' page
+      this.successMessage = ""; // Hide the success message pop-up
+      this.$router.push({ name: "AffiliatedUnits" }); // Redirect to the 'AffiliatedUnits' page
     },
-  }
+  },
 };
 </script>
+
 <style scoped>
-  .popup-overlay {
+.popup-overlay {
   position: fixed;
   top: 0;
   left: 0;

@@ -6,24 +6,26 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from django.utils import timezone  
 from django.db import models 
+from django.utils import timezone  
 from django.utils.timezone import now  
 from django.contrib.auth.hashers import check_password, make_password
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.middleware.csrf import get_token
 from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
-from companies.serializers import CompanySerializer
-from developers.models import Developer
 from django.shortcuts import get_object_or_404
 
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from developers.models import Developer
 from brokers.models import Broker 
 from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit, UnitImage
 from sites.models import Site
- 
+
 import json
 import re
 import logging
@@ -45,16 +47,18 @@ def login_view(request, user_role):
                 )
 
             # Fetch the user based on user_role
-            if user_role == 'broker':
-                user = Broker.objects.filter(username=username).first()
-            elif user_role == 'developer':
+            if user_role == 'developer':
                 user = Developer.objects.filter(username=username).first()
+            elif user_role == 'broker':
+                user = Broker.objects.filter(username=username).first()
             else:
-                return JsonResponse({"success": False, "message": "Invalid user type."}, status=400)
+                return JsonResponse({"success": False, "message": "Invalid user role."}, status=400)
 
-            # Validate credentials
-            if user is None or not check_password(password, user.password):
-                return JsonResponse({"success": False, "message": "Invalid credentials."}, status=404)
+            if user is None:
+                return JsonResponse({"success": False, "message": "User not found."}, status=404)
+
+            if not check_password(password, user.password):
+                return JsonResponse({"success": False, "message": "Invalid password."}, status=401)
 
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
@@ -64,7 +68,6 @@ def login_view(request, user_role):
             user.last_login = now()
             user.save()
 
-            # Return tokens and user data
             return JsonResponse({
                 "success": True,
                 "tokens": {
@@ -77,7 +80,7 @@ def login_view(request, user_role):
                     "email": user.email,
                     "contact_number": user.contact_number,
                     "user_role": user_role,
-                    "company_id": user.company.id,  # Include the company ID here
+                    "company_id": user.company.id,
                 }
             }, status=200)
 
@@ -89,31 +92,18 @@ def login_view(request, user_role):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
+@csrf_exempt
+def login_view_developer(request):
+    return login_view(request, user_role='developer')
 
 @csrf_exempt
 def login_view_broker(request):
     return login_view(request, user_role='broker')
 
-@csrf_exempt
-def login_view_developer(request):
-    return login_view(request, user_role='developer')
 
 def get_csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
-
-def validate_password_strength(password):
-    if len(password) < 8:
-        return "Password must be at least 8 characters long."
-    if not re.search(r'[A-Z]', password):
-        return "Password must contain at least one uppercase letter."
-    if not re.search(r'[a-z]', password):
-        return "Password must contain at least one lowercase letter."
-    if not re.search(r'\d', password):
-        return "Password must contain at least one number."
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return "Password must contain at least one special character."
-    return None
 
 @csrf_exempt
 def refresh_token_view(request):
@@ -141,6 +131,28 @@ def dev_logout_view(request):
         response.delete_cookie('refresh_token')
         return response
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+@csrf_exempt
+def brk_logout_view(request):
+    if request.method == 'POST':
+        response = JsonResponse({'success': True})
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+def validate_password_strength(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+    if not re.search(r'[A-Z]', password):
+        return "Password must contain at least one uppercase letter."
+    if not re.search(r'[a-z]', password):
+        return "Password must contain at least one lowercase letter."
+    if not re.search(r'\d', password):
+        return "Password must contain at least one number."
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return "Password must contain at least one special character."
+    return None
 
 # Brokers
 @csrf_exempt
@@ -241,7 +253,7 @@ def update_broker_view(request, broker_id):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
-@csrf_exempt
+@csrf_exempt  # This decorator is optional if you are using CSRF tokens correctly in your request
 def add_customer(request):
     if request.method == 'POST':
         try:
@@ -253,7 +265,7 @@ def add_customer(request):
                 company_id=data['company_id'],  # Include company_id
                 email=data['email'],
                 contact_number=data['contact_number'],
-                affiliated_link=data.get('affiliated_link', ''),
+                affiliated_link=data.get('affiliated_link', ''),  # optional field
                 last_name=data['last_name'],
                 first_name=data['first_name']
             )
@@ -546,47 +558,6 @@ def fetch_units(request, site_id):
 
     return JsonResponse({'units': unit_data}, safe=False)
 
-
-@csrf_exempt
-def submit_sale(request):
-    if request.method == 'POST':
-        try:
-            # Parse the incoming JSON request data
-            data = json.loads(request.body)
-
-            # Extract the sale data from the request
-            customer_id = data.get('customer')
-            site_id = data.get('site')
-            unit_id = data.get('unit')
-            broker_id = data.get('broker')
-            company_id = data.get('company')
-
-            # Fetch the related objects from the database
-            customer = Customer.objects.get(id=customer_id)
-            site = Site.objects.get(id=site_id)
-            unit = Unit.objects.get(id=unit_id)
-
-            # Create the Sale object
-            sale = Sale.objects.create(
-                customer=customer,
-                site=site,
-                unit=unit,
-                broker_id=broker_id,
-                company_id=company_id,
-                status='pending',  # Set a default status (you can customize this)
-            )
-            unit.status = 'pending'
-            unit.save()
-
-            # Return a success response
-            return JsonResponse({'message': 'Sale created successfully', 'sale_id': sale.id}, status=201)
-
-        except Exception as e:
-            # If something goes wrong, return an error response
-            return JsonResponse({'error': str(e)}, status=400)
-
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
 def fetch_sales(request):
     try:
         # Fetch all sales
@@ -733,41 +704,3 @@ def DevResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
-
-@csrf_exempt
-def company_edit(request):
-    try:
-        developer_id = request.headers.get("Developer-ID")
-        company_description = request.POST.get("description")
-        company_logo = request.FILES.get("logo")
-
-        if not developer_id:
-            return JsonResponse({"success": False, "message": "Developer ID not provided"}, status=400)
-
-        developer = get_object_or_404(Developer, id=developer_id)
-        company = developer.company
-
-        # Prepare data with only non-null fields
-        data = {}
-        if company_description is not None:
-            data["description"] = company_description
-        if company_logo is not None:
-            data["logo"] = company_logo
-
-        # Debugging info
-        logger.debug(f"Updating with data: {data}")
-
-        # Pass the existing company instance and partial data to the serializer
-        serializer = CompanySerializer(company, data=data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse({"success": True, "message": "Company updated successfully"}, status=200)
-        else:
-            # Log validation errors
-            logger.error(f"Validation errors: {serializer.errors}")
-            return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
-
-    except Exception as e:
-        logger.exception("Error updating company")
-        return JsonResponse({"success": False, "message": "An unexpected error occurred"}, status=500)

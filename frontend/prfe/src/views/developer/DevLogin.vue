@@ -112,71 +112,44 @@ export default {
 
       if (this.username && this.password) {
         try {
-          const csrftoken = this.getCookie("csrftoken");
-          // if (!csrftoken) {
-          //   this.error =
-          //     "CSRF token not found. Please try refreshing the page.";
-          //   this.loading = false;
-          //   return;
-          // }
-
           const response = await fetch(
-            "http://localhost:8000/developer/login/",
+            "http://localhost:8000/api/token/developer/",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
               },
               body: JSON.stringify({
                 username: this.username,
                 password: this.password,
               }),
-              credentials: "include",
             }
           );
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            this.error = errorData.message || "Invalid username or password.";
-            this.loading = false;
-            return;
-          }
-
           const data = await response.json();
-          if (data.success) {
-            // Store auth token and user data in localStorage
-            localStorage.setItem("authToken", data.token);
-            localStorage.setItem("user_role", "developer");
-            localStorage.setItem("logged_in", "true");
-            localStorage.setItem("developer_id", data.user.id);
-            localStorage.setItem("company_id", data.user.company_id); // Add company_id to localStorage
-            console.log(
-              "Developer ID stored:",
-              localStorage.getItem("developer_id")
-            );
-            console.log(
-              "Company ID stored:",
-              localStorage.getItem("company_id")
-            );
-            console.log(
-              "Developer ID (from localStorage):",
-              this.localStorageUserId
-            );
-            console.log(
-              "Company ID (from localStorage):",
-              this.localStorageCompanyId
-            );
+
+          if (response.ok && data.tokens) {
+            // Store JWT tokens in localStorage
+            localStorage.setItem("accessToken", data.tokens.access);
+            localStorage.setItem("refreshToken", data.tokens.refresh);
+
+            // Assuming the response contains user details
+            const user = {
+              id: data.user.id,
+              user_role: data.user.user_role,
+              company_id: data.user.company_id,
+            };
 
             // Dispatch login action to Vuex store
-            const user = data.user;
-            const token = data.tokens.access;
-            this.$store.dispatch("login", { user, token });
+            this.$store.dispatch("login", {
+              user: user,
+              token: data.tokens.access,
+            });
 
             // Redirect to the developer dashboard
             this.$router.push("/developer/dashboard");
           } else {
-            this.error = data.message || "Invalid username or password.";
+            this.error = data.message || "Login failed. Please try again.";
           }
         } catch (error) {
           console.error("Login error:", error);
@@ -188,21 +161,6 @@ export default {
         this.error = "Please fill in both fields.";
         this.loading = false;
       }
-    },
-
-    getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === name + "=") {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
     },
   },
 };
