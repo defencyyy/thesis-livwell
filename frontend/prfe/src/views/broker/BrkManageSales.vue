@@ -197,7 +197,7 @@
             <h3>Required Documents</h3>
             <ul>
               <li><strong>Reservation Agreement:</strong>
-                <input type="file" id="reservationAgreement" required />
+                <input type="file"  @change="handleFileChange" id="reservationAgreement" required />
               </li>
               <li><strong>Valid ID (Front and Back):</strong> A clear copy of a government-issued ID with a signature.</li>
               <li><strong>Proof of Billing:</strong> A recent utility bill or bank statement showing the customer's name and address.</li>
@@ -208,6 +208,14 @@
           </div>
         <button @click="submitToCustomer">Submit to Customer</button>
         <button @click="closeModal">Close</button>
+        <!-- Loading Indicator -->
+        <div v-if="loading" class="loading-overlay">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Submitting...</p>
+          </div>
+        </div>
+
 
         </div>
         </div>
@@ -250,7 +258,11 @@ export default {
       payableMonths: 40,
       payablePerMonth: 0,
       balanceUponTurnover: 0,
+      file: null,
+
       showDetailedSchedule: false, // To toggle detailed payment schedule
+      loading: false, // Track loading state
+
     };
   },
   methods: {
@@ -349,16 +361,15 @@ export default {
       }
       this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
     },
+    handleFileChange(event) {
+      const fileInput = event.target.files[0];
+      if (fileInput) {
+        this.file = fileInput;
+      }
+    },
+  
     async submitToCustomer() {
-      if (!this.selectedPaymentPlan || !this.spotCashDiscount || !this.tlpDiscount || 
-      !this.otherChargesPercentage || !this.spotDownpaymentPercentage || 
-      !this.reservationFee || !this.payableMonths || !this.payablePerMonth || 
-      !this.balanceUponTurnover || !this.netUnitPrice || !this.totalAmountPayable || 
-      !this.netFullPayment) {
-    this.errorMessage = "All fields are required.";
-    alert(this.errorMessage);  // Show the error message to the user
-    return;
-  }
+    this.loading = true;
     // Collect data to send to the backend
     const data = {
       customer_id: this.selectedSale.customer_id,
@@ -378,9 +389,9 @@ export default {
       net_unit_price: this.netUnitPrice,
       total_amount_payable: this.totalAmountPayable,
       net_full_payment: this.netFullPayment,
-      customer_email: this.selectedSale.email  // Include the customer email
-    };
-    console.log("Sending data to backend:", data);
+      customer_email: this.selectedSale.email,  // Include the customer email
+      reservation_agreement: this.file,  // Add reservation_agreement here
+      };
 
   try {
     const response = await axios.post('http://localhost:8000/submit-sales/', data, {
@@ -411,6 +422,10 @@ export default {
       console.error("Error:", error.message);
       alert("An error occurred while submitting the sales agreement: " + error.message);
     }
+      }
+  finally {
+    // Stop loading after the request completes
+    this.loading = false;
   }
   },
     // Close the modal
@@ -523,6 +538,37 @@ th {
 
 td {
   text-align: right;
+}
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Ensure it's on top of other content */
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #fff;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3; /* Light grey background */
+  border-top: 4px solid #3498db; /* Blue color for the spinning part */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 </style>

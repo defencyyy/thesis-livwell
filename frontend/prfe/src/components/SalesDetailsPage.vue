@@ -28,6 +28,12 @@
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetail.payable_months }}</p>
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+    <div v-if="salesDetail.reservation_agreement_url">
+      <!-- Provide the link to the reservation agreement file -->
+      <a :href="salesDetail.reservation_agreement_url" download>
+        <button>Download Reservation Agreement</button>
+      </a>
+    </div>
 
     <!-- Collapsible Table Section - Only for Deferred Payment -->
     <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
@@ -66,7 +72,6 @@
         </table>
       </div>
     </div>
-
   </div>
 </template>
 

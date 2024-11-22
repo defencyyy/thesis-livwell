@@ -593,7 +593,7 @@ def reserve_unit(request):
         try:
             # Parse the incoming JSON request data
             data = json.loads(request.body)
-
+            
             # Ensure the IDs are integers (if they are not already)
             customer_id = data.get('customer_name')
             site_id = int(data.get('site_id'))  # Convert to integer
@@ -644,7 +644,6 @@ def submit_sales(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)  # Parse the incoming JSON data
-
             # Extract values from the request data
             customer_id = data.get('customer_id')
             site_id = data.get('site_id')
@@ -684,8 +683,8 @@ def submit_sales(request):
                 net_unit_price=net_unit_price,
                 total_amount_payable=total_amount_payable,
                 net_full_payment=net_full_payment,
-            )
 
+            )
             # Optionally, send a confirmation email to the customer
             send_confirmation_email(request, customer_email, sales_detail.id)
 
@@ -724,6 +723,7 @@ def get_sales_detail(request, sales_detail_id):
         'net_unit_price': sales_detail.net_unit_price,
         'total_amount_payable': sales_detail.total_amount_payable,
         'net_full_payment': sales_detail.net_full_payment,
+        
         
         # Add related data
         'unit_price':unit.price,

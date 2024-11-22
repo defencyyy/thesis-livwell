@@ -6,6 +6,7 @@ from customers.models import Customer
 from brokers.models import Broker
 from sites.models import Site
 import uuid
+import os
 
 class SalesDetails(models.Model):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, null=True)
@@ -48,11 +49,14 @@ class SalesDetails(models.Model):
     total_amount_payable = models.DecimalField(max_digits=12, decimal_places=2)  # Total amount payable (net unit price + other charges)
     net_full_payment = models.DecimalField(max_digits=12, decimal_places=2)  # Net full payment (after reservation fee)
 
+
     # Date of creation of the sales agreement
     created_at = models.DateTimeField(default=timezone.now)
     
     # Unique identifier for the agreement
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+    
 
     def __str__(self):
         return f"Sales Agreement for {self.customer}"

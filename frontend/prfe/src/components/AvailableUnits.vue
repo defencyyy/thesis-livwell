@@ -445,6 +445,7 @@ export default {
         payment_reference: this.reservationForm.paymentReference || null, // Payment reference is optional if payment is "cash"
         reservation_file: this.reservationForm.file ? this.reservationForm.file.name : null // Ensure file is present
       };
+      
 
       try {
         const response = await axios.post('http://localhost:8000/reserve-unit/', data, {
