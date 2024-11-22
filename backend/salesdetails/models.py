@@ -6,7 +6,6 @@ from customers.models import Customer
 from brokers.models import Broker
 from sites.models import Site
 import uuid
-import os
 
 class SalesDetails(models.Model):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, null=True)
@@ -55,6 +54,9 @@ class SalesDetails(models.Model):
     
     # Unique identifier for the agreement
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+    reservation_agreement = models.FileField(upload_to='reservations/', null=True, blank=True)  # Field to store the file
+
 
     
 

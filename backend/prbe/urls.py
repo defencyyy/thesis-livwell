@@ -28,6 +28,8 @@ urlpatterns = [
     path('reserve-unit/', views.reserve_unit, name='reserve-unit'),
     path('submit-sales/', views.submit_sales, name='submit_sales'),
     path('sales-detail/<int:sales_detail_id>/', views.get_sales_detail, name='view_sales_detail'),
+    path('download_reservation_agreement/<int:sales_detail_id>/', views.download_reservation_agreement, name='download_reservation_agreement'),
+
 
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 

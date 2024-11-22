@@ -18,8 +18,12 @@ from companies.serializers import CompanySerializer
 from developers.models import Developer
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.html import format_html
 from django.conf import settings
+from django.core.files.storage import default_storage
+from django.http import FileResponse, Http404
+import os
+
+
 
 
 from brokers.models import Broker 
@@ -643,26 +647,34 @@ def reserve_unit(request):
 def submit_sales(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)  # Parse the incoming JSON data
-            # Extract values from the request data
-            customer_id = data.get('customer_id')
-            site_id = data.get('site_id')
-            unit_id = data.get('unit_id')
-            broker_id = data.get('broker_id')
-            payment_plan = data.get('payment_plan')
-            spot_discount_percent = data.get('spot_discount_percent')
-            tlp_discount_percent = data.get('tlp_discount_percent')
-            other_charges_percent = data.get('other_charges_percent')
-            spot_downpayment_percent = data.get('spot_downpayment_percent')
-            reservation_fee = data.get('reservation_fee')
-            spread_downpayment_percent = data.get('spread_downpayment_percent')
-            payable_months = data.get('payable_months')
-            payable_per_month = data.get('payable_per_month')
-            balance_upon_turnover = data.get('balance_upon_turnover')
-            net_unit_price = data.get('net_unit_price')
-            total_amount_payable = data.get('total_amount_payable')
-            net_full_payment = data.get('net_full_payment')
-            customer_email = data.get('customer_email')
+            # Get form data (request.POST) and file data (request.FILES)
+            customer_id = request.POST.get('customer_id')
+            site_id = request.POST.get('site_id')
+            unit_id = request.POST.get('unit_id')
+            broker_id = request.POST.get('broker_id')
+            payment_plan = request.POST.get('payment_plan')
+            spot_discount_percent = request.POST.get('spot_discount_percent')
+            tlp_discount_percent = request.POST.get('tlp_discount_percent')
+            other_charges_percent = request.POST.get('other_charges_percent')
+            spot_downpayment_percent = request.POST.get('spot_downpayment_percent')
+            reservation_fee = request.POST.get('reservation_fee')
+            spread_downpayment_percent = request.POST.get('spread_downpayment_percent')
+            payable_months = request.POST.get('payable_months')
+            payable_per_month = request.POST.get('payable_per_month')
+            balance_upon_turnover = request.POST.get('balance_upon_turnover')
+            net_unit_price = request.POST.get('net_unit_price')
+            total_amount_payable = request.POST.get('total_amount_payable')
+            net_full_payment = request.POST.get('net_full_payment')
+            customer_email = request.POST.get('customer_email')
+
+            # Get the uploaded file
+            reservation_agreement = request.FILES.get('reservation_agreement')
+
+            if reservation_agreement:
+                # Save the file to the server (this is optional, depending on your requirement)
+                file_path = default_storage.save(f'reservations/{reservation_agreement.name}', reservation_agreement)
+            else:
+                file_path = None
 
             # Create a new SalesDetails entry
             sales_detail = SalesDetails.objects.create(
@@ -683,8 +695,9 @@ def submit_sales(request):
                 net_unit_price=net_unit_price,
                 total_amount_payable=total_amount_payable,
                 net_full_payment=net_full_payment,
-
+                reservation_agreement=file_path,  # Save the file path or reference in the model
             )
+
             # Optionally, send a confirmation email to the customer
             send_confirmation_email(request, customer_email, sales_detail.id)
 
@@ -695,7 +708,9 @@ def submit_sales(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid method.'}, status=405)
 
+
 def get_sales_detail(request, sales_detail_id):
+    # Fetch the sales detail
     sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
 
     # Fetch the related site, broker, customer, and unit
@@ -706,6 +721,7 @@ def get_sales_detail(request, sales_detail_id):
 
     # Prepare the response data with all related information
     sales_detail_data = {
+        'id':sales_detail_id, 
         'customer_id': sales_detail.customer_id,
         'site_id': sales_detail.site_id,
         'unit_id': sales_detail.unit_id,
@@ -723,17 +739,50 @@ def get_sales_detail(request, sales_detail_id):
         'net_unit_price': sales_detail.net_unit_price,
         'total_amount_payable': sales_detail.total_amount_payable,
         'net_full_payment': sales_detail.net_full_payment,
-        
-        
+
         # Add related data
-        'unit_price':unit.price,
+        'unit_price': unit.price,
         'site_name': site.name,  # Site name
         'broker_name': f"{broker.first_name} {broker.last_name}",  # Broker full name
         'customer_name': f"{customer.first_name} {customer.last_name}",  # Customer full name
         'unit_name': unit.unit_title  # Unit title
     }
 
+    # Add the reservation agreement URL
+    if sales_detail.reservation_agreement:
+        base_url = 'http://localhost:8000'  # This is your domain or base URL
+        reservation_agreement_url = base_url + settings.MEDIA_URL + str(sales_detail.reservation_agreement)
+
+        # Debugging: print the full URL
+        print(f"Reservation Agreement URL: {reservation_agreement_url}")
+
+        # Add the URL to the response data
+        sales_detail_data['reservation_agreement_url'] = reservation_agreement_url
+    else:
+        sales_detail_data['reservation_agreement_url'] = None
+
+    # Return the response with the reservation agreement URL
     return JsonResponse(sales_detail_data)
+
+def download_reservation_agreement(request, sales_detail_id):
+    # Fetch the sales detail
+    sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
+
+    # Check if the reservation agreement exists
+    if sales_detail.reservation_agreement:
+        # Get the path to the file
+        file_path = os.path.join(settings.MEDIA_ROOT, str(sales_detail.reservation_agreement))
+
+        # Ensure the file exists
+        if os.path.exists(file_path):
+            # Open the file and return it as a FileResponse with download headers
+            response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
+            return response
+        else:
+            raise Http404("File not found.")
+    else:
+        raise Http404("Reservation agreement not available.")
+
 
 def send_confirmation_email(request, customer_email, sales_detail_id):
     frontend_base_url = 'http://localhost:8080'  # Or use settings if you'd prefer dynamic configuration

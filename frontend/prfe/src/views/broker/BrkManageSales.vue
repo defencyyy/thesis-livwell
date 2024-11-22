@@ -368,39 +368,42 @@ export default {
       }
     },
   
-    async submitToCustomer() {
-    this.loading = true;
-    // Collect data to send to the backend
-    const data = {
-      customer_id: this.selectedSale.customer_id,
-      site_id: this.selectedSale.site_id,
-      unit_id: this.selectedSale.unit_id,
-      broker_id: this.selectedSale.broker_id,
-      payment_plan: this.selectedPaymentPlan,
-      spot_discount_percent: this.spotCashDiscount,
-      tlp_discount_percent: this.tlpDiscount,
-      other_charges_percent: this.otherChargesPercentage,
-      spot_downpayment_percent: this.spotDownpaymentPercentage,
-      reservation_fee: this.reservationFee,
-      spread_downpayment_percent: this.spreadDownpaymentPercentage,
-      payable_months: this.payableMonths,
-      payable_per_month: this.payablePerMonth,
-      balance_upon_turnover: this.balanceUponTurnover,
-      net_unit_price: this.netUnitPrice,
-      total_amount_payable: this.totalAmountPayable,
-      net_full_payment: this.netFullPayment,
-      customer_email: this.selectedSale.email,  // Include the customer email
-      reservation_agreement: this.file,  // Add reservation_agreement here
-      };
+ async submitToCustomer() {
+  this.loading = true;
+
+  const formData = new FormData();
+  // Add sales details
+  formData.append('customer_id', this.selectedSale.customer_id);
+  formData.append('site_id', this.selectedSale.site_id);
+  formData.append('unit_id', this.selectedSale.unit_id);
+  formData.append('broker_id', this.selectedSale.broker_id);
+  formData.append('payment_plan', this.selectedPaymentPlan);
+  formData.append('spot_discount_percent', this.spotCashDiscount);
+  formData.append('tlp_discount_percent', this.tlpDiscount);
+  formData.append('other_charges_percent', this.otherChargesPercentage);
+  formData.append('spot_downpayment_percent', this.spotDownpaymentPercentage);
+  formData.append('reservation_fee', this.reservationFee);
+  formData.append('spread_downpayment_percent', this.spreadDownpaymentPercentage);
+  formData.append('payable_months', this.payableMonths);
+  formData.append('payable_per_month', this.payablePerMonth);
+  formData.append('balance_upon_turnover', this.balanceUponTurnover);
+  formData.append('net_unit_price', this.netUnitPrice);
+  formData.append('total_amount_payable', this.totalAmountPayable);
+  formData.append('net_full_payment', this.netFullPayment);
+  formData.append('customer_email', this.selectedSale.email);
+
+  // Add the reservation agreement file
+  if (this.file) {
+    formData.append('reservation_agreement', this.file);
+  }
 
   try {
-    const response = await axios.post('http://localhost:8000/submit-sales/', data, {
+    const response = await axios.post('http://localhost:8000/submit-sales/', formData, {
       headers: {
-        'Content-Type': 'application/json',  // Sending JSON data
+        'Content-Type': 'multipart/form-data',  // Use multipart/form-data for file uploads
       }
     });
 
-    // Axios automatically parses the JSON response, so you can directly use response.data
     if (response.data.success) {
       alert("Sales agreement submitted successfully!");
       this.closeModal(); // Close the modal after submission
@@ -408,26 +411,12 @@ export default {
       alert("Error: " + response.data.message);
     }
   } catch (error) {
-    // Handle any errors that occur
-    if (error.response) {
-      // Server responded with a status code outside 2xx range
-      console.error("Response error:", error.response.data);
-      alert("Error: " + (error.response.data.message || "Failed to submit sales agreement."));
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error("Request error:", error.request);
-      alert("No response from server. Please try again later.");
-    } else {
-      // Something else caused the error
-      console.error("Error:", error.message);
-      alert("An error occurred while submitting the sales agreement: " + error.message);
-    }
-      }
-  finally {
-    // Stop loading after the request completes
+    console.error("Error during submission:", error);
+    alert("Error: " + (error.response ? error.response.data.message : error.message));
+  } finally {
     this.loading = false;
   }
-  },
+},
     // Close the modal
     closeModal() {
       this.showModal = false;

@@ -29,11 +29,11 @@
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
     <div v-if="salesDetail.reservation_agreement_url">
-      <!-- Provide the link to the reservation agreement file -->
-      <a :href="salesDetail.reservation_agreement_url" download>
+    <p>Sales Detail ID: {{ salesDetail.id }}</p>
+    <a :href="'http://localhost:8000/download_reservation_agreement/' + salesDetail.id" download>
         <button>Download Reservation Agreement</button>
-      </a>
-    </div>
+    </a>
+</div>
 
     <!-- Collapsible Table Section - Only for Deferred Payment -->
     <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
@@ -109,6 +109,8 @@ export default {
           alert('Sales details not found');
         } else {
           this.salesDetail = data; // Store the sales details in data
+          console.log('Reservation Agreement URL:', this.salesDetail.reservation_agreement_url);  // Log the URL here
+
           this.applySpotCashDiscount(); // Call the function after the data is fetched
           this.applyTLPDiscount();
           this.updateNetUnitPrice();
