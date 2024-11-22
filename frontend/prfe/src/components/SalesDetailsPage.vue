@@ -18,16 +18,55 @@
     <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
     <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
     <p ><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetail.spot_downpayment_percent }}%</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetail.spot_downpayment_percent }}%</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
     <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Spot Cash' "><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetail.spread_downpayment_percent }}%</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetail.payable_months }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-    <p v-if="salesDetail.payment_plan=== 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+    <p v-if="salesDetail.payment_plan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetail.spread_downpayment_percent }}%</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetail.payable_months }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+
+    <!-- Collapsible Table Section - Only for Deferred Payment -->
+    <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <button @click="toggleDetailedSchedule" class="toggle-button">
+        {{ showDetailedSchedule ? 'Hide Detailed Schedule' : 'Show Detailed Schedule' }}
+      </button>
+
+      <!-- Detailed Monthly Schedule (Visible when expanded) -->
+      <div v-if="showDetailedSchedule" class="detailed-schedule">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment Type</th>
+              <th>Amount (₱)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Spot Downpayment</td>
+              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td>Spread Downpayment</td>
+              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+            </tr>
+            <!-- Loop through the months to display monthly payments -->
+            <tr v-for="month in salesDetail.payable_months" :key="month">
+              <td>Month {{ month }} Payment</td>
+              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td>Balance Upon Turnover</td>
+              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -49,6 +88,7 @@ export default {
       spreadDownpayment: 0,
       payablePerMonth: 0,
       balanceUponTurnover: 0,
+      showDetailedSchedule: false, // To toggle the detailed schedule
     };
   },
   created() {
@@ -131,8 +171,12 @@ export default {
 
       this.balanceUponTurnover = (100 - (spotDownpaymentPercentage + spreadDownpaymentPercentage)) / 100 * this.totalAmountPayable;
     },
+
+    // Toggle the visibility of the detailed schedule
+    toggleDetailedSchedule() {
+      this.showDetailedSchedule = !this.showDetailedSchedule;
+    },
   },
-  
 };
 </script>
 
@@ -148,5 +192,34 @@ ul {
 li {
   font-size: 16px;
   margin-bottom: 8px;
+}
+button.toggle-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button.toggle-button:hover {
+  background-color: #45a049;
+}
+.detailed-schedule {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+th {
+  background-color: #f2f2f2;
 }
 </style>
