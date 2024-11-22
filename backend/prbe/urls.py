@@ -11,7 +11,6 @@ urlpatterns = [
     path('broker/login/', views.login_view_broker, name='broker_login'),
     path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
-    # path('broker/logout/', views.brk_logout_view, name='broker_logout'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
     path('sales/total/', views.total_sales_view, name='total_sales'),
@@ -26,10 +25,11 @@ urlpatterns = [
     path('sites/', views.fetch_sites, name='fetch_sites'),
     path('units/site/<int:site_id>/', views.fetch_units, name='fetch_units'),
     path('sales/', views.fetch_sales, name='fetch_sales'),
-    
-    # Endpoint to submit a new sale (POST request)
-    path('sales/create/', views.submit_sale, name='submit_sale'),
     path('reserve-unit/', views.reserve_unit, name='reserve-unit'),
+    path('submit-sales/', views.submit_sales, name='submit_sales'),
+    path('sales-detail/<int:sales_detail_id>/', views.get_sales_detail, name='view_sales_detail'),
+    path('download_reservation_agreement/<int:sales_detail_id>/', views.download_reservation_agreement, name='download_reservation_agreement'),
+
 
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 

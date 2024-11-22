@@ -106,6 +106,7 @@ export default {
   },
   methods: {
     ...mapActions(["login"]),
+
     async login() {
       this.error = null;
       this.loading = true;
@@ -113,7 +114,6 @@ export default {
       if (this.username && this.password) {
         try {
           const csrftoken = this.getCookie("csrftoken");
-
           // if (!csrftoken) {
           //   this.error =
           //     "CSRF token not found. Please try refreshing the page.";

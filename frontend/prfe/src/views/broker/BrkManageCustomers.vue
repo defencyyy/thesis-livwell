@@ -10,11 +10,22 @@
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
+      <!-- Single Sorting Dropdown -->
+      <div class="sort-options">
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy" v-model="sortBy" @change="sortCustomers">
+          <option value="name_asc">Name (A-Z)</option>
+          <option value="name_desc">Name (Z-A)</option>
+          <option value="site_asc">Site (A-Z)</option>
+          <option value="site_desc">Site (Z-A)</option>
+        </select>
+      </div>
+      
+
       <!-- Add Customer Button -->
       <button @click="showModal = true">Add Customer</button>
 
       <!-- Modal for Adding Customer -->
-
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
         <form @submit.prevent="addCustomer">
           <div>
@@ -119,8 +130,9 @@
   </div>
 </template>
 
+
+
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 
@@ -129,7 +141,6 @@ export default {
   components: {
     SideNav,
     BModal,
-    HeaderLivwell,
   },
   data() {
     return {
@@ -146,12 +157,14 @@ export default {
       error: null, // Error message for form submission
       notificationTitle: '', // Title for the notification modal (Success/Failure)
       notificationMessage: '', // Message for the notification modal
+      sortBy: 'name_asc', // Selected sorting option (default is "Name (A-Z)")
     };
   },
   mounted() {
     this.fetchCustomers();
   },
   methods: {
+    // Fetch customer data from API
     async fetchCustomers() {
       const brokerId = localStorage.getItem("broker_id");
       if (!brokerId) {
@@ -165,6 +178,7 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
+            this.sortCustomers(); // Apply the initial sorting
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -174,6 +188,24 @@ export default {
         }
       } catch (error) {
         this.error = "An error occurred while fetching customer data.";
+      }
+    },
+
+    // Sort customers based on selected option
+    sortCustomers() {
+      switch (this.sortBy) {
+        case 'name_asc':
+          this.customers.sort((a, b) => a.customer_name.localeCompare(b.customer_name));
+          break;
+        case 'name_desc':
+          this.customers.sort((a, b) => b.customer_name.localeCompare(a.customer_name));
+          break;
+        case 'site_asc':
+          this.customers.sort((a, b) => a.site.localeCompare(b.site));
+          break;
+        case 'site_desc':
+          this.customers.sort((a, b) => b.site.localeCompare(a.site));
+          break;
       }
     },
 
@@ -295,4 +327,25 @@ export default {
   padding: 20px;
   text-align: center;
 }
+
+/* Add some space for the sorting options */
+.sort-options {
+  margin-bottom: 20px;
+}
+
+.sort-options select {
+  margin-left: 10px;
+}
+
+/* Table Hover Effect */
+.table tbody tr:hover {
+  cursor: pointer;
+  background-color: #f1f1f1;
+}
+
+.table tbody tr.active {
+  background-color: #d3d3d3;
+}
+
 </style>
+

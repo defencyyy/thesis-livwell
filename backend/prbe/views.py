@@ -17,12 +17,21 @@ from django.http import JsonResponse
 from companies.serializers import CompanySerializer
 from developers.models import Developer
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.http import FileResponse, Http404
+import os
+
+
+
 
 from brokers.models import Broker 
 from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit, UnitImage
 from sites.models import Site
+from salesdetails.models import SalesDetails
  
 import json
 import re
@@ -546,70 +555,41 @@ def fetch_units(request, site_id):
 
     return JsonResponse({'units': unit_data}, safe=False)
 
-
+    
 @csrf_exempt
-def submit_sale(request):
-    if request.method == 'POST':
-        try:
-            # Parse the incoming JSON request data
-            data = json.loads(request.body)
-
-            # Extract the sale data from the request
-            customer_id = data.get('customer')
-            site_id = data.get('site')
-            unit_id = data.get('unit')
-            broker_id = data.get('broker')
-            company_id = data.get('company')
-
-            # Fetch the related objects from the database
-            customer = Customer.objects.get(id=customer_id)
-            site = Site.objects.get(id=site_id)
-            unit = Unit.objects.get(id=unit_id)
-
-            # Create the Sale object
-            sale = Sale.objects.create(
-                customer=customer,
-                site=site,
-                unit=unit,
-                broker_id=broker_id,
-                company_id=company_id,
-                status='pending',  # Set a default status (you can customize this)
-            )
-            unit.status = 'pending'
-            unit.save()
-
-            # Return a success response
-            return JsonResponse({'message': 'Sale created successfully', 'sale_id': sale.id}, status=201)
-
-        except Exception as e:
-            # If something goes wrong, return an error response
-            return JsonResponse({'error': str(e)}, status=400)
-
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
 def fetch_sales(request):
     try:
         # Fetch all sales
         sales = Sale.objects.all().select_related(
             'customer',  # Fetch related customer data
             'site',      # Fetch related site data
-            'unit'       # Fetch related unit data
+            'unit',      # Fetch related unit data
+            'broker'     # Fetch related broker data (assuming you have a 'broker' field)
         )
 
         sales_data = []
         for sale in sales:
-            # Add sale data to the list, including full names and titles
+            # Add sale data to the list, including IDs and other relevant information
             sales_data.append({
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
+                'customer_id': sale.customer.id,   # customer_id
                 'site_name': sale.site.name,
+                'site_id': sale.site.id,           # site_id
                 'unit_title': sale.unit.unit_title,
+                'unit_id': sale.unit.id,           # unit_id
+                'price': sale.unit.price,
                 'status': sale.status,
-            })
+                'email': sale.customer.email,
+                'broker_id': sale.broker.id if sale.broker else None, # broker_id
+                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name
 
+                
+            })      
         return JsonResponse({'success': True, 'sales': sales_data}, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+
 
 @csrf_exempt
 def reserve_unit(request):
@@ -617,7 +597,7 @@ def reserve_unit(request):
         try:
             # Parse the incoming JSON request data
             data = json.loads(request.body)
-
+            
             # Ensure the IDs are integers (if they are not already)
             customer_id = data.get('customer_name')
             site_id = int(data.get('site_id'))  # Convert to integer
@@ -662,6 +642,167 @@ def reserve_unit(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def submit_sales(request):
+    if request.method == 'POST':
+        try:
+            # Get form data (request.POST) and file data (request.FILES)
+            customer_id = request.POST.get('customer_id')
+            site_id = request.POST.get('site_id')
+            unit_id = request.POST.get('unit_id')
+            broker_id = request.POST.get('broker_id')
+            payment_plan = request.POST.get('payment_plan')
+            spot_discount_percent = request.POST.get('spot_discount_percent')
+            tlp_discount_percent = request.POST.get('tlp_discount_percent')
+            other_charges_percent = request.POST.get('other_charges_percent')
+            spot_downpayment_percent = request.POST.get('spot_downpayment_percent')
+            reservation_fee = request.POST.get('reservation_fee')
+            spread_downpayment_percent = request.POST.get('spread_downpayment_percent')
+            payable_months = request.POST.get('payable_months')
+            payable_per_month = request.POST.get('payable_per_month')
+            balance_upon_turnover = request.POST.get('balance_upon_turnover')
+            net_unit_price = request.POST.get('net_unit_price')
+            total_amount_payable = request.POST.get('total_amount_payable')
+            net_full_payment = request.POST.get('net_full_payment')
+            customer_email = request.POST.get('customer_email')
+
+            # Get the uploaded file
+            reservation_agreement = request.FILES.get('reservation_agreement')
+
+            if reservation_agreement:
+                # Save the file to the server (this is optional, depending on your requirement)
+                file_path = default_storage.save(f'reservations/{reservation_agreement.name}', reservation_agreement)
+            else:
+                file_path = None
+
+            # Create a new SalesDetails entry
+            sales_detail = SalesDetails.objects.create(
+                customer_id=customer_id,
+                site_id=site_id,
+                unit_id=unit_id,
+                broker_id=broker_id,
+                payment_plan=payment_plan,
+                spot_discount_percent=spot_discount_percent,
+                tlp_discount_percent=tlp_discount_percent,
+                other_charges_percent=other_charges_percent,
+                spot_downpayment_percent=spot_downpayment_percent,
+                reservation_fee=reservation_fee,
+                spread_downpayment_percent=spread_downpayment_percent,
+                payable_months=payable_months,
+                payable_per_month=payable_per_month,
+                balance_upon_turnover=balance_upon_turnover,
+                net_unit_price=net_unit_price,
+                total_amount_payable=total_amount_payable,
+                net_full_payment=net_full_payment,
+                reservation_agreement=file_path,  # Save the file path or reference in the model
+            )
+
+            # Optionally, send a confirmation email to the customer
+            send_confirmation_email(request, customer_email, sales_detail.id)
+
+            return JsonResponse({'success': True, 'message': 'Sales agreement submitted successfully.'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'message': 'Invalid method.'}, status=405)
+
+
+def get_sales_detail(request, sales_detail_id):
+    # Fetch the sales detail
+    sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
+
+    # Fetch the related site, broker, customer, and unit
+    site = get_object_or_404(Site, id=sales_detail.site_id)
+    broker = get_object_or_404(Broker, id=sales_detail.broker_id)
+    customer = get_object_or_404(Customer, id=sales_detail.customer_id)
+    unit = get_object_or_404(Unit, id=sales_detail.unit_id)
+
+    # Prepare the response data with all related information
+    sales_detail_data = {
+        'id':sales_detail_id, 
+        'customer_id': sales_detail.customer_id,
+        'site_id': sales_detail.site_id,
+        'unit_id': sales_detail.unit_id,
+        'broker_id': sales_detail.broker_id,
+        'payment_plan': sales_detail.payment_plan,
+        'spot_discount_percent': sales_detail.spot_discount_percent,
+        'tlp_discount_percent': sales_detail.tlp_discount_percent,
+        'other_charges_percent': sales_detail.other_charges_percent,
+        'spot_downpayment_percent': sales_detail.spot_downpayment_percent,
+        'reservation_fee': sales_detail.reservation_fee,
+        'spread_downpayment_percent': sales_detail.spread_downpayment_percent,
+        'payable_months': sales_detail.payable_months,
+        'payable_per_month': sales_detail.payable_per_month,
+        'balance_upon_turnover': sales_detail.balance_upon_turnover,
+        'net_unit_price': sales_detail.net_unit_price,
+        'total_amount_payable': sales_detail.total_amount_payable,
+        'net_full_payment': sales_detail.net_full_payment,
+
+        # Add related data
+        'unit_price': unit.price,
+        'site_name': site.name,  # Site name
+        'broker_name': f"{broker.first_name} {broker.last_name}",  # Broker full name
+        'customer_name': f"{customer.first_name} {customer.last_name}",  # Customer full name
+        'unit_name': unit.unit_title  # Unit title
+    }
+
+    # Add the reservation agreement URL
+    if sales_detail.reservation_agreement:
+        base_url = 'http://localhost:8000'  # This is your domain or base URL
+        reservation_agreement_url = base_url + settings.MEDIA_URL + str(sales_detail.reservation_agreement)
+
+        # Debugging: print the full URL
+        print(f"Reservation Agreement URL: {reservation_agreement_url}")
+
+        # Add the URL to the response data
+        sales_detail_data['reservation_agreement_url'] = reservation_agreement_url
+    else:
+        sales_detail_data['reservation_agreement_url'] = None
+
+    # Return the response with the reservation agreement URL
+    return JsonResponse(sales_detail_data)
+
+def download_reservation_agreement(request, sales_detail_id):
+    # Fetch the sales detail
+    sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
+
+    # Check if the reservation agreement exists
+    if sales_detail.reservation_agreement:
+        # Get the path to the file
+        file_path = os.path.join(settings.MEDIA_ROOT, str(sales_detail.reservation_agreement))
+
+        # Ensure the file exists
+        if os.path.exists(file_path):
+            # Open the file and return it as a FileResponse with download headers
+            response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
+            return response
+        else:
+            raise Http404("File not found.")
+    else:
+        raise Http404("Reservation agreement not available.")
+
+
+def send_confirmation_email(request, customer_email, sales_detail_id):
+    frontend_base_url = 'http://localhost:8080'  # Or use settings if you'd prefer dynamic configuration
+    
+    # Generate the URL to view the sales details on the frontend
+    sales_detail_url = f"{frontend_base_url}/sales-details/{sales_detail_id}/"
+
+    # Compose the email content
+    subject = 'Your Sales Agreement Details'
+    message = f"Dear Customer,\n\nThank you for your purchase! You can view the details of your sales agreement using the link below:\n{sales_detail_url}\n\nBest regards,\nThe Sales Team"
+    from_email = settings.DEFAULT_FROM_EMAIL  # Make sure to configure this in settings.py
+
+    # Send the email
+    send_mail(subject, message, from_email, [customer_email])
+
+
+
+
+
+
 
 # Developers
 @csrf_exempt

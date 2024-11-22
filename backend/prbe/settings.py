@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'sites.apps.SitesConfig',
     'milestones.apps.MilestonesConfig',
     'sales.apps.SalesConfig',
+    'salesdetails.apps.SalesdetailsConfig',
 
     # User
     'corsheaders',
@@ -96,8 +97,7 @@ TEMPLATES = [
         },
     },
 ]
-
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
