@@ -360,20 +360,12 @@ export default {
     },
 
     updatePaymentDetails() {
-      if (this.selectedPaymentPlan === 'spot_cash') {
-        this.applySpotCashDiscount();
-        this.applyTLPDiscount();
-        this.applyOtherCharges();
-        this.calculateVAT();
-
-      }
-       else if (this.selectedPaymentPlan === 'in_house_financing') {
         this.applySpotCashDiscount();
         this.applyTLPDiscount();
         this.applyOtherCharges();
         this.calculateVAT();
         this.calculateFinancingDetails();
-      }
+      
     },
 
     applySpotCashDiscount() {

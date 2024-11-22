@@ -796,6 +796,45 @@ def send_confirmation_email(request, customer_email, sales_detail_id):
     # Send the email
     send_mail(subject, message, from_email, [customer_email])
 
+def check_sales_details(request, customer_id, site_id, unit_id):
+    # Check if sales details exist for the given customer, site, and unit
+    try:
+        sales_details = SalesDetails.objects.get(
+            customer_id=customer_id, 
+            site_id=site_id, 
+            unit_id=unit_id
+        )
+        
+        # If sales details are found, return them in the response
+        response_data = {
+            'exists': True,
+            'details': {
+                'payment_plan': sales_details.payment_plan,
+                'spot_discount': sales_details.spot_discount_percent,
+                'tlp_discount': sales_details.tlp_discount_percent,
+                'net_unit_price': sales_details.net_unit_price,
+                'total_amount_payable': sales_details.total_amount_payable,
+                'downpayment': sales_details.spot_downpayment_percent,
+                'reservation_fee': sales_details.reservation_fee,
+                'spread_downpayment_percent': sales_details.spread_downpayment_percent,
+                'spot_downpayment_percent':sales_details.spot_downpayment_percent,
+                'payable_months': sales_details.payable_months,
+                'payable_per_month': sales_details.payable_per_month,
+                'balance_upon_turnover': sales_details.balance_upon_turnover,
+                'net_unit_price': sales_details.net_unit_price,
+                'total_amount_payable': sales_details.total_amount_payable,
+                'net_full_payment': sales_details.net_full_payment,
+                'other_charges_percent': sales_details.other_charges_percent,
+                'unit_price':sales_details.unit.price,
+
+            }
+        }
+    except SalesDetails.DoesNotExist:
+        # If no sales details are found, return exists=False
+        response_data = {'exists': False}
+
+    return JsonResponse(response_data)
+
 
 
 

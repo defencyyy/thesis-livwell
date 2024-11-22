@@ -40,7 +40,36 @@
           <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
           <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
           <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
+        <div v-if="salesDetailsExists">
+        <p><strong>Payment Plan:</strong> {{ salesDetails.payment_plan }}</p>
+        <p><strong>Unit Price:</strong> ₱{{ salesDetails.unit_price }}</p>
+        <p><strong>Spot Discount Percentage:</strong> {{ salesDetails.spot_discount }}%</p>
+        <p><strong>Spot Discount:</strong> ₱{{ this.spotDiscount }}</p>
+        <p><strong>Unit Price after Spot Discount:</strong> ₱{{ this.unitPriceAfterSpotDiscount }}</p>
+        <p><strong>TLP Discount Percentage:</strong> {{ salesDetails.tlp_discount }}%</p>
+        <p><strong>TLP Discount:</strong> ₱{{ this.tlpDiscountAmount }}</p>
+        <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+        <p><strong>Other Charges Percentage:</strong> {{ salesDetails.other_charges_percent }}%</p>
+        <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+        <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+        <p ><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetails.spot_downpayment_percent }}%</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+        <p><strong>Reservation Fee:</strong> ₱{{ salesDetails.reservation_fee }}</p>
+        <p v-if="salesDetails.payment_plan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetails.spread_downpayment_percent }}%</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetails.payable_months }}</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+        <button @click="closeModal">Close</button>
+
+        <!-- Add other fields you want to display here -->
+      </div>
+
           <!-- Payment Plan Section -->
+          <div v-if="!salesDetailsExists">
           <div class="form-group">
             <label for="paymentPlan">Payment Plan</label>
             <select v-model="selectedPaymentPlan" id="paymentPlan" required>
@@ -217,9 +246,7 @@
         </div>
         <!-- Display error message if there's an error -->
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-
-
-
+        </div>
         </div>
         </div>
     </div>
@@ -240,6 +267,8 @@ export default {
       sales: [], // List of sales data
       showModal: false,
       selectedSale: null, // Currently selected sale row
+      salesDetailsExists: false, // Flag to check if sales details already exist
+      salesDetails: null, // S
       // Payment Scheme Data
       selectedPaymentPlan: 'Spot Cash', // Default payment plan
       unitPrice: 0, // Example price of the unit
@@ -263,8 +292,6 @@ export default {
       balanceUponTurnover: 0,
       file: null,
       errorMessage: '',    // Error message
-
-
       showDetailedSchedule: false, // To toggle detailed payment schedule
       loading: false, // Track loading state
 
@@ -274,6 +301,26 @@ export default {
     toggleDetailedSchedule() {
       // Toggle the visibility of the detailed payment schedule
       this.showDetailedSchedule = !this.showDetailedSchedule;
+    },
+     async checkSalesDetails() {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/salesdetails/check/${this.selectedSale.customer_id}/${this.selectedSale.site_id}/${this.selectedSale.unit_id}`
+      );
+      if (response.data.exists) {
+        this.salesDetailsExists = true; // Set the flag to true if data exists
+        this.salesDetails = response.data.details; // Store the existing details
+        this.updatePaymentDetails();
+
+      } else {
+        this.salesDetailsExists = false; // Allow input if no details exist
+        this.updatePaymentDetails();
+
+
+      }
+    } catch (error) {
+      console.error("Error checking sales details:", error);
+    }
     },
   // Fetch sales data from the backend
     async fetchSales() {
@@ -299,26 +346,45 @@ export default {
       this.selectedSale = sale;
       this.unitPrice = sale.price;  // Set unitPrice to the selected sale's unit price
       this.showModal = true;
-      this.updatePaymentDetails();
-
+      // Check if the sales details already exist for this customer and unit
+    this.checkSalesDetails();
+    this.updatePaymentDetails();
     },
     updatePaymentDetails() {
-      if (this.selectedPaymentPlan === 'Spot Cash') {
-        this.applySpotCashDiscount();
-        this.applyTLPDiscount();
-        this.applyOtherCharges();
-        this.calculateVAT();
-
-      }
-       else if (this.selectedPaymentPlan === 'Deffered Payment') {
-        this.applySpotCashDiscount();
-        this.applyTLPDiscount();
-        this.applyOtherCharges();
-        this.calculateVAT();
-        this.calculateFinancingDetails();
-      }
+    if (this.salesDetailsExists) {
+      // Use salesDetails to update payment details
+      this.updateSalesDetailsPaymentDetails();
+    } else {
+      // Use manual input values to calculate details
+      this.applySpotCashDiscount();
+      this.applyTLPDiscount();
+      this.applyOtherCharges();
+      this.calculateVAT();
+      this.calculateFinancingDetails();
+    }
     },
+    updateSalesDetailsPaymentDetails() {
+    // Extract values from salesDetails for calculation
+    const sales = this.salesDetails;
 
+      this.unitPrice = sales.unit_price;
+      console.log(this.unitPrice);
+    this.spotCashDiscount = sales.spot_discount;
+    this.tlpDiscount = sales.tlp_discount;
+    this.otherChargesPercentage = sales.other_charges_percent;
+    this.spotDownpaymentPercentage = sales.spot_downpayment_percent;
+    this.spreadDownpaymentPercentage = sales.spread_downpayment_percent;
+    this.payableMonths = sales.payable_months;
+    this.reservationFee = sales.reservation_fee;
+
+    // Now, perform calculations based on these values
+    this.applySpotCashDiscount();
+    this.applyTLPDiscount();
+    this.applyOtherCharges();
+    this.calculateVAT();
+    this.calculateFinancingDetails();
+  },
+    
     applySpotCashDiscount() {
       const discountPercentage = parseFloat(this.spotCashDiscount);
       this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
