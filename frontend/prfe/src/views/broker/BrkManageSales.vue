@@ -238,7 +238,7 @@ export default {
       unitPriceAfterSpotDiscount: 0,
       tlpDiscountAmount: 0,
       netUnitPrice: 0,
-      otherChargesPercentage: 0,
+      otherChargesPercentage: 8.5,
       otherCharges: 0,
       totalAmountPayable: 0,
       reservationFee: 0,
@@ -251,7 +251,6 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       showDetailedSchedule: false, // To toggle detailed payment schedule
-
     };
   },
   methods: {
@@ -350,7 +349,16 @@ export default {
       }
       this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
     },
-async submitToCustomer() {
+    async submitToCustomer() {
+      if (!this.selectedPaymentPlan || !this.spotCashDiscount || !this.tlpDiscount || 
+      !this.otherChargesPercentage || !this.spotDownpaymentPercentage || 
+      !this.reservationFee || !this.payableMonths || !this.payablePerMonth || 
+      !this.balanceUponTurnover || !this.netUnitPrice || !this.totalAmountPayable || 
+      !this.netFullPayment) {
+    this.errorMessage = "All fields are required.";
+    alert(this.errorMessage);  // Show the error message to the user
+    return;
+  }
     // Collect data to send to the backend
     const data = {
       customer_id: this.selectedSale.customer_id,
