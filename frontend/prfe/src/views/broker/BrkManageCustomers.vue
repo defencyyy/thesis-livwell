@@ -1,6 +1,11 @@
 <template>
+  <header>
+    <HeaderLivwell/>
+  </header>
+
   <div class="manage-customers-page">
-    <SideNav />
+    <SideNav/>
+    
     <div class="content">
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
