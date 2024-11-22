@@ -35,17 +35,30 @@ class CompanyUpdateView(APIView):
 
             company = developer.company
 
+            # Print the data and files received in the request for debugging
             print("Received data:", request.data)
-            if "logo" in request.FILES:
-                print("Logo file:", request.FILES["logo"])
+            print("Received files:", request.FILES)
 
             # Update the company details using the serializer
             serializer = CompanySerializer(company, data=request.data, partial=True)
+
+            # Check if files are included and update the company logo separately
+            if 'logo' in request.FILES:
+                company.logo = request.FILES['logo']
+                print(f"Logo file received: {company.logo.name}")
+
             if serializer.is_valid():
+                # Save the company instance after validating
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            print(serializer.errors)
+            
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-
         except Developer.DoesNotExist:
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Log and return other errors
+            print(f"Error: {str(e)}")
+            return Response({"error": "An error occurred while updating company."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

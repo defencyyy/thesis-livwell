@@ -75,7 +75,13 @@
                 required
               />
             </div>
-
+            <div class="form-group">
+              <label for="siteDescription">Description:</label>
+              <textarea
+                v-model="newSite.description"
+                id="siteDescription"
+              ></textarea>
+            </div>
             <div class="form-group">
               <label for="siteLocation">Location:</label>
               <input
@@ -85,7 +91,6 @@
                 required
               />
             </div>
-
             <div class="form-group">
               <label for="siteStatus">Status:</label>
               <select v-model="newSite.status" id="siteStatus" required>
@@ -98,12 +103,10 @@
                 </option>
               </select>
             </div>
-
             <div class="form-group">
-              <label for="sitePicture">Picture URL:</label>
-              <input type="text" v-model="newSite.picture" id="sitePicture" />
+              <label for="sitePicture">Picture:</label>
+              <input type="file" @change="handleFileUpload" id="sitePicture" />
             </div>
-
             <button type="submit">Save</button>
             <button type="button" @click="showAddModal = false">Cancel</button>
           </form>
@@ -260,20 +263,41 @@ export default {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     async addSite() {
+      const formData = new FormData();
+      formData.append("name", this.newSite.name);
+      formData.append("location", this.newSite.location);
+      formData.append("status", this.newSite.status);
+      formData.append("companyId", this.vuexCompanyId);
+      formData.append("userId", this.vuexUserId);
+
+      if (this.newSite.description) {
+        formData.append("description", this.newSite.description);
+      }
+      if (this.newSite.picture) {
+        formData.append("picture", this.newSite.picture);
+      }
+
       try {
         const response = await axios.post(
-          "http://localhost:8000/developer/sites/add",
-          this.newSite,
+          "http://localhost:8000/developer/sites/",
+          formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
         if (response.status === 201) {
           this.sites.push(response.data);
           this.showAddModal = false;
-          this.newSite = { name: "", location: "", status: "", picture: "" };
+          this.newSite = {
+            name: "",
+            location: "",
+            status: "",
+            description: "",
+            picture: "",
+          };
         }
       } catch (error) {
         console.error("Error adding site:", error);
@@ -325,6 +349,10 @@ export default {
     viewSite(site) {
       this.selectedSite = site;
       this.selectedSiteModal = true;
+    },
+
+    handleFileUpload(event) {
+      this.newSite.picture = event.target.files[0];
     },
   },
   mounted() {

@@ -55,13 +55,13 @@
               <!-- Right Section: Description -->
               <div class="col-md-6 order-md-2">
                 <div class="mb-3">
-                  <label for="description" class="form-label"
+                  <label for="tempDescription" class="form-label"
                     >Description</label
                   >
                   <textarea
                     class="form-control"
                     id="description"
-                    v-model="company.description"
+                    v-model="tempDescription"
                     rows="6"
                     placeholder="Enter company description"
                   ></textarea>
@@ -216,14 +216,17 @@ export default {
       try {
         const formData = new FormData();
 
+        // Only append the description if it has changed
         if (this.tempDescription !== this.company.description) {
           formData.append("description", this.tempDescription); // Use tempDescription
         }
 
+        // Only append the logo if it was selected
         if (this.newLogo) {
           formData.append("logo", this.newLogo); // Include logo if selected
         }
 
+        // Make the PUT request to update the company
         const response = await axios.put(
           "http://localhost:8000/developer/company/edit/",
           formData,
@@ -237,7 +240,8 @@ export default {
 
         if (response.status === 200) {
           alert("Company updated successfully!");
-          this.company.description = this.tempDescription; // Update company description after saving
+          // Update company description after saving
+          this.company.description = this.tempDescription;
           this.fetchCompany(); // Refresh company data
           this.previewLogo = null; // Clear preview after successful update
         } else {
@@ -251,6 +255,7 @@ export default {
         );
       }
     },
+
     onFileChange(event) {
       const file = event.target.files[0];
       console.log("File selected:", file);
@@ -391,16 +396,6 @@ textarea:focus {
   background-color: #0056b3;
   border-color: #004085;
 }
-
-/* .developer-company-page {
-  display: flex;
-}
-.content {
-  flex: 1;
-  padding: 20px;
-  text-align: center;
-
-} */
 
 .user-info {
   margin-bottom: 20px;
