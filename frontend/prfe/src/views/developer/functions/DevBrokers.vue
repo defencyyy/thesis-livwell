@@ -2,28 +2,23 @@
   <div class="developer-brokers-page">
     <SideNav />
     <div class="content">
-      <!-- Header Section -->
-      <div class="header">
-        <h1>Total Brokers: {{ filteredBrokers.length }}</h1>
-        <button @click="showModal = true">Add Broker</button>
+      <h1>Total Brokers: {{ filteredBrokers.length }}</h1>
+
+      <!-- JWT Token Display -->
+      <div>
+        <p><strong>JWT Token:</strong> {{ token }}</p>
       </div>
 
-      <!-- Search & Filter -->
-      <div class="filter-section">
-        <input
-          v-model="searchQuery"
-          placeholder="Search Brokers"
-          class="search-bar"
-        />
-        <select v-model="brokersPerPage" class="page-limit-selector">
-          <option v-for="limit in [5, 10, 15, 20]" :key="limit" :value="limit">
-            Show {{ limit }} per page
-          </option>
-        </select>
+      <!-- Add Broker Button -->
+      <button @click="showModal = true">Add Broker</button>
+
+      <!-- Search Bar -->
+      <div>
+        <input v-model="searchQuery" placeholder="Search Brokers" />
       </div>
 
       <!-- Broker Table -->
-      <table v-if="currentBrokers.length" class="table">
+      <table v-if="filteredBrokers.length" class="table">
         <thead>
           <tr>
             <th>Email</th>
@@ -36,7 +31,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="broker in currentBrokers" :key="broker.id">
+          <tr v-for="broker in filteredBrokers" :key="broker.id">
             <td>{{ broker.email }}</td>
             <td>{{ broker.username }}</td>
             <td>{{ broker.first_name }}</td>
@@ -140,13 +135,13 @@
       <!-- Modal for Adding Broker -->
       <b-modal v-model="showModal" title="Add Broker" hide-footer>
         <form @submit.prevent="addBroker">
-          <div class="form-group">
+          <div>
             <label for="email">Email:</label>
             <input type="email" v-model="email" id="email" required />
             <p v-if="emailError" class="text-danger">{{ emailError }}</p>
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="contactNumber">Contact Number:</label>
             <input
               type="text"
@@ -159,13 +154,13 @@
             </p>
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="lastName">Last Name:</label>
             <input type="text" v-model="lastName" id="lastName" required />
             <p v-if="lastNameError" class="text-danger">{{ lastNameError }}</p>
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="firstName">First Name:</label>
             <input type="text" v-model="firstName" id="firstName" required />
             <p v-if="firstNameError" class="text-danger">
@@ -173,7 +168,7 @@
             </p>
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="password">Password:</label>
             <input type="password" v-model="password" id="password" required />
             <p v-if="passwordError" class="text-danger">{{ passwordError }}</p>
@@ -184,7 +179,7 @@
         </form>
 
         <p v-if="error" class="text-danger">{{ error }}</p>
-        <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
+        <p v-if="successMessage">{{ successMessage }}</p>
       </b-modal>
     </div>
   </div>
@@ -197,19 +192,20 @@ import { mapState } from "vuex";
 import axios from "axios";
 
 export default {
-  name: "DeveloperBrokers",
+  name: "DevFuncBroker",
   components: {
     SideNav,
     BModal,
   },
   data() {
     return {
+      token: localStorage.getItem("authToken"), // Get token to display
       showModal: false,
       email: "",
       contactNumber: "",
       lastName: "",
       firstName: "",
-      password: "",
+      password: "12345", // Default password can be pre-filled
       error: null,
       successMessage: null,
       brokers: [],
@@ -251,20 +247,10 @@ export default {
           broker.email.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
-    totalPages() {
-      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
-    },
-    currentBrokers() {
-      const start = (this.currentPage - 1) * this.brokersPerPage;
-      const end = start + this.brokersPerPage;
-      return this.filteredBrokers.slice(start, end);
-    },
   },
-
   mounted() {
     this.fetchBrokers();
   },
-
   methods: {
     openEditModal(broker) {
       if (!broker || !broker.id) {
@@ -444,6 +430,45 @@ export default {
         }
       }
     },
+    async addBroker() {
+      const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("authToken");
+
+      try {
+        const response = await fetch(
+          "http://localhost:8000/developer/broker/create/",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Token ${token}`, // Pass the token in the Authorization header
+              "Content-Type": "application/json",
+              "Company-ID": companyId, // Pass the company ID in the headers
+            },
+            body: JSON.stringify({
+              email: this.email,
+              contact_number: this.contactNumber,
+              last_name: this.lastName,
+              first_name: this.firstName,
+              password: this.password,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          this.successMessage = "Broker added successfully!";
+          this.error = null;
+          this.resetForm();
+          this.showModal = false;
+          this.fetchBrokers(); // Refresh the brokers list
+        } else {
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to add broker.";
+        }
+      } catch (error) {
+        this.error = "An error occurred while adding the broker.";
+      }
+    },
+
     resetForm() {
       this.email = "";
       this.contactNumber = "";
@@ -461,42 +486,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.developer-brokers-page {
-  display: flex;
-}
-
-.content {
-  flex: 1;
-  padding: 20px;
-}
-
-.filter-section {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-.pagination {
-  display: flex;
-  gap: 5px;
-  margin-top: 20px;
-}
-
-.pagination .active {
-  font-weight: bold;
-}
-</style>

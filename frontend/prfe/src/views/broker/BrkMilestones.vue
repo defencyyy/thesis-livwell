@@ -1,20 +1,17 @@
 <template>
-  <HeaderLivwell />
   <div class="milestones-page">
     <SideNav />
     <div class="content">
       <h2>Milestones Summary</h2>
-
-      <div v-if="loading" class="loading-message">Loading data...</div>
-
-      <div v-if="error" class="error-message">{{ error }}</div>
-
-      <div class="milestones-summary" v-else>
+      <div class="milestones-summary">
         <div class="milestone-item">
           <strong>Total Sales:</strong> {{ totalSales }}
         </div>
         <div class="milestone-item">
           <strong>Total Commissions:</strong> {{ totalCommissions }}
+        </div>
+        <div class="milestone-item">
+          <strong>Total Milestones:</strong> {{ totalMilestones }}
         </div>
       </div>
 
@@ -27,28 +24,23 @@
             class="site"
             @click="openModal(site)"
           >
-            <img
-              :src="site.picture || 'https://via.placeholder.com/100'"
-              alt="Site Image"
-            />
+            <img :src="site.picture" alt="Site Image" />
             <h4>{{ site.name }}</h4>
             <p>Total Sales: {{ site.total_sales }}</p>
           </div>
         </div>
       </div>
 
-      <div v-else-if="!loading" class="no-progress">
+      <div v-else class="no-progress">
         <p>No progress yet.</p>
       </div>
 
-      <!-- Modal -->
+      <!-- Modal for displaying site information -->
       <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
         <div class="modal-content">
           <button class="close-button" @click="closeModal">X</button>
-
           <p v-if="selectedSite">{{ selectedSite.name }}</p>
-
-          <div v-if="selectedSite && selectedSite.sales.length > 0">
+          <div v-if="selectedSite && selectedSite.sales && selectedSite.sales.length > 0">
             <h4>Sales Details:</h4>
             <ul>
               <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
@@ -58,7 +50,6 @@
               </li>
             </ul>
           </div>
-
           <div v-else-if="selectedSite">
             <p>No sales found for this site.</p>
           </div>
@@ -69,121 +60,95 @@
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
-import SideNav from "@/components/SideNav.vue";
-import { mapGetters } from "vuex";
+import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
 
 export default {
   name: "BrkMilestones",
   components: {
     SideNav,
-    HeaderLivwell,
   },
   data() {
     return {
       totalSales: 0,
       totalCommissions: 0,
       totalMilestones: 0,
-      siteSales: [],
-      showModal: false,
-      selectedSite: null,
-      error: null, // For error messages
-      loading: false, // To handle loading state
+      siteSales: [], // To store site sales information
+      showModal: false, // Controls the modal visibility
+      selectedSite: null, // Stores the currently selected site information
     };
-  },
-  computed: {
-    ...mapGetters(["getUserId", "isLoggedIn"]),
   },
   methods: {
     async fetchMilestonesData() {
-      const brokerId = this.getUserId; // Use Vuex getter for broker ID
+      const brokerId = localStorage.getItem("broker_id"); // Get broker ID from local storage
 
       if (!brokerId) {
-        this.error = "Broker ID not found. Please log in again.";
-        return;
+        console.error("Broker ID not found in local storage.");
+        return; // Exit if broker ID is not available
       }
 
-      this.loading = true; // Set loading state
       try {
         // Fetch total sales
-        const salesResponse = await fetch(
-          `http://localhost:8000/sales/total/?broker_id=${brokerId}`
-        );
+        const salesResponse = await fetch(`http://localhost:8000/sales/total/?broker_id=${brokerId}`);
         if (salesResponse.ok) {
           const salesData = await salesResponse.json();
-          this.totalSales = salesData.total_sales;
+          this.totalSales = salesData.total_sales; // Update total sales in the component state
         } else {
-          this.error = "Failed to fetch total sales.";
+          console.error("Failed to fetch total sales");
         }
 
         // Fetch total commissions
-        const commissionsResponse = await fetch(
-          `http://localhost:8000/sales/commissions/?broker_id=${brokerId}`
-        );
+        const commissionsResponse = await fetch(`http://localhost:8000/sales/commissions/?broker_id=${brokerId}`);
         if (commissionsResponse.ok) {
           const commissionsData = await commissionsResponse.json();
-          this.totalCommissions = commissionsData.total_commissions;
+          this.totalCommissions = commissionsData.total_commissions; // Update total commissions in the component state
         } else {
-          this.error = "Failed to fetch total commissions.";
+          console.error("Failed to fetch total commissions");
         }
 
         // Fetch site sales data
-        const sitesResponse = await fetch(
-          `http://localhost:8000/sales/sites/?broker_id=${brokerId}`
-        );
+        const sitesResponse = await fetch(`http://localhost:8000/sales/sites/?broker_id=${brokerId}`);
         if (sitesResponse.ok) {
           const sitesData = await sitesResponse.json();
-          this.siteSales = sitesData.sites.filter(
-            (site) => site.total_sales > 0
-          );
+          // Filter sites to include only those where sales exist
+          this.siteSales = sitesData.sites.filter(site => site.total_sales > 0);
         } else {
-          this.error = "Failed to fetch site sales data.";
+          console.error("Failed to fetch site sales data");
         }
       } catch (error) {
-        this.error = "An error occurred while fetching milestones data.";
-      } finally {
-        this.loading = false; // Reset loading state
+        console.error("An error occurred while fetching milestones data:", error);
       }
     },
-
+    
     async fetchSalesDetails(site) {
-      const brokerId = this.getUserId; // Use Vuex getter for broker ID
-
-      if (!brokerId) {
-        this.error = "Broker ID not found. Please log in again.";
-        return;
-      }
-
+      const brokerId = localStorage.getItem("broker_id"); // Get broker ID from local storage
       try {
-        const response = await fetch(
-          `http://localhost:8000/sales/details/?site_id=${site.id}&broker_id=${brokerId}`
-        );
+        const response = await fetch(`http://localhost:8000/sales/details/?site_id=${site.id}&broker_id=${brokerId}`);
         if (response.ok) {
           const salesData = await response.json();
           this.selectedSite = {
             ...site,
-            sales: salesData.sales,
+            sales: salesData.sales, // Store sales data in the selected site
           };
         } else {
-          this.error = "Failed to fetch sales details.";
+          console.error("Failed to fetch sales details");
         }
       } catch (error) {
-        this.error = "An error occurred while fetching sales details.";
+        console.error("An error occurred while fetching sales details:", error);
       }
     },
 
     async openModal(site) {
-      await this.fetchSalesDetails(site); // Fetch site details
-      this.showModal = true; // Open modal
+      await this.fetchSalesDetails(site); // Fetch sales details when opening the modal
+      this.showModal = true; // Show the modal after data is fetched
     },
-
+    
     closeModal() {
       this.showModal = false;
-      this.selectedSite = null;
+      this.selectedSite = null; // Reset selected site when closing the modal
     },
   },
   mounted() {
-    this.fetchMilestonesData(); // Fetch data on mount
+    this.fetchMilestonesData(); // Fetch total sales and commissions when the component is mounted
   },
 };
 </script>
@@ -267,17 +232,5 @@ export default {
   border: none;
   font-size: 1.2em;
   cursor: pointer;
-}
-
-.loading-message {
-  margin: 20px 0;
-  color: #007bff;
-  font-size: 1.2em;
-}
-
-.error-message {
-  margin: 20px 0;
-  color: red;
-  font-size: 1.2em;
 }
 </style>
