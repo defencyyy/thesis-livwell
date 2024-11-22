@@ -3,173 +3,178 @@
     <SideNav />
     <div class="main-content">
       <AppHeader />
-    <div class="content">
-      <h1>Company Site Management</h1>
+      <div class="content">
+        <h1>Company Site Management</h1>
 
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <button @click="toggleView">
-          Switch to {{ viewMode === "grid" ? "Table" : "Grid" }} View
-        </button>
-        <select v-model="sortBy">
-          <option value="name">Sort: Name</option>
-          <option value="status">Sort: Status</option>
-        </select>
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search Site"
-          class="search-bar"
-        />
-        <button @click="showAddModal = true" class="btn-primary">
-          Add Site
-        </button>
-      </div>
-
-      <!-- Grid View -->
-      <div v-if="viewMode === 'grid'" class="site-grid">
-        <div
-          v-for="site in filteredSites"
-          :key="site.id"
-          class="site-card"
-          @click="viewSite(site)"
-        >
-          <img :src="site.picture || '/default-image.jpg'" alt="Site Image" />
-          <h2>{{ site.name }}</h2>
-        </div>
-      </div>
-
-      <!-- Table View -->
-      <table v-if="viewMode === 'table'" class="site-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="site in filteredSites" :key="site.id">
-            <td>{{ site.name }}</td>
-            <td>{{ site.location }}</td>
-            <td>{{ site.status }}</td>
-            <td>
-              <button @click.stop="viewSite(site)">View</button>
-              <button @click.stop="openEditModal(site)">Edit</button>
-              <button @click.stop="deleteSite(site)">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Add and Edit Modals using b-modal -->
-      <b-modal v-model="showAddModal" title="Add New Site" hide-footer>
-        <form @submit.prevent="addSite">
-          <div class="form-group">
-            <label for="siteName">Site Name:</label>
-            <input type="text" v-model="newSite.name" id="siteName" required />
-          </div>
-
-          <div class="form-group">
-            <label for="siteLocation">Location:</label>
-            <input
-              type="text"
-              v-model="newSite.location"
-              id="siteLocation"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="siteStatus">Status:</label>
-            <select v-model="newSite.status" id="siteStatus" required>
-              <option
-                v-for="status in statusOptions"
-                :key="status"
-                :value="status"
-              >
-                {{ status }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="sitePicture">Picture URL:</label>
-            <input type="text" v-model="newSite.picture" id="sitePicture" />
-          </div>
-
-          <button type="submit">Save</button>
-          <button type="button" @click="showAddModal = false">Cancel</button>
-        </form>
-      </b-modal>
-
-      <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
-        <form @submit.prevent="confirmEdit">
-          <div class="form-group">
-            <label for="editSiteName">Site Name:</label>
-            <input
-              type="text"
-              v-model="editSite.name"
-              id="editSiteName"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editSiteLocation">Location:</label>
-            <input
-              type="text"
-              v-model="editSite.location"
-              id="editSiteLocation"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="editSiteStatus">Status:</label>
-            <select v-model="editSite.status" id="editSiteStatus" required>
-              <option
-                v-for="status in statusOptions"
-                :key="status"
-                :value="status"
-              >
-                {{ status }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="editSitePicture">Picture URL:</label>
-            <input
-              type="text"
-              v-model="editSite.picture"
-              id="editSitePicture"
-            />
-          </div>
-
-          <button type="submit">Save Changes</button>
-          <button type="button" @click="showEditModal = false">Cancel</button>
-        </form>
-      </b-modal>
-
-      <!-- Site Details Modal -->
-      <b-modal v-model="selectedSiteModal" title="Site Details" hide-footer>
-        <div v-if="selectedSite">
-          <h2>{{ selectedSite.name }}</h2>
-          <p><strong>Location:</strong> {{ selectedSite.location }}</p>
-          <p><strong>Status:</strong> {{ selectedSite.status }}</p>
-          <img
-            :src="selectedSite.picture || '/default-image-large.jpg'"
-            alt="Site Picture"
-            class="site-image-large"
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <button @click="toggleView">
+            Switch to {{ viewMode === "grid" ? "Table" : "Grid" }} View
+          </button>
+          <select v-model="sortBy">
+            <option value="name">Sort: Name</option>
+            <option value="status">Sort: Status</option>
+          </select>
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search Site"
+            class="search-bar"
           />
+          <button @click="showAddModal = true" class="btn-primary">
+            Add Site
+          </button>
         </div>
-        <button class="btn-primary" @click="selectedSiteModal = false">
-          Close
-        </button>
-      </b-modal>
-    </div>
+
+        <!-- Grid View -->
+        <div v-if="viewMode === 'grid'" class="site-grid">
+          <div
+            v-for="site in filteredSites"
+            :key="site.id"
+            class="site-card"
+            @click="viewSite(site)"
+          >
+            <img :src="site.picture || '/default-image.jpg'" alt="Site Image" />
+            <h2>{{ site.name }}</h2>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <table v-if="viewMode === 'table'" class="site-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="site in filteredSites" :key="site.id">
+              <td>{{ site.name }}</td>
+              <td>{{ site.location }}</td>
+              <td>{{ site.status }}</td>
+              <td>
+                <button @click.stop="viewSite(site)">View</button>
+                <button @click.stop="openEditModal(site)">Edit</button>
+                <button @click.stop="deleteSite(site)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Add and Edit Modals using b-modal -->
+        <b-modal v-model="showAddModal" title="Add New Site" hide-footer>
+          <form @submit.prevent="addSite">
+            <div class="form-group">
+              <label for="siteName">Site Name:</label>
+              <input
+                type="text"
+                v-model="newSite.name"
+                id="siteName"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="siteLocation">Location:</label>
+              <input
+                type="text"
+                v-model="newSite.location"
+                id="siteLocation"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="siteStatus">Status:</label>
+              <select v-model="newSite.status" id="siteStatus" required>
+                <option
+                  v-for="status in statusOptions"
+                  :key="status"
+                  :value="status"
+                >
+                  {{ status }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="sitePicture">Picture URL:</label>
+              <input type="text" v-model="newSite.picture" id="sitePicture" />
+            </div>
+
+            <button type="submit">Save</button>
+            <button type="button" @click="showAddModal = false">Cancel</button>
+          </form>
+        </b-modal>
+
+        <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
+          <form @submit.prevent="confirmEdit">
+            <div class="form-group">
+              <label for="editSiteName">Site Name:</label>
+              <input
+                type="text"
+                v-model="editSite.name"
+                id="editSiteName"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="editSiteLocation">Location:</label>
+              <input
+                type="text"
+                v-model="editSite.location"
+                id="editSiteLocation"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="editSiteStatus">Status:</label>
+              <select v-model="editSite.status" id="editSiteStatus" required>
+                <option
+                  v-for="status in statusOptions"
+                  :key="status"
+                  :value="status"
+                >
+                  {{ status }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editSitePicture">Picture URL:</label>
+              <input
+                type="text"
+                v-model="editSite.picture"
+                id="editSitePicture"
+              />
+            </div>
+
+            <button type="submit">Save Changes</button>
+            <button type="button" @click="showEditModal = false">Cancel</button>
+          </form>
+        </b-modal>
+
+        <!-- Site Details Modal -->
+        <b-modal v-model="selectedSiteModal" title="Site Details" hide-footer>
+          <div v-if="selectedSite">
+            <h2>{{ selectedSite.name }}</h2>
+            <p><strong>Location:</strong> {{ selectedSite.location }}</p>
+            <p><strong>Status:</strong> {{ selectedSite.status }}</p>
+            <img
+              :src="selectedSite.picture || '/default-image-large.jpg'"
+              alt="Site Picture"
+              class="site-image-large"
+            />
+          </div>
+          <button class="btn-primary" @click="selectedSiteModal = false">
+            Close
+          </button>
+        </b-modal>
+      </div>
     </div>
   </div>
 </template>
@@ -181,11 +186,12 @@ import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 import axios from "axios";
 
-
 export default {
   name: "DevSites",
   components: {
-    SideNav, AppHeader, BModal,
+    SideNav,
+    AppHeader,
+    BModal,
   },
   data() {
     return {
@@ -366,7 +372,6 @@ export default {
   padding: 20px;
   text-align: center;
 }
-
 
 .toolbar {
   display: flex;
