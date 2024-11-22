@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
 from .models import Unit, UnitImage
-from prbe.admin import custom_admin_site
 
 class UnitImageInline(admin.TabularInline):
     model = UnitImage
@@ -25,7 +24,7 @@ class UnitAdmin(admin.ModelAdmin):
     # Add UnitImageInline to allow image management within the Unit admin page
     inlines = [UnitImageInline]
 
-custom_admin_site.register(Unit, UnitAdmin)
+admin.site.register(Unit, UnitAdmin)
 
 # UnitImage Admin
 class UnitImageAdmin(admin.ModelAdmin):
@@ -40,4 +39,4 @@ class UnitImageAdmin(admin.ModelAdmin):
         return "No Image"
     image_preview.short_description = 'Image Preview'
 
-custom_admin_site.register(UnitImage, UnitImageAdmin)
+admin.site.register(UnitImage, UnitImageAdmin)
