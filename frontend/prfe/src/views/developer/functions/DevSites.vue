@@ -57,7 +57,7 @@
               <td>
                 <button @click.stop="viewSite(site)">View</button>
                 <button @click.stop="openEditModal(site)">Edit</button>
-                <button @click.stop="deleteSite(site)">Delete</button>
+                <button @click.stop="archiveSite(site)">Archive</button>
               </td>
             </tr>
           </tbody>
@@ -237,12 +237,17 @@ export default {
   },
   methods: {
     async fetchSites() {
+      console.log("JWT Token:", localStorage.getItem("accessToken")); // Log JWT token
+
       const companyId = this.vuexCompanyId;
+      console.log("Fetching sites with Company ID:", companyId); // Log companyId
+
       if (!companyId) {
         alert("Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
         return;
       }
+
       try {
         const response = await axios.get(
           "http://localhost:8000/developer/sites/",
@@ -252,27 +257,59 @@ export default {
             },
           }
         );
+        console.log("Sites fetched:", response.data); // Log the fetched data
         if (response.status === 200) {
-          this.sites = response.data;
+          this.sites = response.data.filter((site) => !site.isArchived); // Exclude archived sites
         }
       } catch (error) {
-        console.error("Error fetching sites:", error);
+        console.error("Error fetching sites:", error.response || error);
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchSites();
+          }
+        }
       }
+    },
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          { refresh: refreshToken }
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
+        } else {
+          this.handleTokenRefreshFailure();
+        }
+      } catch (error) {
+        this.handleTokenRefreshFailure();
+      }
+    },
+    handleTokenRefreshFailure() {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      this.$router.push({ name: "DevLogin" });
     },
     toggleView() {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     async addSite() {
+      console.log("Adding site with data:", this.newSite); // Log data to be added
+      console.log("Company ID:", this.vuexCompanyId);
+      console.log("User ID:", this.vuexUserId);
+
       const formData = new FormData();
       formData.append("name", this.newSite.name);
       formData.append("location", this.newSite.location);
-      formData.append("status", this.newSite.status);
+      formData.append("status", this.newSite.status || "Preselling");
       formData.append("companyId", this.vuexCompanyId);
       formData.append("userId", this.vuexUserId);
 
-      if (this.newSite.description) {
-        formData.append("description", this.newSite.description);
-      }
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
       }
@@ -288,26 +325,25 @@ export default {
             },
           }
         );
+        console.log("Response after adding site:", response.data); // Log the response data
         if (response.status === 201) {
           this.sites.push(response.data);
           this.showAddModal = false;
-          this.newSite = {
-            name: "",
-            location: "",
-            status: "",
-            description: "",
-            picture: "",
-          };
+          this.newSite = { name: "", location: "", status: "", picture: "" };
         }
       } catch (error) {
-        console.error("Error adding site:", error);
+        console.error("Error adding site:", error.response || error);
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.addSite(); // Retry after refreshing the token
+          }
+        }
       }
     },
-    openEditModal(site) {
-      this.editSite = { ...site };
-      this.showEditModal = true;
-    },
     async confirmEdit() {
+      console.log("Editing site:", this.editSite); // Log the site data being edited
+
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
@@ -318,6 +354,7 @@ export default {
             },
           }
         );
+        console.log("Response after editing site:", response.data); // Log the updated site
         if (response.status === 200) {
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
@@ -326,31 +363,49 @@ export default {
           this.showEditModal = false;
         }
       } catch (error) {
-        console.error("Error editing site:", error);
+        console.error("Error editing site:", error.response || error);
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.confirmEdit();
+          }
+        }
       }
     },
-    async deleteSite(site) {
+    async archiveSite(site) {
+      console.log("Archiving site:", site); // Log the site being archived
       try {
-        const response = await axios.delete(
+        site.isArchived = true; // Mark as archived
+        const response = await axios.put(
           `http://localhost:8000/developer/sites/${site.id}/`,
+          site,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        if (response.status === 204) {
-          this.sites = this.sites.filter((s) => s.id !== site.id);
+        if (response.status === 200) {
+          this.sites = this.sites.filter((s) => s.id !== site.id); // Remove from UI
         }
       } catch (error) {
-        console.error("Error deleting site:", error);
+        console.error("Error archiving site:", error.response || error);
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.archiveSite(site);
+          }
+        }
       }
     },
     viewSite(site) {
-      this.selectedSite = site;
-      this.selectedSiteModal = true;
+      this.selectedSite = site; // Populate selected site
+      this.selectedSiteModal = true; // Show site details modal
     },
-
+    openEditModal(site) {
+      this.editSite = { ...site }; // Deep copy site data into editSite
+      this.showEditModal = true; // Show edit modal
+    },
     handleFileUpload(event) {
       this.newSite.picture = event.target.files[0];
     },

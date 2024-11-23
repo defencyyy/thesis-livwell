@@ -5,13 +5,22 @@ class SiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id',        # Include the ID for referencing
-            'company',   # Foreign key to the company
-            'name',      # Name of the site
-            'description',  # Site description
-            'location',  # Site location
-            'picture',   # Picture URL or file path
-            'status',    # Site status
-            'created_at' # Date the site was created
+            'id',
+            'company',
+            'name',
+            'description',
+            'location',
+            'picture',
+            'status',
+            'created_at',
+            'archived',  # Ensure this is included in the serializer
         ]
+
         read_only_fields = ['id', 'created_at']  # These fields will be read-only
+
+    def validate_status(self, value):
+        """Ensure the status is within the allowed choices."""
+        valid_statuses = [choice[0] for choice in Site.STATUS_CHOICES]
+        if value not in valid_statuses:
+            raise serializers.ValidationError(f"Invalid status '{value}'. Allowed statuses are: {', '.join(valid_statuses)}.")
+        return value

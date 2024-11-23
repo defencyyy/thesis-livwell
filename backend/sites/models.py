@@ -27,10 +27,11 @@ class Site(models.Model):
   company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
   picture = models.ImageField(upload_to=logo_upload_path, blank=True, null=True)  
   name = models.CharField(max_length=100)
-  description = models.TextField(blank=True)
+  description = models.TextField(blank=True, default="No description provided")
   location = models.CharField(max_length=200)
   created_at = models.DateTimeField(auto_now_add=True)
   status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preselling')
+  archived = models.BooleanField(default=False)
   # amenities
 
   def __str__(self):
