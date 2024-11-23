@@ -58,11 +58,11 @@
 
                     <div class="text-center pt-1 mb-5 pb-1">
                       <button
-                        class="btn btn-warning w-100 btn-block fa-lg gradient-custom-2 mb-3"
+                        class="btn btn-warning w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
                         :disabled="loading"
                         type="submit"
                       >
-                        Sign in
+                        Log In
                       </button>
                     </div>
 
