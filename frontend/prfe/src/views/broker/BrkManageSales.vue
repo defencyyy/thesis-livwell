@@ -325,7 +325,6 @@ export default {
   // Fetch sales data from the backend
     async fetchSales() {
       const brokerId = localStorage.getItem("broker_id");
-      console.log("k",brokerId);
       try {
         const response = await fetch(`http://localhost:8000/sales/?broker_id=${brokerId}`);
         if (response.ok) {
