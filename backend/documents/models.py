@@ -31,10 +31,8 @@ class DocumentType(models.Model):
 class Document(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='documents')
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200,blank=True)
     file = models.FileField(upload_to=document_file_upload_path)  # Custom upload path
-    is_verified = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     sale = models.ManyToManyField(Sale, related_name='documents', blank=True)
 

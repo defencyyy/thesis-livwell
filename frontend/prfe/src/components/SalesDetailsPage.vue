@@ -29,7 +29,6 @@
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
     <p v-if="salesDetail.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
     <div v-if="salesDetail.reservation_agreement_url">
-    <p>Sales Detail ID: {{ salesDetail.id }}</p>
     <a :href="'http://localhost:8000/download_reservation_agreement/' + salesDetail.id" download>
         <button>Download Reservation Agreement</button>
     </a>
@@ -71,13 +70,12 @@
           </tbody>
         </table>
       </div>
+    </div>
       <p><strong>Valid ID (Front and Back):</strong> A clear copy of a government-issued ID with a signature.</p>
 <p><strong>Proof of Billing:</strong> A recent utility bill or bank statement showing the customer's name and address.</p>
 <p><strong>Proof of Income:</strong> A recent payslip or income tax return (ITR).</p>
 <p><strong>Sales Agreement:</strong> To be followed (after the contract is signed).</p>
 <p><strong>TIN:</strong> A clear copy of the customer's Taxpayer Identification Number (TIN) certificate.</p>
-
-    </div>
   </div>
 </template>
 
@@ -103,20 +101,18 @@ export default {
     };
   },
   created() {
-    const salesDetailId = this.$route.params.id; // Get the ID from the URL
-    this.fetchSalesDetail(salesDetailId);
+    const salesDetailUuid = this.$route.params.id; // Get the UUID from the URL
+    this.fetchSalesDetail(salesDetailUuid); 
   },
   methods: {
-    async fetchSalesDetail(salesDetailId) {
+    async fetchSalesDetail(salesDetailUuid) {
       try {
-        const response = await fetch(`http://localhost:8000/sales-detail/${salesDetailId}/`);
+        const response = await fetch(`http://localhost:8000/sales-detail/${salesDetailUuid}/`); // Update the URL with UUID
         const data = await response.json();
         if (data.success === false) {
           alert('Sales details not found');
         } else {
           this.salesDetail = data; // Store the sales details in data
-          console.log('Reservation Agreement URL:', this.salesDetail.reservation_agreement_url);  // Log the URL here
-
           this.applySpotCashDiscount(); // Call the function after the data is fetched
           this.applyTLPDiscount();
           this.updateNetUnitPrice();

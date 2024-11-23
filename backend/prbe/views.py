@@ -293,6 +293,8 @@ def get_broker(request, broker_id):
                 "id": broker.id,
                 "company_id": broker.company_id,  # Adjust according to your field name
                 "email": broker.email,
+                "f_name":broker.first_name,
+                "l_name":broker.last_name,
                 # Add other fields you may need
             }
             return JsonResponse(broker_data, status=200)
@@ -564,13 +566,21 @@ def fetch_units(request, site_id):
 
 def fetch_sales(request):
     try:
-        # Fetch all sales
-        sales = Sale.objects.all().select_related(
-            'customer',  # Fetch related customer data
-            'site',      # Fetch related site data
-            'unit',      # Fetch related unit data
-            'broker'     # Fetch related broker data (assuming you have a 'broker' field)
-        )
+        broker_id = request.GET.get('broker_id')
+
+        # Fetch sales based on the broker_id, if provided
+        if broker_id:
+            sales = Sale.objects.filter(broker__id=broker_id).select_related(
+                'customer',  # Fetch related customer data
+                'site',      # Fetch related site data
+                'unit',      # Fetch related unit data
+                'broker'     # Fetch related broker data
+            )
+        else:
+            # If no broker_id is provided, return all sales (optional)
+            sales = Sale.objects.all().select_related(
+                'customer', 'site', 'unit', 'broker'
+            )
 
         sales_data = []
         for sale in sales:
@@ -702,7 +712,7 @@ def submit_sales(request):
             )
 
             # Optionally, send a confirmation email to the customer
-            send_confirmation_email(request, customer_email, sales_detail.id)
+            send_confirmation_email(request, customer_email, sales_detail)
 
             return JsonResponse({'success': True, 'message': 'Sales agreement submitted successfully.'}, status=200)
 
@@ -713,8 +723,8 @@ def submit_sales(request):
 
 
 def get_sales_detail(request, sales_detail_id):
-    # Fetch the sales detail
-    sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
+    # Fetch the sales detail by UUID instead of ID
+    sales_detail = get_object_or_404(SalesDetails, uuid=sales_detail_id)
 
     # Fetch the related site, broker, customer, and unit
     site = get_object_or_404(Site, id=sales_detail.site_id)
@@ -724,7 +734,8 @@ def get_sales_detail(request, sales_detail_id):
 
     # Prepare the response data with all related information
     sales_detail_data = {
-        'id':sales_detail_id, 
+        'uuid': sales_detail_id,  # Use uuid here instead of id
+        'id':sales_detail.id,
         'customer_id': sales_detail.customer_id,
         'site_id': sales_detail.site_id,
         'unit_id': sales_detail.unit_id,
@@ -756,7 +767,6 @@ def get_sales_detail(request, sales_detail_id):
         base_url = 'http://localhost:8000'  # This is your domain or base URL
         reservation_agreement_url = base_url + settings.MEDIA_URL + str(sales_detail.reservation_agreement)
 
-        # Debugging: print the full URL
         # Add the URL to the response data
         sales_detail_data['reservation_agreement_url'] = reservation_agreement_url
     else:
@@ -785,11 +795,11 @@ def download_reservation_agreement(request, sales_detail_id):
         raise Http404("Reservation agreement not available.")
 
 
-def send_confirmation_email(request, customer_email, sales_detail_id):
+def send_confirmation_email(request, customer_email, sales_detail):
     frontend_base_url = 'http://localhost:8080'  # Or use settings if you'd prefer dynamic configuration
     
-    # Generate the URL to view the sales details on the frontend
-    sales_detail_url = f"{frontend_base_url}/sales-details/{sales_detail_id}/"
+    # Generate the URL to view the sales details on the frontend using the UUID
+    sales_detail_url = f"{frontend_base_url}/sales-details/{sales_detail.uuid}/"
 
     # Compose the email content
     subject = 'Your Sales Agreement Details'
@@ -799,6 +809,45 @@ def send_confirmation_email(request, customer_email, sales_detail_id):
     # Send the email
     send_mail(subject, message, from_email, [customer_email])
 
+
+def check_sales_details(request, customer_id, site_id, unit_id):
+    # Check if sales details exist for the given customer, site, and unit
+    try:
+        sales_details = SalesDetails.objects.get(
+            customer_id=customer_id, 
+            site_id=site_id, 
+            unit_id=unit_id
+        )
+        
+        # If sales details are found, return them in the response
+        response_data = {
+            'exists': True,
+            'details': {
+                'payment_plan': sales_details.payment_plan,
+                'spot_discount': sales_details.spot_discount_percent,
+                'tlp_discount': sales_details.tlp_discount_percent,
+                'net_unit_price': sales_details.net_unit_price,
+                'total_amount_payable': sales_details.total_amount_payable,
+                'downpayment': sales_details.spot_downpayment_percent,
+                'reservation_fee': sales_details.reservation_fee,
+                'spread_downpayment_percent': sales_details.spread_downpayment_percent,
+                'spot_downpayment_percent':sales_details.spot_downpayment_percent,
+                'payable_months': sales_details.payable_months,
+                'payable_per_month': sales_details.payable_per_month,
+                'balance_upon_turnover': sales_details.balance_upon_turnover,
+                'net_unit_price': sales_details.net_unit_price,
+                'total_amount_payable': sales_details.total_amount_payable,
+                'net_full_payment': sales_details.net_full_payment,
+                'other_charges_percent': sales_details.other_charges_percent,
+                'unit_price':sales_details.unit.price,
+
+            }
+        }
+    except SalesDetails.DoesNotExist:
+        # If no sales details are found, return exists=False
+        response_data = {'exists': False}
+
+    return JsonResponse(response_data)
 
 # Developers
 @csrf_exempt

@@ -3,6 +3,7 @@
   <div class="main-page">
     <SideNav />
     <div class="content">
+      <<<<<<< HEAD
       <div>
         <h1>Gwynn Rafer Cujardo</h1>
         <h5>@gwynncujardo</h5>
@@ -32,6 +33,11 @@
           <div class="content3"><h2>Analytics</h2></div>
         </div>
       </div>
+      =======
+      <h1>Hi, {{ brokerName }}</h1>
+      <p>{{ brokerEmail }}</p>
+      <button @click="logout">Logout</button>
+      >>>>>>> backend_quiambao
     </div>
   </div>
 </template>
@@ -85,6 +91,15 @@ export default {
         this.redirectToLogin();
       }
     },
+  },
+  data() {
+    return {
+      brokerName: "", // To store the broker's full name
+      brokerEmail: "", // To store the broker's email
+    };
+  },
+  created() {
+    this.fetchBrokerInfo();
   },
   methods: {
     async logout() {
