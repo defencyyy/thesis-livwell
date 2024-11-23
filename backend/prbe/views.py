@@ -286,6 +286,8 @@ def get_broker(request, broker_id):
                 "id": broker.id,
                 "company_id": broker.company_id,  # Adjust according to your field name
                 "email": broker.email,
+                "f_name":broker.first_name,
+                "l_name":broker.last_name,
                 # Add other fields you may need
             }
             return JsonResponse(broker_data, status=200)
@@ -559,13 +561,21 @@ def fetch_units(request, site_id):
 @csrf_exempt
 def fetch_sales(request):
     try:
-        # Fetch all sales
-        sales = Sale.objects.all().select_related(
-            'customer',  # Fetch related customer data
-            'site',      # Fetch related site data
-            'unit',      # Fetch related unit data
-            'broker'     # Fetch related broker data (assuming you have a 'broker' field)
-        )
+        broker_id = request.GET.get('broker_id')
+
+        # Fetch sales based on the broker_id, if provided
+        if broker_id:
+            sales = Sale.objects.filter(broker__id=broker_id).select_related(
+                'customer',  # Fetch related customer data
+                'site',      # Fetch related site data
+                'unit',      # Fetch related unit data
+                'broker'     # Fetch related broker data
+            )
+        else:
+            # If no broker_id is provided, return all sales (optional)
+            sales = Sale.objects.all().select_related(
+                'customer', 'site', 'unit', 'broker'
+            )
 
         sales_data = []
         for sale in sales:

@@ -2,8 +2,8 @@
   <div class="main-page">
     <SideNav />
     <div class="content">
-      <h1>Welcome, You Are Logged In!</h1>
-      <p>This is the main page for brokers.</p>
+      <h1>Hi, {{ brokerName }}</h1>
+      <p>{{ brokerEmail }}</p>
       <button @click="logout">Logout</button>
     </div>
   </div>
@@ -17,7 +17,37 @@ export default {
   components: {
     SideNav,
   },
+  data() {
+    return {
+      brokerName: '',   // To store the broker's full name
+      brokerEmail: '',  // To store the broker's email
+    };
+  },
+  created() {
+    this.fetchBrokerInfo();
+  },
   methods: {
+    // Fetch the broker info from the backend API
+    async fetchBrokerInfo() {
+      const brokerId = localStorage.getItem('broker_id');  // Retrieve the logged-in broker's ID from localStorage
+      try {
+        const response = await fetch(`http://localhost:8000/brokers/${brokerId}/`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,  // Pass token for authentication
+          },
+        });
+        const data = await response.json();
+        if (data.success !== false) {
+          this.brokerName = `${data.f_name} ${data.l_name}`;  // Combine first name and last name
+          this.brokerEmail = data.email;  // Set email
+        } else {
+          console.error('Broker info not found or error:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching broker info:', error);
+      }
+    },
+
     logout() {
       localStorage.removeItem("authToken");
       localStorage.removeItem("logged_in");
