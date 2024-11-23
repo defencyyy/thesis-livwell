@@ -699,7 +699,7 @@ def submit_sales(request):
             )
 
             # Optionally, send a confirmation email to the customer
-            send_confirmation_email(request, customer_email, sales_detail.id)
+            send_confirmation_email(request, customer_email, sales_detail)
 
             return JsonResponse({'success': True, 'message': 'Sales agreement submitted successfully.'}, status=200)
 
@@ -710,8 +710,8 @@ def submit_sales(request):
 
 
 def get_sales_detail(request, sales_detail_id):
-    # Fetch the sales detail
-    sales_detail = get_object_or_404(SalesDetails, id=sales_detail_id)
+    # Fetch the sales detail by UUID instead of ID
+    sales_detail = get_object_or_404(SalesDetails, uuid=sales_detail_id)
 
     # Fetch the related site, broker, customer, and unit
     site = get_object_or_404(Site, id=sales_detail.site_id)
@@ -721,7 +721,8 @@ def get_sales_detail(request, sales_detail_id):
 
     # Prepare the response data with all related information
     sales_detail_data = {
-        'id':sales_detail_id, 
+        'uuid': sales_detail_id,  # Use uuid here instead of id
+        'id':sales_detail.id,
         'customer_id': sales_detail.customer_id,
         'site_id': sales_detail.site_id,
         'unit_id': sales_detail.unit_id,
@@ -753,7 +754,6 @@ def get_sales_detail(request, sales_detail_id):
         base_url = 'http://localhost:8000'  # This is your domain or base URL
         reservation_agreement_url = base_url + settings.MEDIA_URL + str(sales_detail.reservation_agreement)
 
-        # Debugging: print the full URL
         # Add the URL to the response data
         sales_detail_data['reservation_agreement_url'] = reservation_agreement_url
     else:
@@ -782,11 +782,11 @@ def download_reservation_agreement(request, sales_detail_id):
         raise Http404("Reservation agreement not available.")
 
 
-def send_confirmation_email(request, customer_email, sales_detail_id):
+def send_confirmation_email(request, customer_email, sales_detail):
     frontend_base_url = 'http://localhost:8080'  # Or use settings if you'd prefer dynamic configuration
     
-    # Generate the URL to view the sales details on the frontend
-    sales_detail_url = f"{frontend_base_url}/sales-details/{sales_detail_id}/"
+    # Generate the URL to view the sales details on the frontend using the UUID
+    sales_detail_url = f"{frontend_base_url}/sales-details/{sales_detail.uuid}/"
 
     # Compose the email content
     subject = 'Your Sales Agreement Details'
@@ -795,6 +795,7 @@ def send_confirmation_email(request, customer_email, sales_detail_id):
 
     # Send the email
     send_mail(subject, message, from_email, [customer_email])
+
 
 def check_sales_details(request, customer_id, site_id, unit_id):
     # Check if sales details exist for the given customer, site, and unit

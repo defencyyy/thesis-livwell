@@ -27,7 +27,7 @@ urlpatterns = [
     path('sales/', views.fetch_sales, name='fetch_sales'),
     path('reserve-unit/', views.reserve_unit, name='reserve-unit'),
     path('submit-sales/', views.submit_sales, name='submit_sales'),
-    path('sales-detail/<int:sales_detail_id>/', views.get_sales_detail, name='view_sales_detail'),
+    path('sales-detail/<uuid:sales_detail_id>/', views.get_sales_detail, name='view_sales_detail'),
     path('download_reservation_agreement/<int:sales_detail_id>/', views.download_reservation_agreement, name='download_reservation_agreement'),
     path('salesdetails/check/<int:customer_id>/<int:site_id>/<int:unit_id>/', views.check_sales_details, name='check_sales_details'),
 
