@@ -24,6 +24,10 @@
           <button @click="showAddModal = true" class="btn-primary">
             Add Site
           </button>
+          <!-- Button to toggle archived sites visibility -->
+          <button @click="toggleArchived" class="btn-secondary">
+            {{ showArchived ? "Hide Archived Sites" : "Show Archived Sites" }}
+          </button>
         </div>
 
         <!-- Grid View -->
@@ -64,118 +68,19 @@
         </table>
 
         <!-- Add and Edit Modals using b-modal -->
+        <!-- Add Site Modal -->
         <b-modal v-model="showAddModal" title="Add New Site" hide-footer>
-          <form @submit.prevent="addSite">
-            <div class="form-group">
-              <label for="siteName">Site Name:</label>
-              <input
-                type="text"
-                v-model="newSite.name"
-                id="siteName"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="siteDescription">Description:</label>
-              <textarea
-                v-model="newSite.description"
-                id="siteDescription"
-              ></textarea>
-            </div>
-            <div class="form-group">
-              <label for="siteLocation">Location:</label>
-              <input
-                type="text"
-                v-model="newSite.location"
-                id="siteLocation"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="siteStatus">Status:</label>
-              <select v-model="newSite.status" id="siteStatus" required>
-                <option
-                  v-for="status in statusOptions"
-                  :key="status"
-                  :value="status"
-                >
-                  {{ status }}
-                </option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="sitePicture">Picture:</label>
-              <input type="file" @change="handleFileUpload" id="sitePicture" />
-            </div>
-            <button type="submit">Save</button>
-            <button type="button" @click="showAddModal = false">Cancel</button>
-          </form>
+          <!-- Add Site Form -->
         </b-modal>
 
+        <!-- Edit Site Modal -->
         <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
-          <form @submit.prevent="confirmEdit">
-            <div class="form-group">
-              <label for="editSiteName">Site Name:</label>
-              <input
-                type="text"
-                v-model="editSite.name"
-                id="editSiteName"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="editSiteLocation">Location:</label>
-              <input
-                type="text"
-                v-model="editSite.location"
-                id="editSiteLocation"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="editSiteStatus">Status:</label>
-              <select v-model="editSite.status" id="editSiteStatus" required>
-                <option
-                  v-for="status in statusOptions"
-                  :key="status"
-                  :value="status"
-                >
-                  {{ status }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="editSitePicture">Picture URL:</label>
-              <input
-                type="text"
-                v-model="editSite.picture"
-                id="editSitePicture"
-              />
-            </div>
-
-            <button type="submit">Save Changes</button>
-            <button type="button" @click="showEditModal = false">Cancel</button>
-          </form>
+          <!-- Edit Site Form -->
         </b-modal>
 
         <!-- Site Details Modal -->
         <b-modal v-model="selectedSiteModal" title="Site Details" hide-footer>
-          <div v-if="selectedSite">
-            <h2>{{ selectedSite.name }}</h2>
-            <p><strong>Location:</strong> {{ selectedSite.location }}</p>
-            <p><strong>Status:</strong> {{ selectedSite.status }}</p>
-            <img
-              :src="selectedSite.picture || '/default-image-large.jpg'"
-              alt="Site Picture"
-              class="site-image-large"
-            />
-          </div>
-          <button class="btn-primary" @click="selectedSiteModal = false">
-            Close
-          </button>
+          <!-- Site Details Content -->
         </b-modal>
       </div>
     </div>
@@ -205,10 +110,17 @@ export default {
       showEditModal: false,
       selectedSite: null,
       selectedSiteModal: false,
-      newSite: { name: "", location: "", status: "", picture: "" },
+      newSite: {
+        name: "",
+        location: "",
+        status: "",
+        picture: "",
+        description: "",
+      }, // Added description
       editSite: {},
       statusOptions: ["Preselling", "Ongoing", "Completed", "Sold Out"],
       sites: [],
+      showArchived: false, // State to control archived sites visibility
     };
   },
   computed: {
@@ -228,6 +140,7 @@ export default {
         .filter((site) =>
           site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         )
+        .filter((site) => this.showArchived || !site.isArchived) // Show or hide archived sites
         .sort((a, b) =>
           this.sortBy === "name"
             ? a.name.localeCompare(b.name)
@@ -237,11 +150,9 @@ export default {
   },
   methods: {
     async fetchSites() {
-      console.log("JWT Token:", localStorage.getItem("accessToken")); // Log JWT token
+      console.log("Fetching sites...");
 
       const companyId = this.vuexCompanyId;
-      console.log("Fetching sites with Company ID:", companyId); // Log companyId
-
       if (!companyId) {
         alert("Company ID not found. Please log in.");
         this.$router.push({ name: "DevLogin" });
@@ -257,20 +168,22 @@ export default {
             },
           }
         );
-        console.log("Sites fetched:", response.data); // Log the fetched data
+        console.log("Sites fetched:", response.data);
         if (response.status === 200) {
-          this.sites = response.data.filter((site) => !site.isArchived); // Exclude archived sites
+          this.sites = response.data; // Fetch both active and archived sites
         }
       } catch (error) {
-        console.error("Error fetching sites:", error.response || error);
         if (error.response?.status === 401) {
           const refreshedToken = await this.refreshAccessToken();
           if (refreshedToken) {
-            this.fetchSites();
+            this.fetchSites(); // Retry after refreshing
           }
+        } else {
+          console.error("Error fetching sites:", error.response || error);
         }
       }
     },
+
     async refreshAccessToken() {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
@@ -289,19 +202,22 @@ export default {
         this.handleTokenRefreshFailure();
       }
     },
+
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       this.$router.push({ name: "DevLogin" });
     },
+
     toggleView() {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
+    toggleArchived() {
+      this.showArchived = !this.showArchived;
+    },
     async addSite() {
-      console.log("Adding site with data:", this.newSite); // Log data to be added
-      console.log("Company ID:", this.vuexCompanyId);
-      console.log("User ID:", this.vuexUserId);
+      console.log("Adding site with data:", this.newSite);
 
       const formData = new FormData();
       formData.append("name", this.newSite.name);
@@ -309,6 +225,7 @@ export default {
       formData.append("status", this.newSite.status || "Preselling");
       formData.append("companyId", this.vuexCompanyId);
       formData.append("userId", this.vuexUserId);
+      formData.append("description", this.newSite.description || ""); // Optional description field
 
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
@@ -325,57 +242,26 @@ export default {
             },
           }
         );
-        console.log("Response after adding site:", response.data); // Log the response data
         if (response.status === 201) {
           this.sites.push(response.data);
           this.showAddModal = false;
-          this.newSite = { name: "", location: "", status: "", picture: "" };
+          this.newSite = {
+            name: "",
+            location: "",
+            status: "",
+            picture: "",
+            description: "",
+          }; // Clear the form
         }
       } catch (error) {
         console.error("Error adding site:", error.response || error);
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.addSite(); // Retry after refreshing the token
-          }
-        }
-      }
-    },
-    async confirmEdit() {
-      console.log("Editing site:", this.editSite); // Log the site data being edited
-
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.editSite.id}/`,
-          this.editSite,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        console.log("Response after editing site:", response.data); // Log the updated site
-        if (response.status === 200) {
-          const index = this.sites.findIndex(
-            (site) => site.id === this.editSite.id
-          );
-          this.sites[index] = response.data;
-          this.showEditModal = false;
-        }
-      } catch (error) {
-        console.error("Error editing site:", error.response || error);
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.confirmEdit();
-          }
-        }
       }
     },
     async archiveSite(site) {
-      console.log("Archiving site:", site); // Log the site being archived
+      console.log("Archiving site:", site);
+      site.isArchived = true; // Mark as archived
+
       try {
-        site.isArchived = true; // Mark as archived
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${site.id}/`,
           site,
@@ -390,24 +276,15 @@ export default {
         }
       } catch (error) {
         console.error("Error archiving site:", error.response || error);
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.archiveSite(site);
-          }
-        }
       }
     },
     viewSite(site) {
-      this.selectedSite = site; // Populate selected site
-      this.selectedSiteModal = true; // Show site details modal
+      this.selectedSite = site;
+      this.selectedSiteModal = true;
     },
     openEditModal(site) {
-      this.editSite = { ...site }; // Deep copy site data into editSite
-      this.showEditModal = true; // Show edit modal
-    },
-    handleFileUpload(event) {
-      this.newSite.picture = event.target.files[0];
+      this.editSite = { ...site };
+      this.showEditModal = true;
     },
   },
   mounted() {
