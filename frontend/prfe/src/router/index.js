@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
-import About from "@/views/AboutView.vue";
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -30,15 +29,11 @@ import BrkMilestones from "@/views/broker/BrkMilestones.vue";
 import BrkAccounts from "@/views/broker/BrkAccounts.vue";
 import BrkManageSales from "@/views/broker/BrkManageSales.vue";
 import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path as necessary
+import SalesDetailsPage from "@/components/SalesDetailsPage.vue";
 import BrkTest from "@/views/broker/BrkTest.vue";
-
-//Other Links
-import AboutUs from "@/components/AboutUs.vue";
 
 const routes = [
   { path: "/home", name: "Home", component: Home },
-  { path: "/about", name: "About", component: About },
-  { path: "/AboutUs", name: "AboutUs", component: AboutUs },
 
   // Developer Routes
   {
@@ -134,12 +129,17 @@ const routes = [
     name: "AvailableUnits",
     component: AvailableUnits,
   },
-
   {
     path: "/broker/manage-sales",
     name: "ManageSales",
     component: BrkManageSales,
     meta: { requiresAuth: true, role: "broker" },
+  },
+  {
+    path: "/sales-details/:id", // Dynamic route using :id for the sales detail ID
+    name: "SalesDetails",
+    component: SalesDetailsPage,
+    props: true, // Pass route params as props to the component
   },
   {
     path: "/broker/manage-customer",

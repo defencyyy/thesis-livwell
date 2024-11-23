@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'sites.apps.SitesConfig',
     'milestones.apps.MilestonesConfig',
     'sales.apps.SalesConfig',
+    'salesdetails.apps.SalesdetailsConfig',
 
     # User
     'corsheaders',
