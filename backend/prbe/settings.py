@@ -1,9 +1,11 @@
 from pathlib import Path
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -49,19 +51,32 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',  # Ensure security headers are set first
+    'corsheaders.middleware.CorsMiddleware',  # Add CORS headers after security
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Session handling for user sessions
+    'django.middleware.common.CommonMiddleware',  # General request/response tweaks
+    'django.middleware.csrf.CsrfViewMiddleware',  # CSRF protection for forms
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Handles authentication via session
+    'django.contrib.messages.middleware.MessageMiddleware',  # Flash messages
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Clickjacking protection
 ]
+
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_SECURE = True   # Disable secure cookies for dev
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True   # Disable secure cookies for dev 
+
+ # Custom headers 
+CORS_ALLOW_HEADERS = [
+    'developer-id', 'company-id', 'content-type', 'authorization',
+    'accept', 'accept-encoding', 'x-csrftoken', 'access-control-allow-origin',
+]
 
 # CORS_ORIGIN_ALLOW_ALL = True  # For testing purposes, allow all origins
 
@@ -82,6 +97,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -123,12 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # 15 min expiration
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # 7 days expiration
-    'ROTATE_REFRESH_TOKENS': True,                   # Enable rotation
-}
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -154,17 +165,29 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Adjust as needed
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Adjust as needed
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
+
+AUTH_USER_MODEL = 'developers.Developer'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'aeronjquiambao@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'ljscdntxmmdqupmz'  # Your Gmail password or app password
-
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

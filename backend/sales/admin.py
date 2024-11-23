@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Sale
+from prbe.admin import custom_admin_site
 
 class SaleAdmin(admin.ModelAdmin):
   sales_display = ('id', 'site', 'unit', 'customer', 'broker', 'date_sold')  
@@ -7,5 +8,4 @@ class SaleAdmin(admin.ModelAdmin):
   search_fields = ('name', 'unit', 'customer', 'broker', 'date_sold')
   sales_per_page = 25 
 
-admin.site.register(Sale, SaleAdmin)
-
+custom_admin_site.register(Sale, SaleAdmin)
