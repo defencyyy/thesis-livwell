@@ -32,6 +32,8 @@ from sales.models import Sale
 from units.models import Unit, UnitImage
 from sites.models import Site
 from salesdetails.models import SalesDetails
+from documents.models import DocumentType, Document
+
  
 import json
 import re
@@ -482,6 +484,8 @@ def get_customers_for_broker(request, broker_id):
             # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
             contact_number = customer.contact_number
+            company_id = customer.company.id  # Get the company ID associated with the customer
+
 
             # If include_sales is True, fetch sales and related data
             if include_sales:
@@ -493,18 +497,22 @@ def get_customers_for_broker(request, broker_id):
                         unit = Unit.objects.get(id=sale.unit_id)
 
                         customer_data.append({
+                            'id': customer.id,
                             'customer_name': customer_name,
                             'contact_number': contact_number,
                             'site': site.name,
                             'unit': unit.unit_title,
+                            'company_id': company_id,  # Add company ID
                             'document_status': "Pending",  # Adjust document status as needed
                         })
                 else:
                     customer_data.append({
+                        'id': customer.id,
                         'customer_name': customer_name,
                         'contact_number': contact_number,
                         'site': "To be followed",
                         'unit': "To be followed",
+                        'company_id': company_id,  # Add company ID
                         'document_status': "Pending",
                     })
             else:
@@ -512,6 +520,8 @@ def get_customers_for_broker(request, broker_id):
                 customer_data.append({
                     'id': customer.id,
                     'name': customer_name,
+                    'contact_number': contact_number,
+                    'company_id': company_id,  # Add company ID
                 })
 
         return JsonResponse({'success': True, 'customers': customer_data}, status=200)
@@ -846,11 +856,69 @@ def check_sales_details(request, customer_id, site_id, unit_id):
 
     return JsonResponse(response_data)
 
+# Fetch document types - for dropdown
+def fetch_document_types(request):
+    try:
+        document_types = DocumentType.objects.all()
+        document_types_data = [
+            {"id": dt.id, "name": dt.name, "description": dt.description}
+            for dt in document_types
+        ]
+        return JsonResponse({"success": True, "documentTypes": document_types_data})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
 
+# Upload document for a customer
+@csrf_exempt
+def upload_document(request):
+    if request.method == "POST":
+        # Get the common fields from the request
+        customer_id = request.POST.get("customer")
+        company_id = request.POST.get("company")
+        object_id = request.POST.get("object_id", 1)  # Default value of 1 if not provided
+        content_id = request.POST.get("content_id", 1)  # Default value of 1 if not provided
 
+        # Get the list of files and document types
+        files = request.FILES.getlist("files[]")
+        document_type_ids = request.POST.getlist("document_types[]")
 
+        # Debug print statements to check the data
+        print("customer_id:", customer_id)
+        print("company_id:", company_id)
+        print("document_type_ids:", document_type_ids)
+        print("object_id:", object_id)
+        print("content_id:", content_id)
+        print("files:", files)
 
+        # Validate that customer_id, document_type_ids, and files are provided
+        if not customer_id or not document_type_ids or not files:
+            return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
 
+        try:
+            # Get the customer object
+            customer = get_object_or_404(Customer, id=customer_id)
+
+            # Loop over the files and their corresponding document types
+            for i, file in enumerate(files):
+                document_type_id = document_type_ids[i] if i < len(document_type_ids) else document_type_ids[0]  # Default to first doc type if out of bounds
+                document_type = get_object_or_404(DocumentType, id=document_type_id)
+
+                # Create the document instance for each file
+                document = Document.objects.create(
+                    customer_id=customer_id,
+                    document_type=document_type,
+                    company_id=company_id,
+                    file=file,
+                    object_id=object_id,  # Pass the object_id
+                    content_type_id=content_id,  # Pass the content_id
+                )
+
+            return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 # Developers
 @csrf_exempt

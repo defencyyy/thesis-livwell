@@ -5,7 +5,7 @@
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
-      <!-- Single Sorting Dropdown -->
+      <!-- Sorting and Adding Customers Section -->
       <div class="sort-options">
         <label for="sortBy">Sort by:</label>
         <select id="sortBy" v-model="sortBy" @change="sortCustomers">
@@ -15,12 +15,10 @@
           <option value="site_desc">Site (Z-A)</option>
         </select>
       </div>
-      
 
-      <!-- Add Customer Button -->
       <button @click="showModal = true">Add Customer</button>
 
-      <!-- Modal for Adding Customer -->
+      <!-- Add Customer Modal -->
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
         <form @submit.prevent="addCustomer">
           <div>
@@ -55,43 +53,38 @@
         <p v-if="error" class="text-danger">{{ error }}</p>
       </b-modal>
 
-      <!-- Modal for Document Upload -->
-      <b-modal v-model="showDocumentModal" title="Upload Customer Documents" hide-footer>
-        <form @submit.prevent="uploadDocuments">
-          <div>
-            <label for="validId">Valid ID:</label>
-            <input type="file" id="validId" ref="validId" />
-          </div>
+      <!-- Multiple Document Upload Modal -->
+      <!-- Multiple Document Upload Modal -->
+<b-modal v-model="showDocumentModal" title="Upload Customer Documents" hide-footer>
+  <template v-if="showSalesMessage">
+    <p>Please create sales first before uploading documents.</p>
+    <button type="button" @click="showDocumentModal = false">Close</button>
+  </template>
 
-          <div>
-            <label for="proofOfIncome">Proof of Income:</label>
-            <input type="file" id="proofOfIncome" ref="proofOfIncome" />
+  <template v-else>
+    <form @submit.prevent="uploadDocuments">
+      <div class="document-upload-form">
+        <div v-for="(docType, index) in documentTypes" :key="index" class="document-upload-section">
+          <label :for="'documentType' + docType.id" class="document-type-label">
+            Select {{ docType.name }}:
+          </label>
+          <div class="file-input-wrapper">
+            <input type="file" :id="'documentType' + docType.id" @change="handleFileUpload($event, docType.id)" class="file-input" />
+            <span v-if="!filePreviews[docType.id]" class="no-file-chosen">No file chosen</span>
+            <span v-if="filePreviews[docType.id]" class="file-name">{{ filePreviews[docType.id].name }}</span>
           </div>
+          <button type="button" v-if="filePreviews[docType.id]" @click="removeFile(docType.id)" class="remove-file-btn">Remove</button>
+        </div>
+      </div>
 
-          <div>
-            <label for="proofOfBilling">Proof of Billing:</label>
-            <input type="file" id="proofOfBilling" ref="proofOfBilling" />
-          </div>
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">Upload Documents</button>
+        <button type="button" @click="showDocumentModal = false" class="cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </template>
+</b-modal>
 
-          <div>
-            <label for="reservationAgreement">Reservation Agreement:</label>
-            <input type="file" id="reservationAgreement" ref="reservationAgreement" />
-          </div>
-
-          <div>
-            <label for="salesAgreement">Sales Agreement:</label>
-            <input type="file" id="salesAgreement" ref="salesAgreement" />
-          </div>
-
-          <div>
-            <label for="tin">TIN:</label>
-            <input type="file" id="tin" ref="tin" />
-          </div>
-
-          <button type="submit">Submit Documents</button>
-          <button type="button" @click="showDocumentModal = false">Cancel</button>
-        </form>
-      </b-modal>
 
       <!-- Table to display the customers -->
       <table v-if="customers.length" class="table">
@@ -127,6 +120,7 @@
 
 
 
+
 <script>
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
@@ -141,6 +135,7 @@ export default {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
+      showSalesMessage: false,  // Controls the visibility of the "create sales first" message
       showNotification: false, // Controls the visibility of the notification modal
       email: '',
       contactNumber: '',
@@ -153,10 +148,14 @@ export default {
       notificationTitle: '', // Title for the notification modal (Success/Failure)
       notificationMessage: '', // Message for the notification modal
       sortBy: 'name_asc', // Selected sorting option (default is "Name (A-Z)")
+      filePreviews: {},  // Object to store file previews for each document type
+      documentFiles: {}, 
     };
   },
   mounted() {
     this.fetchCustomers();
+    this.fetchDocumentTypes();  // New function to fetch document types
+
   },
   methods: {
     // Fetch customer data from API
@@ -207,42 +206,13 @@ export default {
     // Opens the document upload modal for the selected customer
     openDocumentModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
+       if (this.selectedCustomer.site === "To be followed" || this.selectedCustomer.unit === "To be followed") {
+      this.showSalesMessage = true; // Show the message to create sales first
+    } else {
+      this.showSalesMessage = false; // Show the document upload form
+    }
       this.showDocumentModal = true; // Open the document upload modal
     },
-
-    async uploadDocuments() {
-      const formData = new FormData();
-      formData.append("valid_id", this.$refs.validId.files[0]);
-      formData.append("proof_of_income", this.$refs.proofOfIncome.files[0]);
-      formData.append("proof_of_billing", this.$refs.proofOfBilling.files[0]);
-      formData.append("reservation_agreement", this.$refs.reservationAgreement.files[0]);
-      formData.append("sales_agreement", this.$refs.salesAgreement.files[0]);
-      formData.append("tin", this.$refs.tin.files[0]);
-
-      try {
-        const response = await fetch(`http://localhost:8000/customers/${this.selectedCustomer.id}/upload-documents`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          this.notificationTitle = "Success!";
-          this.notificationMessage = "Documents uploaded successfully!";
-          this.showNotification = true; // Show the notification modal
-          this.showDocumentModal = false; // Close the document upload modal
-        } else {
-          const errorData = await response.json();
-          this.notificationTitle = "Error!";
-          this.notificationMessage = errorData.message || "Failed to upload documents.";
-          this.showNotification = true; // Show the notification modal
-        }
-      } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage = "An error occurred while uploading documents.";
-        this.showNotification = true; // Show the notification modal
-      }
-    },
-
     // Add a new customer
     async addCustomer() {
       const brokerId = localStorage.getItem("broker_id");
@@ -251,6 +221,7 @@ export default {
         return;
       }
 
+
       const customerData = {
         broker: brokerId,
         email: this.email,
@@ -258,6 +229,7 @@ export default {
         affiliated_link: this.affiliatedLink || '',
         last_name: this.lastName,
         first_name: this.firstName,
+        // Fix this
         company_id: 1, // Replace with the actual company_id if available
       };
 
@@ -290,7 +262,86 @@ export default {
         this.showNotification = true; // Show the notification modal
       }
     },
+   // Fetch document types from the API
+    async fetchDocumentTypes() {
+      try {
+        const response = await fetch('http://localhost:8000/document-types/');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.documentTypes = data.documentTypes;
+          } else {
+            this.error = data.message || "Failed to fetch document types.";
+          }
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching document types.";
+      }
+    },
 
+    // Handle file selection for multiple document types
+    handleFileUpload(event, docTypeId) {
+      const file = event.target.files[0];
+      if (file) {
+        this.filePreviews[docTypeId] = file; // Store the file preview
+        this.documentFiles[docTypeId] = file; // Store the actual file
+      }
+    },
+
+    // Remove file preview and file data for a document type
+    removeFile(docTypeId) {
+      delete this.filePreviews[docTypeId];
+      delete this.documentFiles[docTypeId];
+    },
+
+    // Upload multiple documents
+    async uploadDocuments() {
+  const formData = new FormData();
+
+  // Loop through the documentFiles object to process each file and its document type
+  for (const docTypeId in this.documentFiles) {
+    const file = this.documentFiles[docTypeId];
+
+    // Append the file and the associated document type to formData
+    formData.append("files[]", file); // Append the file under "files[]"
+    formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
+    
+    // Optionally append default values for object_id and content_id if needed
+    formData.append("object_id", 1);  // Default value of 1 for object_id
+    formData.append("content_id", 1); // Default value of 1 for content_id
+  }
+
+  // Append customer and company information
+  formData.append("customer", this.selectedCustomer.id);
+  formData.append("company", this.selectedCustomer.company_id);
+  
+  try {
+    const response = await fetch('http://localhost:8000/upload-document/', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': this.getCookie('csrftoken'),
+      },
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      this.notificationTitle = "Success!";
+      this.notificationMessage = "Documents uploaded successfully!";
+      this.showNotification = true;
+      this.showDocumentModal = false;
+      this.fetchCustomers(); // Refresh customer list
+    } else {
+      this.notificationTitle = "Error!";
+      this.notificationMessage = data.message || "Failed to upload documents.";
+      this.showNotification = true;
+    }
+  } catch (error) {
+    this.notificationTitle = "Error!";
+    this.notificationMessage = "An error occurred while uploading documents.";
+    this.showNotification = true;
+  }
+},
     // Reset the form when the modal is closed
     resetForm() {
       this.email = '';
@@ -340,6 +391,90 @@ export default {
 
 .table tbody tr.active {
   background-color: #d3d3d3;
+}
+
+.document-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.document-type-label {
+  font-weight: bold;
+  margin-bottom: 6px;
+  font-size: 1.1em;
+}
+
+.file-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.file-input {
+  padding: 8px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.no-file-chosen {
+  color: #888;
+  font-style: italic;
+  padding-left: 8px;
+}
+
+.file-name {
+  color: #333;
+  padding-left: 8px;
+}
+
+.remove-file-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 6px;
+  font-size: 0.9em;
+}
+
+.remove-file-btn:hover {
+  background-color: #ff1a1a;
+}
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1em;
+  cursor: pointer;
+  width: 100%;
+}
+
+.submit-btn:hover {
+  background-color: #45a049;
+}
+
+.cancel-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1em;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.cancel-btn:hover {
+  background-color: #e53935;
 }
 
 </style>
