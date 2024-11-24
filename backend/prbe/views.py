@@ -882,14 +882,6 @@ def upload_document(request):
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
 
-        # Debug print statements to check the data
-        print("customer_id:", customer_id)
-        print("company_id:", company_id)
-        print("document_type_ids:", document_type_ids)
-        print("object_id:", object_id)
-        print("content_id:", content_id)
-        print("files:", files)
-
         # Validate that customer_id, document_type_ids, and files are provided
         if not customer_id or not document_type_ids or not files:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
