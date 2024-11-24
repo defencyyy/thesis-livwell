@@ -369,7 +369,6 @@ export default {
     const sales = this.salesDetails;
 
       this.unitPrice = sales.unit_price;
-      console.log(this.unitPrice);
     this.spotCashDiscount = sales.spot_discount;
     this.tlpDiscount = sales.tlp_discount;
     this.otherChargesPercentage = sales.other_charges_percent;
