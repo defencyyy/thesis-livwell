@@ -903,15 +903,25 @@ def upload_document(request):
                 document_type_id = document_type_ids[i] if i < len(document_type_ids) else document_type_ids[0]  # Default to first doc type if out of bounds
                 document_type = get_object_or_404(DocumentType, id=document_type_id)
 
-                # Create the document instance for each file
-                document = Document.objects.create(
-                    customer_id=customer_id,
-                    document_type=document_type,
-                    company_id=company_id,
-                    file=file,
-                    object_id=object_id,  # Pass the object_id
-                    content_type_id=content_id,  # Pass the content_id
-                )
+                # Check if a document already exists for this customer and document type
+                existing_document = Document.objects.filter(
+                    customer_id=customer_id, document_type=document_type
+                ).first()
+
+                if existing_document:
+                    # If the document already exists, update it with the new file
+                    existing_document.file = file
+                    existing_document.save()
+                else:
+                    # If the document doesn't exist, create a new document
+                    Document.objects.create(
+                        customer_id=customer_id,
+                        document_type=document_type,
+                        company_id=company_id,
+                        file=file,
+                        object_id=object_id,  # Pass the object_id
+                        content_type_id=content_id,  # Pass the content_id
+                    )
 
             return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})
 
@@ -919,6 +929,45 @@ def upload_document(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+# Fetch documents for a given customer
+@csrf_exempt
+def fetch_customer_documents(request, customer_id):
+    try:
+        # Get the customer by ID
+        customer = Customer.objects.get(id=customer_id)
+
+        # Fetch documents for the customer, grouped by document type
+        documents = Document.objects.filter(customer=customer)
+
+        # Prepare a list to return
+        document_data = []
+        for doc in documents:
+            document_data.append({
+                'id': doc.id,
+                'document_type_id': doc.document_type.id,
+                'document_type_name': doc.document_type.name,
+                'file_name':os.path.basename(doc.file.name),
+                'uploaded_at': doc.uploaded_at.isoformat(),
+            })
+
+        # Return JSON response
+        return JsonResponse({
+            'success': True,
+            'documents': document_data,
+        })
+
+    except Customer.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Customer not found.'
+        }, status=404)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+        }, status=500)
 
 # Developers
 @csrf_exempt

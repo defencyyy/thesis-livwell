@@ -53,8 +53,7 @@
         <p v-if="error" class="text-danger">{{ error }}</p>
       </b-modal>
 
-      <!-- Multiple Document Upload Modal -->
-      <!-- Multiple Document Upload Modal -->
+<!-- Multiple Document Upload Modal -->
 <b-modal v-model="showDocumentModal" title="Upload Customer Documents" hide-footer>
   <template v-if="showSalesMessage">
     <p>Please create sales first before uploading documents.</p>
@@ -64,18 +63,41 @@
   <template v-else>
     <form @submit.prevent="uploadDocuments">
       <div class="document-upload-form">
-        <div v-for="(docType, index) in documentTypes" :key="index" class="document-upload-section">
-          <label :for="'documentType' + docType.id" class="document-type-label">
-            Select {{ docType.name }}:
-          </label>
-          <div class="file-input-wrapper">
-            <input type="file" :id="'documentType' + docType.id" @change="handleFileUpload($event, docType.id)" class="file-input" />
-            <span v-if="!filePreviews[docType.id]" class="no-file-chosen">No file chosen</span>
-            <span v-if="filePreviews[docType.id]" class="file-name">{{ filePreviews[docType.id].name }}</span>
-          </div>
-          <button type="button" v-if="filePreviews[docType.id]" @click="removeFile(docType.id)" class="remove-file-btn">Remove</button>
-        </div>
-      </div>
+  <div v-for="(docType, index) in documentTypes" :key="index" class="document-upload-section">
+    <label :for="'documentType' + docType.id" class="document-type-label">
+      Select {{ docType.name }}:
+    </label>
+    
+    <div class="file-input-wrapper">
+      <!-- Show the file input if no file has been selected -->
+      <input 
+        type="file" 
+        :id="'documentType' + docType.id" 
+        @change="handleFileUpload($event, docType.id)" 
+        class="file-input" 
+        v-if="!filePreviews[docType.id]" 
+      />
+      
+      <!-- Show the file name after file has been selected -->
+      <span v-if="filePreviews[docType.id]" class="file-name">
+        {{ filePreviews[docType.id].name }}
+      </span>
+      
+      <!-- Show "No file chosen" only if no file has been selected -->
+      <span v-else class="no-file-chosen">No file chosen</span>
+    </div>
+
+    <!-- If a file is uploaded, allow removing it -->
+    <button 
+      type="button" 
+      v-if="filePreviews[docType.id]" 
+      @click="removeFile(docType.id)" 
+      class="remove-file-btn">
+        Remove
+    </button>
+  </div>
+</div>
+
 
       <div class="form-actions">
         <button type="submit" class="submit-btn">Upload Documents</button>
@@ -84,6 +106,7 @@
     </form>
   </template>
 </b-modal>
+
 
 
       <!-- Table to display the customers -->
@@ -210,7 +233,9 @@ export default {
       this.showSalesMessage = true; // Show the message to create sales first
     } else {
       this.showSalesMessage = false; // Show the document upload form
-    }
+      }
+      this.fetchCustomerDocuments(this.selectedCustomer.id);
+
       this.showDocumentModal = true; // Open the document upload modal
     },
     // Add a new customer
@@ -262,6 +287,44 @@ export default {
         this.showNotification = true; // Show the notification modal
       }
     },
+    // Fetch existing documents for the selected customer
+async fetchCustomerDocuments(customerId) {
+  try {
+    const response = await fetch(`http://localhost:8000/documents/customer/${customerId}/`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        // Store the documents in the component's data
+        this.customerDocuments = data.documents;  // An array of the customer's documents
+        this.updateDocumentPreviews();  // Update the file previews based on existing documents
+      } else {
+        this.error = data.message || "Failed to fetch customer documents.";
+      }
+    }
+  } catch (error) {
+    this.error = "An error occurred while fetching customer documents.";
+  }
+    },
+// Update file previews based on existing documents
+updateDocumentPreviews() {
+  // Initialize filePreviews as an empty object
+  this.filePreviews = {};
+
+  // Loop through each document type and check if it's already uploaded
+  this.documentTypes.forEach((docType) => {
+    const existingDoc = this.customerDocuments.find(doc => doc.document_type_id === docType.id);
+
+    if (existingDoc) {
+      // If a document exists for this document type, set the preview
+      this.filePreviews[docType.id] = {
+        name: existingDoc.file_name,  // Use the file name from the database
+        url: existingDoc.file_url     // Optionally, you could store the file URL for further use
+      };
+    }
+  });
+},
+
+
    // Fetch document types from the API
     async fetchDocumentTypes() {
       try {
@@ -283,6 +346,9 @@ export default {
     handleFileUpload(event, docTypeId) {
       const file = event.target.files[0];
       if (file) {
+          if (this.filePreviews[docTypeId]) {
+          this.removeFile(docTypeId); // This will remove the old file
+    }
         this.filePreviews[docTypeId] = file; // Store the file preview
         this.documentFiles[docTypeId] = file; // Store the actual file
       }
@@ -295,7 +361,7 @@ export default {
     },
 
     // Upload multiple documents
-    async uploadDocuments() {
+async uploadDocuments() {
   const formData = new FormData();
 
   // Loop through the documentFiles object to process each file and its document type
@@ -314,7 +380,7 @@ export default {
   // Append customer and company information
   formData.append("customer", this.selectedCustomer.id);
   formData.append("company", this.selectedCustomer.company_id);
-  
+
   try {
     const response = await fetch('http://localhost:8000/upload-document/', {
       method: 'POST',
