@@ -90,10 +90,24 @@
                     <td>{{ site.location }}</td>
                     <td>{{ site.status }}</td>
                     <td>
-                      <button @click.stop="viewSite(site)">View</button>
-                      <button @click.stop="openEditModal(site)">Edit</button>
-                      <button @click.stop="deleteSite(site)">Delete</button>
-                    </td>
+            <!-- View Button as Icon (Yellow) -->
+            <button @click.stop="viewSite(site)" 
+                    style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
+              <i class="fas fa-eye"></i>
+            </button>
+
+            <!-- Edit Button as Icon (Blue) -->
+            <button @click.stop="openEditModal(site)" 
+                    style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
+              <i class="fas fa-edit"></i>
+            </button>
+
+            <!-- Delete Button as Icon (Red) -->
+            <button @click.stop="deleteSite(site)" 
+                    style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
                   </tr>
                 </tbody>
               </table>
@@ -133,101 +147,93 @@
           </form>
         </b-modal> -->
 
-        <b-modal v-model="showAddModal" hide-header hide-footer>
+        <b-modal v-model="showAddModal" hide-header hide-footer size="lg">
           <div class="modal-title p-3">
             <h5 class="mb-0">New Site</h5>
           </div>
           <div class="p-3">
             <form @submit.prevent="addSite">
-              <!-- Site Name -->
-              <div class="form-group mb-3">
-                <label for="siteName" class="form-label">Site Name</label>
-                <input type="text" v-model="newSite.name" id="siteName" class="form-control" required />
-              </div>
-
-              <!-- Location -->
-              <div class="row mb-3">
+              <div class="row">
+                <!-- Left Side (Site Name to Status) -->
                 <div class="col-md-6">
-                  <label for="region" class="form-label">Region</label>
-                  <select v-model="newSite.region" id="region" class="form-select" required>
-                    <option v-for="region in regionOptions" :key="region" :value="region">
-                      {{ region }}
-                    </option>
-                  </select>
+                  <!-- Site Name -->
+                  <div class="form-group mb-3">
+                    <label for="siteName" class="form-label">Site Name</label>
+                    <input type="text" v-model="newSite.name" id="siteName" class="form-control" required />
+                  </div>
+
+                  <!-- Location -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="region" class="form-label">Region</label>
+                      <select v-model="newSite.region" id="region" class="form-select" required>
+                        <option v-for="region in regionOptions" :key="region" :value="region">
+                          {{ region }}
+                        </option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="province" class="form-label">Province</label>
+                      <select v-model="newSite.province" id="province" class="form-select" required>
+                        <option v-for="province in provinceOptions" :key="province" :value="province">
+                          {{ province }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="city" class="form-label">City</label>
+                      <select v-model="newSite.city" id="city" class="form-select" required>
+                        <option v-for="city in cityOptions" :key="city" :value="city">
+                          {{ city }}
+                        </option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="postalCode" class="form-label">Postal Code</label>
+                      <input type="text" v-model="newSite.postalCode" id="postalCode" class="form-control" required />
+                    </div>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label for="otherAddress" class="form-label">Barangay, Street Name, Building No.</label>
+                    <input type="text" v-model="newSite.otherAddress" id="otherAddress" class="form-control" required />
+                  </div>
+
+                  <!-- Status -->
+                  <div class="form-group mb-3">
+                    <label for="siteStatus" class="form-label">Status</label>
+                    <select v-model="newSite.status" id="siteStatus" class="form-select" required>
+                      <option v-for="status in statusOptions" :key="status" :value="status">
+                        {{ status }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
+
+                <!-- Right Side (Photo Upload with Preview) -->
                 <div class="col-md-6">
-                  <label for="province" class="form-label">Province</label>
-                  <select v-model="newSite.province" id="province" class="form-select" required>
-                    <option v-for="province in provinceOptions" :key="province" :value="province">
-                      {{ province }}
-                    </option>
-                  </select>
+                  <!-- Image Upload Section -->
+                  <div class="form-group mb-3">
+                    <label for="sitePicture" class="form-label">Upload Photo</label>
+                    <input type="file" @change="handleFileUpload" id="sitePicture" class="form-control"
+                      accept="image/*" />
+                  </div>
+
+                  <!-- Image Preview Section -->
+                  <div v-if="imagePreview" class="text-center">
+                    <h6>Image Preview</h6>
+                    <img :src="imagePreview" alt="Image Preview" class="img-fluid"
+                      style="max-height: 200px; object-fit: cover;" />
+                  </div>
                 </div>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="city" class="form-label">City</label>
-                  <select v-model="newSite.city" id="city" class="form-select" required>
-                    <option v-for="city in cityOptions" :key="city" :value="city">
-                      {{ city }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label for="postalCode" class="form-label">Postal Code</label>
-                  <input type="text" v-model="newSite.postalCode" id="postalCode" class="form-control" required />
-                </div>
-              </div>
-              <div class="form-group mb-3">
-                <label for="otherAddress" class="form-label">Barangay, Street Name, Building No.</label>
-                <input type="text" v-model="newSite.otherAddress" id="otherAddress" class="form-control" required />
-              </div>
-
-              <!-- Status -->
-              <div class="form-group mb-3">
-                <label for="siteStatus" class="form-label">Status</label>
-                <select v-model="newSite.status" id="siteStatus" class="form-select" required>
-                  <option v-for="status in statusOptions" :key="status" :value="status">
-                    {{ status }}
-                  </option>
-                </select>
-              </div>
-
-              <!-- Picture URL -->
-              <div class="form-group mb-3">
-        <label for="siteStatus" class="form-label">Status</label>
-        <select
-          v-model="newSite.status"
-          id="siteStatus"
-          class="form-select"
-          required
-        >
-          <option
-            v-for="status in statusOptions"
-            :key="status"
-            :value="status"
-          >
-            {{ status }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Modern Photo Upload -->
-      <div class="form-group mb-3">
-        <label for="sitePicture" class="form-label">Upload Photo</label>
-        <input
-          type="file"
-          @change="handleFileUpload"
-          id="sitePicture"
-          class="form-control"
-          accept="image/*"
-        />
-      </div>
-
 
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-3">
-                <button type="submit" class="btn btn-primary">Save</button>
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="submit" class="btn btn-primary" style="width: 150px;">Add New Site</button>
                 <button type="button" @click="showAddModal = false" class="btn btn-secondary">
                   Cancel
                 </button>
@@ -235,6 +241,7 @@
             </form>
           </div>
         </b-modal>
+
 
 
 
@@ -276,50 +283,167 @@
           </form>
         </b-modal>
 
-        <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
-          <form @submit.prevent="confirmEdit">
-            <div class="form-group">
-              <label for="editSiteName">Site Name:</label>
-              <input type="text" v-model="editSite.name" id="editSiteName" required />
-            </div>
+        <b-modal v-model="showEditModal" title="Edit Site" hide-header hide-footer size="lg">
+  <div class="modal-title p-3">
+    <h5 class="mb-0">Edit Site</h5>
+  </div>
+  <div class="p-3">
+    <form @submit.prevent="confirmEdit">
+      <div class="row">
+        <!-- Left Side (Site Name to Status) -->
+        <div class="col-md-6">
+          <!-- Site Name -->
+          <div class="form-group mb-3">
+            <label for="editSiteName" class="form-label">Site Name:</label>
+            <input type="text" v-model="editSite.name" id="editSiteName" class="form-control" required />
+          </div>
 
-            <div class="form-group">
-              <label for="editSiteLocation">Location:</label>
-              <input type="text" v-model="editSite.location" id="editSiteLocation" required />
-            </div>
-
-            <div class="form-group">
-              <label for="editSiteStatus">Status:</label>
-              <select v-model="editSite.status" id="editSiteStatus" required>
-                <option v-for="status in statusOptions" :key="status" :value="status">
-                  {{ status }}
+          <!-- Location -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="editRegion" class="form-label">Region</label>
+              <select v-model="editSite.region" id="editRegion" class="form-select" required>
+                <option v-for="region in regionOptions" :key="region" :value="region">
+                  {{ region }}
                 </option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label for="editSitePicture">Picture URL:</label>
-              <input type="text" v-model="editSite.picture" id="editSitePicture" />
+            <div class="col-md-6">
+              <label for="editProvince" class="form-label">Province</label>
+              <select v-model="editSite.province" id="editProvince" class="form-select" required>
+                <option v-for="province in provinceOptions" :key="province" :value="province">
+                  {{ province }}
+                </option>
+              </select>
             </div>
+          </div>
 
-            <button type="submit">Save Changes</button>
-            <button type="button" @click="showEditModal = false">Cancel</button>
-          </form>
-        </b-modal>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="editCity" class="form-label">City</label>
+              <select v-model="editSite.city" id="editCity" class="form-select" required>
+                <option v-for="city in cityOptions" :key="city" :value="city">
+                  {{ city }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="editPostalCode" class="form-label">Postal Code</label>
+              <input type="text" v-model="editSite.postalCode" id="editPostalCode" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editOtherAddress" class="form-label">Barangay, Street Name, Building No.</label>
+            <input type="text" v-model="editSite.otherAddress" id="editOtherAddress" class="form-control" required />
+          </div>
+
+          <!-- Status -->
+          <div class="form-group mb-3">
+            <label for="editSiteStatus" class="form-label">Status</label>
+            <select v-model="editSite.status" id="editSiteStatus" class="form-select" required>
+              <option v-for="status in statusOptions" :key="status" :value="status">
+                {{ status }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Right Side (Photo Upload with Preview) -->
+        <div class="col-md-6">
+          <!-- Image Upload Section -->
+          <div class="form-group mb-3">
+            <label for="editSitePicture" class="form-label">Upload Photo</label>
+            <input type="file" @change="handleFileUpload" id="editSitePicture" class="form-control" accept="image/*" />
+          </div>
+
+          <!-- Image Preview Section -->
+          <div v-if="imagePreview" class="text-center">
+            <h6>Image Preview</h6>
+            <img :src="imagePreview" alt="Image Preview" class="img-fluid" style="max-height: 200px; object-fit: cover;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="submit" class="btn btn-success" style="width: 150px;">Save Changes</button>
+        <button type="button" @click="showEditModal = false" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</b-modal>
+
 
         <!-- Site Details Modal -->
-        <b-modal v-model="selectedSiteModal" title="Site Details" hide-footer>
-          <div v-if="selectedSite">
-            <h2>{{ selectedSite.name }}</h2>
-            <p><strong>Location:</strong> {{ selectedSite.location }}</p>
-            <p><strong>Status:</strong> {{ selectedSite.status }}</p>
-            <img :src="selectedSite.picture || '/default-image-large.jpg'" alt="Site Picture"
-              class="site-image-large" />
+        <b-modal v-model="selectedSiteModal" title="Site Details" hide-header hide-footer size="lg">
+  <div class="modal-title p-3">
+    <h5 class="mb-0">Site Details</h5>
+  </div>
+  <div class="p-3">
+    <div class="row">
+      <!-- Left Side (Text Details) -->
+      <div class="col-md-6">
+        <!-- Site Name -->
+        <div class="form-group mb-3">
+          <label for="siteName" class="form-label">Site Name:</label>
+           <!-- <p>{{ selectedSite.name }}</p> -->
+        </div>
+
+        <!-- Location -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="region" class="form-label">Region:</label>
+            <!-- <p>{{ selectedSite.region }}</p> -->
           </div>
-          <button class="btn-primary" @click="selectedSiteModal = false">
-            Close
-          </button>
-        </b-modal>
+          <div class="col-md-6">
+            <label for="province" class="form-label">Province:</label>
+            <!-- <p>{{ selectedSite.province }}</p> -->
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="city" class="form-label">City:</label>
+            <!-- <p>{{ selectedSite.city }}</p> -->
+          </div>
+          <div class="col-md-6">
+            <label for="postalCode" class="form-label">Postal Code:</label>
+            <!-- <p>{{ selectedSite.postalCode }}</p> -->
+          </div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="otherAddress" class="form-label">Barangay, Street Name, Building No.:</label>
+          <!-- <p>{{ selectedSite.otherAddress }}</p> -->
+        </div>
+
+        <!-- Status -->
+        <div class="form-group mb-3">
+          <label for="siteStatus" class="form-label">Status:</label>
+          <!-- <p>{{ selectedSite.status }}</p> -->
+        </div>
+      </div>
+
+      <!-- Right Side (Image Preview) -->
+      <div class="col-md-6">
+        <!-- Image Preview Section -->
+        <div class="text-center">
+          <h6>Site Photo</h6>
+          <!-- <img :src="selectedSite.picture || '/default-image-large.jpg'" alt="Site Picture" class="img-fluid" style="max-height: 200px; object-fit: cover;" /> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Close Button -->
+    <div class="d-flex justify-content-end gap-3 mt-3">
+      <button type="button" @click="selectedSiteModal = false" class="btn btn-secondary">
+        Close
+      </button>
+    </div>
+  </div>
+</b-modal>
+
       </div>
     </div>
   </div>
@@ -809,4 +933,5 @@ export default {
   font-size: 0.9rem;
   /* Adjust the value to your preferred size */
 }
+
 </style>
