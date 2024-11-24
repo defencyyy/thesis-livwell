@@ -3,7 +3,6 @@
   <div class="main-page">
     <SideNav />
     <div class="content">
-      <<<<<<< HEAD
       <div>
         <h1>Gwynn Rafer Cujardo</h1>
         <h5>@gwynncujardo</h5>
@@ -97,9 +96,6 @@ export default {
       brokerName: "", // To store the broker's full name
       brokerEmail: "", // To store the broker's email
     };
-  },
-  created() {
-    this.fetchBrokerInfo();
   },
   methods: {
     async logout() {

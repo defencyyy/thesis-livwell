@@ -13,32 +13,14 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'company', 'customer', 'document_type', 'is_verified', 'uploaded_at')
-    list_display_links = ('name', 'company', 'customer')
-    search_fields = ('name', 'customer__name', 'company__name', 'document_type__name')
+    list_display = ('company', 'customer', 'document_type', 'uploaded_at')
+    list_display_links = ('company', 'customer')
+    search_fields = ('customer__name', 'company__name', 'document_type__name')
     list_per_page = 25
-    list_filter = ('company', 'customer', 'document_type', 'is_verified')
-
-    # Filter to separate Verified and Unverified documents
-    class VerifiedFilter(admin.SimpleListFilter):
-        title = _('Verification Status')
-        parameter_name = 'verification_status'
-
-        def lookups(self, request, model_admin):
-            return (
-                ('verified', _('Verified')),
-                ('unverified', _('Unverified')),
-            )
-
-        def queryset(self, request, queryset):
-            if self.value() == 'verified':
-                return queryset.filter(is_verified=True)
-            if self.value() == 'unverified':
-                return queryset.filter(is_verified=False)
-            return queryset
+    list_filter = ('company', 'customer', 'document_type')
 
     # Add the custom Verified filter
-    list_filter = ('company', 'customer', 'document_type', 'is_verified', VerifiedFilter)
+    list_filter = ('company', 'customer', 'document_type')
 
     # Add related Sales in the list display using a custom method
     def get_related_sales(self, obj):
@@ -49,7 +31,7 @@ class DocumentAdmin(admin.ModelAdmin):
     # Add content_type and object_id for Generic Foreign Key in the form
     fieldsets = (
         (None, {
-            'fields': ('company', 'customer', 'name', 'description', 'document_type', 'file', 'is_verified')
+            'fields': ('company', 'customer', 'description', 'document_type', 'file', 'uploaded_at')
         }),
         ('Advanced', {
             'classes': ('collapse',),
@@ -82,9 +64,6 @@ class DocumentAdmin(admin.ModelAdmin):
         return qs.filter(customer__user=request.user)  # Regular users can only see their own documents
 
     def has_module_permission(self, request):
-        """
-        Restrict access to this admin module based on user type.
-        """
         if request.user.is_superuser:
             return True  # Superusers have full module access
         return False  # Regular users cannot access the module directly

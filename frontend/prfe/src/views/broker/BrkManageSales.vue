@@ -38,292 +38,336 @@
           <h2>Sales Agreement</h2>
           <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
           <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
-        <div v-if="salesDetailsExists">
-        <p><strong>Payment Plan:</strong> {{ salesDetails.payment_plan }}</p>
-        <p><strong>Unit Price:</strong> ₱{{ salesDetails.unit_price }}</p>
-        <p><strong>Spot Discount Percentage:</strong> {{ salesDetails.spot_discount }}%</p>
-        <p><strong>Spot Discount:</strong> ₱{{ this.spotDiscount }}</p>
-        <p><strong>Unit Price after Spot Discount:</strong> ₱{{ this.unitPriceAfterSpotDiscount }}</p>
-        <p><strong>TLP Discount Percentage:</strong> {{ salesDetails.tlp_discount }}%</p>
-        <p><strong>TLP Discount:</strong> ₱{{ this.tlpDiscountAmount }}</p>
-        <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-        <p><strong>Other Charges Percentage:</strong> {{ salesDetails.other_charges_percent }}%</p>
-        <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-        <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-        <p ><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetails.spot_downpayment_percent }}%</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
-        <p><strong>Reservation Fee:</strong> ₱{{ salesDetails.reservation_fee }}</p>
-        <p v-if="salesDetails.payment_plan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetails.spread_downpayment_percent }}%</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetails.payable_months }}</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-        <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
-        <button @click="closeModal">Close</button>
+          <div v-if="salesDetailsExists">
+            <p>
+              <strong>Payment Plan:</strong> {{ salesDetails.payment_plan }}
+            </p>
+            <p><strong>Unit Price:</strong> ₱{{ salesDetails.unit_price }}</p>
+            <p>
+              <strong>Spot Discount Percentage:</strong>
+              {{ salesDetails.spot_discount }}%
+            </p>
+            <p><strong>Spot Discount:</strong> ₱{{ this.spotDiscount }}</p>
+            <p>
+              <strong>Unit Price after Spot Discount:</strong> ₱{{
+                this.unitPriceAfterSpotDiscount
+              }}
+            </p>
+            <p>
+              <strong>TLP Discount Percentage:</strong>
+              {{ salesDetails.tlp_discount }}%
+            </p>
+            <p><strong>TLP Discount:</strong> ₱{{ this.tlpDiscountAmount }}</p>
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+            <p>
+              <strong>Other Charges Percentage:</strong>
+              {{ salesDetails.other_charges_percent }}%
+            </p>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+            <p v-if="netUnitPrice > 3600000">
+              <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+            </p>
+            <p>
+              <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Spot Downpayment Percentage:</strong>
+              {{ salesDetails.spot_downpayment_percent }}%
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+            </p>
+            <p>
+              <strong>Reservation Fee:</strong> ₱{{
+                salesDetails.reservation_fee
+              }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Spot Cash'">
+              <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Spread Downpayment Percentage:</strong>
+              {{ salesDetails.spread_downpayment_percent }}%
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Payable Months:</strong> {{ salesDetails.payable_months }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
+            </p>
+            <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
+              <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
+            </p>
+            <button @click="closeModal">Close</button>
 
-        <!-- Add other fields you want to display here -->
-      </div>
+            <!-- Add other fields you want to display here -->
+          </div>
 
           <!-- Payment Plan Section -->
           <div v-if="!salesDetailsExists">
-          <div class="form-group">
-            <label for="spotDiscount">Spot Discount</label>
-            <select
-              v-model="spotCashDiscount"
-              id="spotDiscount"
-              @change="updatePaymentDetails"
-              required
-            >
-              <option value="0">0%</option>
-              <option value="1">1%</option>
-              <option value="5">5%</option>
-              <option value="10">10%</option>
-              <option value="15">15%</option>
-            </select>
-          </div>
-          <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-
-          <!-- Unit Price after Spot Discount -->
-          <p>
-            <strong>Unit Price after Spot Discount:</strong> ₱{{
-              unitPriceAfterSpotDiscount
-            }}
-          </p>
-
-          <!-- TLP Discount -->
-          <div class="form-group">
-            <label for="tlpDiscount">TLP Discount</label>
-            <select
-              v-model="tlpDiscount"
-              id="tlpDiscount"
-              @change="updatePaymentDetails"
-              required
-            >
-              <option value="0">None</option>
-              <option value="5">5%</option>
-              <option value="10">10%</option>
-              <option value="15">15%</option>
-            </select>
-          </div>
-          <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-          <!-- Net Unit Price -->
-          <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-          <!-- Other Charges -->
-          <div class="form-group">
-            <label for="otherCharges">Other Charges</label>
-            <select
-              v-model="otherChargesPercentage"
-              id="otherCharges"
-              @change="updatePaymentDetails"
-              required
-            >
-              <option value="8.5">8.5%</option>
-              <option value="10">10%</option>
-              <option value="15">15%</option>
-            </select>
-          </div>
-          <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-          <!-- VAT Calculation -->
-          <p v-if="netUnitPrice > 3600000">
-            <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-          </p>
-
-          <!-- Total Amount Payable -->
-          <p>
-            <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-          </p>
-          <!-- Spot Downpayment -->
-          <div
-            v-if="selectedPaymentPlan === 'Deffered Payment'"
-            class="form-group"
-          >
-            <label for="spotDownpayment">Spot Downpayment</label>
-            <input
-              type="number"
-              id="spotDownpayment"
-              v-model="spotDownpaymentPercentage"
-              @input="updatePaymentDetails"
-              min="0"
-              step="5"
-              placeholder="Enter downpayment percentage"
-              required
-            />
-          </div>
-
-          <p v-if="selectedPaymentPlan === 'Deffered Payment'">
-            <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-          </p>
-
-          <!-- Reservation Fee -->
-          <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
-          <p v-if="selectedPaymentPlan === 'Spot Cash'">
-            <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-          </p>
-
-          <!-- Net Downpayment -->
-          <p v-if="selectedPaymentPlan === 'Deffered Payment'">
-            <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-          </p>
-
-          <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-            <!-- Spread Downpayment -->
             <div class="form-group">
-              <label for="spreadDownpayment">Spread Downpayment</label>
+              <label for="spotDiscount">Spot Discount</label>
               <select
-                v-model="spreadDownpaymentPercentage"
-                id="spreadDownpayment"
+                v-model="spotCashDiscount"
+                id="spotDiscount"
                 @change="updatePaymentDetails"
                 required
               >
                 <option value="0">0%</option>
+                <option value="1">1%</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
               </select>
             </div>
+            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
 
-            <!-- Payable in Months -->
+            <!-- Unit Price after Spot Discount -->
+            <p>
+              <strong>Unit Price after Spot Discount:</strong> ₱{{
+                unitPriceAfterSpotDiscount
+              }}
+            </p>
+
+            <!-- TLP Discount -->
             <div class="form-group">
-              <label for="months">Months to Pay</label>
+              <label for="tlpDiscount">TLP Discount</label>
+              <select
+                v-model="tlpDiscount"
+                id="tlpDiscount"
+                @change="updatePaymentDetails"
+                required
+              >
+                <option value="0">None</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+
+            <!-- Net Unit Price -->
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+
+            <!-- Other Charges -->
+            <div class="form-group">
+              <label for="otherCharges">Other Charges</label>
+              <select
+                v-model="otherChargesPercentage"
+                id="otherCharges"
+                @change="updatePaymentDetails"
+                required
+              >
+                <option value="8.5">8.5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+
+            <!-- VAT Calculation -->
+            <p v-if="netUnitPrice > 3600000">
+              <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+            </p>
+
+            <!-- Total Amount Payable -->
+            <p>
+              <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
+            </p>
+            <!-- Spot Downpayment -->
+            <div
+              v-if="selectedPaymentPlan === 'Deffered Payment'"
+              class="form-group"
+            >
+              <label for="spotDownpayment">Spot Downpayment</label>
               <input
                 type="number"
-                v-model="payableMonths"
-                id="months"
+                id="spotDownpayment"
+                v-model="spotDownpaymentPercentage"
                 @input="updatePaymentDetails"
-                min="1"
-                step="1"
+                min="0"
+                step="5"
+                placeholder="Enter downpayment percentage"
                 required
               />
             </div>
-            <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-            <!-- Balance Upon Turnover -->
-            <p>
-              <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
+
+            <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+              <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
             </p>
-            <h3>Payment Schedule Summary</h3>
 
-            <!-- Payment Summary -->
-            <div class="payment-summary">
-              <p>
-                <strong>Spot Downpayment:</strong> ₱{{
-                  spotDownpayment.toFixed(2)
-                }}
-              </p>
-              <p>
-                <strong>Spread Downpayment:</strong> ₱{{
-                  spreadDownpayment.toFixed(2)
-                }}
-              </p>
-              <p>
-                <strong>Monthly Payment:</strong> ₱{{
-                  payablePerMonth.toFixed(2)
-                }}
-                / month for {{ payableMonths }} months
-              </p>
-              <p>
-                <strong>Balance Upon Turnover:</strong> ₱{{
-                  balanceUponTurnover.toFixed(2)
-                }}
-              </p>
-            </div>
+            <!-- Reservation Fee -->
+            <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+            <p v-if="selectedPaymentPlan === 'Spot Cash'">
+              <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+            </p>
 
-            <!-- Expandable Detailed Schedule Section -->
-            <button @click="toggleDetailedSchedule" class="toggle-button">
-              {{
-                showDetailedSchedule
-                  ? "Hide Detailed Schedule"
-                  : "Show Detailed Schedule"
-              }}
-            </button>
+            <!-- Net Downpayment -->
+            <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+              <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+            </p>
 
-            <!-- Detailed Monthly Schedule (Visible when expanded) -->
-            <div v-if="showDetailedSchedule" class="detailed-schedule">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Payment Type</th>
-                    <th>Amount (₱)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Spot Downpayment</td>
-                    <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Spread Downpayment</td>
-                    <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-                  </tr>
-                  <!-- Loop through the months to display monthly payments -->
-                  <tr v-for="month in payableMonths" :key="month">
-                    <td>Month {{ month }} Payment</td>
-                    <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Balance Upon Turnover</td>
-                    <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <!-- Required Documents Section (Always Displayed) -->
-          <div class="form-group">
-            <h3>Required Documents</h3>
-            <ul>
-              <li>
-                <strong>Reservation Agreement:</strong>
+            <div v-if="selectedPaymentPlan === 'Deffered Payment'">
+              <!-- Spread Downpayment -->
+              <div class="form-group">
+                <label for="spreadDownpayment">Spread Downpayment</label>
+                <select
+                  v-model="spreadDownpaymentPercentage"
+                  id="spreadDownpayment"
+                  @change="updatePaymentDetails"
+                  required
+                >
+                  <option value="0">0%</option>
+                  <option value="5">5%</option>
+                  <option value="10">10%</option>
+                  <option value="15">15%</option>
+                </select>
+              </div>
+
+              <!-- Payable in Months -->
+              <div class="form-group">
+                <label for="months">Months to Pay</label>
                 <input
-                  type="file"
-                  @change="handleFileChange"
-                  id="reservationAgreement"
+                  type="number"
+                  v-model="payableMonths"
+                  id="months"
+                  @input="updatePaymentDetails"
+                  min="1"
+                  step="1"
                   required
                 />
-              </li>
-              <li>
-                <strong>Valid ID (Front and Back):</strong> A clear copy of a
-                government-issued ID with a signature.
-              </li>
-              <li>
-                <strong>Proof of Billing:</strong> A recent utility bill or bank
-                statement showing the customer's name and address.
-              </li>
-              <li>
-                <strong>Proof of Income:</strong> A recent payslip or income tax
-                return (ITR).
-              </li>
-              <li>
-                <strong>Sales Agreement:</strong> To be followed (after the
-                contract is signed).
-              </li>
-              <li>
-                <strong>TIN:</strong> A clear copy of the customer's Taxpayer
-                Identification Number (TIN) certificate.
-              </li>
-            </ul>
-          </div>
-          <button @click="submitToCustomer">Submit to Customer</button>
-          <button @click="closeModal">Close</button>
-          <!-- Loading Indicator -->
-          <div v-if="loading" class="loading-overlay">
-            <div class="loading-spinner">
-              <div class="spinner"></div>
-              <p>Submitting...</p>
+              </div>
+              <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+              <!-- Balance Upon Turnover -->
+              <p>
+                <strong>Balance Upon Turnover:</strong> ₱{{
+                  balanceUponTurnover
+                }}
+              </p>
+              <h3>Payment Schedule Summary</h3>
+
+              <!-- Payment Summary -->
+              <div class="payment-summary">
+                <p>
+                  <strong>Spot Downpayment:</strong> ₱{{
+                    spotDownpayment.toFixed(2)
+                  }}
+                </p>
+                <p>
+                  <strong>Spread Downpayment:</strong> ₱{{
+                    spreadDownpayment.toFixed(2)
+                  }}
+                </p>
+                <p>
+                  <strong>Monthly Payment:</strong> ₱{{
+                    payablePerMonth.toFixed(2)
+                  }}
+                  / month for {{ payableMonths }} months
+                </p>
+                <p>
+                  <strong>Balance Upon Turnover:</strong> ₱{{
+                    balanceUponTurnover.toFixed(2)
+                  }}
+                </p>
+              </div>
+
+              <!-- Expandable Detailed Schedule Section -->
+              <button @click="toggleDetailedSchedule" class="toggle-button">
+                {{
+                  showDetailedSchedule
+                    ? "Hide Detailed Schedule"
+                    : "Show Detailed Schedule"
+                }}
+              </button>
+
+              <!-- Detailed Monthly Schedule (Visible when expanded) -->
+              <div v-if="showDetailedSchedule" class="detailed-schedule">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Payment Type</th>
+                      <th>Amount (₱)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Spot Downpayment</td>
+                      <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+                    </tr>
+                    <tr>
+                      <td>Spread Downpayment</td>
+                      <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+                    </tr>
+                    <!-- Loop through the months to display monthly payments -->
+                    <tr v-for="month in payableMonths" :key="month">
+                      <td>Month {{ month }} Payment</td>
+                      <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+                    </tr>
+                    <tr>
+                      <td>Balance Upon Turnover</td>
+                      <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+            <!-- Required Documents Section (Always Displayed) -->
+            <div class="form-group">
+              <h3>Required Documents</h3>
+              <ul>
+                <li>
+                  <strong>Reservation Agreement:</strong>
+                  <input
+                    type="file"
+                    @change="handleFileChange"
+                    id="reservationAgreement"
+                    required
+                  />
+                </li>
+                <li>
+                  <strong>Valid ID (Front and Back):</strong> A clear copy of a
+                  government-issued ID with a signature.
+                </li>
+                <li>
+                  <strong>Proof of Billing:</strong> A recent utility bill or
+                  bank statement showing the customer's name and address.
+                </li>
+                <li>
+                  <strong>Proof of Income:</strong> A recent payslip or income
+                  tax return (ITR).
+                </li>
+                <li>
+                  <strong>Sales Agreement:</strong> To be followed (after the
+                  contract is signed).
+                </li>
+                <li>
+                  <strong>TIN:</strong> A clear copy of the customer's Taxpayer
+                  Identification Number (TIN) certificate.
+                </li>
+              </ul>
+            </div>
+            <button @click="submitToCustomer">Submit to Customer</button>
+            <button @click="closeModal">Close</button>
+            <!-- Loading Indicator -->
+            <div v-if="loading" class="loading-overlay">
+              <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Submitting...</p>
+              </div>
+            </div>
+            <!-- Display error message if there's an error -->
+            <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
           </div>
           <!-- Display error message if there's an error -->
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         </div>
-        <!-- Display error message if there's an error -->
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-        </div>
-        </div>
-        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -346,7 +390,7 @@ export default {
       salesDetailsExists: false, // Flag to check if sales details already exist
       salesDetails: null, // S
       // Payment Scheme Data
-      selectedPaymentPlan: 'Spot Cash', // Default payment plan
+      selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
       spotCashDiscount: 0,
       tlpDiscount: 0,
@@ -367,7 +411,7 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       file: null,
-      errorMessage: '',    // Error message
+      errorMessage: "", // Error message
       showDetailedSchedule: false, // To toggle detailed payment schedule
       loading: false, // Track loading state
     };
@@ -381,32 +425,31 @@ export default {
       // Toggle the visibility of the detailed payment schedule
       this.showDetailedSchedule = !this.showDetailedSchedule;
     },
-     async checkSalesDetails() {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/salesdetails/check/${this.selectedSale.customer_id}/${this.selectedSale.site_id}/${this.selectedSale.unit_id}`
-      );
-      if (response.data.exists) {
-        this.salesDetailsExists = true; // Set the flag to true if data exists
-        this.salesDetails = response.data.details; // Store the existing details
-        this.updatePaymentDetails();
-
-      } else {
-        this.salesDetailsExists = false; // Allow input if no details exist
-        this.updatePaymentDetails();
-
-
+    async checkSalesDetails() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/salesdetails/check/${this.selectedSale.customer_id}/${this.selectedSale.site_id}/${this.selectedSale.unit_id}`
+        );
+        if (response.data.exists) {
+          this.salesDetailsExists = true; // Set the flag to true if data exists
+          this.salesDetails = response.data.details; // Store the existing details
+          this.updatePaymentDetails();
+        } else {
+          this.salesDetailsExists = false; // Allow input if no details exist
+          this.updatePaymentDetails();
+        }
+      } catch (error) {
+        console.error("Error checking sales details:", error);
       }
-    } catch (error) {
-      console.error("Error checking sales details:", error);
-    }
     },
-  // Fetch sales data from the backend
+    // Fetch sales data from the backend
     async fetchSales() {
       const brokerId = localStorage.getItem("broker_id");
-      console.log("k",brokerId);
+      console.log("k", brokerId);
       try {
-        const response = await fetch(`http://localhost:8000/sales/?broker_id=${brokerId}`);
+        const response = await fetch(
+          `http://localhost:8000/sales/?broker_id=${brokerId}`
+        );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
@@ -428,44 +471,44 @@ export default {
       this.unitPrice = sale.price; // Set unitPrice to the selected sale's unit price
       this.showModal = true;
       // Check if the sales details already exist for this customer and unit
-    this.checkSalesDetails();
-    this.updatePaymentDetails();
+      this.checkSalesDetails();
+      this.updatePaymentDetails();
     },
     updatePaymentDetails() {
-    if (this.salesDetailsExists) {
-      // Use salesDetails to update payment details
-      this.updateSalesDetailsPaymentDetails();
-    } else {
-      // Use manual input values to calculate details
+      if (this.salesDetailsExists) {
+        // Use salesDetails to update payment details
+        this.updateSalesDetailsPaymentDetails();
+      } else {
+        // Use manual input values to calculate details
+        this.applySpotCashDiscount();
+        this.applyTLPDiscount();
+        this.applyOtherCharges();
+        this.calculateVAT();
+        this.calculateFinancingDetails();
+      }
+    },
+    updateSalesDetailsPaymentDetails() {
+      // Extract values from salesDetails for calculation
+      const sales = this.salesDetails;
+
+      this.unitPrice = sales.unit_price;
+      console.log(this.unitPrice);
+      this.spotCashDiscount = sales.spot_discount;
+      this.tlpDiscount = sales.tlp_discount;
+      this.otherChargesPercentage = sales.other_charges_percent;
+      this.spotDownpaymentPercentage = sales.spot_downpayment_percent;
+      this.spreadDownpaymentPercentage = sales.spread_downpayment_percent;
+      this.payableMonths = sales.payable_months;
+      this.reservationFee = sales.reservation_fee;
+
+      // Now, perform calculations based on these values
       this.applySpotCashDiscount();
       this.applyTLPDiscount();
       this.applyOtherCharges();
       this.calculateVAT();
       this.calculateFinancingDetails();
-    }
     },
-    updateSalesDetailsPaymentDetails() {
-    // Extract values from salesDetails for calculation
-    const sales = this.salesDetails;
 
-      this.unitPrice = sales.unit_price;
-      console.log(this.unitPrice);
-    this.spotCashDiscount = sales.spot_discount;
-    this.tlpDiscount = sales.tlp_discount;
-    this.otherChargesPercentage = sales.other_charges_percent;
-    this.spotDownpaymentPercentage = sales.spot_downpayment_percent;
-    this.spreadDownpaymentPercentage = sales.spread_downpayment_percent;
-    this.payableMonths = sales.payable_months;
-    this.reservationFee = sales.reservation_fee;
-
-    // Now, perform calculations based on these values
-    this.applySpotCashDiscount();
-    this.applyTLPDiscount();
-    this.applyOtherCharges();
-    this.calculateVAT();
-    this.calculateFinancingDetails();
-  },
-    
     applySpotCashDiscount() {
       const discountPercentage = parseFloat(this.spotCashDiscount);
       this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
