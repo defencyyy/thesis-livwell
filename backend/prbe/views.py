@@ -1,6 +1,6 @@
 # Django Lib
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
 from django.urls import reverse
@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.timezone import now  
 from django.contrib.auth.hashers import check_password, make_password
 from django.middleware.csrf import get_token
-from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -28,8 +27,10 @@ from customers.models import Customer
 from sales.models import Sale
 from units.models import Unit, UnitImage
 from sites.models import Site
+from documents.models import DocumentType, Document
 from salesdetails.models import SalesDetails
 
+from collections import Counter
 import os
 import json
 import re
@@ -480,15 +481,15 @@ def get_customers_for_broker(request, broker_id):
         
         include_sales = request.GET.get('include_sales', 'false') == 'true'
 
-
         # Fetch customers for the broker
         customers = Customer.objects.filter(broker_id=broker_id)
-
+        total_customers = customers.count()  # Get the total number of customers
         customer_data = []
         for customer in customers:
             # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
             contact_number = customer.contact_number
+            company_id = customer.company.id  # Get the company ID associated with the customer
 
             # If include_sales is True, fetch sales and related data
             if include_sales:
@@ -500,18 +501,28 @@ def get_customers_for_broker(request, broker_id):
                         unit = Unit.objects.get(id=sale.unit_id)
 
                         customer_data.append({
+                            'id': customer.id,
                             'customer_name': customer_name,
+                            "f_name":customer.first_name,
+                            "l_name":customer.last_name,
                             'contact_number': contact_number,
+                            "email":customer.email,
                             'site': site.name,
                             'unit': unit.unit_title,
+                            'company_id': company_id,  # Add company ID
                             'document_status': "Pending",  # Adjust document status as needed
                         })
                 else:
                     customer_data.append({
+                        'id': customer.id,
                         'customer_name': customer_name,
                         'contact_number': contact_number,
+                        "f_name":customer.first_name,
+                        "l_name":customer.last_name,
+                        "email":customer.email,
                         'site': "To be followed",
                         'unit': "To be followed",
+                        'company_id': company_id,  # Add company ID
                         'document_status': "Pending",
                     })
             else:
@@ -519,12 +530,68 @@ def get_customers_for_broker(request, broker_id):
                 customer_data.append({
                     'id': customer.id,
                     'name': customer_name,
+                    "f_name":customer.first_name,
+                    "l_name":customer.last_name,
+                    "email":customer.email,
+                    'contact_number': contact_number,
+                    'company_id': company_id,  # Add company ID
                 })
 
-        return JsonResponse({'success': True, 'customers': customer_data}, status=200)
+        # Return the total customer count and the customer data
+        return JsonResponse({
+            'success': True,
+            'total_customers': total_customers,  # Return the total number of customers
+            'customers': customer_data
+        }, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+    
+@csrf_exempt
+def update_customer(request, customer_id):
+    """
+    Update customer details such as email, contact_number, first_name, and last_name.
+    """
+    if request.method == "PUT":
+        try:
+            # Get customer object by ID or return 404 if not found
+            customer = get_object_or_404(Customer, id=customer_id)
+
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+
+            # Extract customer details from the request data
+            email = data.get("email")
+            contact_number = data.get("contact_number")
+            first_name = data.get("first_name")
+            last_name = data.get("last_name")
+
+            # Validate the input data (you can add more validation as per your needs)
+            if not email or not contact_number or not first_name or not last_name:
+                return JsonResponse({"success": False, "message": "All fields are required."}, status=400)
+
+            # Update the customer data
+            customer.email = email
+            customer.contact_number = contact_number
+            customer.first_name = first_name
+            customer.last_name = last_name
+
+            # Save the updated customer object to the database
+            customer.save()
+
+            # Return a success response
+            return JsonResponse({"success": True, "message": "Customer updated successfully!"})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "message": "Invalid JSON format."}, status=400)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    else:
+        # Return a 405 Method Not Allowed if it's not a PUT request
+        return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+
+
 
 def fetch_sites(request):
     # Filter sites that have available units
@@ -596,10 +663,18 @@ def fetch_sales(request):
                 'status': sale.status,
                 'email': sale.customer.email,
                 'broker_id': sale.broker.id if sale.broker else None, # broker_id
-                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name
-            })
+                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name     
+            })      
+         # Group the sales by status and count occurrences
+        status_count = Counter(sale.status for sale in sales)
 
-        return JsonResponse({'success': True, 'sales': sales_data}, status=200)
+        # Prepare the data to send to the frontend
+        sales_status_data = {
+            'sold': status_count.get('sold', 0),
+            'pending': status_count.get('pending reservation', 0),
+            'reserved': status_count.get('reserved', 0),
+        }
+        return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
@@ -849,6 +924,111 @@ def check_sales_details(request, customer_id, site_id, unit_id):
 
     return JsonResponse(response_data)
 
+# Fetch document types - for dropdown
+def fetch_document_types(request):
+    try:
+        document_types = DocumentType.objects.all()
+        document_types_data = [
+            {"id": dt.id, "name": dt.name, "description": dt.description}
+            for dt in document_types
+        ]
+        return JsonResponse({"success": True, "documentTypes": document_types_data})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+# Upload document for a customer
+@csrf_exempt
+def upload_document(request):
+    if request.method == "POST":
+        # Get the common fields from the request
+        customer_id = request.POST.get("customer")
+        company_id = request.POST.get("company")
+        object_id = request.POST.get("object_id", 1)  # Default value of 1 if not provided
+        content_id = request.POST.get("content_id", 1)  # Default value of 1 if not provided
+
+        # Get the list of files and document types
+        files = request.FILES.getlist("files[]")
+        document_type_ids = request.POST.getlist("document_types[]")
+
+        # Validate that customer_id, document_type_ids, and files are provided
+        if not customer_id or not document_type_ids or not files:
+            return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
+
+        try:
+            # Get the customer object
+            customer = get_object_or_404(Customer, id=customer_id)
+
+            # Loop over the files and their corresponding document types
+            for i, file in enumerate(files):
+                document_type_id = document_type_ids[i] if i < len(document_type_ids) else document_type_ids[0]  # Default to first doc type if out of bounds
+                document_type = get_object_or_404(DocumentType, id=document_type_id)
+
+                # Check if a document already exists for this customer and document type
+                existing_document = Document.objects.filter(
+                    customer_id=customer_id, document_type=document_type
+                ).first()
+
+                if existing_document:
+                    # If the document already exists, update it with the new file
+                    existing_document.file = file
+                    existing_document.save()
+                else:
+                    # If the document doesn't exist, create a new document
+                    Document.objects.create(
+                        customer_id=customer_id,
+                        document_type=document_type,
+                        company_id=company_id,
+                        file=file,
+                        object_id=object_id,  # Pass the object_id
+                        content_type_id=content_id,  # Pass the content_id
+                    )
+
+            return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+# Fetch documents for a given customer
+@csrf_exempt
+def fetch_customer_documents(request, customer_id):
+    try:
+        # Get the customer by ID
+        customer = Customer.objects.get(id=customer_id)
+
+        # Fetch documents for the customer, grouped by document type
+        documents = Document.objects.filter(customer=customer)
+
+        # Prepare a list to return
+        document_data = []
+        for doc in documents:
+            document_data.append({
+                'id': doc.id,
+                'document_type_id': doc.document_type.id,
+                'document_type_name': doc.document_type.name,
+                'file_name':os.path.basename(doc.file.name),
+                'uploaded_at': doc.uploaded_at.isoformat(),
+            })
+
+        # Return JSON response
+        return JsonResponse({
+            'success': True,
+            'documents': document_data,
+        })
+
+    except Customer.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Customer not found.'
+        }, status=404)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+        }, status=500)
+
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):
@@ -884,6 +1064,8 @@ def send_dev_password_reset_email(request):
             return JsonResponse({"success": False, "message": "An internal error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+
+
 
 @csrf_exempt
 def DevResetPass(request, uid, token):

@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from prbe.admin import custom_admin_site  # Use custom admin site
 from django.utils.translation import gettext_lazy as _
 
-
 class DocumentTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
     search_fields = ('name',)
@@ -64,6 +63,9 @@ class DocumentAdmin(admin.ModelAdmin):
         return qs.filter(customer__user=request.user)  # Regular users can only see their own documents
 
     def has_module_permission(self, request):
+        """
+        Restrict access to this admin module based on user type.
+        """
         if request.user.is_superuser:
             return True  # Superusers have full module access
         return False  # Regular users cannot access the module directly

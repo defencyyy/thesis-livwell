@@ -3,34 +3,22 @@
   <div class="main-page">
     <SideNav />
     <div class="content">
-      <div>
-        <h1>Gwynn Rafer Cujardo</h1>
-        <h5>@gwynncujardo</h5>
-        <p>This is the main page for brokers.</p>
+      <h1>Hi, {{ brokerName }}</h1>
+      <p>{{ brokerEmail }}</p>
+      <strong>Total Sales:</strong> {{ totalSales }}
+      <strong>Total Commissions:</strong> {{ totalCommissions }}
+      <p>Total Customers: {{ totalCustomers }}</p>
+
+      <!-- Pie chart displaying sales status -->
+      <div class="pie-chart-container">
+        <PieChart
+          :sold="salesStatus.sold"
+          :pending="salesStatus.pending"
+          :reserved="salesStatus.reserved"
+        />
       </div>
 
-      <div class="contentpage py-5 mx-2" style="width: 100%; height: 80%">
-        <div>
-          <div class="content1" style="height: 30%"><h2>Total Sales:</h2></div>
-          <div class="content2" style="height: 30%">
-            <h2>Milestones Achieved:</h2>
-          </div>
-          <div class="content4">
-            <h2>Broker of the Month</h2>
-            <div>
-              <img
-                src="https://th.bing.com/th/id/OIP.2nSUJDGTSglEgp0sQw_R8AHaKu?rs=1&pid=ImgDetMain"
-                alt=""
-                width="250px"
-                height="200px"
-              />
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="content3"><h2>Analytics</h2></div>
-        </div>
-      </div>
+      <button @click="logout">Logout</button>
     </div>
   </div>
 </template>
@@ -38,9 +26,9 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
-
 import { mapState } from "vuex";
 import axios from "axios";
+import PieChart from "@/components/PieChart.vue"; // Import the PieChart component
 
 export default {
   name: "BrkMainPage",
@@ -86,9 +74,21 @@ export default {
   },
   data() {
     return {
-      brokerName: "", // To store the broker's full name
-      brokerEmail: "", // To store the broker's email
+      PieChart,
+      brokerName: "",
+      brokerEmail: "",
+      totalSales: 0,
+      totalCommissions: 0,
+      totalCustomers: 0,
+      salesStatus: {
+        sold: 0,
+        pending: 0,
+        reserved: 0,
+      },
     };
+  },
+  created() {
+    this.fetchBrokerInfo();
   },
   methods: {
     async logout() {
@@ -107,7 +107,8 @@ export default {
         // Clear localStorage and Vuex state
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("broker_id");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
 
         // Call Vuex mutation to reset user state
@@ -119,8 +120,44 @@ export default {
         console.error("Error during logout:", error);
         alert("Logout failed. Please try again.");
       }
-    },
 
+      // Using Vuex userId instead of brokerId
+      const brokerId = this.userId; // You can use this.userId here
+
+      const salesResponse = await fetch(
+        `http://localhost:8000/sales/total/?broker_id=${brokerId}`
+      );
+      if (salesResponse.ok) {
+        const salesData = await salesResponse.json();
+        this.totalSales = salesData.total_sales;
+      }
+
+      const commissionsResponse = await fetch(
+        `http://localhost:8000/sales/commissions/?broker_id=${brokerId}`
+      );
+      if (commissionsResponse.ok) {
+        const commissionsData = await commissionsResponse.json();
+        this.totalCommissions = commissionsData.total_commissions;
+      }
+
+      const customersResponse = await fetch(
+        `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
+      );
+      if (customersResponse.ok) {
+        const customersData = await customersResponse.json();
+        this.totalCustomers = customersData.total_customers;
+      }
+
+      const salesStatusResponse = await fetch(
+        `http://localhost:8000/sales/?broker_id=${brokerId}`
+      );
+      if (salesStatusResponse.ok) {
+        const statusData = await salesStatusResponse.json();
+        if (statusData.success) {
+          this.salesStatus = statusData.sales_status_data;
+        }
+      }
+    },
     redirectToLogin() {
       this.$router.push({ name: "BrkLogin" });
     },
@@ -212,5 +249,10 @@ button {
 
 button:hover {
   background-color: #ff1a1a;
+}
+
+.pie-chart-container {
+  width: 50%;
+  margin: 20px auto;
 }
 </style>

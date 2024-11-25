@@ -116,26 +116,15 @@
         </table>
       </div>
     </div>
-    <p>
-      <strong>Valid ID (Front and Back):</strong> A clear copy of a
-      government-issued ID with a signature.
-    </p>
-    <p>
-      <strong>Proof of Billing:</strong> A recent utility bill or bank statement
-      showing the customer's name and address.
-    </p>
-    <p>
-      <strong>Proof of Income:</strong> A recent payslip or income tax return
-      (ITR).
-    </p>
-    <p>
-      <strong>Sales Agreement:</strong> To be followed (after the contract is
-      signed).
-    </p>
-    <p>
-      <strong>TIN:</strong> A clear copy of the customer's Taxpayer
-      Identification Number (TIN) certificate.
-    </p>
+    <div>
+      <h3>Required Documents</h3>
+      <ul v-if="documentTypes.length">
+        <li v-for="doc in documentTypes" :key="doc.id">
+          <strong>{{ doc.name }}</strong>
+        </li>
+      </ul>
+      <p v-else>No document types available.</p>
+    </div>
   </div>
 </template>
 
@@ -158,11 +147,13 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       showDetailedSchedule: false, // To toggle the detailed schedule
+      documentTypes: [], // Store the document types fetched from the API
     };
   },
   created() {
     const salesDetailUuid = this.$route.params.id; // Get the UUID from the URL
     this.fetchSalesDetail(salesDetailUuid);
+    this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
   methods: {
     async fetchSalesDetail(salesDetailUuid) {
@@ -262,6 +253,22 @@ export default {
         ((100 - (spotDownpaymentPercentage + spreadDownpaymentPercentage)) /
           100) *
         this.totalAmountPayable;
+    },
+    // Fetch Document Types
+    async fetchDocumentTypes() {
+      try {
+        const response = await fetch("http://localhost:8000/document-types/");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.documentTypes = data.documentTypes;
+          } else {
+            this.error = data.message || "Failed to fetch document types.";
+          }
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching document types.";
+      }
     },
 
     // Toggle the visibility of the detailed schedule

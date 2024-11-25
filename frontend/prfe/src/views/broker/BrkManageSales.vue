@@ -445,7 +445,6 @@ export default {
     // Fetch sales data from the backend
     async fetchSales() {
       const brokerId = localStorage.getItem("broker_id");
-      console.log("k", brokerId);
       try {
         const response = await fetch(
           `http://localhost:8000/sales/?broker_id=${brokerId}`
@@ -492,7 +491,6 @@ export default {
       const sales = this.salesDetails;
 
       this.unitPrice = sales.unit_price;
-      console.log(this.unitPrice);
       this.spotCashDiscount = sales.spot_discount;
       this.tlpDiscount = sales.tlp_discount;
       this.otherChargesPercentage = sales.other_charges_percent;
@@ -508,155 +506,152 @@ export default {
       this.calculateVAT();
       this.calculateFinancingDetails();
     },
+  },
 
-    applySpotCashDiscount() {
-      const discountPercentage = parseFloat(this.spotCashDiscount);
-      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
-      this.updateNetUnitPrice();
-    },
+  applySpotCashDiscount() {
+    const discountPercentage = parseFloat(this.spotCashDiscount);
+    this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
+    this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
+    this.updateNetUnitPrice();
+  },
 
-    applyTLPDiscount() {
-      const discountPercentage = parseFloat(this.tlpDiscount);
-      this.tlpDiscountAmount =
-        (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
-      this.updateNetUnitPrice();
-    },
+  applyTLPDiscount() {
+    const discountPercentage = parseFloat(this.tlpDiscount);
+    this.tlpDiscountAmount =
+      (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
+    this.updateNetUnitPrice();
+  },
 
-    updateNetUnitPrice() {
-      this.netUnitPrice =
-        this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
-      this.applyOtherCharges();
-    },
+  updateNetUnitPrice() {
+    this.netUnitPrice =
+      this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
+    this.applyOtherCharges();
+  },
 
-    applyOtherCharges() {
-      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
-      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
-      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.reservationFee = "30000"; // 10% reservation fee
-      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
-    },
-    calculateVAT() {
-      if (this.netUnitPrice > 3600000) {
-        this.vatAmount = this.netUnitPrice * 0.12;
-        this.totalAmountPayable += this.vatAmount;
-      }
-    },
+  applyOtherCharges() {
+    const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
+    this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
+    this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
+    this.reservationFee = "30000"; // 10% reservation fee
+    this.netFullPayment = this.totalAmountPayable - this.reservationFee;
+  },
+  calculateVAT() {
+    if (this.netUnitPrice > 3600000) {
+      this.vatAmount = this.netUnitPrice * 0.12;
+      this.totalAmountPayable += this.vatAmount;
+    }
+  },
 
-    calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
-      if (this.spotDownpaymentPercentage == "0") {
-        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
-        this.payablePerMonth = this.netDownpayment / this.payableMonths;
-      } else {
-        this.netDownpayment = this.spotDownpayment - this.reservationFee;
-        this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
-      }
-      this.balanceUponTurnover =
-        ((100 -
-          (Number(this.spreadDownpaymentPercentage) +
-            Number(this.spotDownpaymentPercentage))) /
-          100) *
-        this.totalAmountPayable; // Correct sum of percentages
-    },
-    handleFileChange(event) {
-      const fileInput = event.target.files[0];
-      if (fileInput) {
-        this.file = fileInput;
-      }
-    },
+  calculateFinancingDetails() {
+    this.spotDownpayment =
+      this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+    this.spreadDownpayment =
+      this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+    if (this.spotDownpaymentPercentage == "0") {
+      this.netDownpayment = this.spreadDownpayment - this.reservationFee;
+      this.payablePerMonth = this.netDownpayment / this.payableMonths;
+    } else {
+      this.netDownpayment = this.spotDownpayment - this.reservationFee;
+      this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
+    }
+    this.balanceUponTurnover =
+      ((100 -
+        (Number(this.spreadDownpaymentPercentage) +
+          Number(this.spotDownpaymentPercentage))) /
+        100) *
+      this.totalAmountPayable; // Correct sum of percentages
+  },
+  handleFileChange(event) {
+    const fileInput = event.target.files[0];
+    if (fileInput) {
+      this.file = fileInput;
+    }
+  },
 
-    async submitToCustomer() {
-      this.loading = true;
-      this.updatePaymentDetails();
+  async submitToCustomer() {
+    this.loading = true;
+    this.updatePaymentDetails();
 
-      // Check if the selected payment plan is "Spot Cash" and validate required fields
-      if (!this.file) {
-        this.errorMessage =
-          "All fields are required except the payment reference.";
-        this.loading = false;
-        return; // Stop further processing if validation fails
-      }
-      if (
-        this.selectedPaymentPlan === "Deffered Payment" &&
-        this.netDownpayment < 0
-      ) {
-        this.errorMessage = "Select Down Payment Percent";
-        this.loading = false;
-        return; // Stop further processing if validation fails
-      }
-      const formData = new FormData();
-      // Add sales details
-      formData.append("customer_id", this.selectedSale.customer_id);
-      formData.append("site_id", this.selectedSale.site_id);
-      formData.append("unit_id", this.selectedSale.unit_id);
-      formData.append("broker_id", this.selectedSale.broker_id);
-      formData.append("payment_plan", this.selectedPaymentPlan);
-      formData.append("spot_discount_percent", this.spotCashDiscount);
-      formData.append("tlp_discount_percent", this.tlpDiscount);
-      formData.append("other_charges_percent", this.otherChargesPercentage);
-      formData.append(
-        "spot_downpayment_percent",
-        this.spotDownpaymentPercentage
-      );
-      formData.append("reservation_fee", this.reservationFee);
-      formData.append(
-        "spread_downpayment_percent",
-        this.spreadDownpaymentPercentage
-      );
-      formData.append("payable_months", this.payableMonths);
-      formData.append("payable_per_month", this.payablePerMonth);
-      formData.append("balance_upon_turnover", this.balanceUponTurnover);
-      formData.append("net_unit_price", this.netUnitPrice);
-      formData.append("total_amount_payable", this.totalAmountPayable);
-      formData.append("net_full_payment", this.netFullPayment);
-      formData.append("customer_email", this.selectedSale.email);
+    // Check if the selected payment plan is "Spot Cash" and validate required fields
+    if (!this.file) {
+      this.errorMessage =
+        "All fields are required except the payment reference.";
+      this.loading = false;
+      return; // Stop further processing if validation fails
+    }
+    if (
+      this.selectedPaymentPlan === "Deffered Payment" &&
+      this.netDownpayment < 0
+    ) {
+      this.errorMessage = "Select Down Payment Percent";
+      this.loading = false;
+      return; // Stop further processing if validation fails
+    }
+    const formData = new FormData();
+    // Add sales details
+    formData.append("customer_id", this.selectedSale.customer_id);
+    formData.append("site_id", this.selectedSale.site_id);
+    formData.append("unit_id", this.selectedSale.unit_id);
+    formData.append("broker_id", this.selectedSale.broker_id);
+    formData.append("payment_plan", this.selectedPaymentPlan);
+    formData.append("spot_discount_percent", this.spotCashDiscount);
+    formData.append("tlp_discount_percent", this.tlpDiscount);
+    formData.append("other_charges_percent", this.otherChargesPercentage);
+    formData.append("spot_downpayment_percent", this.spotDownpaymentPercentage);
+    formData.append("reservation_fee", this.reservationFee);
+    formData.append(
+      "spread_downpayment_percent",
+      this.spreadDownpaymentPercentage
+    );
+    formData.append("payable_months", this.payableMonths);
+    formData.append("payable_per_month", this.payablePerMonth);
+    formData.append("balance_upon_turnover", this.balanceUponTurnover);
+    formData.append("net_unit_price", this.netUnitPrice);
+    formData.append("total_amount_payable", this.totalAmountPayable);
+    formData.append("net_full_payment", this.netFullPayment);
+    formData.append("customer_email", this.selectedSale.email);
 
-      // Add the reservation agreement file
-      if (this.file) {
-        formData.append("reservation_agreement", this.file);
-      }
+    // Add the reservation agreement file
+    if (this.file) {
+      formData.append("reservation_agreement", this.file);
+    }
 
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/submit-sales/",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data", // Use multipart/form-data for file uploads
-            },
-          }
-        );
-
-        if (response.data.success) {
-          alert("Sales agreement submitted successfully!");
-          this.closeModal(); // Close the modal after submission
-        } else {
-          alert("Error: " + response.data.message);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/submit-sales/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Use multipart/form-data for file uploads
+          },
         }
-      } catch (error) {
-        console.error("Error during submission:", error);
-        alert(
-          "Error: " +
-            (error.response ? error.response.data.message : error.message)
-        );
-      } finally {
-        this.loading = false;
+      );
+
+      if (response.data.success) {
+        alert("Sales agreement submitted successfully!");
+        this.closeModal(); // Close the modal after submission
+      } else {
+        alert("Error: " + response.data.message);
       }
-    },
-    // Close the modal
-    closeModal() {
-      this.showModal = false;
-      this.salesAgreement = {
-        payment_plan: "",
-        down_payment: "",
-        installment_term: "",
-        special_terms: "",
-      };
-    },
+    } catch (error) {
+      console.error("Error during submission:", error);
+      alert(
+        "Error: " +
+          (error.response ? error.response.data.message : error.message)
+      );
+    } finally {
+      this.loading = false;
+    }
+  },
+  // Close the modal
+  closeModal() {
+    this.showModal = false;
+    this.salesAgreement = {
+      payment_plan: "",
+      down_payment: "",
+      installment_term: "",
+      special_terms: "",
+    };
   },
   mounted() {
     this.fetchSales(); // Fetch sales data when the page loads
