@@ -1,6 +1,6 @@
 <template>
   <header>
-    <HeaderLivwell />
+    <AppHeaderLivwell/>
   </header>
   <div class="accounts-page">
     <SideNav />
@@ -76,13 +76,13 @@
 <script>
 import { mapGetters } from "vuex";
 import SideNav from "@/components/SideNav.vue";
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeaderLivwell from "@/components/Header.vue";
 
 export default {
   name: "BrkAccounts",
   components: {
     SideNav,
-    HeaderLivwell,
+    AppHeaderLivwell,
   },
   data() {
     return {
@@ -190,26 +190,106 @@ export default {
 </script>
 
 <style scoped>
-.content {
-  background-color: gray;
-  padding: 20px;
-  text-align: center;
-  display: flex;
-}
-
+/* Account Page Layout */
 .accounts-page {
   display: flex;
+  height: 100vh; /* Ensure it fills the full viewport height */
 }
 
-.sidebar {
-  width: 250px;
-  transition: width 0.5s;
-  background-color: gray;
-  height: 96%;
+/* Content Area (form container) */
+.content {
+  flex-grow: 1;
+  background-color: #f8f9fa; /* Light background for the form */
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  padding-top: 20px;
+}
+
+/* Card Styling */
+.card {
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header {
+  background-color: #007bff; /* Blue background for header */
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.card-body {
+  padding: 30px;
+  background-color: white;
+  text-align: left;
+}
+
+/* Form Input Styling */
+.form-group {
+  margin-bottom: 1.5rem; /* Spacing between form groups */
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+input.form-control {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+input.form-control:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:disabled {
   background-color: #c0c0c0;
   cursor: not-allowed;
 }
+
+button:not(:disabled):hover {
+  background-color: #0056b3; /* Darken button on hover */
+}
+
+/* Success/Error Message */
+.text-success, .text-danger {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Media Query for Responsiveness */
+@media (max-width: 768px) {
+  .card {
+    margin: 0 20px;
+  }
+
+  .content {
+    padding: 15px;
+  }
+}
+
+
+
+
 </style>

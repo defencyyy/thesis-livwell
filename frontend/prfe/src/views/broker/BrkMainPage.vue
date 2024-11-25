@@ -1,5 +1,5 @@
 <template>
-  <HeaderLivwell />
+  <AppHeader/>
   <div class="main-page">
     <SideNav />
     <div class="content">
@@ -7,7 +7,7 @@
         <h1>Gwynn Rafer Cujardo</h1>
         <h5>@gwynncujardo</h5>
         <p>This is the main page for brokers.</p>
-        <button @click="logout">Logout</button>
+        
       </div>
 
       <div class="contentpage py-5 mx-2" style="width: 100%; height: 80%">
@@ -43,8 +43,8 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
-// import AppHeader from "@/components/Header.vue";
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeader from "@/components/Header.vue";
+
 import { mapState } from "vuex";
 import axios from "axios";
 
@@ -52,8 +52,7 @@ export default {
   name: "BrkMainPage",
   components: {
     SideNav,
-    HeaderLivwell,
-    // AppHeader,
+    AppHeader,
   },
   computed: {
     ...mapState({
