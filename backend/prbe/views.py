@@ -498,7 +498,10 @@ def get_customers_for_broker(request, broker_id):
                         customer_data.append({
                             'id': customer.id,
                             'customer_name': customer_name,
+                            "f_name":customer.first_name,
+                            "l_name":customer.last_name,
                             'contact_number': contact_number,
+                            "email":customer.email,
                             'site': site.name,
                             'unit': unit.unit_title,
                             'company_id': company_id,  # Add company ID
@@ -509,6 +512,9 @@ def get_customers_for_broker(request, broker_id):
                         'id': customer.id,
                         'customer_name': customer_name,
                         'contact_number': contact_number,
+                        "f_name":customer.first_name,
+                        "l_name":customer.last_name,
+                        "email":customer.email,
                         'site': "To be followed",
                         'unit': "To be followed",
                         'company_id': company_id,  # Add company ID
@@ -519,6 +525,9 @@ def get_customers_for_broker(request, broker_id):
                 customer_data.append({
                     'id': customer.id,
                     'name': customer_name,
+                    "f_name":customer.first_name,
+                    "l_name":customer.last_name,
+                    "email":customer.email,
                     'contact_number': contact_number,
                     'company_id': company_id,  # Add company ID
                 })
@@ -532,6 +541,51 @@ def get_customers_for_broker(request, broker_id):
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+    
+@csrf_exempt
+def update_customer(request, customer_id):
+    """
+    Update customer details such as email, contact_number, first_name, and last_name.
+    """
+    if request.method == "PUT":
+        try:
+            # Get customer object by ID or return 404 if not found
+            customer = get_object_or_404(Customer, id=customer_id)
+
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+
+            # Extract customer details from the request data
+            email = data.get("email")
+            contact_number = data.get("contact_number")
+            first_name = data.get("first_name")
+            last_name = data.get("last_name")
+
+            # Validate the input data (you can add more validation as per your needs)
+            if not email or not contact_number or not first_name or not last_name:
+                return JsonResponse({"success": False, "message": "All fields are required."}, status=400)
+
+            # Update the customer data
+            customer.email = email
+            customer.contact_number = contact_number
+            customer.first_name = first_name
+            customer.last_name = last_name
+
+            # Save the updated customer object to the database
+            customer.save()
+
+            # Return a success response
+            return JsonResponse({"success": True, "message": "Customer updated successfully!"})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "message": "Invalid JSON format."}, status=400)
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    else:
+        # Return a 405 Method Not Allowed if it's not a PUT request
+        return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+
 
 
 def fetch_sites(request):

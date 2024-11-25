@@ -33,6 +33,8 @@ urlpatterns = [
     path('document-types/', views.fetch_document_types, name='fetch_document_types'),
     path('upload-document/', views.upload_document, name='upload_document'),
     path('documents/customer/<int:customer_id>/', views.fetch_customer_documents, name='fetch_customer_documents'),
+    path('customers/<int:customer_id>/', views.update_customer, name='update_customer'),
+
 
 
 

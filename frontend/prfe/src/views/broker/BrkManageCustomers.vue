@@ -118,15 +118,24 @@
             <th>Unit</th>
             <th>Contact</th>
             <th>Document Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(customer, index) in customers" :key="index" @click="openDocumentModal(customer)">
+          <tr v-for="(customer, index) in customers" :key="index">
             <td>{{ customer.customer_name }}</td>
             <td>{{ customer.site }}</td>
             <td>{{ customer.unit }}</td>
             <td>{{ customer.contact_number }}</td>
             <td>{{ customer.document_status }}</td>
+            <td>
+        <!-- Documents Button -->
+        <button @click="openDocumentModal(customer)" class="btn btn-primary">Documents</button>
+        <!-- Edit Button -->
+        <button @click="openEditModal(customer)" class="btn btn-warning">Edit</button>
+        <!-- Archive Button (Placeholder) -->
+        <button @click="archiveCustomer(customer)" class="btn btn-danger">Archive</button>
+      </td>
           </tr>
         </tbody>
       </table>
@@ -137,6 +146,37 @@
         <p>{{ notificationMessage }}</p>
         <button type="button" @click="showNotification = false">Close</button>
       </b-modal>
+
+      <!-- Edit Customer Modal -->
+<b-modal v-model="showEditModal" title="Edit Customer" hide-footer>
+  <form @submit.prevent="updateCustomer">
+    <div>
+      <label for="editEmail">Email:</label>
+      <input type="email" v-model="editEmail" id="editEmail" required />
+    </div>
+
+    <div>
+      <label for="editContactNumber">Contact Number:</label>
+      <input type="text" v-model="editContactNumber" id="editContactNumber" required />
+    </div>
+
+    <div>
+      <label for="editLastName">Last Name:</label>
+      <input type="text" v-model="editLastName" id="editLastName" required />
+    </div>
+
+    <div>
+      <label for="editFirstName">First Name:</label>
+      <input type="text" v-model="editFirstName" id="editFirstName" required />
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="submit-btn">Update Customer</button>
+      <button type="button" @click="showEditModal = false" class="cancel-btn">Cancel</button>
+    </div>
+  </form>
+</b-modal>
+
     </div>
   </div>
 </template>
@@ -158,6 +198,7 @@ export default {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
+      showEditModal: false,  // Edit customer modal visibility
       showSalesMessage: false,  // Controls the visibility of the "create sales first" message
       showNotification: false, // Controls the visibility of the notification modal
       email: '',
@@ -223,6 +264,53 @@ export default {
         case 'site_desc':
           this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
+      }
+    },
+    openEditModal(customer) {
+      this.selectedCustomer = customer;  // Set the selected customer
+      this.editEmail = customer.email;
+      this.editContactNumber = customer.contact_number;
+      this.editLastName = customer.l_name;
+      this.editFirstName = customer.f_name;
+
+      this.showEditModal = true;  // Show the edit modal
+    },
+
+    // Update customer data
+    async updateCustomer() {
+      const updatedData = {
+        email: this.editEmail,
+        contact_number: this.editContactNumber,
+        last_name: this.editLastName,
+        first_name: this.editFirstName,
+      };
+
+      try {
+        const response = await fetch(`http://localhost:8000/customers/${this.selectedCustomer.id}/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.getCookie('csrftoken'),
+          },
+          body: JSON.stringify(updatedData),
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Customer updated successfully!";
+          this.showNotification = true;
+          this.showEditModal = false;  // Close the modal
+          this.fetchCustomers();  // Refresh the customer list
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage = data.message || "Failed to update customer.";
+          this.showNotification = true;
+        }
+      } catch (error) {
+        this.notificationTitle = "Error!";
+        this.notificationMessage = "An error occurred while updating customer.";
+        this.showNotification = true;
       }
     },
 
@@ -542,6 +630,32 @@ async uploadDocuments() {
 .cancel-btn:hover {
   background-color: #e53935;
 }
+.btn {
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: black;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
 
 </style>
 
