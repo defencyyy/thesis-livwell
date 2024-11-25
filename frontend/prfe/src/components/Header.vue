@@ -96,11 +96,6 @@ export default {
         this.profilePicture = "/assets/broker-profile.png";
         this.dropdownOptions = [
           {
-            name: "Manage Sales",
-            link: "/broker/manage-sales",
-            icon: "bi bi-bar-chart",
-          },
-          {
             name: "Account Settings",
             link: "/broker/account",
             icon: "bi bi-gear",

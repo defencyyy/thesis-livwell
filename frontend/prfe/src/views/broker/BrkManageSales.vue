@@ -684,6 +684,9 @@ export default {
       this.loading = false;
     }
   },
+  redirectToLogin() {
+    this.$router.push({ name: "BrkLogin" });
+  },
   // Close the modal
   closeModal() {
     this.showModal = false;
