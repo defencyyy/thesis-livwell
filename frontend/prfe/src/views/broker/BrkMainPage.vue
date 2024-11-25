@@ -1,5 +1,5 @@
 <template>
-  <AppHeader/>
+  <AppHeader />
   <div class="main-page">
     <SideNav />
     <div class="content">
@@ -7,7 +7,6 @@
         <h1>Gwynn Rafer Cujardo</h1>
         <h5>@gwynncujardo</h5>
         <p>This is the main page for brokers.</p>
-        
       </div>
 
       <div class="contentpage py-5 mx-2" style="width: 100%; height: 80%">
@@ -32,11 +31,6 @@
           <div class="content3"><h2>Analytics</h2></div>
         </div>
       </div>
-      =======
-      <h1>Hi, {{ brokerName }}</h1>
-      <p>{{ brokerEmail }}</p>
-      <button @click="logout">Logout</button>
-      >>>>>>> backend_quiambao
     </div>
   </div>
 </template>
