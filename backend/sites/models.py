@@ -12,6 +12,7 @@ def logo_upload_path(instance, filename):
   site_name = re.sub(r'[^\w\s-]', '', site_name)  
 
   filename = filename or 'site_logo.jpg' 
+  # make this standardized and add confirm that saving this will overwrite existing img
 
   return os.path.join('photos', company_name, 'sites', site_name, filename)
 

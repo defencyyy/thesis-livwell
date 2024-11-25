@@ -13,7 +13,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'picture',
             'status',
             'created_at',
-            'archived',  # Ensure this is included in the serializer
+            'archived',  
         ]
 
         read_only_fields = ['id', 'created_at']  # These fields will be read-only

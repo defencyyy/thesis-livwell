@@ -67,20 +67,150 @@
           </tbody>
         </table>
 
-        <!-- Add and Edit Modals using b-modal -->
         <!-- Add Site Modal -->
         <b-modal v-model="showAddModal" title="Add New Site" hide-footer>
-          <!-- Add Site Form -->
+          <form @submit.prevent="addSite">
+            <div class="form-group">
+              <label for="siteName">Name</label>
+              <input
+                v-model="newSite.name"
+                type="text"
+                id="siteName"
+                placeholder="Enter site name"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="siteLocation">Location</label>
+              <input
+                v-model="newSite.location"
+                type="text"
+                id="siteLocation"
+                placeholder="Enter location"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="siteStatus">Status</label>
+              <select
+                v-model="newSite.status"
+                id="siteStatus"
+                class="form-control"
+              >
+                <option
+                  v-for="status in statusOptions"
+                  :key="status"
+                  :value="status"
+                >
+                  {{ status }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="siteDescription">Description</label>
+              <textarea
+                v-model="newSite.description"
+                id="siteDescription"
+                placeholder="Enter description"
+                class="form-control"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="sitePicture">Picture</label>
+              <input
+                type="file"
+                id="sitePicture"
+                @change="handlePictureUpload($event, 'add')"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn-primary">Add Site</button>
+            </div>
+          </form>
         </b-modal>
 
         <!-- Edit Site Modal -->
         <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
-          <!-- Edit Site Form -->
+          <form @submit.prevent="saveEditSite">
+            <div class="form-group">
+              <label for="editSiteName">Name</label>
+              <input
+                v-model="editSite.name"
+                type="text"
+                id="editSiteName"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editSiteLocation">Location</label>
+              <input
+                v-model="editSite.location"
+                type="text"
+                id="editSiteLocation"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editSiteStatus">Status</label>
+              <select
+                v-model="editSite.status"
+                id="editSiteStatus"
+                class="form-control"
+              >
+                <option
+                  v-for="status in statusOptions"
+                  :key="status"
+                  :value="status"
+                >
+                  {{ status }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editSiteDescription">Description</label>
+              <textarea
+                v-model="editSite.description"
+                id="editSiteDescription"
+                class="form-control"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="editSitePicture">Picture</label>
+              <input
+                type="file"
+                id="editSitePicture"
+                @change="handlePictureUpload($event, 'edit')"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+          </form>
         </b-modal>
 
         <!-- Site Details Modal -->
         <b-modal v-model="selectedSiteModal" title="Site Details" hide-footer>
-          <!-- Site Details Content -->
+          <div v-if="selectedSite">
+            <img
+              :src="selectedSite.picture || '/default-image.jpg'"
+              alt="Site Image"
+              class="img-fluid mb-3"
+            />
+            <h2>{{ selectedSite.name }}</h2>
+            <p><strong>Location:</strong> {{ selectedSite.location }}</p>
+            <p><strong>Status:</strong> {{ selectedSite.status }}</p>
+            <p><strong>Description:</strong> {{ selectedSite.description }}</p>
+            <button @click="selectedSiteModal = false" class="btn-secondary">
+              Close
+            </button>
+          </div>
+          <div v-else>
+            <p>Loading site details...</p>
+          </div>
         </b-modal>
       </div>
     </div>
@@ -108,7 +238,7 @@ export default {
       searchQuery: "",
       showAddModal: false,
       showEditModal: false,
-      selectedSite: null,
+      selectedSite: {}, // Prevent null reference issues
       selectedSiteModal: false,
       newSite: {
         name: "",
@@ -136,11 +266,12 @@ export default {
       return this.companyId;
     },
     filteredSites() {
+      if (!Array.isArray(this.sites)) return [];
       return this.sites
         .filter((site) =>
           site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         )
-        .filter((site) => this.showArchived || !site.isArchived) // Show or hide archived sites
+        .filter((site) => this.showArchived || !site.isArchived)
         .sort((a, b) =>
           this.sortBy === "name"
             ? a.name.localeCompare(b.name)
@@ -216,6 +347,51 @@ export default {
     toggleArchived() {
       this.showArchived = !this.showArchived;
     },
+    handlePictureUpload(event, mode) {
+      const file = event.target.files[0];
+      if (file) {
+        if (mode === "add") {
+          this.newSite.picture = file;
+        } else if (mode === "edit") {
+          this.editSite.picture = file;
+        }
+      }
+    },
+    async saveEditSite() {
+      console.log("Saving site:", this.editSite);
+
+      const formData = new FormData();
+      formData.append("name", this.editSite.name);
+      formData.append("location", this.editSite.location);
+      formData.append("status", this.editSite.status);
+      formData.append("description", this.editSite.description || "");
+
+      if (this.editSite.picture) {
+        formData.append("picture", this.editSite.picture);
+      }
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.editSite.id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (response.status === 200) {
+          const index = this.sites.findIndex(
+            (site) => site.id === this.editSite.id
+          );
+          this.sites[index] = response.data;
+          this.showEditModal = false;
+        }
+      } catch (error) {
+        console.error("Error saving site:", error.response || error);
+      }
+    },
     async addSite() {
       console.log("Adding site with data:", this.newSite);
 
@@ -279,8 +455,12 @@ export default {
       }
     },
     viewSite(site) {
-      this.selectedSite = site;
-      this.selectedSiteModal = true;
+      if (site) {
+        this.selectedSite = site;
+        this.selectedSiteModal = true;
+      } else {
+        console.error("Attempted to view a null or undefined site.");
+      }
     },
     openEditModal(site) {
       this.editSite = { ...site };
