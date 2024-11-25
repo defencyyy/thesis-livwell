@@ -176,12 +176,15 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 250px; /* Sidebar width */
+  width: calc(100% - 250px);
   z-index: 2;
 }
 
 .welcome-text {
   font-size: 1.2rem;
-  padding-left: 18%;
 }
 
 .d-flex {
