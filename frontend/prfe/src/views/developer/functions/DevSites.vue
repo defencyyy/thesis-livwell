@@ -846,7 +846,6 @@ export default {
     },
     toggleArchived() {
       this.showArchived = !this.showArchived;
-      this.$forceUpdate();
     },
     handlePictureUpload(event, mode) {
       const file = event.target.files[0];
@@ -971,27 +970,27 @@ export default {
       this.editSite = { ...site };
       this.showEditModal = true;
     },
-    // recomputeFilteredSites() {
-    //   this.filteredSites = this.sites
-    //     .filter((site) =>
-    //       site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-    //     )
-    //     .filter((site) => this.showArchived || !site.isArchived)
-    //     .sort((a, b) =>
-    //       this.sortBy === "name"
-    //         ? a.name.localeCompare(b.name)
-    //         : a.status.localeCompare(b.status)
-    //     );
-    // },
+    recomputeFilteredSites() {
+      this.filteredSites = this.sites
+        .filter((site) =>
+          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        )
+        .filter((site) => this.showArchived || !site.isArchived)
+        .sort((a, b) =>
+          this.sortBy === "name"
+            ? a.name.localeCompare(b.name)
+            : a.status.localeCompare(b.status)
+        );
+    },
   },
   mounted() {
     this.fetchSites();
   },
-  // watch: {
-  //   showArchived() {
-  //     this.recomputeFilteredSites();
-  //   },
-  // },
+  watch: {
+    showArchived() {
+      this.recomputeFilteredSites();
+    },
+  },
 };
 </script>
 
