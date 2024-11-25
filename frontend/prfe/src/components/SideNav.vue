@@ -68,6 +68,7 @@ export default {
       } else if (this.userRole === "broker") {
         this.menuItems = [
           { name: "Dashboard", link: "/broker/dashboard" },
+          { name: "Units", link: "/broker/affiliated-units" },
           { name: "Manage Sales ", link: "/broker/manage-sales" },
           { name: "Manage Customer", link: "/broker/manage-customer" },
           { name: "Milestones", link: "/broker/milestones" },
