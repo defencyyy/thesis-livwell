@@ -37,6 +37,7 @@ urlpatterns = [
 
 
 
+
     # Developers
     path('developer/login/', views.login_view_developer, name='developer_login'), 
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  

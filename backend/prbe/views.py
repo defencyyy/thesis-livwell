@@ -21,6 +21,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
+from collections import Counter
 import os
 
 
@@ -475,17 +476,15 @@ def get_customers_for_broker(request, broker_id):
         
         include_sales = request.GET.get('include_sales', 'false') == 'true'
 
-
         # Fetch customers for the broker
         customers = Customer.objects.filter(broker_id=broker_id)
-
+        total_customers = customers.count()  # Get the total number of customers
         customer_data = []
         for customer in customers:
             # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
             contact_number = customer.contact_number
             company_id = customer.company.id  # Get the company ID associated with the customer
-
 
             # If include_sales is True, fetch sales and related data
             if include_sales:
@@ -524,10 +523,16 @@ def get_customers_for_broker(request, broker_id):
                     'company_id': company_id,  # Add company ID
                 })
 
-        return JsonResponse({'success': True, 'customers': customer_data}, status=200)
+        # Return the total customer count and the customer data
+        return JsonResponse({
+            'success': True,
+            'total_customers': total_customers,  # Return the total number of customers
+            'customers': customer_data
+        }, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+
 
 def fetch_sites(request):
     # Filter sites that have available units
@@ -601,11 +606,18 @@ def fetch_sales(request):
                 'status': sale.status,
                 'email': sale.customer.email,
                 'broker_id': sale.broker.id if sale.broker else None, # broker_id
-                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name
-
-                
+                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name     
             })      
-        return JsonResponse({'success': True, 'sales': sales_data}, status=200)
+         # Group the sales by status and count occurrences
+        status_count = Counter(sale.status for sale in sales)
+
+        # Prepare the data to send to the frontend
+        sales_status_data = {
+            'sold': status_count.get('sold', 0),
+            'pending': status_count.get('pending reservation', 0),
+            'reserved': status_count.get('reserved', 0),
+        }
+        return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
 
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
@@ -996,6 +1008,8 @@ def send_dev_password_reset_email(request):
             return JsonResponse({"success": False, "message": "An internal error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+
+
 
 @csrf_exempt
 def DevResetPass(request, uid, token):
