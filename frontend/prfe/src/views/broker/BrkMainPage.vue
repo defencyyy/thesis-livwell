@@ -54,6 +54,9 @@ export default {
     if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
       this.redirectToLogin();
     }
+    console.log("User ID from Vuex:", this.userId);
+    console.log("User Type from Vuex:", this.userType);
+    this.fetchBrokerInfo(); // Make sure to call this here to fetch broker info on mount
   },
   watch: {
     loggedIn(newVal) {
@@ -87,42 +90,34 @@ export default {
       },
     };
   },
-  created() {
-    this.fetchBrokerInfo();
-  },
   methods: {
-    async logout() {
+    async fetchBrokerInfo() {
+      const brokerId = this.userId; // Use this.userId for broker ID
+
+      if (!brokerId) {
+        console.error("User ID is not available!");
+        return; // Exit early if no userId
+      }
+
       try {
-        // Notify backend about logout
-        await axios.post(
-          "http://localhost:8000/api/token/brklogout/", // Update URL to match backend endpoint
-          {},
+        const response = await fetch(
+          `http://localhost:8000/brokers/${brokerId}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-
-        // Clear localStorage and Vuex state
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("user_role");
-        localStorage.removeItem("company_id");
-
-        // Call Vuex mutation to reset user state
-        this.$store.commit("clearUser");
-
-        // Redirect to login page
-        this.redirectToLogin();
+        const data = await response.json();
+        if (data.success !== false) {
+          this.brokerName = `${data.f_name} ${data.l_name}`;
+          this.brokerEmail = data.email;
+        } else {
+          console.error("Broker info not found or error:", data.message);
+        }
       } catch (error) {
-        console.error("Error during logout:", error);
-        alert("Logout failed. Please try again.");
+        console.error("Error fetching broker info:", error);
       }
-
-      // Using Vuex userId instead of brokerId
-      const brokerId = this.userId; // You can use this.userId here
 
       const salesResponse = await fetch(
         `http://localhost:8000/sales/total/?broker_id=${brokerId}`
@@ -158,6 +153,38 @@ export default {
         }
       }
     },
+
+    async logout() {
+      try {
+        // Notify backend about logout
+        await axios.post(
+          "http://localhost:8000/api/token/brklogout/", // Update URL to match backend endpoint
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        // Clear localStorage and Vuex state
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_role");
+        localStorage.removeItem("company_id");
+
+        // Call Vuex mutation to reset user state
+        this.$store.commit("clearUser");
+
+        // Redirect to login page
+        this.redirectToLogin();
+      } catch (error) {
+        console.error("Error during logout:", error);
+        alert("Logout failed. Please try again.");
+      }
+    },
+
     redirectToLogin() {
       this.$router.push({ name: "BrkLogin" });
     },
@@ -176,9 +203,7 @@ export default {
   padding: 20px;
   text-align: center;
 }
-.contentpage {
-  border: 1px solid black;
-}
+
 .content h1,
 h5 {
   color: black;
@@ -186,55 +211,6 @@ h5 {
   padding-left: 50px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-}
-
-.content1,
-.content2 {
-  text-align: left;
-  background-color: #d9d9d9;
-  height: 30%;
-  border-radius: 10px;
-  padding-left: 10px;
-  margin-bottom: 20px;
-  margin-right: 20px;
-  margin-left: 50px;
-}
-.content1 h2,
-.content2 h2 {
-  padding-right: 30px;
-}
-.content3 {
-  text-align: center;
-  background-color: #d9d9d9;
-  border-radius: 10px;
-  padding-left: 10px;
-  margin-bottom: 20px;
-  margin-right: 20px;
-  margin-left: 20px;
-  height: 60%;
-  width: 500%;
-}
-.content3 h2 {
-  text-align: center;
-  padding-top: 20px;
-}
-
-.content4 {
-  background-color: #d9d9d9;
-  border-radius: 10px;
-  height: 40%;
-  width: 200%;
-  margin-bottom: 20px;
-  margin-right: 20px;
-  margin-left: 50px;
-  padding-left: 20px;
-  text-align: start;
-}
-.content img {
-  margin-left: 10px;
-}
-.contentpage {
-  display: flex;
 }
 
 button {

@@ -37,11 +37,6 @@ urlpatterns = [
     path('documents/customer/<int:customer_id>/', views.fetch_customer_documents, name='fetch_customer_documents'),
     path('customers/<int:customer_id>/', views.update_customer, name='update_customer'),
 
-
-
-
-
-
     # Developers
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
     path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
