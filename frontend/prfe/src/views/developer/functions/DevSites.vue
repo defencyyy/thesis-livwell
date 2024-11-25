@@ -40,6 +40,7 @@
               <!-- Toolbar -->
               <div class="toolbar">
                 <div class="left-section">
+                  <!-- Search Bar -->
                   <div class="search-bar-container">
                     <input
                       type="text"
@@ -49,12 +50,25 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
+
+                  <!-- Sort Dropdown -->
                   <select v-model="sortBy" class="dropdown">
                     <option value="name">Sort: Name</option>
                     <option value="status">Sort: Status</option>
                   </select>
+
+                  <!-- Filter Button -->
+                  <button
+                    @click="toggleArchived"
+                    :class="['btn-secondary', { active: showArchived }]"
+                    class="filter-button"
+                  >
+                    {{ showArchived ? "Active Sites" : "Archived Sites" }}
+                  </button>
                 </div>
+
                 <div class="right-section">
+                  <!-- Add Site Button -->
                   <button
                     @click="showAddModal = true"
                     class="btn-primary add-button"
@@ -70,8 +84,8 @@
         <!-- Grid View -->
         <div v-if="viewMode === 'grid'" class="site-grid">
           <div
-            v-for="site in filteredSites"
-            :key="site.id"
+            v-for="(site, index) in filteredSites"
+            :key="site.id || index"
             class="site-card"
             @click="viewSite(site)"
           >
@@ -83,10 +97,14 @@
             />
 
             <!-- Site Name -->
-            <h2 class="site-name">{{ site.name }}</h2>
+            <h2 class="site-name">
+              {{ site.name || "Unknown" }}
+            </h2>
 
             <!-- Site Location -->
-            <p class="site-location">{{ site.location }}</p>
+            <p class="site-location">
+              {{ site.location || "Location unavailable" }}
+            </p>
           </div>
         </div>
 
@@ -102,8 +120,8 @@
 
           <!-- Table inside the card -->
           <div
-            v-for="site in filteredSites"
-            :key="site.id"
+            v-for="(site, index) in filteredSites"
+            :key="site.id || index"
             class="card shadow-lg border-0 rounded-3 mx-auto"
             style="max-width: 1100px"
           >
@@ -118,11 +136,13 @@
                           alt="Site Image"
                           class="table-image"
                         />
-                        <span class="site-name">{{ site.name }}</span>
+                        <span class="site-name">
+                          {{ site.name || "Unknown" }}
+                        </span>
                       </div>
                     </td>
-                    <td>{{ site.location }}</td>
-                    <td>{{ site.status }}</td>
+                    <td>{{ site.location || "Location unavailable" }}</td>
+                    <td>{{ site.status || "Status unavailable" }}</td>
                     <td>
                       <!-- View Button as Icon (Yellow) -->
                       <button
@@ -743,7 +763,7 @@ export default {
       return this.companyId;
     },
     filteredSites() {
-      if (!Array.isArray(this.sites)) return [];
+      console.log("showArchived:", this.showArchived);
       return this.sites
         .filter((site) =>
           site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -778,7 +798,10 @@ export default {
         );
         console.log("Sites fetched:", response.data);
         if (response.status === 200) {
-          this.sites = response.data; // Fetch both active and archived sites
+          this.sites = response.data.data.map((site) => ({
+            ...site,
+            isArchived: site.isArchived ?? false, // Ensure isArchived exists
+          }));
         }
       } catch (error) {
         if (error.response?.status === 401) {
@@ -823,6 +846,7 @@ export default {
     },
     toggleArchived() {
       this.showArchived = !this.showArchived;
+      this.$forceUpdate();
     },
     handlePictureUpload(event, mode) {
       const file = event.target.files[0];
@@ -911,24 +935,28 @@ export default {
       }
     },
     async archiveSite(site) {
-      console.log("Archiving site:", site);
-      site.isArchived = true; // Mark as archived
-
       try {
+        console.log("Archiving site:", site);
+
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${site.id}/`,
-          site,
+          { ...site, isArchived: true },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
+
         if (response.status === 200) {
-          this.sites = this.sites.filter((s) => s.id !== site.id); // Remove from UI
+          // Update sites array
+          this.sites = this.sites.map((s) =>
+            s.id === site.id ? { ...s, isArchived: true } : s
+          );
+          console.log("Site archived successfully.");
         }
       } catch (error) {
-        console.error("Error archiving site:", error.response || error);
+        console.error("Error archiving site:", error.response?.data || error);
       }
     },
     viewSite(site) {
@@ -943,10 +971,27 @@ export default {
       this.editSite = { ...site };
       this.showEditModal = true;
     },
+    // recomputeFilteredSites() {
+    //   this.filteredSites = this.sites
+    //     .filter((site) =>
+    //       site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+    //     )
+    //     .filter((site) => this.showArchived || !site.isArchived)
+    //     .sort((a, b) =>
+    //       this.sortBy === "name"
+    //         ? a.name.localeCompare(b.name)
+    //         : a.status.localeCompare(b.status)
+    //     );
+    // },
   },
   mounted() {
     this.fetchSites();
   },
+  // watch: {
+  //   showArchived() {
+  //     this.recomputeFilteredSites();
+  //   },
+  // },
 };
 </script>
 
