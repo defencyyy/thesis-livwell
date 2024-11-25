@@ -60,31 +60,6 @@
         </div>
 
         <!-- Broker Table -->
-        <!-- <table v-if="currentBrokers.length" class="table">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Contact Number</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="broker in currentBrokers" :key="broker.id">
-            <td>{{ broker.email }}</td>
-            <td>{{ broker.username }}</td>
-            <td>{{ broker.first_name }}</td>
-            <td>{{ broker.last_name }}</td>
-            <td>{{ broker.contact_number }}</td>
-            <td>
-              <button @click="openEditModal(broker)">Edit</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else>No brokers found for this company.</p> -->
         <div class="outside-headers">
           <span class="header-item">First Name</span>
           <span class="header-item">Last Name</span>
@@ -93,6 +68,32 @@
           <span class="header-item">Contact</span>
           <span class="header-item">Actions</span>
         </div>
+
+        <table v-if="currentBrokers.length" class="table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Username</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Contact Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="broker in currentBrokers" :key="broker.id">
+              <td>{{ broker.email }}</td>
+              <td>{{ broker.username }}</td>
+              <td>{{ broker.first_name }}</td>
+              <td>{{ broker.last_name }}</td>
+              <td>{{ broker.contact_number }}</td>
+              <td>
+                <button @click="openEditModal(broker)">Edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else>No brokers found for this company.</p>
 
         <!-- <div v-for="broker in currentBrokers" :key="broker.id" class="card shadow-lg border-0 rounded-3 mx-auto"
           style="max-width: 1100px">

@@ -1,0 +1,26 @@
+        <table v-if="viewMode === 'table'" class="site-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="site in filteredSites" :key="site.id">
+              <td>{{ site.name }}</td>
+              <td>{{ site.location }}</td>
+              <td>{{ site.status }}</td>
+              <td>
+                <button @click.stop="viewSite(site)">View</button>
+                <button @click.stop="openEditModal(site)">Edit</button>
+                <button @click.stop="deleteSite(site)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <b-modal v-model="showAddModal" title="Add New Site" hide-footer>
+
+        
