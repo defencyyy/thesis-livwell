@@ -128,7 +128,7 @@ export default {
         if (this.userRole === "developer") {
           logoutEndpoint = "http://localhost:8000/api/token/devlogout/";
         } else if (this.userRole === "broker") {
-          logoutEndpoint = "http://localhost:8000/api/token/brokerlogout/";
+          logoutEndpoint = "http://localhost:8000/api/token/brklogout/";
         } else {
           throw new Error("Unsupported user role.");
         }

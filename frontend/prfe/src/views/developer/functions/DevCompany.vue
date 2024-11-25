@@ -309,7 +309,7 @@ export default {
   margin-top: 30px;
   /* Offset for header height */
   flex: 1;
-  margin-left: 250px;
+  /* margin-left: 250px; */
   /* Set margin equal to sidebar width */
 }
 

@@ -14,7 +14,7 @@
           <template v-for="(item, index) in menuItems" :key="index">
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
               {{ item.name }}
-            </b-nav-item> 
+            </b-nav-item>
 
             <div v-else>
               <b-nav-item :to="item.link" exact custom class="parent-item">
@@ -44,12 +44,11 @@ import { BNav, BNavItem } from "bootstrap-vue-3";
 
 export default {
   name: "SideNav",
-  components: {  BNav, BNavItem },
+  components: { BNav, BNavItem },
   data() {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
       menuItems: [],
-      
     };
   },
   created() {
@@ -62,23 +61,16 @@ export default {
           { name: "Dashboard", link: "/developer/dashboard" },
           { name: "Company", link: "/developer/company" },
           { name: "Brokers", link: "/developer/brokers" },
-          { name: "Affiliations", link: "/developer/affiliation" },
-          {
-            name: "Sites",
-            link: "/developer/sites",
-            children: [{ name: "Units", link: "/developer/units" }],
-          },
+          { name: "Sites", link: "/developer/sites" },
+          { name: "Units", link: "/developer/units" },
           { name: "Payment Schedules", link: "/developer/payment-schedule" },
-          { name: "Account", link: "/developer/account" },
         ];
       } else if (this.userRole === "broker") {
         this.menuItems = [
           { name: "Dashboard", link: "/broker/dashboard" },
-          { name: "Affiliated Units", link: "/broker/affiliated-units" },
           { name: "Manage Sales ", link: "/broker/manage-sales" },
           { name: "Manage Customer", link: "/broker/manage-customer" },
           { name: "Milestones", link: "/broker/milestones" },
-          { name: "Account", link: "/broker/account" },
         ];
       } else {
         this.menuItems = [
@@ -101,8 +93,7 @@ export default {
   flex-direction: column;
   transition: width 0.3s;
 }
-.sidebar-nav
-{
+.sidebar-nav {
   text-align: left; /* Align all items in the sidebar to the left */
   margin-left: 8px;
   margin-top: 15px;
@@ -114,12 +105,6 @@ export default {
 
 .parent-item {
   font-weight: bold;
- 
-}
-
-.child-menu {
-  margin-left: 20px;
- 
 }
 
 .sidebar .b-nav-item {
@@ -138,12 +123,10 @@ export default {
   pointer-events: auto;
 }
 
-
 .sidebar .b-nav-item.active,
 .sidebar .b-nav-item:focus,
 .sidebar .b-nav-item:hover {
   background-color: #007bff;
   color: white;
 }
-
-</style> 
+</style>
