@@ -1,6 +1,6 @@
 <template>
-  <AppHeader />
   <div class="main-page">
+    <AppHeader />
     <SideNav />
     <div class="content">
       <h1>Hi, {{ brokerName }}</h1>
@@ -17,6 +17,8 @@
           :reserved="salesStatus.reserved"
         />
       </div>
+
+      <h1>Hi, {{ brokerName }}</h1>
 
       <button @click="logout">Logout</button>
     </div>
