@@ -104,6 +104,7 @@
             <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
               <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
             </p>
+            <!-- Assuming you have a close button in your modal -->
             <button @click="closeModal">Close</button>
 
             <!-- Add other fields you want to display here -->
@@ -374,13 +375,27 @@
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import { mapState } from "vuex";
 import axios from "axios";
-import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ManageSales",
   components: {
     SideNav,
+  },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId || null,
+      userType: (state) => state.userType || null,
+      companyId: (state) => state.companyId || null,
+      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
+    }),
+    localStorageUserId() {
+      return localStorage.getItem("user_id");
+    },
+    localStorageCompanyId() {
+      return localStorage.getItem("company_id");
+    },
   },
   data() {
     return {
@@ -388,7 +403,7 @@ export default {
       showModal: false,
       selectedSale: null, // Currently selected sale row
       salesDetailsExists: false, // Flag to check if sales details already exist
-      salesDetails: null, // S
+      salesDetails: null, // Sales details object
       // Payment Scheme Data
       selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
@@ -416,35 +431,57 @@ export default {
       loading: false, // Track loading state
     };
   },
-  computed: {
-    ...mapGetters(["getUserId"]), // Use Vuex getter to access userId (broker ID)
+  mounted() {
+    if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
+      this.redirectToLogin();
+    }
+    console.log("User ID from Vuex:", this.userId);
+    console.log("User Type from Vuex:", this.userType);
+    this.fetchSales(); // Fetch sales when the component is mounted
+  },
+  watch: {
+    loggedIn(newVal) {
+      if (!newVal || this.userType !== "broker" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    userType(newVal) {
+      if (newVal !== "broker" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    companyId(newVal) {
+      if (!newVal || this.userType !== "broker") {
+        this.redirectToLogin();
+      }
+    },
   },
   methods: {
-    ...mapActions(["fetchUserId"]), // Map Vuex actions (if necessary)
-    toggleDetailedSchedule() {
-      // Toggle the visibility of the detailed payment schedule
-      this.showDetailedSchedule = !this.showDetailedSchedule;
-    },
     async checkSalesDetails() {
+      if (!this.selectedSale) {
+        console.error("No sale selected!");
+        return;
+      }
+
       try {
         const response = await axios.get(
           `http://localhost:8000/salesdetails/check/${this.selectedSale.customer_id}/${this.selectedSale.site_id}/${this.selectedSale.unit_id}`
         );
         if (response.data.exists) {
-          this.salesDetailsExists = true; // Set the flag to true if data exists
-          this.salesDetails = response.data.details; // Store the existing details
+          this.salesDetailsExists = true;
+          this.salesDetails = response.data.details;
           this.updatePaymentDetails();
         } else {
-          this.salesDetailsExists = false; // Allow input if no details exist
+          this.salesDetailsExists = false;
           this.updatePaymentDetails();
         }
       } catch (error) {
         console.error("Error checking sales details:", error);
       }
     },
-    // Fetch sales data from the backend
+
     async fetchSales() {
-      const brokerId = localStorage.getItem("broker_id");
+      const brokerId = this.userId; // Use Vuex userId instead of localStorage
       try {
         const response = await fetch(
           `http://localhost:8000/sales/?broker_id=${brokerId}`
@@ -479,7 +516,11 @@ export default {
         this.updateSalesDetailsPaymentDetails();
       } else {
         // Use manual input values to calculate details
-        this.applySpotCashDiscount();
+        if (typeof this.applySpotCashDiscount === "function") {
+          this.applySpotCashDiscount(); // Ensure this method exists
+        } else {
+          console.error("applySpotCashDiscount is not a function");
+        }
         this.applyTLPDiscount();
         this.applyOtherCharges();
         this.calculateVAT();
@@ -652,9 +693,6 @@ export default {
       installment_term: "",
       special_terms: "",
     };
-  },
-  mounted() {
-    this.fetchSales(); // Fetch sales data when the page loads
   },
 };
 </script>
