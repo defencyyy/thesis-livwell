@@ -8,13 +8,6 @@
       <strong>Total Commissions:</strong> {{ totalCommissions }}
       <p>Total Customers: {{ totalCustomers }}</p>
 
-      <!-- Display Total Sales Status -->
-      <div>
-        <p><strong>Sold:</strong> {{ salesStatus.sold }}</p>
-        <p><strong>Pending Reservation:</strong> {{ salesStatus.pending }}</p>
-        <p><strong>Reserved:</strong> {{ salesStatus.reserved }}</p>
-      </div>
-
       <!-- Pie chart displaying sales status -->
       <div class="pie-chart-container">
         <PieChart :sold="salesStatus.sold" :pending="salesStatus.pending" :reserved="salesStatus.reserved" />
