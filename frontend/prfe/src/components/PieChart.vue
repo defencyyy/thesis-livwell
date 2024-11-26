@@ -30,20 +30,22 @@ export default {
       required: true
     },
   },
-  computed: {
-    // Computed property to prepare the chart data
-    pieChartData() {
-      return {
-        labels: ['Sold', 'Pending Reservation', 'Reserved'],
-        datasets: [
-          {
-            data: [this.sold, this.pending, this.reserved],
-            backgroundColor: ['#4caf50', '#ff9800', '#2196f3'],
-            hoverBackgroundColor: ['#45a049', '#e6893b', '#1976d2'],
-          },
-        ],
-      };
-    },
+ computed: {
+   pieChartData() {
+    console.log(this.sold, this.pending);
+    return {
+      labels: ['Sold', 'Pending Reservation', 'Reserved'],
+      datasets: [
+        {
+          // Avoid zero values by setting a small non-zero value (0.1) where necessary
+          //data: [this.sold, this.pending, this.reserved], 
+          data:[4,2,2],
+          backgroundColor: ['#4caf50', '#ff9800', '#2196f3'],
+          hoverBackgroundColor: ['#45a049', '#e6893b', '#1976d2'],
+        },
+      ],
+    };
+  },
     pieChartOptions() {
       return {
         responsive: true,

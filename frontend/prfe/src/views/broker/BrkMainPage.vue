@@ -1,26 +1,26 @@
 <template>
-  <div class="main-page">
+  <div>
+    <!-- Main wrapper div -->
     <AppHeader />
-    <SideNav />
-    <div class="content">
-      <h1>Hi, {{ brokerName }}</h1>
-      <p>{{ brokerEmail }}</p>
-      <strong>Total Sales:</strong> {{ totalSales }}
-      <strong>Total Commissions:</strong> {{ totalCommissions }}
-      <p>Total Customers: {{ totalCustomers }}</p>
+    <div class="main-page">
+      <SideNav />
+      <div class="content">
+        <p>{{ brokerEmail }}</p>
+        <strong>Total Sales:</strong> {{ totalSales }}
+        <strong>Total Commissions:</strong> {{ totalCommissions }}
+        <p>Total Customers: {{ totalCustomers }}</p>
+        <h1>His, {{ brokerName }}</h1>
 
-      <!-- Pie chart displaying sales status -->
-      <div class="pie-chart-container">
-        <PieChart
-          :sold="salesStatus.sold"
-          :pending="salesStatus.pending"
-          :reserved="salesStatus.reserved"
-        />
+        <!-- Pie Chart Section -->
+        <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
+          <p>No sales data available.</p>
+        </div>
+        <div v-else>
+          <canvas id="salesPieChart"></canvas>
+        </div>
+
+        <button @click="logout">Logout</button>
       </div>
-
-      <h1>Hi, {{ brokerName }}</h1>
-
-      <button @click="logout">Logout</button>
     </div>
   </div>
 </template>
@@ -30,7 +30,7 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import PieChart from "@/components/PieChart.vue"; // Import the PieChart component
+import { Chart } from "chart.js"; // Import chart.js
 
 export default {
   name: "BrkMainPage",
@@ -43,43 +43,12 @@ export default {
       userId: (state) => state.userId || null,
       userType: (state) => state.userType || null,
       companyId: (state) => state.companyId || null,
-      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
+      loggedIn: (state) => state.loggedIn,
     }),
-    localStorageUserId() {
-      return localStorage.getItem("user_id");
-    },
-    localStorageCompanyId() {
-      return localStorage.getItem("company_id");
-    },
-  },
-  mounted() {
-    if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
-      this.redirectToLogin();
-    }
-    console.log("User ID from Vuex:", this.userId);
-    console.log("User Type from Vuex:", this.userType);
-    this.fetchBrokerInfo(); // Make sure to call this here to fetch broker info on mount
-  },
-  watch: {
-    loggedIn(newVal) {
-      if (!newVal || this.userType !== "broker" || !this.companyId) {
-        this.redirectToLogin();
-      }
-    },
-    userType(newVal) {
-      if (newVal !== "broker" || !this.companyId) {
-        this.redirectToLogin();
-      }
-    },
-    companyId(newVal) {
-      if (!newVal || this.userType !== "broker") {
-        this.redirectToLogin();
-      }
-    },
   },
   data() {
     return {
-      PieChart,
+      loading: true, // Flag for loading state
       brokerName: "",
       brokerEmail: "",
       totalSales: 0,
@@ -92,94 +61,130 @@ export default {
       },
     };
   },
+  mounted() {
+    if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
+      this.redirectToLogin();
+    }
+    this.fetchBrokerInfo(); // Fetch data when component is mounted
+  },
+  watch: {
+    // Re-render the pie chart when sales data changes
+    salesStatus: "renderPieChart",
+  },
   methods: {
     async fetchBrokerInfo() {
-      const brokerId = this.userId; // Use this.userId for broker ID
+      const brokerId = this.userId;
 
       if (!brokerId) {
         console.error("User ID is not available!");
-        return; // Exit early if no userId
+        return;
       }
 
+      this.loading = true; // Show loading spinner while fetching data
+
       try {
-        const response = await fetch(
-          `http://localhost:8000/brokers/${brokerId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        const response = await fetch(`http://localhost:8000/brokers/${brokerId}/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
         const data = await response.json();
         if (data.success !== false) {
           this.brokerName = `${data.f_name} ${data.l_name}`;
           this.brokerEmail = data.email;
-        } else {
-          console.error("Broker info not found or error:", data.message);
+        }
+
+        const salesResponse = await fetch(`http://localhost:8000/sales/total/?broker_id=${brokerId}`);
+        if (salesResponse.ok) {
+          const salesData = await salesResponse.json();
+          this.totalSales = salesData.total_sales;
+        }
+
+        const commissionsResponse = await fetch(`http://localhost:8000/sales/commissions/?broker_id=${brokerId}`);
+        if (commissionsResponse.ok) {
+          const commissionsData = await commissionsResponse.json();
+          this.totalCommissions = commissionsData.total_commissions;
+        }
+
+        const customersResponse = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
+        if (customersResponse.ok) {
+          const customersData = await customersResponse.json();
+          this.totalCustomers = customersData.total_customers;
+        }
+
+        const salesStatusResponse = await fetch(`http://localhost:8000/sales/?broker_id=${brokerId}`);
+        if (salesStatusResponse.ok) {
+          const statusData = await salesStatusResponse.json();
+
+          if (statusData.success) {
+            this.salesStatus = statusData.sales_status_data;
+            console.log("Sales Status:", this.salesStatus);
+          }
         }
       } catch (error) {
         console.error("Error fetching broker info:", error);
+      } finally {
+        this.loading = false; // Hide the loading spinner once data is fetched
       }
+    },
 
-      const salesResponse = await fetch(
-        `http://localhost:8000/sales/total/?broker_id=${brokerId}`
-      );
-      if (salesResponse.ok) {
-        const salesData = await salesResponse.json();
-        this.totalSales = salesData.total_sales;
-      }
+    // Function to render the pie chart
+    renderPieChart() {
+      this.$nextTick(() => {
+        const ctx = document.getElementById("salesPieChart");
 
-      const commissionsResponse = await fetch(
-        `http://localhost:8000/sales/commissions/?broker_id=${brokerId}`
-      );
-      if (commissionsResponse.ok) {
-        const commissionsData = await commissionsResponse.json();
-        this.totalCommissions = commissionsData.total_commissions;
-      }
-
-      const customersResponse = await fetch(
-        `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
-      );
-      if (customersResponse.ok) {
-        const customersData = await customersResponse.json();
-        this.totalCustomers = customersData.total_customers;
-      }
-
-      const salesStatusResponse = await fetch(
-        `http://localhost:8000/sales/?broker_id=${brokerId}`
-      );
-      if (salesStatusResponse.ok) {
-        const statusData = await salesStatusResponse.json();
-        if (statusData.success) {
-          this.salesStatus = statusData.sales_status_data;
+        if (ctx) {
+          new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: ["Sold", "Pending", "Reserved"],
+              datasets: [
+                {
+                  data: [this.salesStatus.sold, this.salesStatus.pending, this.salesStatus.reserved],
+                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || "";
+                      const value = context.raw || 0;
+                      return `${label}: ${value}`;
+                    },
+                  },
+                },
+              },
+            },
+          });
+        } else {
+          console.error("Canvas element not found.");
         }
-      }
+      });
     },
 
     async logout() {
       try {
-        // Notify backend about logout
-        await axios.post(
-          "http://localhost:8000/api/token/brklogout/", // Update URL to match backend endpoint
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        await axios.post("http://localhost:8000/api/token/brklogout/", {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
 
-        // Clear localStorage and Vuex state
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user_id");
         localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
 
-        // Call Vuex mutation to reset user state
         this.$store.commit("clearUser");
-
-        // Redirect to login page
         this.redirectToLogin();
       } catch (error) {
         console.error("Error during logout:", error);
@@ -206,15 +211,6 @@ export default {
   text-align: center;
 }
 
-.content h1,
-h5 {
-  color: black;
-  text-align: left;
-  padding-left: 50px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-}
-
 button {
   margin-top: 20px;
   padding: 10px 20px;
@@ -229,8 +225,9 @@ button:hover {
   background-color: #ff1a1a;
 }
 
-.pie-chart-container {
-  width: 50%;
+canvas {
+  max-width: 400px;
+  max-height: 400px;
   margin: 20px auto;
 }
 </style>

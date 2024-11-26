@@ -1,7 +1,6 @@
 <template>
-  <header>
-    <HeaderLivwell />
-  </header>
+  <div>    
+  <HeaderLivwell />
   <div class="manage-customers-page">
     <SideNav />
     <div class="content">
@@ -237,6 +236,7 @@
       </b-modal>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -344,7 +344,6 @@ export default {
       this.editContactNumber = customer.contact_number;
       this.editLastName = customer.l_name;
       this.editFirstName = customer.f_name;
-
       this.showEditModal = true; // Show the edit modal
     },
 
@@ -439,6 +438,7 @@ export default {
           this.showNotification = true; // Show the notification modal
           this.showModal = false; // Close the modal
           this.fetchCustomers(); // Refresh customer list
+          this.resetForm();
         } else {
           this.notificationTitle = "Error!";
           this.notificationMessage = data.message || "Failed to add customer.";
@@ -547,7 +547,6 @@ export default {
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
       formData.append("company", this.selectedCustomer.company_id);
-
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {
           method: "POST",
@@ -584,7 +583,12 @@ export default {
       this.lastName = "";
       this.firstName = "";
     },
-  },
+    getCookie(name) {
+      let value = "; " + document.cookie;
+      let parts = value.split("; " + name + "=");
+      if (parts.length === 2) return parts.pop().split(";").shift();
+    },
+    },
 };
 </script>
 

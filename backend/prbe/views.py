@@ -264,6 +264,9 @@ def add_customer(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            # Check if the email already exists in the database
+            if Customer.objects.filter(email=data['email']).exists():
+                return JsonResponse({"success": False, "message": "Email already taken."}, status=400)
 
             # Create a new customer instance, including company_id
             customer = Customer.objects.create(
@@ -389,26 +392,35 @@ def sales_details_view(request):
 @csrf_exempt
 def get_available_sites(request):
     if request.method == 'GET':
-        # Fetch sites that are either 'preselling' or 'completed' and have available units
-        sites = Site.objects.filter(status__in=['preselling', 'completed'])
-        
-        site_data = []
-        for site in sites:
-            # Check if there are any available units for this site
-            available_units = Unit.objects.filter(site=site, status='available')
-            if available_units.exists():  # Only add the site if there are available units
-                site_data.append({
-                    'id': site.id,
-                    'name': site.name,
-                    'description': site.description,
-                    'location': site.location,
-                    'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
-                })
-        
-        return JsonResponse({'sites': site_data}, status=200)
+        # Extract company_id from the request parameters
+        company_id = request.GET.get('company_id')
+
+        if not company_id:
+            return JsonResponse({'success': False, 'message': 'Company ID is required.'}, status=400)
+
+        try:
+            # Fetch the broker's company (you can modify this if necessary, assuming you're passing broker's company_id)
+            sites = Site.objects.filter(company_id=company_id, status__in=['preselling', 'completed'])
+            
+            site_data = []
+            for site in sites:
+                # Check if there are any available units for this site
+                available_units = Unit.objects.filter(site=site, status='available')
+                if available_units.exists():  # Only add the site if there are available units
+                    site_data.append({
+                        'id': site.id,
+                        'name': site.name,
+                        'description': site.description,
+                        'location': site.location,
+                        'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
+                    })
+            
+            return JsonResponse({'sites': site_data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
-
 @csrf_exempt
 def get_site_name(request, site_id):
     if request.method == 'GET':
@@ -674,6 +686,8 @@ def fetch_sales(request):
             'pending': status_count.get('pending reservation', 0),
             'reserved': status_count.get('reserved', 0),
         }
+        print(f"Sales Status Data: {sales_status_data}")
+
         return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
 
     except Exception as e:
@@ -949,7 +963,7 @@ def upload_document(request):
         # Get the list of files and document types
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
-
+       
         # Validate that customer_id, document_type_ids, and files are provided
         if not customer_id or not document_type_ids or not files:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
@@ -989,6 +1003,7 @@ def upload_document(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 
 # Fetch documents for a given customer
 @csrf_exempt
