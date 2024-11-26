@@ -16,26 +16,24 @@
                     <br />
 
                     <div class="form-outline mb-4">
-                      <label class="form-label" for="form2Example11"
-                        >Username</label
-                      >
+                      <label class="form-label" for="username">Username</label>
                       <input
                         type="text"
                         id="username"
                         v-model="username"
+                        @input="error = null"
                         class="form-control"
                         required
                       />
                     </div>
 
                     <div class="form-outline mb-4">
-                      <label class="form-label" for="form2Example22"
-                        >Password</label
-                      >
+                      <label class="form-label" for="password">Password</label>
                       <input
                         type="password"
                         id="password"
                         v-model="password"
+                        @input="error = null"
                         class="form-control"
                         required
                       />
@@ -48,13 +46,15 @@
                       <router-link
                         class="text-muted"
                         to="/developer/forgot-password"
-                        >Forgot Password</router-link
                       >
+                        Forgot Password
+                      </router-link>
                     </div>
 
                     <div class="text-center pt-1 mb-5 pb-1">
                       <button
                         class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3"
+                        :disabled="loading"
                         type="submit"
                       >
                         Sign in
@@ -63,6 +63,19 @@
 
                     <p v-if="error" class="text-danger">{{ error }}</p>
                   </form>
+
+                  <!-- Add the Return and Switch to Broker buttons -->
+                  <div class="d-flex justify-content-between mt-4">
+                    <router-link to="/home" class="btn btn-outline-secondary">
+                      Return
+                    </router-link>
+                    <router-link
+                      to="/broker/login"
+                      class="btn btn-outline-primary"
+                    >
+                      Switch to Broker
+                    </router-link>
+                  </div>
                 </div>
               </div>
               <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
@@ -93,29 +106,31 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+
 export default {
   data() {
     return {
       username: "",
       password: "",
       error: null,
+      loading: false,
     };
   },
   methods: {
+    ...mapActions(["login"]),
     async login() {
       this.error = null;
+      this.loading = true;
+
       if (this.username && this.password) {
         try {
-          const csrftoken = this.getCookie("csrftoken");
-
           const response = await fetch(
-            "http://localhost:8000/developer/login/",
+            "http://localhost:8000/api/token/developer/",
             {
-              // Updated URL
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
               },
               body: JSON.stringify({
                 username: this.username,
@@ -125,36 +140,40 @@ export default {
           );
 
           const data = await response.json();
-          if (data.success) {
-            localStorage.setItem("authToken", data.token);
-            localStorage.setItem("user_role", "developer");
-            localStorage.setItem("logged_in", "true");
 
+          if (response.ok && data.tokens) {
+            // Store JWT tokens in localStorage
+            localStorage.setItem("accessToken", data.tokens.access);
+            localStorage.setItem("refreshToken", data.tokens.refresh);
+
+            // Assuming the response contains user details
+            const user = {
+              id: data.user.id,
+              user_role: data.user.user_role,
+              company_id: data.user.company_id,
+            };
+
+            // Dispatch login action to Vuex store
+            this.$store.dispatch("login", {
+              user: user,
+              token: data.tokens.access,
+            });
+
+            // Redirect to the developer dashboard
             this.$router.push("/developer/dashboard");
           } else {
-            this.error = data.message;
+            this.error = data.message || "Login failed. Please try again.";
           }
         } catch (error) {
+          console.error("Login error:", error);
           this.error = "An error occurred during login.";
+        } finally {
+          this.loading = false;
         }
       } else {
         this.error = "Please fill in both fields.";
+        this.loading = false;
       }
-    },
-
-    getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === name + "=") {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
     },
   },
 };

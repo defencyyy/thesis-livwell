@@ -1,21 +1,38 @@
 <template>
   <div>
-    <b-button @click="toggleSidebar">{{
-      isCollapsed ? "UnCollapse" : "Collapse"
-    }}</b-button>
-    <div :class="['sidebar', { collapsed: isCollapsed }]">
-      <h4 id="sidebar-title">Company Name and Logo</h4>
-      <nav class="mb-3">
+    <div :class="['sidebar']">
+      <div class="sidebar-header">
+        <img
+          src="https://via.placeholder.com/150"
+          alt="Logo"
+          class="sidebar-logo"
+        />
+        <h4 id="sidebar-title" class="text-white">Company Name</h4>
+      </div>
+      <nav class="sidebar-nav">
         <b-nav vertical>
-          <b-nav-item
-            v-for="(item, index) in menuItems"
-            :key="index"
-            :to="item.link"
-            exact
-            custom
-          >
-            {{ item.name }}
-          </b-nav-item>
+          <template v-for="(item, index) in menuItems" :key="index">
+            <b-nav-item v-if="!item.children" :to="item.link" exact custom>
+              {{ item.name }}
+            </b-nav-item>
+
+            <div v-else>
+              <b-nav-item :to="item.link" exact custom class="parent-item">
+                {{ item.name }}
+              </b-nav-item>
+              <div class="child-menu">
+                <b-nav-item
+                  v-for="(child, idx) in item.children"
+                  :key="idx"
+                  :to="child.link"
+                  exact
+                  custom
+                >
+                  {{ child.name }}
+                </b-nav-item>
+              </div>
+            </div>
+          </template>
         </b-nav>
       </nav>
     </div>
@@ -23,16 +40,15 @@
 </template>
 
 <script>
-import { BButton, BNav, BNavItem } from "bootstrap-vue-3";
+import { BNav, BNavItem } from "bootstrap-vue-3";
 
 export default {
   name: "SideNav",
-  components: { BButton, BNav, BNavItem },
+  components: { BNav, BNavItem },
   data() {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
       menuItems: [],
-      isCollapsed: false,
     };
   },
   created() {
@@ -43,21 +59,19 @@ export default {
       if (this.userRole === "developer") {
         this.menuItems = [
           { name: "Dashboard", link: "/developer/dashboard" },
+          { name: "Company", link: "/developer/company" },
+          { name: "Brokers", link: "/developer/brokers" },
+          { name: "Sites", link: "/developer/sites" },
           { name: "Units", link: "/developer/units" },
-          { name: "Broker Accounts", link: "/developer/broker-accounts" },
-          { name: "Payment Schedules", link: "/developer/payment-schedules" },
-          { name: "Manage Company", link: "/developer/manage-company" },
-          { name: "Manage Affiliations", link: "/developer/manage-affiliations" },
-          { name: "Manage Sites", link: "/developer/manage-sites" },
-          { name: "Manage Account", link: "/developer/manage-account" },
+          { name: "Payment Schedules", link: "/developer/payment-schedule" },
         ];
       } else if (this.userRole === "broker") {
         this.menuItems = [
           { name: "Dashboard", link: "/broker/dashboard" },
-          { name: "Affiliated Units", link: "/broker/affiliated-units" }, 
+          { name: "Units", link: "/broker/affiliated-units" },
+          { name: "Manage Sales ", link: "/broker/manage-sales" },
           { name: "Manage Customer", link: "/broker/manage-customer" },
           { name: "Milestones", link: "/broker/milestones" },
-          { name: "Account", link: "/broker/account" },
         ];
       } else {
         this.menuItems = [
@@ -66,9 +80,6 @@ export default {
         ];
       }
     },
-    toggleSidebar() {
-      this.isCollapsed = !this.isCollapsed;
-    },
   },
 };
 </script>
@@ -76,16 +87,25 @@ export default {
 <style scoped>
 .sidebar {
   width: 250px;
+  background-color: #343a40;
+  height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
   transition: width 0.3s;
 }
-
-.sidebar.collapsed {
-  width: 60px;
-  overflow: hidden;
+.sidebar-nav {
+  text-align: left; /* Align all items in the sidebar to the left */
+  margin-left: 8px;
+  margin-top: 15px;
 }
 
 .sidebar h4 {
   display: inline;
+}
+
+.parent-item {
+  font-weight: bold;
 }
 
 .sidebar .b-nav-item {
@@ -102,5 +122,12 @@ export default {
 .sidebar:not(.collapsed) .b-nav-item {
   opacity: 1;
   pointer-events: auto;
+}
+
+.sidebar .b-nav-item.active,
+.sidebar .b-nav-item:focus,
+.sidebar .b-nav-item:hover {
+  background-color: #007bff;
+  color: white;
 }
 </style>

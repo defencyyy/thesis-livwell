@@ -1,7 +1,6 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
-import About from "@/views/AboutView.vue";
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -9,20 +8,32 @@ import DevForgotPass from "@/views/developer/DevForgotPass.vue";
 import DevResetPass from "@/views/developer/DevResetPass.vue";
 import DevMainPage from "@/views/developer/DevMainPage.vue";
 
+// Dev Functions
+import DevFuncAccount from "@/views/developer/functions/DevAccount.vue";
+import DevFuncBroker from "@/views/developer/functions/DevBrokers.vue";
+import DevFuncCompany from "@/views/developer/functions/DevCompany.vue";
+import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
+import DevFuncSites from "@/views/developer/functions/DevSites.vue";
+import DevFuncUnits from "@/views/developer/functions/DevUnits.vue";
+
 // Brokers
 import BrkLogin from "@/views/broker/BrkLogin.vue";
 import BrkForgotPass from "@/views/broker/BrkForgotPass.vue";
 import BrkResetPass from "@/views/broker/BrkResetPass.vue";
 import BrkMainPage from "@/views/broker/BrkMainPage.vue";
+
+// Broker Functions
 import AffiliatedUnits from "@/views/broker/BrkAffiliatedUnits.vue";
 import BrkManageCustomers from "@/views/broker/BrkManageCustomers.vue";
 import BrkMilestones from "@/views/broker/BrkMilestones.vue";
 import BrkAccounts from "@/views/broker/BrkAccounts.vue";
-
+import BrkManageSales from "@/views/broker/BrkManageSales.vue";
+import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path as necessary
+import SalesDetailsPage from "@/components/SalesDetailsPage.vue";
+import BrkTest from "@/views/broker/BrkTest.vue";
 
 const routes = [
   { path: "/home", name: "Home", component: Home },
-  { path: "/about", name: "About", component: About },
 
   // Developer Routes
   {
@@ -44,6 +55,42 @@ const routes = [
     path: "/developer/dashboard",
     name: "DevMain",
     component: DevMainPage,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/account",
+    name: "DevFuncAccount",
+    component: DevFuncAccount,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/brokers",
+    name: "DevFuncBroker",
+    component: DevFuncBroker,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/company",
+    name: "DevFuncCompany",
+    component: DevFuncCompany,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/payment-schedule",
+    name: "DevFuncPaySched",
+    component: DevFuncPaySched,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/sites",
+    name: "DevFuncSites",
+    component: DevFuncSites,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/units",
+    name: "DevFuncUnits",
+    component: DevFuncUnits,
     meta: { requiresAuth: true, role: "developer" },
   },
 
@@ -70,38 +117,64 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
   {
-    path: "/broker/affiliated-units", // New route for Affiliated Units
+    path: "/broker/affiliated-units",
     name: "AffiliatedUnits",
     component: AffiliatedUnits,
-    meta: { requiresAuth: true, role: "broker" }, // Protecting this route
+    meta: { requiresAuth: true, role: "broker" },
+  },
+
+  // other routes
+  {
+    path: "/units/:siteId",
+    name: "AvailableUnits",
+    component: AvailableUnits,
   },
   {
-  path: "/broker/manage-customer",
-  name: "ManageCustomers",
-  component: BrkManageCustomers,
-  meta: { requiresAuth: true, role: "broker" },
-},
-{
-  path: "/broker/milestones",
-  name: "BrkMilestones",
-  component: BrkMilestones,
-  meta: { requiresAuth: true, role: "broker" },
-},
-{
-  path: "/broker/account",
-  name: "BrkAccounts",
-  component: BrkAccounts,
-  meta: { requiresAuth: true, role: "broker" },
-},
+    path: "/broker/manage-sales",
+    name: "ManageSales",
+    component: BrkManageSales,
+    meta: { requiresAuth: true, role: "broker" },
+  },
+  {
+    path: "/sales-details/:id", // Dynamic route using :id for the sales detail ID
+    name: "SalesDetails",
+    component: SalesDetailsPage,
+    props: true, // Pass route params as props to the component
+  },
+  {
+    path: "/broker/manage-customer",
+    name: "ManageCustomers",
+    component: BrkManageCustomers,
+    meta: { requiresAuth: true, role: "broker" },
+  },
+  {
+    path: "/broker/milestones",
+    name: "BrkMilestones",
+    component: BrkMilestones,
+    meta: { requiresAuth: true, role: "broker" },
+  },
 
-  // Redirect
+  {
+    path: "/broker/account",
+    name: "BrkAccounts",
+    component: BrkAccounts,
+    meta: { requiresAuth: true, role: "broker" },
+  },
+
+  {
+    path: "/broker/test",
+    name: "BrkTest",
+    component: BrkTest,
+    meta: { requiresAuth: true, role: "broker" },
+  },
   { path: "/", redirect: "/home" },
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
+
 router.beforeEach((to, from, next) => {
   const isLoggedIn = localStorage.getItem("logged_in") === "true";
   const userRole = localStorage.getItem("user_role");
@@ -131,7 +204,7 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Always proceed to the next route
+  // If no conditions are met, continue to the next route
   next();
 });
 
