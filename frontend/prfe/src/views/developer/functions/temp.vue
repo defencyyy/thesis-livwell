@@ -561,10 +561,9 @@
                 >
                   Save Changes
                 </button>
-                <!-- Cancel Button -->
                 <button
                   type="button"
-                  @click="cancelEdit"
+                  @click="showEditModal = false"
                   class="btn btn-secondary"
                 >
                   Cancel
@@ -622,9 +621,9 @@ export default {
       selectedProvince: null, // Selected province from dropdown
       selectedMunicipality: null, // Selected municipality from dropdown
       selectedBarangay: null, // Selected barangay from dropdown
-      newPictureFile: null,
       imagePreview: null,
       showArchived: false, // State to control archived sites visibility
+      newPictureFile: "",
     };
   },
   computed: {
@@ -845,10 +844,11 @@ export default {
 
         // Only update the current image if you want to save it
         if (mode === "edit") {
-          // Don't overwrite the current picture unless you're saving the change
-          this.newPictureFile = file; // Update for edit mode only when confirmed
+          // Store the file temporarily, without overwriting the current image
+          this.newPictureFile = file; // Temporary storage for "edit"
         } else if (mode === "add") {
-          this.newSite.picture = file; // Set for add mode
+          // For "add", directly set the new image
+          this.newSite.picture = file;
         }
       } else {
         this.imagePreview = null; // Clear preview if no file is selected
@@ -922,6 +922,7 @@ export default {
         console.error(
           "Missing required fields: Name, Region, Province, Municipality, Barangay."
         );
+        alert("Please fill in all the required fields.");
         return;
       }
 
@@ -936,21 +937,28 @@ export default {
       formData.append("description", this.editSite.description || ""); // Optional description field
 
       // Check if the picture is being updated
-      if (this.newPictureFile) {
-        formData.append("picture", this.newPictureFile);
+      if (this.editSite.picture && this.editSite.picture instanceof File) {
+        formData.append("picture", this.editSite.picture);
+      } else if (this.editSite.picture) {
+        // If the picture is a URL, you'll need to handle it differently or avoid sending it here
+        console.error(
+          "Picture is not a valid file. Please select a file to upload."
+        );
+        alert("Please select a valid picture file.");
+        return;
       }
 
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
           console.error("No token found. Cannot proceed with the request.");
+          alert("Session expired. Please log in again.");
           return;
         }
 
-        // Prepare headers for the request
+        // Prepare headers for the request (do not set Content-Type)
         const headers = {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         };
 
         // Send API request to update the site
@@ -972,9 +980,10 @@ export default {
           // Close the edit modal and refresh the site data
           this.showEditModal = false;
           this.fetchSites();
-          this.resetPicturePreview();
+          alert("Site updated successfully!");
         } else {
           console.error("Failed to update site. Status:", response.status);
+          alert("Failed to update site. Please try again.");
         }
       } catch (error) {
         if (error.response) {
@@ -984,6 +993,7 @@ export default {
         } else {
           console.error("Error setting up request:", error.message);
         }
+        alert("An error occurred. Please try again.");
       }
     },
     async archiveSite(site) {
@@ -1023,15 +1033,6 @@ export default {
       this.editSite = { ...site };
       this.showEditModal = true;
     },
-    resetPicturePreview() {
-      this.newPictureFile = null;
-      this.imagePreview = null;
-    },
-    cancelEdit() {
-      this.resetPicturePreview();
-      this.showEditModal = false;
-    },
-
     async fetchStatusOptions() {
       try {
         const response = await axios.get(

@@ -267,7 +267,6 @@ export default {
 
     onFileChange(event) {
       const file = event.target.files[0];
-      console.log("File selected:", file);
       if (file) {
         this.newLogo = file;
         const reader = new FileReader();
