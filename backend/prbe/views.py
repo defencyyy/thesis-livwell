@@ -961,6 +961,15 @@ def upload_document(request):
         # Get the list of files and document types
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
+        print("Received data:")
+        print(f"Customer ID: {customer_id}")
+        print(f"Company ID: {company_id}")
+        print(f"Object ID: {object_id}")
+        print(f"Content ID: {content_id}")
+        print(f"Number of files: {len(files)}")
+        for i, file in enumerate(files):
+            print(f"File {i + 1}: {file.name}")
+        print(f"Document Types: {document_type_ids}")
 
         # Validate that customer_id, document_type_ids, and files are provided
         if not customer_id or not document_type_ids or not files:
@@ -1001,6 +1010,7 @@ def upload_document(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 
 # Fetch documents for a given customer
 @csrf_exempt

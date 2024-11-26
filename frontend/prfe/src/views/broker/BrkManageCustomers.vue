@@ -344,7 +344,6 @@ export default {
       this.editContactNumber = customer.contact_number;
       this.editLastName = customer.l_name;
       this.editFirstName = customer.f_name;
-
       this.showEditModal = true; // Show the edit modal
     },
 
@@ -548,7 +547,6 @@ export default {
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
       formData.append("company", this.selectedCustomer.company_id);
-
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {
           method: "POST",
@@ -585,7 +583,12 @@ export default {
       this.lastName = "";
       this.firstName = "";
     },
-  },
+    getCookie(name) {
+      let value = "; " + document.cookie;
+      let parts = value.split("; " + name + "=");
+      if (parts.length === 2) return parts.pop().split(";").shift();
+    },
+    },
 };
 </script>
 
