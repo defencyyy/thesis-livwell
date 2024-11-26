@@ -1,7 +1,6 @@
 <template>
-  <header>
-    <HeaderLivwell />
-  </header>
+  <div>    
+  <HeaderLivwell />
   <div class="manage-customers-page">
     <SideNav />
     <div class="content">
@@ -237,6 +236,7 @@
       </b-modal>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -439,6 +439,7 @@ export default {
           this.showNotification = true; // Show the notification modal
           this.showModal = false; // Close the modal
           this.fetchCustomers(); // Refresh customer list
+          this.resetForm();
         } else {
           this.notificationTitle = "Error!";
           this.notificationMessage = data.message || "Failed to add customer.";

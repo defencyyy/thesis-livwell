@@ -1,7 +1,7 @@
 <template>
-  <header>
+  <div>
     <HeaderLivwell />
-  </header>
+
   <div class="affiliated-units-page">
     <SideNav />
     <div class="content">
@@ -26,6 +26,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -33,6 +34,7 @@ import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
 import axios from "axios"; // Ensure you have axios installed
 import { useRouter } from "vue-router"; // Import useRouter
+import { mapState } from "vuex";
 
 export default {
   name: "AffiliatedUnits",
@@ -55,6 +57,19 @@ export default {
       loading: true,
     };
   },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId,
+      userType: (state) => state.userType,
+      companyId: (state) => state.companyId,
+    }),
+  },
+   vuexUserId() {
+    return this.userId;
+  },
+  vuexCompanyId() {
+    return this.companyId;
+  },
   mounted() {
     this.fetchAvailableSites();
   },
@@ -62,7 +77,12 @@ export default {
     async fetchAvailableSites() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/sites/available/"
+          `http://localhost:8000/sites/available/`,
+          {
+            params: {
+              company_id: this.companyId, // Pass the company ID of the logged-in broker
+            },
+          }
         );
         this.sites = response.data.sites;
       } catch (error) {
