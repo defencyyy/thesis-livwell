@@ -63,6 +63,19 @@
 
                     <p v-if="error" class="text-danger">{{ error }}</p>
                   </form>
+
+                  <!-- Add the Return and Switch to Broker buttons -->
+                  <div class="d-flex justify-content-between mt-4">
+                    <router-link to="/home" class="btn btn-outline-secondary">
+                      Return
+                    </router-link>
+                    <router-link
+                      to="/broker/login"
+                      class="btn btn-outline-primary"
+                    >
+                      Switch to Broker
+                    </router-link>
+                  </div>
                 </div>
               </div>
               <div class="col-lg-6 d-flex align-items-center gradient-custom-2">

@@ -68,6 +68,16 @@
 
                     <p v-if="error" class="text-danger">{{ error }}</p>
                   </form>
+
+                  <!-- Add the Switch to Developer button -->
+                  <div class="text-center mt-4">
+                    <router-link
+                      to="/developer/login"
+                      class="btn btn-outline-primary"
+                    >
+                      Switch to Developer
+                    </router-link>
+                  </div>
                 </div>
               </div>
               <div
