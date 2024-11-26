@@ -5,28 +5,18 @@
     <div class="main-page">
       <SideNav />
       <div class="content">
-        <h1>His, {{ brokerName }}</h1>
         <p>{{ brokerEmail }}</p>
         <strong>Total Sales:</strong> {{ totalSales }}
         <strong>Total Commissions:</strong> {{ totalCommissions }}
         <p>Total Customers: {{ totalCustomers }}</p>
+        <h1>His, {{ brokerName }}</h1>
 
-        <!-- Pie chart section -->
-        <div class="pie-chart-container">
-          <p class="chart-title">Sales Chart</p>
-
-          <!-- Display loading or no data message if sales data is empty -->
-          <div v-if="!salesStatus.sold && !salesStatus.pending && !salesStatus.reserved">
-            <p class="no-data-message">No sales data available. Once you make some sales, your chart will be displayed here.</p>
-          </div>          
-          <div v-else>
-            <PieChart :sold="salesStatus.sold" :pending="salesStatus.pending" :reserved="salesStatus.reserved" />
-          </div>
-
-          <!-- Optional: A loading spinner if the chart is still fetching data -->
-          <div v-if="loading" class="loading-spinner">
-            <span>Loading...</span>
-          </div>
+        <!-- Pie Chart Section -->
+        <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
+          <p>No sales data available.</p>
+        </div>
+        <div v-else>
+          <canvas id="salesPieChart"></canvas>
         </div>
 
         <button @click="logout">Logout</button>
@@ -40,7 +30,7 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import PieChart from "@/components/PieChart.vue";
+import { Chart } from "chart.js"; // Import chart.js
 
 export default {
   name: "BrkMainPage",
@@ -53,12 +43,11 @@ export default {
       userId: (state) => state.userId || null,
       userType: (state) => state.userType || null,
       companyId: (state) => state.companyId || null,
-      loggedIn: (state) => state.loggedIn, 
+      loggedIn: (state) => state.loggedIn,
     }),
   },
   data() {
     return {
-      PieChart,
       loading: true, // Flag for loading state
       brokerName: "",
       brokerEmail: "",
@@ -77,6 +66,10 @@ export default {
       this.redirectToLogin();
     }
     this.fetchBrokerInfo(); // Fetch data when component is mounted
+  },
+  watch: {
+    // Re-render the pie chart when sales data changes
+    salesStatus: "renderPieChart",
   },
   methods: {
     async fetchBrokerInfo() {
@@ -123,11 +116,10 @@ export default {
         const salesStatusResponse = await fetch(`http://localhost:8000/sales/?broker_id=${brokerId}`);
         if (salesStatusResponse.ok) {
           const statusData = await salesStatusResponse.json();
-          
+
           if (statusData.success) {
             this.salesStatus = statusData.sales_status_data;
-            console.log('Sales Status:', this.salesStatus);
-
+            console.log("Sales Status:", this.salesStatus);
           }
         }
       } catch (error) {
@@ -135,6 +127,47 @@ export default {
       } finally {
         this.loading = false; // Hide the loading spinner once data is fetched
       }
+    },
+
+    // Function to render the pie chart
+    renderPieChart() {
+      this.$nextTick(() => {
+        const ctx = document.getElementById("salesPieChart");
+
+        if (ctx) {
+          new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: ["Sold", "Pending", "Reserved"],
+              datasets: [
+                {
+                  data: [this.salesStatus.sold, this.salesStatus.pending, this.salesStatus.reserved],
+                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || "";
+                      const value = context.raw || 0;
+                      return `${label}: ${value}`;
+                    },
+                  },
+                },
+              },
+            },
+          });
+        } else {
+          console.error("Canvas element not found.");
+        }
+      });
     },
 
     async logout() {
@@ -178,34 +211,6 @@ export default {
   text-align: center;
 }
 
-.pie-chart-container {
-  width: 60%;
-  margin: 20px auto;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.chart-title {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.no-data-message {
-  font-size: 1rem;
-  color: #888;
-  margin-top: 20px;
-}
-
-.loading-spinner {
-  font-size: 1.2rem;
-  color: #555;
-  margin-top: 20px;
-  font-weight: bold;
-}
-
 button {
   margin-top: 20px;
   padding: 10px 20px;
@@ -218,5 +223,11 @@ button {
 
 button:hover {
   background-color: #ff1a1a;
+}
+
+canvas {
+  max-width: 400px;
+  max-height: 400px;
+  margin: 20px auto;
 }
 </style>
