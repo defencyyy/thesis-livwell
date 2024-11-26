@@ -45,7 +45,6 @@
               <h5 class="card-title">Upcoming Goals</h5>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -83,6 +82,9 @@ export default {
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
       this.redirectToLogin();
     }
+
+    // Set up Axios interceptor to handle token refresh
+    this.setupAxiosInterceptor();
   },
   watch: {
     loggedIn(newVal) {
@@ -134,6 +136,79 @@ export default {
 
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
+    },
+
+    // Handle token refresh logic here
+    async refreshToken() {
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/", // Your token refresh endpoint
+          {
+            refresh: localStorage.getItem("refreshToken"),
+          }
+        );
+        const { access } = response.data;
+
+        // Store the new access token
+        localStorage.setItem("accessToken", access);
+        this.$store.commit("setAuthToken", access); // Update Vuex store with new token
+        return access;
+      } catch (error) {
+        console.error("Token refresh failed", error);
+        this.handleTokenRefreshFailure();
+        throw error;
+      }
+    },
+
+    // Handle token refresh failure (log out the user)
+    handleTokenRefreshFailure() {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      this.$store.commit("clearUser");
+      this.redirectToLogin();
+    },
+
+    setupAxiosInterceptor() {
+      axios.interceptors.request.use(
+        (config) => {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      axios.interceptors.response.use(
+        (response) => {
+          return response;
+        },
+        async (error) => {
+          if (
+            error.response.status === 401 &&
+            error.response.data.detail === "Token expired"
+          ) {
+            try {
+              // Try to refresh the token if it has expired
+              await this.refreshToken();
+
+              // Retry the original request after refreshing the token
+              error.config.headers[
+                "Authorization"
+              ] = `Bearer ${localStorage.getItem("accessToken")}`;
+              return axios(error.config);
+            } catch (refreshError) {
+              // If token refresh fails, log the user out
+              this.handleTokenRefreshFailure();
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
     },
   },
 };

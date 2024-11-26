@@ -10,7 +10,7 @@ class SiteAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'name')
     
     # Add search functionality for these fields
-    search_fields = ('name', 'company__name', 'description', 'location')
+    search_fields = ('name', 'company__name', 'status', 'region', 'province', 'city')
     
     # Add filters for status and archived fields
     list_filter = ('status', 'archived', 'company')

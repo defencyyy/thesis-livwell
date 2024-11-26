@@ -18,6 +18,8 @@
         />
       </div>
 
+      <h1>Hi, {{ brokerName }}</h1>
+
       <button @click="logout">Logout</button>
     </div>
   </div>

@@ -121,6 +121,7 @@ export default {
       tempDescription: "",
       newLogo: null,
       previewLogo: null,
+      error: null,
     };
   },
 
@@ -129,6 +130,7 @@ export default {
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
+      loggedIn: (state) => state.loggedIn, // Vuex loggedIn state
     }),
     vuexUserId() {
       return this.userId;
@@ -145,7 +147,12 @@ export default {
   },
 
   mounted() {
-    this.fetchCompany();
+    if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
+      this.redirectToLogin();
+    } else {
+      this.fetchCompany();
+      this.setupAxiosInterceptor();
+    }
   },
 
   methods: {
@@ -154,7 +161,7 @@ export default {
 
       if (!companyId) {
         alert("Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
+        this.redirectToLogin();
         return;
       }
 
@@ -175,7 +182,7 @@ export default {
           alert("Error fetching company details.");
         }
       } catch (error) {
-        if (error.response.status === 401) {
+        if (error.response?.status === 401) {
           const refreshedToken = await this.refreshAccessToken();
           if (refreshedToken) {
             this.fetchCompany(); // Retry after refreshing
@@ -186,6 +193,7 @@ export default {
         }
       }
     },
+
     async refreshAccessToken() {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
@@ -206,12 +214,13 @@ export default {
         this.handleTokenRefreshFailure();
       }
     },
+
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.$store.dispatch("logout");
       this.$router.push({ name: "DevLogin" });
     },
+
     async updateCompany() {
       try {
         const formData = new FormData();
@@ -269,8 +278,44 @@ export default {
         reader.readAsDataURL(file);
       }
     },
+
     getLogoUrl(logo) {
       return `http://localhost:8000${logo}`;
+    },
+
+    redirectToLogin() {
+      this.$router.push({ name: "DevLogin" });
+    },
+
+    setupAxiosInterceptor() {
+      axios.interceptors.request.use(
+        (config) => {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      axios.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          if (error.response?.status === 401) {
+            const refreshedToken = await this.refreshAccessToken();
+            if (refreshedToken) {
+              error.config.headers[
+                "Authorization"
+              ] = `Bearer ${refreshedToken}`;
+              return axios(error.config);
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
     },
   },
 };
