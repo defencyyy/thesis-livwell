@@ -18,15 +18,10 @@
           <!-- Display loading or no data message if sales data is empty -->
           <div v-if="!salesStatus.sold && !salesStatus.pending && !salesStatus.reserved">
             <p class="no-data-message">No sales data available. Once you make some sales, your chart will be displayed here.</p>
+          </div>          
+          <div v-else>
+            <PieChart :sold="salesStatus.sold" :pending="salesStatus.pending" :reserved="salesStatus.reserved" />
           </div>
-
-          <!-- Pie chart component -->
-          <PieChart
-            v-else
-            :sold="salesStatus.sold"
-            :pending="salesStatus.pending"
-            :reserved="salesStatus.reserved"
-          />
 
           <!-- Optional: A loading spinner if the chart is still fetching data -->
           <div v-if="loading" class="loading-spinner">
@@ -128,8 +123,11 @@ export default {
         const salesStatusResponse = await fetch(`http://localhost:8000/sales/?broker_id=${brokerId}`);
         if (salesStatusResponse.ok) {
           const statusData = await salesStatusResponse.json();
+          
           if (statusData.success) {
             this.salesStatus = statusData.sales_status_data;
+            console.log('Sales Status:', this.salesStatus);
+
           }
         }
       } catch (error) {

@@ -686,6 +686,8 @@ def fetch_sales(request):
             'pending': status_count.get('pending reservation', 0),
             'reserved': status_count.get('reserved', 0),
         }
+        print(f"Sales Status Data: {sales_status_data}")
+
         return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
 
     except Exception as e:
@@ -961,16 +963,7 @@ def upload_document(request):
         # Get the list of files and document types
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
-        print("Received data:")
-        print(f"Customer ID: {customer_id}")
-        print(f"Company ID: {company_id}")
-        print(f"Object ID: {object_id}")
-        print(f"Content ID: {content_id}")
-        print(f"Number of files: {len(files)}")
-        for i, file in enumerate(files):
-            print(f"File {i + 1}: {file.name}")
-        print(f"Document Types: {document_type_ids}")
-
+       
         # Validate that customer_id, document_type_ids, and files are provided
         if not customer_id or not document_type_ids or not files:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
