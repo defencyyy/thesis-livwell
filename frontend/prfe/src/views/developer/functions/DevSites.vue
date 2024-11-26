@@ -216,13 +216,14 @@
 
                   <!-- Location -->
                   <div class="row mb-3">
+                    <!-- Region Dropdown -->
                     <div class="col-md-6">
                       <label for="region" class="form-label">Region</label>
                       <select
-                        v-model="newSite.region"
+                        v-model="selectedRegion"
                         id="region"
                         class="form-select"
-                        required
+                        @change="loadProvinceData(selectedRegion)"
                       >
                         <option
                           v-for="region in regionOptions"
@@ -233,13 +234,15 @@
                         </option>
                       </select>
                     </div>
+
+                    <!-- Province Dropdown -->
                     <div class="col-md-6">
                       <label for="province" class="form-label">Province</label>
                       <select
-                        v-model="newSite.province"
+                        v-model="selectedProvince"
                         id="province"
                         class="form-select"
-                        required
+                        @change="loadMunicipalityData(selectedProvince)"
                       >
                         <option
                           v-for="province in provinceOptions"
@@ -252,24 +255,46 @@
                     </div>
                   </div>
 
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="city" class="form-label">City</label>
-                      <select
-                        v-model="newSite.city"
-                        id="city"
-                        class="form-select"
-                        required
+                  <!-- Municipality Dropdown -->
+                  <div class="form-group mb-3">
+                    <label for="municipality" class="form-label"
+                      >Municipality</label
+                    >
+                    <select
+                      v-model="selectedMunicipality"
+                      id="municipality"
+                      class="form-select"
+                      @change="loadBarangayData(selectedMunicipality)"
+                    >
+                      <option
+                        v-for="municipality in municipalityOptions"
+                        :key="municipality"
+                        :value="municipality"
                       >
-                        <option
-                          v-for="city in cityOptions"
-                          :key="city"
-                          :value="city"
-                        >
-                          {{ city }}
-                        </option>
-                      </select>
-                    </div>
+                        {{ municipality }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label for="barangay" class="form-label">Barangay</label>
+                    <select
+                      v-model="newSite.barangay"
+                      id="barangay"
+                      class="form-select"
+                      required
+                    >
+                      <option
+                        v-for="barangay in barangayOptions"
+                        :key="barangay"
+                        :value="barangay"
+                      >
+                        {{ barangay }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="postalCode" class="form-label"
                         >Postal Code</label
@@ -279,41 +304,26 @@
                         v-model="newSite.postalCode"
                         id="postalCode"
                         class="form-control"
-                        required
                       />
                     </div>
-                  </div>
 
-                  <div class="form-group mb-3">
-                    <label for="otherAddress" class="form-label"
-                      >Barangay, Street Name, Building No.</label
-                    >
-                    <input
-                      type="text"
-                      v-model="newSite.otherAddress"
-                      id="otherAddress"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <!-- Status -->
-                  <div class="form-group mb-3">
-                    <label for="siteStatus" class="form-label">Status</label>
-                    <select
-                      v-model="newSite.status"
-                      id="siteStatus"
-                      class="form-select"
-                      required
-                    >
-                      <option
-                        v-for="status in statusOptions"
-                        :key="status"
-                        :value="status"
+                    <div class="col-md-6">
+                      <label for="siteStatus" class="form-label">Status</label>
+                      <select
+                        v-model="newSite.status"
+                        id="siteStatus"
+                        class="form-select"
+                        required
                       >
-                        {{ status }}
-                      </option>
-                    </select>
+                        <option
+                          v-for="status in statusOptions"
+                          :key="status"
+                          :value="status"
+                        >
+                          {{ status }}
+                        </option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -512,19 +522,21 @@
 
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="editCity" class="form-label">City</label>
+                      <label for="editmunicipality" class="form-label"
+                        >municipality</label
+                      >
                       <select
-                        v-model="editSite.city"
-                        id="editCity"
+                        v-model="editSite.municipality"
+                        id="editmunicipality"
                         class="form-select"
                         required
                       >
                         <option
-                          v-for="city in cityOptions"
-                          :key="city"
-                          :value="city"
+                          v-for="municipality in municipalityOptions"
+                          :key="municipality"
+                          :value="municipality"
                         >
-                          {{ city }}
+                          {{ municipality }}
                         </option>
                       </select>
                     </div>
@@ -537,19 +549,16 @@
                         v-model="editSite.postalCode"
                         id="editPostalCode"
                         class="form-control"
-                        required
                       />
                     </div>
                   </div>
 
                   <div class="form-group mb-3">
-                    <label for="editOtherAddress" class="form-label"
-                      >Barangay, Street Name, Building No.</label
-                    >
+                    <label for="barangay" class="form-label">Barangay</label>
                     <input
                       type="text"
-                      v-model="editSite.otherAddress"
-                      id="editOtherAddress"
+                      v-model="editSite.barangay"
+                      id="barangay"
                       class="form-control"
                       required
                     />
@@ -662,8 +671,10 @@
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="city" class="form-label">City:</label>
-                    <!-- <p>{{ selectedSite.city }}</p> -->
+                    <label for="municipality" class="form-label"
+                      >municipality:</label
+                    >
+                    <!-- <p>{{ selectedSite.municipality }}</p> -->
                   </div>
                   <div class="col-md-6">
                     <label for="postalCode" class="form-label"
@@ -674,9 +685,7 @@
                 </div>
 
                 <div class="form-group mb-3">
-                  <label for="otherAddress" class="form-label"
-                    >Barangay, Street Name, Building No.:</label
-                  >
+                  <label for="barangay" class="form-label">Barangay:</label>
                   <!-- <p>{{ selectedSite.otherAddress }}</p> -->
                 </div>
 
@@ -737,16 +746,28 @@ export default {
       showEditModal: false,
       selectedSite: {}, // Prevent null reference issues
       selectedSiteModal: false,
+      statusOptions: [],
       newSite: {
         name: "",
-        location: "",
         status: "",
-        picture: "",
+        region: "", // Region selection
+        province: "", // Province selection
+        municipality: "", // municipality selection
+        barangay: "", // Barangay selection
         description: "",
-      }, // Added description
+        picture: "",
+      },
       editSite: {},
-      statusOptions: ["Preselling", "Ongoing", "Completed", "Sold Out"],
       sites: [],
+      regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
+      provinceOptions: [], // Stores provinces in the selected region
+      municipalityOptions: [], // Stores municipalities in the selected province
+      barangayOptions: [], // Stores barangays in the selected municipality
+      selectedRegion: null, // Selected region from dropdown
+      selectedProvince: null, // Selected province from dropdown
+      selectedMunicipality: null, // Selected municipality from dropdown
+      selectedBarangay: null, // Selected barangay from dropdown
+      imagePreview: null,
       showArchived: false, // State to control archived sites visibility
     };
   },
@@ -763,58 +784,22 @@ export default {
       return this.companyId;
     },
     filteredSites() {
-      console.log("showArchived:", this.showArchived);
       return this.sites
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        .filter(
+          (site) =>
+            site &&
+            site.name &&
+            site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         )
         .filter((site) => this.showArchived || !site.isArchived)
         .sort((a, b) =>
           this.sortBy === "name"
-            ? a.name.localeCompare(b.name)
-            : a.status.localeCompare(b.status)
+            ? (a.name || "").localeCompare(b.name || "")
+            : (a.status || "").localeCompare(b.status || "")
         );
     },
   },
   methods: {
-    async fetchSites() {
-      console.log("Fetching sites...");
-
-      const companyId = this.vuexCompanyId;
-      if (!companyId) {
-        alert("Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
-        return;
-      }
-
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/sites/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        console.log("Sites fetched:", response.data);
-        if (response.status === 200) {
-          this.sites = response.data.data.map((site) => ({
-            ...site,
-            isArchived: site.isArchived ?? false, // Ensure isArchived exists
-          }));
-        }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchSites(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching sites:", error.response || error);
-        }
-      }
-    },
-
     async refreshAccessToken() {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
@@ -833,28 +818,229 @@ export default {
         this.handleTokenRefreshFailure();
       }
     },
-
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.$store.dispatch("logout");
       this.$router.push({ name: "DevLogin" });
     },
+    async fetchSites() {
+      console.log("Fetching sites...");
 
+      const companyId = this.vuexCompanyId;
+      if (!companyId) {
+        alert("Company ID not found. Please log in.");
+        this.$router.push({ name: "DevLogin" });
+        return;
+      }
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        console.log("Sites fetched:", response.data); // Debug API response
+        if (response.status === 200) {
+          this.sites = response.data.data.map((site) => ({
+            ...site,
+            location: this.constructLocation(site), // Dynamically build location
+            isArchived: site.isArchived ?? false,
+          }));
+          console.log("Processed Sites:", this.sites); // Debug processed sites
+        }
+      } catch (error) {
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchSites(); // Retry after refreshing
+          }
+        } else {
+          console.error("Error fetching sites:", error.response || error);
+        }
+      }
+    },
+    constructLocation(site) {
+      const addressParts = [
+        site.region,
+        site.province,
+        site.municipality,
+        site.barangay,
+        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
+      ];
+      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
+    },
     toggleView() {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     toggleArchived() {
       this.showArchived = !this.showArchived;
+      console.log("Show archived:", this.showArchived);
+    },
+    async loadRegionData() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/locations/"
+        );
+        console.log("Region Data fetched:", response.data);
+        this.regionData = response.data; // Store region data for further processing
+
+        // Sort region options: non-numeric values at the top, followed by numeric ones in ascending order
+        this.regionOptions = Object.keys(this.regionData).sort((a, b) => {
+          // Check if the keys are numeric
+          const isANumeric = !isNaN(parseInt(a));
+          const isBNumeric = !isNaN(parseInt(b));
+
+          // If both are numeric or both are non-numeric, sort numerically or lexicographically
+          if (isANumeric && isBNumeric) {
+            return parseInt(a) - parseInt(b); // Numeric sorting
+          } else if (!isANumeric && !isBNumeric) {
+            return a.localeCompare(b); // Non-numeric sorting (lexicographically)
+          } else {
+            // If one is numeric and the other is non-numeric, non-numeric goes first
+            return isANumeric ? 1 : -1;
+          }
+        });
+      } catch (error) {
+        console.error("Error loading region data:", error);
+      }
+    },
+
+    loadProvinceData(regionCode) {
+      if (!regionCode) {
+        console.error("No region selected.");
+        return;
+      }
+
+      const region = this.regionData[regionCode]; // Get the region using selectedRegion
+      if (region) {
+        this.provinceOptions = Object.keys(region.province_list); // Map available provinces from province_list
+
+        // Set the region to newSite
+        this.newSite.region = regionCode;
+
+        // Clear previous municipality and barangay options
+        this.municipalityOptions = [];
+        this.barangayOptions = [];
+        this.newSite.province = ""; // Reset province in newSite
+        this.newSite.municipality = ""; // Reset municipality in newSite
+        this.newSite.barangay = ""; // Reset barangay in newSite
+      } else {
+        console.error("Invalid region selected.");
+      }
+    },
+
+    loadMunicipalityData(provinceName) {
+      if (!this.newSite.region) {
+        console.error("No region selected.");
+        return;
+      }
+      if (!provinceName) {
+        console.error("No province selected.");
+        return;
+      }
+
+      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
+      if (region) {
+        const province = region.province_list[provinceName]; // Get the province using provinceName
+        if (province) {
+          this.municipalityOptions = Object.keys(province.municipality_list); // Map available municipalities from municipality_list
+
+          // Set the province to newSite
+          this.newSite.province = provinceName;
+
+          // Clear barangay options when a new province is selected
+          this.barangayOptions = [];
+          this.newSite.municipality = ""; // Reset municipality in newSite
+          this.newSite.barangay = ""; // Reset barangay in newSite
+        } else {
+          this.municipalityOptions = []; // Clear if no province found
+          this.barangayOptions = []; // Clear barangay options if no province is found
+        }
+      }
+    },
+    loadBarangayData(municipalityName) {
+      if (!municipalityName) {
+        console.error("No municipality selected.");
+        return;
+      }
+
+      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
+      if (region) {
+        const province = region.province_list[this.newSite.province]; // Get the province using newSite.province
+        if (province) {
+          const municipality = province.municipality_list[municipalityName]; // Get municipality using municipalityName
+          if (municipality) {
+            this.barangayOptions = municipality.barangay_list || []; // Map available barangays from barangay_list
+
+            // Set the municipality to newSite
+            this.newSite.municipality = municipalityName;
+          }
+        }
+      }
     },
     handlePictureUpload(event, mode) {
       const file = event.target.files[0];
       if (file) {
+        // Set the imagePreview to the file's URL
+        this.imagePreview = URL.createObjectURL(file);
+
+        // Continue with your logic to handle the file...
         if (mode === "add") {
           this.newSite.picture = file;
         } else if (mode === "edit") {
           this.editSite.picture = file;
         }
+      }
+    },
+    async addSite() {
+      console.log("Adding site with data:", this.newSite);
+      const formData = new FormData();
+      formData.append("companyId", this.vuexCompanyId);
+      formData.append("name", this.newSite.name);
+      formData.append("description", this.newSite.description || ""); // Optional description field
+      formData.append("region", this.newSite.region);
+      formData.append("province", this.newSite.province);
+      formData.append("municipality", this.newSite.municipality);
+      formData.append("barangay", this.newSite.barangay);
+      formData.append("status", this.newSite.status);
+
+      if (this.newSite.picture) {
+        formData.append("picture", this.newSite.picture);
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/sites/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          // Clear form and modal
+          this.newSite = {
+            name: "",
+            region: "",
+            province: "",
+            municipality: "",
+            barangay: "",
+            status: "",
+            description: "",
+            picture: "",
+          };
+          this.showAddModal = false;
+
+          // Re-fetch the sites
+          this.fetchSites();
+        }
+      } catch (error) {
+        console.error("Error adding site:", error.response || error);
       }
     },
     async saveEditSite() {
@@ -890,47 +1076,6 @@ export default {
         }
       } catch (error) {
         console.error("Error saving site:", error.response || error);
-      }
-    },
-    async addSite() {
-      console.log("Adding site with data:", this.newSite);
-
-      const formData = new FormData();
-      formData.append("name", this.newSite.name);
-      formData.append("location", this.newSite.location);
-      formData.append("status", this.newSite.status || "Preselling");
-      formData.append("companyId", this.vuexCompanyId);
-      formData.append("userId", this.vuexUserId);
-      formData.append("description", this.newSite.description || ""); // Optional description field
-
-      if (this.newSite.picture) {
-        formData.append("picture", this.newSite.picture);
-      }
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/developer/sites/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        if (response.status === 201) {
-          this.sites.push(response.data);
-          this.showAddModal = false;
-          this.newSite = {
-            name: "",
-            location: "",
-            status: "",
-            picture: "",
-            description: "",
-          }; // Clear the form
-        }
-      } catch (error) {
-        console.error("Error adding site:", error.response || error);
       }
     },
     async archiveSite(site) {
@@ -970,26 +1115,32 @@ export default {
       this.editSite = { ...site };
       this.showEditModal = true;
     },
-    recomputeFilteredSites() {
-      this.filteredSites = this.sites
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .filter((site) => this.showArchived || !site.isArchived)
-        .sort((a, b) =>
-          this.sortBy === "name"
-            ? a.name.localeCompare(b.name)
-            : a.status.localeCompare(b.status)
+    async fetchStatusOptions() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/status-options/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
+        this.statusOptions = Object.keys(response.data.status_options); // Extract keys (the stored values)
+      } catch (error) {
+        console.error("Error fetching status options:", error);
+      }
     },
   },
   mounted() {
+    console.log("Component mounted, fetching sites...");
     this.fetchSites();
+    this.loadRegionData();
   },
   watch: {
-    showArchived() {
-      this.recomputeFilteredSites();
-    },
+    showArchived() {},
+  },
+  created() {
+    this.fetchStatusOptions(); // Fetch the status options when the component is created
   },
 };
 </script>
