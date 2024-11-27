@@ -511,7 +511,6 @@ def get_customers_for_broker(request, broker_id):
                     for sale in sales:
                         site = Site.objects.get(id=sale.site_id)
                         unit = Unit.objects.get(id=sale.unit_id)
-
                         customer_data.append({
                             'id': customer.id,
                             'customer_name': customer_name,
@@ -521,6 +520,7 @@ def get_customers_for_broker(request, broker_id):
                             "email":customer.email,
                             'site': site.name,
                             'unit': unit.unit_title,
+                            'sales_id': sale.id,  # Include the sales ID
                             'company_id': company_id,  # Add company ID
                             'document_status': "Pending",  # Adjust document status as needed
                         })
@@ -532,6 +532,7 @@ def get_customers_for_broker(request, broker_id):
                         "f_name":customer.first_name,
                         "l_name":customer.last_name,
                         "email":customer.email,
+                        'sales_id': None,  # No sales ID if no sales exist
                         'site': "To be followed",
                         'unit': "To be followed",
                         'company_id': company_id,  # Add company ID
@@ -686,7 +687,6 @@ def fetch_sales(request):
             'pending': status_count.get('pending reservation', 0),
             'reserved': status_count.get('reserved', 0),
         }
-        print(f"Sales Status Data: {sales_status_data}")
 
         return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
 
@@ -957,8 +957,7 @@ def upload_document(request):
         # Get the common fields from the request
         customer_id = request.POST.get("customer")
         company_id = request.POST.get("company")
-        object_id = request.POST.get("object_id", 1)  # Default value of 1 if not provided
-        content_id = request.POST.get("content_id", 1)  # Default value of 1 if not provided
+        salesid=request.POST.get("sales_id")
 
         # Get the list of files and document types
         files = request.FILES.getlist("files[]")
@@ -993,8 +992,7 @@ def upload_document(request):
                         document_type=document_type,
                         company_id=company_id,
                         file=file,
-                        object_id=object_id,  # Pass the object_id
-                        content_type_id=content_id,  # Pass the content_id
+                        sales_id=salesid,
                     )
 
             return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})

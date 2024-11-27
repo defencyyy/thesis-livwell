@@ -538,15 +538,14 @@ export default {
         // Append the file and the associated document type to formData
         formData.append("files[]", file); // Append the file under "files[]"
         formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
+        formData.append("sales_id", this.selectedCustomer.sales_id);
 
-        // Optionally append default values for object_id and content_id if needed
-        formData.append("object_id", 1); // Default value of 1 for object_id
-        formData.append("content_id", 1); // Default value of 1 for content_id
       }
 
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
       formData.append("company", this.selectedCustomer.company_id);
+       // Log the formData for debugging
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {
           method: "POST",

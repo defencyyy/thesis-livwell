@@ -30,7 +30,9 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import { Chart } from "chart.js"; // Import chart.js
+import { Chart, ArcElement, Tooltip, Legend, PieController } from "chart.js"; // Import necessary components from Chart.js
+Chart.register(PieController, ArcElement, Tooltip, Legend);
+
 
 export default {
   name: "BrkMainPage",
