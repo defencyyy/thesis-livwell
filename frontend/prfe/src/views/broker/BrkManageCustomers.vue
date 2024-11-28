@@ -283,6 +283,7 @@ export default {
       notificationMessage: "", // Message for the notification modal
       sortBy: "name_asc", // Selected sorting option (default is "Name (A-Z)")
       filePreviews: {}, // Object to store file previews for each document type
+      document_status: "Pending",
       documentFiles: {},
     };
   },

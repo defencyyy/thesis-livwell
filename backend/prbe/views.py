@@ -497,12 +497,16 @@ def get_customers_for_broker(request, broker_id):
         customers = Customer.objects.filter(broker_id=broker_id)
         total_customers = customers.count()  # Get the total number of customers
         customer_data = []
+        required_document_types = DocumentType.objects.all()
+
         
         for customer in customers:
             # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
             contact_number = customer.contact_number
             company_id = customer.company.id  # Get the company ID associated with the customer
+            document_status = "Pending"
+
 
             # If include_sales is True, fetch sales and related data
             if include_sales:
@@ -512,6 +516,19 @@ def get_customers_for_broker(request, broker_id):
                     for sale in sales:
                         site = Site.objects.get(id=sale.site_id)
                         unit = Unit.objects.get(id=sale.unit_id)
+                        # Fetch the documents for this customer and sale
+                        submitted_documents = Document.objects.filter(customer=customer, sales_id=sale.id)
+                        submitted_document_types = {doc.document_type.id for doc in submitted_documents}
+
+                        # Check if the customer has submitted all required documents for this sale
+                        all_documents_submitted = all(
+                            req_doc.id in submitted_document_types for req_doc in required_document_types
+                        )
+
+                        if all_documents_submitted:
+                            document_status = "Complete"  # All required documents submitted
+                        else:
+                            document_status = "Pending"  # Not all required documents are submitted
                         customer_data.append({
                             'id': customer.id,
                             'customer_name': customer_name,
@@ -523,7 +540,7 @@ def get_customers_for_broker(request, broker_id):
                             'unit': unit.unit_title,
                             'sales_id': sale.id,  # Include the sales ID
                             'company_id': company_id,  # Add company ID
-                            'document_status': "Pending",  # Adjust document status as needed
+                            'document_status': document_status,  # Adjust document status as needed
                         })
                 else:
                     customer_data.append({
