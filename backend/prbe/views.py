@@ -497,6 +497,7 @@ def get_customers_for_broker(request, broker_id):
         customers = Customer.objects.filter(broker_id=broker_id)
         total_customers = customers.count()  # Get the total number of customers
         customer_data = []
+        
         for customer in customers:
             # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
