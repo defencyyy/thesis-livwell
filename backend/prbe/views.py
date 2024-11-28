@@ -666,6 +666,7 @@ def fetch_sales(request):
         for sale in sales:
             # Add sale data to the list, including full names and titles
             sales_data.append({
+                'sale_id': sale.id,  # Include the sale ID
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
                 'customer_id': sale.customer.id,   # customer_id
                 'site_name': sale.site.name,
@@ -961,13 +962,6 @@ def upload_document(request):
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
 
-        # Debug: Print incoming data
-        print("Received data:")
-        print(f"Customer ID: {customer_id}")
-        print(f"Company ID: {company_id}")
-        print(f"Sales ID: {sales_id}")
-        print(f"Files: {files}")
-        print(f"Document Types: {document_type_ids}")
 
         if not customer_id or not document_type_ids or not files or not sales_id:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
@@ -984,7 +978,6 @@ def upload_document(request):
             # Debug: Print each file with its document type
             for i, file in enumerate(files):
                 document_type_id = document_type_ids[i]
-                print(f"File {i+1}: {file.name} | Document Type ID: {document_type_id}")
 
                 document_type = get_object_or_404(DocumentType, id=document_type_id)
 
@@ -997,12 +990,10 @@ def upload_document(request):
 
                 if existing_document:
                     # If the document already exists, update it with the new file
-                    print(f"Updating document for customer {customer_id}, sales {sales_id}, document type {document_type_id}")
                     existing_document.file = file
                     existing_document.save()
                 else:
                     # If the document doesn't exist, create a new document for the specific sale
-                    print(f"Creating new document for customer {customer_id}, sales {sales_id}, document type {document_type_id}")
                     Document.objects.create(
                         customer_id=customer_id,
                         document_type=document_type,
@@ -1014,7 +1005,6 @@ def upload_document(request):
             return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})
 
         except Exception as e:
-            print(f"Error: {e}")
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
@@ -1060,6 +1050,60 @@ def fetch_customer_documents(request, customer_id, sales_id):
             'success': False,
             'message': str(e),
         }, status=500)
+
+@csrf_exempt
+def mark_unit_as_sold(request, customer_id, sales_id):
+    try:
+        # Get the customer and sales instance
+        customer = Customer.objects.get(id=customer_id)
+        sale = Sale.objects.get(id=sales_id)
+
+        # Fetch the required document types for the sale
+        required_document_types = DocumentType.objects.all()  # Adjust this if needed to fetch specific required docs
+
+        # Fetch the documents the customer has submitted for this sale
+        submitted_documents = Document.objects.filter(customer=customer, sales_id=sales_id)
+        submitted_document_types = {doc.document_type.id for doc in submitted_documents}
+
+        # Check if the customer has submitted all required documents
+        all_documents_submitted = all(
+            req_doc.id in submitted_document_types for req_doc in required_document_types
+        )
+
+        # If all documents are submitted, mark the unit as sold
+        if all_documents_submitted:
+            # Mark the sale as "sold" (or handle your business logic accordingly)
+            sale.status = 'Pending Sold'  # Assuming 'sold' is a valid status for the sale
+            sale.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Unit successfully marked as sold.',
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'The customer has not submitted all required documents.',
+            })
+
+    except Customer.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Customer not found.'
+        }, status=404)
+
+    except Sale.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Sale not found.'
+        }, status=404)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+        }, status=500)
+
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

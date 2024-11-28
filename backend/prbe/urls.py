@@ -36,6 +36,9 @@ urlpatterns = [
     path('upload-document/', views.upload_document, name='upload_document'),
     path('documents/customer/<int:customer_id>/<int:sales_id>/', views.fetch_customer_documents, name='fetch_customer_documents'),
     path('customers/<int:customer_id>/', views.update_customer, name='update_customer'),
+    path('mark/<int:customer_id>/<int:sales_id>/', views.mark_unit_as_sold, name='mark_unit_as_sold'),
+
+
 
     # Developers
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
