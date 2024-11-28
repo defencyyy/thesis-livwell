@@ -140,11 +140,11 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-              labels: ["Sold", "Pending", "Reserved"],
+          labels: ["Sold", "Pending", "Reserved", "Pending Sold"], // Add "Pending Sold"
               datasets: [
                 {
-                  data: [this.salesStatus.sold, this.salesStatus.pending, this.salesStatus.reserved],
-                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
+                  data: [this.salesStatus.sold, this.salesStatus.pending, this.salesStatus.reserved, this.salesStatus.Pending_sold],
+                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384", "#FF9F40"], // You can adjust the colors
                 },
               ],
             },

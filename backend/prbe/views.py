@@ -687,6 +687,7 @@ def fetch_sales(request):
             'sold': status_count.get('sold', 0),
             'pending': status_count.get('pending reservation', 0),
             'reserved': status_count.get('reserved', 0),
+            'Pending_sold': status_count.get('Pending Sold', 0),
         }
 
         return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
