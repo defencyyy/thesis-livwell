@@ -317,7 +317,7 @@ def total_sales_view(request):
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
         # Calculate total sales with status "sold" for the given broker ID
-        total_sales = Sale.objects.filter(broker_id=broker_id, status='sold').count()
+        total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
 
         return JsonResponse({'total_sales': total_sales})
 
@@ -329,7 +329,7 @@ def total_commissions_view(request):
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
         # Get all "sold" sales made by the broker
-        sales = Sale.objects.filter(broker_id=broker_id, status='sold')
+        sales = Sale.objects.filter(broker_id=broker_id, status='Sold')
         
         # Extract unit IDs from the "sold" sales
         unit_ids = sales.values_list('unit_id', flat=True)
@@ -349,7 +349,7 @@ def site_sales_view(request):
         # Fetch sites and calculate total "sold" sales per site
         sites = []
         for site in Site.objects.all():  # Assuming you have a Site model
-            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id, status='sold').count()
+            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id, status='Sold').count()
             sites.append({
                 'id': site.id,
                 'name': site.name,
@@ -373,7 +373,7 @@ def sales_details_view(request):
             sales = Sale.objects.filter(
                 unit__site_id=site_id,
                 broker_id=broker_id,
-                status='sold'
+                status='Sold'
             ).select_related('unit', 'customer')
 
             sales_details = []
@@ -684,9 +684,9 @@ def fetch_sales(request):
 
         # Prepare the data to send to the frontend
         sales_status_data = {
-            'sold': status_count.get('sold', 0),
-            'pending': status_count.get('pending reservation', 0),
-            'reserved': status_count.get('reserved', 0),
+            'sold': status_count.get('Sold', 0),
+            'pending': status_count.get('Pending Reservation', 0),
+            'reserved': status_count.get('Reserved', 0),
             'Pending_sold': status_count.get('Pending Sold', 0),
         }
 
@@ -726,7 +726,7 @@ def reserve_unit(request):
                 unit=unit,
                 broker=broker,
                 company_id=company_id,
-                status='pending reservation',  # Set to pending reservation
+                status='Pending Reservation',  # Set to pending reservation
                 reservation_fee=payment_amount,
                 payment_method=payment_method,
                 payment_reference=payment_reference,
@@ -734,7 +734,7 @@ def reserve_unit(request):
             )
 
             # Update the unit status to pending_reservation
-            unit.status = 'pending reservation'
+            unit.status = 'Pending Reservation'
             unit.save()
 
             # Return a success response

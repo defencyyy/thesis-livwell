@@ -63,7 +63,7 @@
         <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetails.payable_months }}</p>
         <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
         <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
-        <button @click="markUnitAsSold">Mark Unit as Sold </button>
+        <button v-if="selectedSale.status !== 'Pending Sold' && selectedSale.status !== 'Sold'" @click="markUnitAsSold">Mark Unit as Sold </button>
         <button @click="closeModal">Close</button>
 
             <!-- Add other fields you want to display here -->
