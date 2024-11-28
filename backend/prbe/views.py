@@ -950,68 +950,87 @@ def fetch_document_types(request):
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
-# Upload document for a customer
 @csrf_exempt
 def upload_document(request):
     if request.method == "POST":
-        # Get the common fields from the request
+        # Get the data from the request
         customer_id = request.POST.get("customer")
         company_id = request.POST.get("company")
-        salesid=request.POST.get("sales_id")
+        sales_id = request.POST.get("sales_id")
 
-        # Get the list of files and document types
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
-       
-        # Validate that customer_id, document_type_ids, and files are provided
-        if not customer_id or not document_type_ids or not files:
+
+        # Debug: Print incoming data
+        print("Received data:")
+        print(f"Customer ID: {customer_id}")
+        print(f"Company ID: {company_id}")
+        print(f"Sales ID: {sales_id}")
+        print(f"Files: {files}")
+        print(f"Document Types: {document_type_ids}")
+
+        if not customer_id or not document_type_ids or not files or not sales_id:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
 
         try:
-            # Get the customer object
+            # Fetch the customer object
             customer = get_object_or_404(Customer, id=customer_id)
 
-            # Loop over the files and their corresponding document types
+            # Ensure each file is explicitly mapped to a document type
+            if len(files) != len(document_type_ids):
+                print(f"Error: Mismatch between number of files and document types. Files: {len(files)}, Document Types: {len(document_type_ids)}")
+                return JsonResponse({"success": False, "message": "Mismatch between files and document types."}, status=400)
+
+            # Debug: Print each file with its document type
             for i, file in enumerate(files):
-                document_type_id = document_type_ids[i] if i < len(document_type_ids) else document_type_ids[0]  # Default to first doc type if out of bounds
+                document_type_id = document_type_ids[i]
+                print(f"File {i+1}: {file.name} | Document Type ID: {document_type_id}")
+
                 document_type = get_object_or_404(DocumentType, id=document_type_id)
 
-                # Check if a document already exists for this customer and document type
+                # Check if a document already exists for this customer, document type, and sales_id
                 existing_document = Document.objects.filter(
-                    customer_id=customer_id, document_type=document_type
+                    customer_id=customer_id,
+                    document_type=document_type,
+                    sales_id=sales_id
                 ).first()
 
                 if existing_document:
                     # If the document already exists, update it with the new file
+                    print(f"Updating document for customer {customer_id}, sales {sales_id}, document type {document_type_id}")
                     existing_document.file = file
                     existing_document.save()
                 else:
-                    # If the document doesn't exist, create a new document
+                    # If the document doesn't exist, create a new document for the specific sale
+                    print(f"Creating new document for customer {customer_id}, sales {sales_id}, document type {document_type_id}")
                     Document.objects.create(
                         customer_id=customer_id,
                         document_type=document_type,
                         company_id=company_id,
+                        sales_id=sales_id,  # Associate the document with the specific sale
                         file=file,
-                        sales_id=salesid,
                     )
 
             return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})
 
         except Exception as e:
+            print(f"Error: {e}")
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 
-# Fetch documents for a given customer
+
+
+# Fetch documents for a given customer and sale
 @csrf_exempt
-def fetch_customer_documents(request, customer_id):
+def fetch_customer_documents(request, customer_id, sales_id):
     try:
         # Get the customer by ID
         customer = Customer.objects.get(id=customer_id)
 
-        # Fetch documents for the customer, grouped by document type
-        documents = Document.objects.filter(customer=customer)
+        # Fetch documents for the customer and specific sale
+        documents = Document.objects.filter(customer=customer, sales_id=sales_id)
 
         # Prepare a list to return
         document_data = []
@@ -1020,7 +1039,7 @@ def fetch_customer_documents(request, customer_id):
                 'id': doc.id,
                 'document_type_id': doc.document_type.id,
                 'document_type_name': doc.document_type.name,
-                'file_name':os.path.basename(doc.file.name),
+                'file_name': os.path.basename(doc.file.name),
                 'uploaded_at': doc.uploaded_at.isoformat(),
             })
 
@@ -1041,7 +1060,6 @@ def fetch_customer_documents(request, customer_id):
             'success': False,
             'message': str(e),
         }, status=500)
-
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

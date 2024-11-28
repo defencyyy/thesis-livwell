@@ -400,7 +400,7 @@ export default {
       } else {
         this.showSalesMessage = false; // Show the document upload form
       }
-      this.fetchCustomerDocuments(this.selectedCustomer.id);
+      this.fetchCustomerDocuments(this.selectedCustomer.id, this.selectedCustomer.sales_id);
 
       this.showDocumentModal = true; // Open the document upload modal
     },
@@ -452,10 +452,10 @@ export default {
       }
     },
     // Fetch existing documents for the selected customer
-    async fetchCustomerDocuments(customerId) {
+    async fetchCustomerDocuments(customerId,salesId) {
       try {
         const response = await fetch(
-          `http://localhost:8000/documents/customer/${customerId}/`
+          `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
         );
         if (response.ok) {
           const data = await response.json();
@@ -561,6 +561,8 @@ export default {
           this.notificationMessage = "Documents uploaded successfully!";
           this.showNotification = true;
           this.showDocumentModal = false;
+          this.resetForm();
+
           this.fetchCustomers(); // Refresh customer list
         } else {
           this.notificationTitle = "Error!";
@@ -581,6 +583,9 @@ export default {
       this.contactNumber = "";
       this.lastName = "";
       this.firstName = "";
+      this.documentFiles = {}; // Clear the actual files
+  // Optionally, clear any other form-related fields
+  this.selectedCustomer = null; // Clear selected customer
     },
     getCookie(name) {
       let value = "; " + document.cookie;
