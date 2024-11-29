@@ -283,6 +283,7 @@ export default {
       notificationMessage: "", // Message for the notification modal
       sortBy: "name_asc", // Selected sorting option (default is "Name (A-Z)")
       filePreviews: {}, // Object to store file previews for each document type
+      document_status: "Pending",
       documentFiles: {},
     };
   },
@@ -400,7 +401,7 @@ export default {
       } else {
         this.showSalesMessage = false; // Show the document upload form
       }
-      this.fetchCustomerDocuments(this.selectedCustomer.id);
+      this.fetchCustomerDocuments(this.selectedCustomer.id, this.selectedCustomer.sales_id);
 
       this.showDocumentModal = true; // Open the document upload modal
     },
@@ -452,10 +453,10 @@ export default {
       }
     },
     // Fetch existing documents for the selected customer
-    async fetchCustomerDocuments(customerId) {
+    async fetchCustomerDocuments(customerId,salesId) {
       try {
         const response = await fetch(
-          `http://localhost:8000/documents/customer/${customerId}/`
+          `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
         );
         if (response.ok) {
           const data = await response.json();
@@ -538,15 +539,14 @@ export default {
         // Append the file and the associated document type to formData
         formData.append("files[]", file); // Append the file under "files[]"
         formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
+        formData.append("sales_id", this.selectedCustomer.sales_id);
 
-        // Optionally append default values for object_id and content_id if needed
-        formData.append("object_id", 1); // Default value of 1 for object_id
-        formData.append("content_id", 1); // Default value of 1 for content_id
       }
 
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
       formData.append("company", this.selectedCustomer.company_id);
+       // Log the formData for debugging
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {
           method: "POST",
@@ -562,6 +562,8 @@ export default {
           this.notificationMessage = "Documents uploaded successfully!";
           this.showNotification = true;
           this.showDocumentModal = false;
+          this.resetForm();
+
           this.fetchCustomers(); // Refresh customer list
         } else {
           this.notificationTitle = "Error!";
@@ -582,6 +584,9 @@ export default {
       this.contactNumber = "";
       this.lastName = "";
       this.firstName = "";
+      this.documentFiles = {}; // Clear the actual files
+  // Optionally, clear any other form-related fields
+  this.selectedCustomer = null; // Clear selected customer
     },
     getCookie(name) {
       let value = "; " + document.cookie;

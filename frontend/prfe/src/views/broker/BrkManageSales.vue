@@ -63,6 +63,7 @@
         <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetails.payable_months }}</p>
         <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
         <p v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+        <button v-if="selectedSale.status !== 'Pending Sold' && selectedSale.status !== 'Sold'" @click="markUnitAsSold">Mark Unit as Sold </button>
         <button @click="closeModal">Close</button>
 
             <!-- Add other fields you want to display here -->
@@ -394,6 +395,8 @@ export default {
       this.selectedSale = sale;
       this.unitPrice = sale.price; // Set unitPrice to the selected sale's unit price
       this.showModal = true;
+
+     
       // Check if the sales details already exist for this customer and unit
       this.checkSalesDetails();
       this.updatePaymentDetails();
@@ -555,7 +558,27 @@ export default {
     } finally {
       this.loading = false;
     }
-  },
+    },
+  async markUnitAsSold() {
+        try {      
+
+            // Make an API request to mark the unit as sold
+          const response = await axios.post(`http://localhost:8000/mark/${this.selectedSale.customer_id}/${this.selectedSale.sale_id}/`);
+
+            
+            if (response.data.success) {
+                // Successfully marked as sold
+                alert('Unit successfully marked as sold!');
+                // Optionally, update the UI to reflect this change (e.g., mark the unit in the list as sold)
+            } else {
+                // Handle failure (e.g., customer has not submitted all required documents)
+                alert(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error marking unit as sold:', error);
+            alert('An error occurred while marking the unit as sold.');
+        }
+    },
   redirectToLogin() {
     this.$router.push({ name: "BrkLogin" });
   },

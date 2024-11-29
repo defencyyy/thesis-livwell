@@ -34,20 +34,10 @@ class Document(models.Model):
     description = models.CharField(max_length=200,blank=True)
     file = models.FileField(upload_to=document_file_upload_path)  # Custom upload path
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    sale = models.ManyToManyField(Sale, related_name='documents', blank=True)
-
+    sales = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='documents')  # Adding the sales id as a FK
     # Link to DocumentType for flexible types
     document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE)
 
-    # Generic relationship fields to link Document to different entities dynamically
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['content_type', 'object_id']),  # Index for optimized lookup
-        ]
 
     def __str__(self):
         return f"{self.document_type}"

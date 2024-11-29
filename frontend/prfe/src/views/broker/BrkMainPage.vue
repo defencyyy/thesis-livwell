@@ -36,7 +36,8 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import { Chart } from "chart.js"; // Import chart.js
+import { Chart, ArcElement, Tooltip, Legend, PieController } from "chart.js"; // Import necessary components from Chart.js
+Chart.register(PieController, ArcElement, Tooltip, Legend);
 
 export default {
   name: "BrkMainPage",
@@ -155,15 +156,16 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-              labels: ["Sold", "Pending", "Reserved"],
+              labels: ["Sold", "Pending", "Reserved", "Pending Sold"], // Add "Pending Sold"
               datasets: [
                 {
                   data: [
                     this.salesStatus.sold,
                     this.salesStatus.pending,
                     this.salesStatus.reserved,
+                    this.salesStatus.Pending_sold,
                   ],
-                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
+                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384", "#FF9F40"], // You can adjust the colors
                 },
               ],
             },

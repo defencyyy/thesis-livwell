@@ -317,7 +317,7 @@ def total_sales_view(request):
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
         # Calculate total sales with status "sold" for the given broker ID
-        total_sales = Sale.objects.filter(broker_id=broker_id, status='sold').count()
+        total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
 
         return JsonResponse({'total_sales': total_sales})
 
@@ -329,7 +329,7 @@ def total_commissions_view(request):
             return JsonResponse({'error': 'Broker ID not provided'}, status=400)
 
         # Get all "sold" sales made by the broker
-        sales = Sale.objects.filter(broker_id=broker_id, status='sold')
+        sales = Sale.objects.filter(broker_id=broker_id, status='Sold')
         
         # Extract unit IDs from the "sold" sales
         unit_ids = sales.values_list('unit_id', flat=True)
@@ -349,7 +349,7 @@ def site_sales_view(request):
         # Fetch sites and calculate total "sold" sales per site
         sites = []
         for site in Site.objects.all():  # Assuming you have a Site model
-            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id, status='sold').count()
+            total_sales = Sale.objects.filter(broker_id=broker_id, site_id=site.id, status='Sold').count()
             sites.append({
                 'id': site.id,
                 'name': site.name,
@@ -373,7 +373,7 @@ def sales_details_view(request):
             sales = Sale.objects.filter(
                 unit__site_id=site_id,
                 broker_id=broker_id,
-                status='sold'
+                status='Sold'
             ).select_related('unit', 'customer')
 
             sales_details = []
@@ -497,11 +497,16 @@ def get_customers_for_broker(request, broker_id):
         customers = Customer.objects.filter(broker_id=broker_id)
         total_customers = customers.count()  # Get the total number of customers
         customer_data = []
+        required_document_types = DocumentType.objects.all()
+
+        
         for customer in customers:
             # Basic customer info
             customer_name = f"{customer.first_name} {customer.last_name}"
             contact_number = customer.contact_number
             company_id = customer.company.id  # Get the company ID associated with the customer
+            document_status = "Pending"
+
 
             # If include_sales is True, fetch sales and related data
             if include_sales:
@@ -511,7 +516,19 @@ def get_customers_for_broker(request, broker_id):
                     for sale in sales:
                         site = Site.objects.get(id=sale.site_id)
                         unit = Unit.objects.get(id=sale.unit_id)
+                        # Fetch the documents for this customer and sale
+                        submitted_documents = Document.objects.filter(customer=customer, sales_id=sale.id)
+                        submitted_document_types = {doc.document_type.id for doc in submitted_documents}
 
+                        # Check if the customer has submitted all required documents for this sale
+                        all_documents_submitted = all(
+                            req_doc.id in submitted_document_types for req_doc in required_document_types
+                        )
+
+                        if all_documents_submitted:
+                            document_status = "Complete"  # All required documents submitted
+                        else:
+                            document_status = "Pending"  # Not all required documents are submitted
                         customer_data.append({
                             'id': customer.id,
                             'customer_name': customer_name,
@@ -521,8 +538,9 @@ def get_customers_for_broker(request, broker_id):
                             "email":customer.email,
                             'site': site.name,
                             'unit': unit.unit_title,
+                            'sales_id': sale.id,  # Include the sales ID
                             'company_id': company_id,  # Add company ID
-                            'document_status': "Pending",  # Adjust document status as needed
+                            'document_status': document_status,  # Adjust document status as needed
                         })
                 else:
                     customer_data.append({
@@ -532,6 +550,7 @@ def get_customers_for_broker(request, broker_id):
                         "f_name":customer.first_name,
                         "l_name":customer.last_name,
                         "email":customer.email,
+                        'sales_id': None,  # No sales ID if no sales exist
                         'site': "To be followed",
                         'unit': "To be followed",
                         'company_id': company_id,  # Add company ID
@@ -665,6 +684,7 @@ def fetch_sales(request):
         for sale in sales:
             # Add sale data to the list, including full names and titles
             sales_data.append({
+                'sale_id': sale.id,  # Include the sale ID
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
                 'customer_id': sale.customer.id,   # customer_id
                 'site_name': sale.site.name,
@@ -682,11 +702,11 @@ def fetch_sales(request):
 
         # Prepare the data to send to the frontend
         sales_status_data = {
-            'sold': status_count.get('sold', 0),
-            'pending': status_count.get('pending reservation', 0),
-            'reserved': status_count.get('reserved', 0),
+            'sold': status_count.get('Sold', 0),
+            'pending': status_count.get('Pending Reservation', 0),
+            'reserved': status_count.get('Reserved', 0),
+            'Pending_sold': status_count.get('Pending Sold', 0),
         }
-        print(f"Sales Status Data: {sales_status_data}")
 
         return JsonResponse({'success': True, 'sales': sales_data, 'sales_status_data': sales_status_data}, status=200)
 
@@ -724,7 +744,7 @@ def reserve_unit(request):
                 unit=unit,
                 broker=broker,
                 company_id=company_id,
-                status='pending reservation',  # Set to pending reservation
+                status='Pending Reservation',  # Set to pending reservation
                 reservation_fee=payment_amount,
                 payment_method=payment_method,
                 payment_reference=payment_reference,
@@ -732,7 +752,7 @@ def reserve_unit(request):
             )
 
             # Update the unit status to pending_reservation
-            unit.status = 'pending reservation'
+            unit.status = 'Pending Reservation'
             unit.save()
 
             # Return a success response
@@ -950,36 +970,41 @@ def fetch_document_types(request):
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
-# Upload document for a customer
 @csrf_exempt
 def upload_document(request):
     if request.method == "POST":
-        # Get the common fields from the request
+        # Get the data from the request
         customer_id = request.POST.get("customer")
         company_id = request.POST.get("company")
-        object_id = request.POST.get("object_id", 1)  # Default value of 1 if not provided
-        content_id = request.POST.get("content_id", 1)  # Default value of 1 if not provided
+        sales_id = request.POST.get("sales_id")
 
-        # Get the list of files and document types
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
-       
-        # Validate that customer_id, document_type_ids, and files are provided
-        if not customer_id or not document_type_ids or not files:
+
+
+        if not customer_id or not document_type_ids or not files or not sales_id:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
 
         try:
-            # Get the customer object
+            # Fetch the customer object
             customer = get_object_or_404(Customer, id=customer_id)
 
-            # Loop over the files and their corresponding document types
+            # Ensure each file is explicitly mapped to a document type
+            if len(files) != len(document_type_ids):
+                print(f"Error: Mismatch between number of files and document types. Files: {len(files)}, Document Types: {len(document_type_ids)}")
+                return JsonResponse({"success": False, "message": "Mismatch between files and document types."}, status=400)
+
+            # Debug: Print each file with its document type
             for i, file in enumerate(files):
-                document_type_id = document_type_ids[i] if i < len(document_type_ids) else document_type_ids[0]  # Default to first doc type if out of bounds
+                document_type_id = document_type_ids[i]
+
                 document_type = get_object_or_404(DocumentType, id=document_type_id)
 
-                # Check if a document already exists for this customer and document type
+                # Check if a document already exists for this customer, document type, and sales_id
                 existing_document = Document.objects.filter(
-                    customer_id=customer_id, document_type=document_type
+                    customer_id=customer_id,
+                    document_type=document_type,
+                    sales_id=sales_id
                 ).first()
 
                 if existing_document:
@@ -987,14 +1012,13 @@ def upload_document(request):
                     existing_document.file = file
                     existing_document.save()
                 else:
-                    # If the document doesn't exist, create a new document
+                    # If the document doesn't exist, create a new document for the specific sale
                     Document.objects.create(
                         customer_id=customer_id,
                         document_type=document_type,
                         company_id=company_id,
+                        sales_id=sales_id,  # Associate the document with the specific sale
                         file=file,
-                        object_id=object_id,  # Pass the object_id
-                        content_type_id=content_id,  # Pass the content_id
                     )
 
             return JsonResponse({"success": True, "message": "Documents uploaded successfully!"})
@@ -1005,15 +1029,17 @@ def upload_document(request):
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
 
 
-# Fetch documents for a given customer
+
+
+# Fetch documents for a given customer and sale
 @csrf_exempt
-def fetch_customer_documents(request, customer_id):
+def fetch_customer_documents(request, customer_id, sales_id):
     try:
         # Get the customer by ID
         customer = Customer.objects.get(id=customer_id)
 
-        # Fetch documents for the customer, grouped by document type
-        documents = Document.objects.filter(customer=customer)
+        # Fetch documents for the customer and specific sale
+        documents = Document.objects.filter(customer=customer, sales_id=sales_id)
 
         # Prepare a list to return
         document_data = []
@@ -1022,7 +1048,7 @@ def fetch_customer_documents(request, customer_id):
                 'id': doc.id,
                 'document_type_id': doc.document_type.id,
                 'document_type_name': doc.document_type.name,
-                'file_name':os.path.basename(doc.file.name),
+                'file_name': os.path.basename(doc.file.name),
                 'uploaded_at': doc.uploaded_at.isoformat(),
             })
 
@@ -1036,6 +1062,59 @@ def fetch_customer_documents(request, customer_id):
         return JsonResponse({
             'success': False,
             'message': 'Customer not found.'
+        }, status=404)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+        }, status=500)
+
+@csrf_exempt
+def mark_unit_as_sold(request, customer_id, sales_id):
+    try:
+        # Get the customer and sales instance
+        customer = Customer.objects.get(id=customer_id)
+        sale = Sale.objects.get(id=sales_id)
+
+        # Fetch the required document types for the sale
+        required_document_types = DocumentType.objects.all()  # Adjust this if needed to fetch specific required docs
+
+        # Fetch the documents the customer has submitted for this sale
+        submitted_documents = Document.objects.filter(customer=customer, sales_id=sales_id)
+        submitted_document_types = {doc.document_type.id for doc in submitted_documents}
+
+        # Check if the customer has submitted all required documents
+        all_documents_submitted = all(
+            req_doc.id in submitted_document_types for req_doc in required_document_types
+        )
+
+        # If all documents are submitted, mark the unit as sold
+        if all_documents_submitted:
+            # Mark the sale as "sold" (or handle your business logic accordingly)
+            sale.status = 'Pending Sold'  # Assuming 'sold' is a valid status for the sale
+            sale.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Unit successfully marked as sold.',
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'The customer has not submitted all required documents.',
+            })
+
+    except Customer.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Customer not found.'
+        }, status=404)
+
+    except Sale.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Sale not found.'
         }, status=404)
 
     except Exception as e:
