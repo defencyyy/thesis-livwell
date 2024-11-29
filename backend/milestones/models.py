@@ -16,5 +16,5 @@ class Milestone(models.Model):
     commission_threshold = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Commission amount required
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def str(self):
         return self.name
