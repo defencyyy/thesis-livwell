@@ -132,7 +132,6 @@
         <thead>
           <tr>
             <th>Customer Name</th>
-            <th>Customer Code</th>
             <th>Site</th>
             <th>Unit</th>
             <th>Contact</th>
@@ -149,7 +148,6 @@
 
           <tr v-for="(customer, index) in customers" :key="index">
             <td>{{ customer.customer_name }}</td>
-            <td>{{ customer.customer_code }}</td>
             <td>{{ customer.site }}</td>
             <td>{{ customer.unit }}</td>
             <td>{{ customer.contact_number }}</td>

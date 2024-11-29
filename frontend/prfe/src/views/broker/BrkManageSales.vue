@@ -22,7 +22,7 @@
             @click="openSalesAgreementModal(sale)"
             style="cursor: pointer"
           >
-            <td>{{ sale.customer_name}}({{ sale.customer_code }})</td>
+            <td>{{ sale.customer_name }}</td>
             <td>{{ sale.site_name }}</td>
             <td>{{ sale.unit_title }}</td>
             <td>{{ sale.status }}</td>
