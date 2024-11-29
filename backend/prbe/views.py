@@ -15,6 +15,8 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
+from django.db.models import Sum
+
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
@@ -29,6 +31,8 @@ from units.models import Unit, UnitImage
 from sites.models import Site
 from documents.models import DocumentType, Document
 from salesdetails.models import SalesDetails
+from milestones.models import Milestone  # Ensure the correct path
+
 
 from collections import Counter
 import os
@@ -1122,6 +1126,69 @@ def mark_unit_as_sold(request, customer_id, sales_id):
             'success': False,
             'message': str(e),
         }, status=500)
+    
+def get_milestones(request):
+    print("k")
+    try:
+        broker_id = request.GET.get('broker_id')  # Get broker_id from query parameter
+        broker = Broker.objects.get(id=broker_id)  # Retrieve broker by id
+        milestones = Milestone.objects.filter(company=broker.company)
+
+        # If there are no milestones, we can still return an empty response
+        if not milestones.exists():
+            print("No milestones available.")
+        
+        # Calculate total sales and commission
+        total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
+        sales = Sale.objects.filter(broker_id=broker_id, status='Sold')
+
+        # Extract unit IDs from the "sold" sales (if any sales exist)
+        if sales.exists():
+            unit_ids = sales.values_list('unit_id', flat=True)
+            total_commission = Unit.objects.filter(id__in=unit_ids).aggregate(total=models.Sum('commission'))['total'] or 0
+        else:
+            total_commission = 0  # No sales, so commission is 0
+        
+        # Separate achieved and next milestones
+        achieved_milestones = []
+        next_milestones = []
+        print(total_commission)
+
+        for milestone in milestones:
+            if milestone.type == 'sales' and total_sales >= milestone.sales_threshold:
+                achieved_milestones.append(milestone)
+            elif milestone.type == 'commission' and total_commission >= milestone.commission_threshold:
+                achieved_milestones.append(milestone)
+            else:
+                next_milestones.append(milestone)
+
+        # Prepare data for response
+        data = {
+            'achieved_milestones': [{
+                'name': m.name,
+                'description': m.description,
+                'reward': m.reward,
+                'type': m.type,
+            } for m in achieved_milestones],
+            'next_milestones': [{
+                'name': m.name,
+                'description': m.description,
+                'reward': m.reward,
+                'type': m.type,
+            } for m in next_milestones],
+        }
+
+        # Print the data to inspect it
+        print("Achieved Milestones:", data['achieved_milestones'])
+        print("Next Milestones:", data['next_milestones'])
+
+        return JsonResponse(data, status=200)
+
+    except Exception as e:
+        print(f"Error: {str(e)}")  # Print the error if something goes wrong
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 
 # Developers
 @csrf_exempt
