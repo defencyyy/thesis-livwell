@@ -73,7 +73,7 @@ export default {
     setHeaderContent() {
       if (this.userRole === "developer") {
         this.roleName = "Developer";
-        this.profilePicture = "/assets/developer-profile.png"; // Example custom image
+        this.profilePicture = "/assets/account.png"; // Example custom image
         this.dropdownOptions = [
           {
             name: "Account Settings",
