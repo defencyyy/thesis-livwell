@@ -65,6 +65,7 @@ export default {
           { name: "Units", link: "/developer/units" },
           { name: "Customers", link: "/developer/customers" },
           { name: "Documents", link: "/developer/documents" },
+          { name: "Milestones", link: "/developer/milestones" },
           { name: "Payment Schedules", link: "/developer/payment-schedule" },
         ];
       } else if (this.userRole === "broker") {

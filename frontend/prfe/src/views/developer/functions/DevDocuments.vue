@@ -132,17 +132,59 @@ export default {
     this.fetchDocumentTypes();
   },
   methods: {
+    // Axios instance with interceptor for refreshing tokens
+    getAxiosInstance() {
+      const instance = axios.create({
+        baseURL: "http://localhost:8000/developer/",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Add response interceptor
+      instance.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          if (error.response && error.response.status === 401) {
+            // Token expired, attempt to refresh
+            try {
+              const refreshResponse = await axios.post(
+                "http://localhost:8000/auth/refresh/",
+                {
+                  refresh: localStorage.getItem("refreshToken"),
+                }
+              );
+
+              if (refreshResponse.status === 200) {
+                // Save new tokens
+                localStorage.setItem(
+                  "accessToken",
+                  refreshResponse.data.access
+                );
+
+                // Retry original request with new access token
+                error.config.headers.Authorization = `Bearer ${refreshResponse.data.access}`;
+                return axios(error.config);
+              }
+            } catch (refreshError) {
+              console.error("Error refreshing token:", refreshError);
+              // Redirect to login if refresh fails
+              this.$router.push({ name: "Login" });
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
+
+      return instance;
+    },
+
     // Fetch all document types from the backend
     async fetchDocumentTypes() {
+      const axiosInstance = this.getAxiosInstance();
       try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/documents/document-types/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        const response = await axiosInstance.get("documents/document-types/");
         if (response.status === 200) {
           this.documentTypes = response.data;
         }
@@ -150,21 +192,19 @@ export default {
         console.error("Error fetching document types:", error);
       }
     },
+
     // Save (create/update) a document type
     async saveDocumentType() {
+      const axiosInstance = this.getAxiosInstance();
       const method = this.newDocumentType.id ? "PUT" : "POST";
       const url = this.newDocumentType.id
-        ? `http://localhost:8000/developer/documents/document-types/${this.newDocumentType.id}/`
-        : `http://localhost:8000/developer/documents/document-types/`;
+        ? `documents/document-types/${this.newDocumentType.id}/`
+        : `documents/document-types/`;
 
       try {
-        const response = await axios({
+        const response = await axiosInstance({
           method,
           url,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            "Content-Type": "application/json",
-          },
           data: this.newDocumentType,
         });
 
@@ -176,29 +216,26 @@ export default {
         console.error("Error saving document type:", error);
       }
     },
+
     // Prepare the form for editing a document type
     editDocumentType(docType) {
       this.newDocumentType = { ...docType }; // Load the existing data into the form
       this.showAddForm = true;
     },
+
     // Delete a document type
     async deleteDocumentType(id) {
+      const axiosInstance = this.getAxiosInstance();
       if (confirm("Are you sure you want to delete this document type?")) {
         try {
-          await axios.delete(
-            `http://localhost:8000/developer/documents/document-types/${id}/`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
+          await axiosInstance.delete(`documents/document-types/${id}/`);
           this.fetchDocumentTypes(); // Refresh the list
         } catch (error) {
           console.error("Error deleting document type:", error);
         }
       }
     },
+
     // Close the Add/Edit form modal
     closeForm() {
       this.showAddForm = false;

@@ -17,6 +17,7 @@ import DevFuncSites from "@/views/developer/functions/DevSites.vue";
 import DevFuncUnits from "@/views/developer/functions/DevUnits.vue";
 import DevFuncCustomers from "@/views/developer/functions/DevCustomers.vue";
 import DevFuncDocuments from "@/views/developer/functions/DevDocuments.vue";
+import DevFuncMilestones from "@/views/developer/functions/DevMilestones.vue";
 
 // Brokers
 import BrkLogin from "@/views/broker/BrkLogin.vue";
@@ -78,12 +79,6 @@ const routes = [
     meta: { requiresAuth: true, role: "developer" },
   },
   {
-    path: "/developer/payment-schedule",
-    name: "DevFuncPaySched",
-    component: DevFuncPaySched,
-    meta: { requiresAuth: true, role: "developer" },
-  },
-  {
     path: "/developer/sites",
     name: "DevFuncSites",
     component: DevFuncSites,
@@ -105,6 +100,18 @@ const routes = [
     path: "/developer/documents",
     name: "DevFuncDocuments",
     component: DevFuncDocuments,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/milestones",
+    name: "DevFuncMilestones",
+    component: DevFuncMilestones,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/payment-schedule",
+    name: "DevFuncPaySched",
+    component: DevFuncPaySched,
     meta: { requiresAuth: true, role: "developer" },
   },
 

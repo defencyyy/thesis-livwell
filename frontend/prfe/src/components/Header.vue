@@ -80,16 +80,16 @@ export default {
             link: "/developer/account",
             icon: "bi bi-gear",
           },
-          {
-            name: "Display Settings",
-            link: "/developer/display-settings",
-            icon: "bi bi-moon",
-          },
-          {
-            name: "Help & Support",
-            link: "/developer/help",
-            icon: "bi bi-question-circle",
-          },
+          // {
+          //   name: "Display Settings",
+          //   link: "/developer/display-settings",
+          //   icon: "bi bi-moon",
+          // },
+          // {
+          //   name: "Help & Support",
+          //   link: "/developer/help",
+          //   icon: "bi bi-question-circle",
+          // },
         ];
       } else if (this.userRole === "broker") {
         this.roleName = "Broker";
@@ -100,11 +100,11 @@ export default {
             link: "/broker/account",
             icon: "bi bi-gear",
           },
-          {
-            name: "Help & Support",
-            link: "/broker/help",
-            icon: "bi bi-question-circle",
-          },
+          // {
+          //   name: "Help & Support",
+          //   link: "/broker/help",
+          //   icon: "bi bi-question-circle",
+          // },
         ];
       } else {
         this.roleName = "Guest";
