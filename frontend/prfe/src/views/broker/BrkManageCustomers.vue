@@ -1,6 +1,6 @@
 <template>
   <div>    
-  <HeaderLivwell />
+  <AppHeader />
   <div class="manage-customers-page">
     <SideNav />
     <div class="content">
@@ -18,7 +18,9 @@
         </select>
       </div>
 
-      <button @click="showModal = true">Add Customer</button>
+      <button @click="showModal = true" class="btn custom-button">Add Customer</button>
+
+
 
       <!-- Add Customer Modal -->
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
@@ -158,12 +160,12 @@
               <!-- Documents Button -->
               <button
                 @click="openDocumentModal(customer)"
-                class="btn btn-primary"
+                class="btn btn-primary me-5"
               >
                 Documents
               </button>
               <!-- Edit Button -->
-              <button @click="openEditModal(customer)" class="btn btn-warning">
+              <button @click="openEditModal(customer)" class="btn btn-warning me-5">
                 Edit
               </button>
               <!-- Archive Button (Placeholder) -->
@@ -242,7 +244,7 @@
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeader from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
@@ -252,7 +254,7 @@ export default {
   components: {
     SideNav,
     BModal,
-    HeaderLivwell,
+    AppHeader,
   },
   computed: {
     ...mapState({
@@ -621,6 +623,8 @@ export default {
 }
 
 /* Table Hover Effect */
+
+
 .table tbody tr:hover {
   cursor: pointer;
   background-color: #f1f1f1;
@@ -738,4 +742,73 @@ export default {
 .btn:hover {
   opacity: 0.8;
 }
+
+
+
+
+
+/* dropdown in sort */
+/* Sort Options Styling */
+.sort-options {
+  margin-bottom: 20px;
+}
+
+.sort-options label {
+  font-size: 14px;
+  margin-right: 10px;
+  color: #333; /* Text color for the label */
+}
+
+/* Dropdown Styling */
+.sort-options select {
+  background-color: #ffffff; /* White background */
+  color: #000000; /* Black text */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 8px 12px; /* Padding for better appearance */
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dropdown Option Hover Effect */
+.sort-options select option {
+  background-color: #ffffff; /* White background */
+  color: #000000; /* Black text */
+}
+
+/* Hover Effect for Dropdown */
+.sort-options select:hover {
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+}
+
+/* Focus Effect for Dropdown */
+.sort-options select:focus {
+  border-color: #007bff; /* Blue border on focus */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Focus shadow */
+}
+
+
+/* button in add customer  */
+.custom-button {
+  background-color: #007bff; /* Bootstrap blue */
+  color: white; /* White text */
+  border-radius: 8px; /* Rounded corners */
+  margin: 10px; /* Add some space around the button */
+  padding: 10px 20px; /* Adjust padding for better appearance */
+  border: none; /* Remove default border */
+  font-size: 14px; /* Adjust font size */
+  cursor: pointer; /* Pointer cursor for better UX */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.custom-button:hover {
+  background-color: #b1b1b1; /* Darker blue on hover */
+}
+
+
+
+
 </style>

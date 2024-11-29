@@ -1,5 +1,9 @@
 <template>
+  <div>
+    <AppHeader/>
+ 
   <div class="manage-sales-page">
+
     <SideNav />
     <div class="content">
       <h1>Welcome to the Manage Sales Page</h1>
@@ -72,7 +76,7 @@
           <!-- Payment Plan Section -->
           <div v-if="!salesDetailsExists">
             <div class="form-group">
-            <label for="paymentPlan">Payment Plan</label>
+            <label for="paymentPlan"><b>Payment Plan: </b></label>
             <select v-model="selectedPaymentPlan" id="paymentPlan" required>
               <option value="Spot Cash">Spot Cash</option>
               <option value="Deffered Payment">Deffered Payment</option>
@@ -85,7 +89,7 @@
 
             <!-- Spot Discount -->
             <div class="form-group">
-              <label for="spotDiscount">Spot Discount</label>
+              <label for="spotDiscount">Spot Discount: </label>
               <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails" required>
                 <option value="0">0%</option>
                 <option value="1">1%</option>
@@ -101,7 +105,7 @@
 
              <!-- TLP Discount -->
             <div class="form-group">
-              <label for="tlpDiscount">TLP Discount</label>
+              <label for="tlpDiscount">TLP Discount: </label>
               <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails" required>
                 <option value="0">None</option>
                 <option value="5">5%</option>
@@ -116,7 +120,7 @@
 
             <!-- Other Charges -->
             <div class="form-group">
-              <label for="otherCharges">Other Charges</label>
+              <label for="otherCharges">Other Charges: </label>
               <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails" required>
                 <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
@@ -257,10 +261,13 @@
         </div>
     </div>
   </div>
+
+</div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue"
 import { mapState } from "vuex";
 import axios from "axios";
 
@@ -268,6 +275,7 @@ export default {
   name: "ManageSales",
   components: {
     SideNav,
+    AppHeader,
   },
   computed: {
     ...mapState({
@@ -612,19 +620,27 @@ export default {
   width: 100%;
   margin-top: 20px;
   border-collapse: collapse;
+  text-align: left;
 }
 
 .sales-table th,
 .sales-table td {
   padding: 8px;
   border: 1px solid #ccc;
+  text-align: left;
 }
 
 .sales-table th {
-  background-color: #f4f4f4;
+  background-color: #c2ffd1;
 }
 
-.modal {
+.sales-table:hover
+{
+  background-color:  #00f2fe;
+  transition: ease 0.3s;
+}
+
+/* .modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -634,6 +650,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  display: flex;
 }
 
 .modal-content {
@@ -641,9 +658,112 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 400px;
-  max-height: 90%; /* Ensure the modal doesn't exceed 90% of the viewport height */
-  overflow-y: auto; /* Make the content scrollable if it overflows */
+  max-height: 90%; 
+  overflow-y: auto; 
+} */
+
+/* Modal Background */
+/* Modal Background */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, #4facfe, #00f2fe); /* Gradient Background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+/* Modal Content */
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80%;
+  overflow-y: auto;
+  text-align: left; /* Align all text to the left */
+}
+
+/* Headings */
+.modal-content h2 {
+  color: #333;
+  margin-bottom: 10px;
+  text-align: left; /* Ensure headings are aligned to the left */
+}
+
+/* Paragraph Styling */
+.modal-content p {
+  font-size: 14px;
+  margin: 8px 0;
+  text-align: left; /* Align paragraphs to the left */
+}
+
+/* Buttons */
+.button {
+  background: #ddd;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: all 0.3s;
+  text-align: center; /* Center-align button text */
+}
+
+.button:hover {
+  background: #ccc;
+}
+
+.button.primary {
+  background: #007bff;
+  color: #fff;
+}
+
+.button.primary:hover {
+  background: #0056b3;
+}
+
+/* Dropdown Styling */
+.dropdown {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #f9f9f9;
+  cursor: pointer;
+  text-align: left; /* Ensure dropdown text aligns to the left */
+}
+
+.dropdown:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Scrollable Content */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+
+
+
+
 
 .payment-summary {
   margin-bottom: 20px;
@@ -732,4 +852,86 @@ td {
   font-weight: bold;
   margin-bottom: 10px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Dropdown Styling */
+.form-group select {
+  background-color: white; /* Set the background to white */
+  color: black; /* Set the text color to white */
+  padding: 8px;
+  border: 1px solid #ccc; /* Add a subtle border for visibility */
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%; /* Make it responsive */
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff; /* Highlight border on focus */
+}
+
+/* Dropdown Hover Text */
+.form-group select:hover {
+  color: black; /* Change text color to black on hover for better visibility */
+}
+
+
+
+/* Style for File Input Button */
+input[type="file"] {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+  border-radius: 8px; /* Apply border radius */
+  font-size: 14px;
+  background-color: #f9f9f9; /* Light background for better contrast */
+  color: #333; /* Text color */
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+input[type="file"]::file-selector-button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Add focus effect */
+}
+
 </style>
