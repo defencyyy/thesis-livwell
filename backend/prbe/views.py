@@ -536,6 +536,7 @@ def get_customers_for_broker(request, broker_id):
                         customer_data.append({
                             'id': customer.id,
                             'customer_name': customer_name,
+                            'customer_code':customer.customer_code,
                             "f_name":customer.first_name,
                             "l_name":customer.last_name,
                             'contact_number': contact_number,
@@ -550,6 +551,7 @@ def get_customers_for_broker(request, broker_id):
                     customer_data.append({
                         'id': customer.id,
                         'customer_name': customer_name,
+                        'customer_code':customer.customer_code,
                         'contact_number': contact_number,
                         "f_name":customer.first_name,
                         "l_name":customer.last_name,
@@ -565,6 +567,7 @@ def get_customers_for_broker(request, broker_id):
                 customer_data.append({
                     'id': customer.id,
                     'name': customer_name,
+                    'customer_code':customer.customer_code,
                     "f_name":customer.first_name,
                     "l_name":customer.last_name,
                     "email":customer.email,
@@ -691,6 +694,7 @@ def fetch_sales(request):
                 'sale_id': sale.id,  # Include the sale ID
                 'customer_name': f"{sale.customer.first_name} {sale.customer.last_name}",
                 'customer_id': sale.customer.id,   # customer_id
+                'customer_code':sale.customer.customer_code,
                 'site_name': sale.site.name,
                 'site_id': sale.site.id,           # site_id
                 'unit_title': sale.unit.unit_title,

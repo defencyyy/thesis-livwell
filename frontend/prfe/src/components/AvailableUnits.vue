@@ -252,7 +252,7 @@
                   :key="customer.id"
                   :value="customer.id"
                 >
-                  {{ customer.name }}
+                {{ customer.name }} ({{ customer.customer_code }})  
                 </option>
               </select>
             </div>
