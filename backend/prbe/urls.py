@@ -51,7 +51,8 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('developer/company/', include('companies.urls')),  
     path('developer/brokers/', include('brokers.urls')), 
-    path('developer/sites/', include('sites.urls')), 
+    path('developer/sites/', include('sites.urls')),
+    path('developer/account/', include('developers.urls')), 
     # # path('api/token/broker/', views.login_view_broker, name='login_broker'), 
 ]
 

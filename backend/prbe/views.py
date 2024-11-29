@@ -456,9 +456,8 @@ def get_available_units(request):
             unit_data = []
             for unit in units:
                 # Fetch all images associated with this unit using the UnitImage model
-                images = UnitImage.objects.filter(unit_id=unit.id)
+                images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
 
-                    
                 # Get URLs for all images
                 image_urls = [request.build_absolute_uri(image.image.url) for image in images]
 
@@ -470,11 +469,14 @@ def get_available_units(request):
                     'bedroom': unit.bedroom,
                     'bathroom': unit.bathroom,
                     'floor_area': unit.floor_area,
-                    'floor': unit.floor,
+                    'floor': unit.floor.floor_number,  # Adding floor number here
                     'balcony': unit.balcony,
                     'view': unit.view,
                     'company_id': unit.company.id,  # Add the company_id to the response
-                    
+                    'unit_number': unit.unit_number,  # Optionally include unit number
+                    'lot_area': unit.lot_area,  # Optionally include lot area
+                    'reservation_fee': unit.reservation_fee,  # If reservation fee is required
+                    'other_charges': unit.other_charges,  # Any other charges
                 })
 
             return JsonResponse({'units': unit_data}, status=200)
@@ -483,7 +485,6 @@ def get_available_units(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
-
 
 @csrf_exempt
 def get_customers_for_broker(request, broker_id):
