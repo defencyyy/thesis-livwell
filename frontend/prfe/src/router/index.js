@@ -16,6 +16,7 @@ import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
 import DevFuncSites from "@/views/developer/functions/DevSites.vue";
 import DevFuncUnits from "@/views/developer/functions/DevUnits.vue";
 import DevFuncCustomers from "@/views/developer/functions/DevCustomers.vue";
+import DevFuncDocuments from "@/views/developer/functions/DevDocuments.vue";
 
 // Brokers
 import BrkLogin from "@/views/broker/BrkLogin.vue";
@@ -98,6 +99,12 @@ const routes = [
     path: "/developer/customers",
     name: "DevFuncCustomers",
     component: DevFuncCustomers,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/documents",
+    name: "DevFuncDocuments",
+    component: DevFuncDocuments,
     meta: { requiresAuth: true, role: "developer" },
   },
 
