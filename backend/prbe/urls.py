@@ -53,6 +53,7 @@ urlpatterns = [
     path('developer/brokers/', include('brokers.urls')), 
     path('developer/sites/', include('sites.urls')),
     path('developer/account/', include('developers.urls')), 
+    path('developer/customers/', include('customers.urls')), 
     # # path('api/token/broker/', views.login_view_broker, name='login_broker'), 
 ]
 
