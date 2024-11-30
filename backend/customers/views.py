@@ -122,3 +122,27 @@ class CustomerDetailView(APIView):
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
         except Customer.DoesNotExist:
             return Response({"error": "Customer not found"}, status=status.HTTP_404_NOT_FOUND)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from documents.models import Document
+from .models import Customer
+from documents.serializers import DocumentSerializer
+
+class CustomerDocumentListView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, customer_id):
+        # Get the customer object
+        customer = get_object_or_404(Customer, id=customer_id)
+
+        # Assuming the customer has a related documents model
+        documents = Document.objects.filter(customer=customer)
+        serializer = DocumentSerializer(documents, many=True)
+
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)

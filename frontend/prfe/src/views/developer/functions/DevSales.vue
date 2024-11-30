@@ -7,84 +7,144 @@
         <h1>Manage Sales</h1>
         <p>View and manage sales details for your company.</p>
 
+        <!-- Search and Filter Controls -->
+        <div class="search-filter-controls">
+          <input
+            type="text"
+            v-model="searchQuery"
+            @input="filterSales"
+            placeholder="Search by Customer Name or Broker Name"
+            class="search-input"
+          />
+          <select
+            v-model="selectedBroker"
+            @change="filterSales"
+            class="filter-dropdown"
+          >
+            <option value="">Select Broker</option>
+            <option
+              v-for="broker in brokers"
+              :key="broker.id"
+              :value="broker.id"
+            >
+              {{ broker.first_name }} {{ broker.last_name }}
+            </option>
+          </select>
+          <select
+            v-model="selectedCustomer"
+            @change="filterSales"
+            class="filter-dropdown"
+          >
+            <option value="">Select Customer</option>
+            <option
+              v-for="customer in customers"
+              :key="customer.id"
+              :value="customer.id"
+            >
+              {{ customer.first_name }} {{ customer.last_name }}
+            </option>
+          </select>
+          <select
+            v-model="selectedSite"
+            @change="filterSales"
+            class="filter-dropdown"
+          >
+            <option value="">Select Site</option>
+            <option v-for="site in sites" :key="site.id" :value="site.id">
+              {{ site.name }}
+            </option>
+          </select>
+          <select
+            v-model="selectedStatus"
+            @change="filterSales"
+            class="filter-dropdown"
+          >
+            <option value="">All Statuses</option>
+            <option value="Pending Reservation">Pending Reservation</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Pending Sold">Pending Sold</option>
+            <option value="Sold">Sold</option>
+          </select>
+          <button @click="filterSales" class="search-button">Search</button>
+        </div>
+
         <!-- Sales Table -->
-        <table v-if="sales.length > 0" class="sales-table">
+        <table v-if="filteredSales.length" class="sales-table">
           <thead>
             <tr>
               <th>Customer Name</th>
+              <th>Broker Name</th>
               <th>Unit Title</th>
               <th>Site Name</th>
               <th>Status</th>
-              <th>Reservation Fee</th>
-              <th>Payment Method</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="sale in sales"
-              :key="sale.id"
-              @click="openSalesDetailModal(sale)"
-              style="cursor: pointer"
-            >
+            <tr v-for="sale in filteredSales" :key="sale.id">
               <td>
-                {{ sale.customer.first_name }} {{ sale.customer.last_name }}({{
-                  sale.customer.code
-                }})
+                {{ sale.customer.first_name }} {{ sale.customer.last_name }}
               </td>
+              <td>{{ sale.broker.first_name }} {{ sale.broker.last_name }}</td>
               <td>{{ sale.unit.unit_title }}</td>
               <td>{{ sale.site.name || "N/A" }}</td>
-              <td>{{ sale.status }}</td>
-              <td>{{ formatCurrency(sale.reservation_fee) }}</td>
-              <!-- Updated this line -->
-              <td>{{ sale.payment_method }}</td>
+              <td :class="getStatusClass(sale.status)">{{ sale.status }}</td>
               <td>
                 <button
-                  @click="updateSaleStatus(sale.id)"
+                  @click="openSalesDetailModal(sale)"
                   class="btn btn-primary"
                 >
-                  Change Status
+                  Manage Sale
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
-
-        <!-- No sales found message -->
-        <p v-if="!sales.length">No sales found.</p>
+        <p v-else>No sales match the selected criteria.</p>
 
         <!-- Sales Detail Modal -->
         <div v-if="showModal" class="modal">
           <div class="modal-content">
-            <h2>Sales Agreement</h2>
+            <h2>Manage Sale</h2>
             <p>
               <strong>Customer:</strong> {{ selectedSale.customer.first_name }}
               {{ selectedSale.customer.last_name }}
             </p>
             <p><strong>Unit:</strong> {{ selectedSale.unit.unit_title }}</p>
             <p><strong>Site:</strong> {{ selectedSale.site.name || "N/A" }}</p>
-            <p><strong>Status:</strong> {{ selectedSale.status }}</p>
             <p>
               <strong>Reservation Fee:</strong>
               {{ formatCurrency(selectedSale.reservation_fee) }}
-              <!-- Updated this line -->
             </p>
             <p>
               <strong>Payment Method:</strong> {{ selectedSale.payment_method }}
             </p>
-
-            <div v-if="selectedSale.reservation_file">
-              <p>
-                <strong>Reservation File:</strong>
-                <a
-                  :href="getFileUrl(selectedSale.reservation_file)"
-                  target="_blank"
-                  >View File</a
-                >
-              </p>
+            <p v-if="selectedSale.reservation_file">
+              <strong>Reservation File:</strong>
+              <a
+                :href="getFileUrl(selectedSale.reservation_file)"
+                target="_blank"
+                >View File</a
+              >
+            </p>
+            <!-- Update Status -->
+            <div class="update-status">
+              <label for="status">Update Status:</label>
+              <select
+                v-model="selectedSale.status"
+                id="status"
+                class="filter-dropdown"
+              >
+                <option value="Pending Reservation">Pending Reservation</option>
+                <option value="Reserved">Reserved</option>
+                <option value="Pending Sold">Pending Sold</option>
+                <option value="Sold">Sold</option>
+              </select>
             </div>
-
-            <div>
+            <div class="modal-buttons">
+              <button @click="confirmUpdate" class="btn btn-primary">
+                Save Changes
+              </button>
               <button @click="closeModal" class="btn btn-secondary">
                 Close
               </button>
@@ -107,10 +167,19 @@ export default {
   components: { SideNav, AppHeader },
   data() {
     return {
-      sales: [], // List of sales data
+      sales: [],
+      filteredSales: [],
       showModal: false,
-      selectedSale: null, // Currently selected sale
-      errorMessage: "", // Error message for API requests
+      selectedSale: null,
+      searchQuery: "",
+      selectedBroker: "",
+      selectedCustomer: "",
+      selectedSite: "",
+      selectedStatus: "",
+      brokers: [],
+      customers: [],
+      sites: [],
+      statuses: ["Pending Reservation", "Reserved", "Pending Sold", "Sold"],
     };
   },
   computed: {
@@ -124,40 +193,97 @@ export default {
     if (!this.loggedIn || !this.companyId) {
       this.redirectToLogin();
     } else {
-      this.fetchSales(); // Fetch sales data on page load
+      this.fetchSales();
     }
   },
   methods: {
     async fetchSales() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sales/?company_id=${this.companyId}`,
+          `http://localhost:8000/developer/sales/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        this.sales = response.data.sales || []; // Ensure the sales data is an array
+        this.sales = response.data.data || [];
+        this.filteredSales = this.sales;
+
+        // Extract brokers, customers, and sites from sales data
+        this.brokers = [...new Set(this.sales.map((sale) => sale.broker))];
+        this.customers = [...new Set(this.sales.map((sale) => sale.customer))];
+        this.sites = [...new Set(this.sales.map((sale) => sale.site))];
       } catch (error) {
         console.error("Error fetching sales data:", error);
         this.errorMessage = "Failed to load sales data.";
       }
     },
-    async updateSaleStatus(saleId) {
+    filterSales() {
+      let filtered = this.sales;
+
+      if (this.selectedBroker) {
+        filtered = filtered.filter(
+          (sale) => sale.broker.id === this.selectedBroker
+        );
+      }
+
+      if (this.selectedCustomer) {
+        filtered = filtered.filter(
+          (sale) => sale.customer.id === this.selectedCustomer
+        );
+      }
+
+      if (this.selectedSite) {
+        filtered = filtered.filter(
+          (sale) => sale.site.id === this.selectedSite
+        );
+      }
+
+      // Apply search filtering
+      if (this.searchQuery) {
+        filtered = filtered.filter(
+          (sale) =>
+            `${sale.customer.first_name} ${sale.customer.last_name}`
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase()) ||
+            `${sale.broker.first_name} ${sale.broker.last_name}`
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase())
+        );
+      }
+
+      // Filter by status
+      if (this.selectedStatus) {
+        filtered = filtered.filter(
+          (sale) => sale.status === this.selectedStatus
+        );
+      }
+
+      this.filteredSales = filtered;
+    },
+    async updateSaleStatus() {
       try {
+        console.log("Sending PUT request with data:", {
+          status: this.selectedSale.status,
+        });
+
         const response = await axios.put(
-          `http://localhost:8000/developer/sales/${saleId}/update-status/`,
-          {},
+          `http://localhost:8000/developer/sales/${this.selectedSale.id}/`,
+          { status: this.selectedSale.status },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
+
+        console.log("Response from API:", response.data);
+
         if (response.status === 200) {
           alert("Sale status updated successfully!");
-          this.fetchSales(); // Refresh the sales data
+          this.fetchSales(); // Refresh data
+          this.closeModal();
         } else {
           alert("Error updating sale status.");
         }
@@ -167,8 +293,10 @@ export default {
       }
     },
     openSalesDetailModal(sale) {
-      this.selectedSale = sale;
+      console.log("Opening modal for sale:", sale);
+      this.selectedSale = { ...sale }; // Create a copy to avoid direct binding
       this.showModal = true;
+      console.log("Modal state:", this.showModal);
     },
     closeModal() {
       this.showModal = false;
@@ -180,7 +308,23 @@ export default {
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
-    // Method to format currency (replace the filter)
+    getStatusClass(status) {
+      return {
+        "status-pending-reservation": status === "Pending Reservation",
+        "status-reserved": status === "Reserved",
+        "status-pending-sold": status === "Pending Sold",
+        "status-sold": status === "Sold",
+      };
+    },
+    confirmUpdate() {
+      if (
+        confirm(
+          `Are you sure you want to update the status to ${this.selectedSale.status}?`
+        )
+      ) {
+        this.updateSaleStatus();
+      }
+    },
     formatCurrency(amount) {
       return new Intl.NumberFormat().format(amount);
     },
@@ -192,10 +336,36 @@ export default {
 .main-content {
   display: flex;
   flex-direction: column;
-  margin-top: 80px; /* Ensure there's enough space for the header */
-  margin-left: 250px; /* Offset for sidebar */
+  margin-top: 80px;
+  margin-left: 250px;
   flex: 1;
-  padding: 20px; /* Add some padding around the content */
+  padding: 20px;
+}
+
+.search-filter-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.filter-dropdown {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.search-button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
 }
 
 .sales-table {
@@ -225,11 +395,23 @@ export default {
   color: white;
   padding: 8px 12px;
   border-radius: 4px;
-  font-size: 14px;
 }
 
 .btn-primary:hover {
   background-color: #0056b3;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000; /* Ensure it appears above other elements */
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-content {
@@ -252,10 +434,22 @@ export default {
   color: white;
   padding: 8px 12px;
   border-radius: 4px;
-  font-size: 14px;
 }
 
 .btn-secondary:hover {
   background-color: #5a6268;
+}
+
+.status-pending-reservation {
+  color: #ffc107;
+}
+.status-reserved {
+  color: #007bff;
+}
+.status-pending-sold {
+  color: #fd7e14;
+}
+.status-sold {
+  color: #28a745;
 }
 </style>

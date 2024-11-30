@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Customer
 from brokers.models import Broker
 from brokers.serializers import DeveloperBrokerSerializer
+from documents.serializers import DocumentSerializer, DocumentTypeSerializer
 
 class CustomerSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField()
@@ -15,7 +16,6 @@ class EditCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['first_name', 'last_name', 'email', 'contact_number', 'broker']
-
 
 class BrokerSerializer(serializers.ModelSerializer):
     class Meta:

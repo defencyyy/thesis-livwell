@@ -4,20 +4,21 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <div class = "title-wrapper">
+        <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
             <div class="edit-title">Customer Details</div>
           </div>
           <!-- Header Section -->
-          <div class = "total-customers">
-              <div>Total Customers: {{ filteredCustomers.length }}</div>
+          <div class="total-customers">
+            <div>Total Customers: {{ filteredCustomers.length }}</div>
           </div>
         </div>
 
-        <div class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
-
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
           <div class="card-body">
             <!-- Toolbar -->
             <div class="toolbar">
@@ -49,13 +50,11 @@
                 {{ page }}
               </button>
             </div>
-
           </div>
         </div>
-        
+
         <!-- Broker Table -->
         <div>
-
           <!-- Headers outside the card -->
           <div class="outside-headers">
             <span class="header-item">Name</span>
@@ -65,118 +64,156 @@
             <span class="header-item">Actions</span>
           </div>
 
-            <!-- Conditional Rendering -->
-            <div v-if="currentCustomers.length === 0" class="no-customers-message">
-              No customers found.
-            </div>
+          <!-- Conditional Rendering -->
+          <div
+            v-if="currentCustomers.length === 0"
+            class="no-customers-message"
+          >
+            No customers found.
+          </div>
 
-            <div
-              v-else
-              v-for="(customer, index) in currentCustomers"
-              :key="customer.id || index"
-              class="card border-0 rounded-1 mx-auto my-2"
-              style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-            >
-              <div class="card-body">
-                <table class="customer-table">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <span class="customer-name">
-                          {{ customer.first_name + " " + customer.last_name }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="customer-email">
-                          {{ customer.email }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="customer-number">
-                          {{ customer.contact_number }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="customer-broker">
-                          {{
-                            customer.broker
-                              ? customer.broker.first_name +
-                                " " +
-                                customer.broker.last_name
-                              : "N/A"
-                          }}
-                        </span>
-                      </td>
-                      <td>
-                        <div class="broker-actions d-flex gap-2">
-                          <button 
-                            @click="viewCustomer(customer)"
-                            style = "
-                              border: none;
-                              background-color: transparent;
-                              color: #343a40;
-                              cursor: pointer;
-                              font-size: 18px;
-                            ">
-                            <i class = "fas fa-eye"></i>  
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+          <div
+            v-else
+            v-for="(customer, index) in currentCustomers"
+            :key="customer.id || index"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class="card-body">
+              <table class="customer-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="customer-name">
+                        {{ customer.first_name + " " + customer.last_name }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-email">
+                        {{ customer.email }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-number">
+                        {{ customer.contact_number }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-broker">
+                        {{
+                          customer.broker
+                            ? customer.broker.first_name +
+                              " " +
+                              customer.broker.last_name
+                            : "N/A"
+                        }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="broker-actions d-flex gap-2">
+                        <button
+                          @click="viewCustomer(customer)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-
+          </div>
         </div>
-
       </div>
     </div>
 
     <!-- View Customer Modal -->
-    <b-modal v-model="showEditModal" title="Customer Details" hide-footer centered>
+    <b-modal
+      v-model="showEditModal"
+      title="Customer Details"
+      hide-footer
+      centered
+    >
       <!-- Customer Info -->
       <h5>Customer Information</h5>
       <div class="form-group">
-        <label for="editFullName" style="font-weight: bold;">Full Name: </label>
-        <span id="editFullName">{{ currentCustomer.first_name }} {{ currentCustomer.last_name }}</span>
+        <label for="editFullName" style="font-weight: bold">Full Name: </label>
+        <span id="editFullName"
+          >{{ currentCustomer.first_name }}
+          {{ currentCustomer.last_name }}</span
+        >
       </div>
       <div class="form-group">
-        <label for="editEmail" style="font-weight: bold;">Email: </label>
+        <label for="editEmail" style="font-weight: bold">Email: </label>
         <span id="editEmail">{{ currentCustomer.email }}</span>
       </div>
       <div class="form-group">
-        <label for="editContact" style="font-weight: bold;">Contact: </label>
+        <label for="editContact" style="font-weight: bold">Contact: </label>
         <span id="editContact">{{ currentCustomer.contact_number }}</span>
       </div>
 
       <!-- Spacer -->
-      <div style="margin-top: 20px;"></div>
+      <div style="margin-top: 20px"></div>
 
       <!-- Document Requirements -->
       <h5>Submitted Documents</h5>
 
+      <!-- Display Documents -->
+      <div
+        v-if="currentCustomer.documents && currentCustomer.documents.length > 0"
+      >
+        <ul>
+          <li
+            v-for="(document, index) in currentCustomer.documents"
+            :key="index"
+          >
+            <a :href="document.url" target="_blank">{{ document.name }}</a>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No documents available.</p>
+      </div>
+
       <!-- Spacer -->
-      <div style="margin-top: 20px;"></div>
+      <div style="margin-top: 20px"></div>
 
       <!-- Broker Info -->
       <h5 v-if="currentCustomer.broker">Broker Information</h5>
       <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerFullName" style="font-weight: bold;">Broker Name: </label>
-        <span id="brokerFullName">{{ currentCustomer.broker.first_name }} {{ currentCustomer.broker.last_name }}</span>
+        <label for="brokerFullName" style="font-weight: bold"
+          >Broker Name:
+        </label>
+        <span id="brokerFullName"
+          >{{ currentCustomer.broker.first_name }}
+          {{ currentCustomer.broker.last_name }}</span
+        >
       </div>
       <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerEmail" style="font-weight: bold;">Broker Email: </label>
+        <label for="brokerEmail" style="font-weight: bold"
+          >Broker Email:
+        </label>
         <span id="brokerEmail">{{ currentCustomer.broker.email }}</span>
       </div>
       <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerContact" style="font-weight: bold;">Broker Contact: </label>
-        <span id="brokerContact">{{ currentCustomer.broker.contact_number }}</span>
+        <label for="brokerContact" style="font-weight: bold"
+          >Broker Contact:
+        </label>
+        <span id="brokerContact">{{
+          currentCustomer.broker.contact_number
+        }}</span>
       </div>
     </b-modal>
-
-
-
   </div>
 </template>
 
@@ -291,18 +328,38 @@ export default {
         }
       }
     },
-    viewCustomer(customer) {
+    async viewCustomer(customer) {
       if (!customer || !customer.id) {
         console.error("Invalid customer data:", customer);
         return;
       }
       this.currentCustomer = { ...customer };
 
+      // Fetch customer's documents
+      this.fetchCustomerDocuments(customer.id);
+
       if (!this.currentCustomer.broker) {
         this.fetchBrokerDetails(customer.broker_id);
       }
 
       this.showEditModal = true;
+    },
+
+    async fetchCustomerDocuments(customerId) {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/customers/${customerId}/documents/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.currentCustomer.documents = response.data.data; // Assuming data contains the document list
+      } catch (error) {
+        console.error("Error fetching customer documents:", error);
+        this.error = "Failed to load customer documents.";
+      }
     },
     async fetchBrokerDetails(brokerId) {
       try {
@@ -485,7 +542,6 @@ body {
   font-weight: bold;
   margin: 0; /* Remove default margin */
 }
-
 
 .toolbar {
   display: flex;
