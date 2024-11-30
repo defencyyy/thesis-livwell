@@ -6,7 +6,7 @@ def logo_upload_path(instance, filename):
     company_name = re.sub(r'\s+', '_', company_name) 
     company_name = re.sub(r'[^\w\s-]', '', company_name) 
 
-    filename = filename or 'company_logo.jpg' 
+    filename = 'company_logo.jpg' 
 
     return os.path.join('photos', str(company_name), 'logo', filename)
 

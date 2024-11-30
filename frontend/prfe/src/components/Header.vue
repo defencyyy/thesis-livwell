@@ -73,23 +73,23 @@ export default {
     setHeaderContent() {
       if (this.userRole === "developer") {
         this.roleName = "Developer";
-        this.profilePicture = "/assets/developer-profile.png"; // Example custom image
+        this.profilePicture = "/assets/account.png"; // Example custom image
         this.dropdownOptions = [
           {
             name: "Account Settings",
             link: "/developer/account",
             icon: "bi bi-gear",
           },
-          {
-            name: "Display Settings",
-            link: "/developer/display-settings",
-            icon: "bi bi-moon",
-          },
-          {
-            name: "Help & Support",
-            link: "/developer/help",
-            icon: "bi bi-question-circle",
-          },
+          // {
+          //   name: "Display Settings",
+          //   link: "/developer/display-settings",
+          //   icon: "bi bi-moon",
+          // },
+          // {
+          //   name: "Help & Support",
+          //   link: "/developer/help",
+          //   icon: "bi bi-question-circle",
+          // },
         ];
       } else if (this.userRole === "broker") {
         this.roleName = "Broker";
@@ -100,11 +100,11 @@ export default {
             link: "/broker/account",
             icon: "bi bi-gear",
           },
-          {
-            name: "Help & Support",
-            link: "/broker/help",
-            icon: "bi bi-question-circle",
-          },
+          // {
+          //   name: "Help & Support",
+          //   link: "/broker/help",
+          //   icon: "bi bi-question-circle",
+          // },
         ];
       } else {
         this.roleName = "Guest";
@@ -129,8 +129,11 @@ export default {
         localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
 
-        this.$store.commit("clearUser");
-        this.redirectToLogin();
+        if (this.userRole === "developer") {
+          this.redirectToLogin("Home");
+        } else if (this.userRole === "broker") {
+          this.redirectToLogin("Home");
+        }
       } catch (error) {
         console.error("Error during logout:", error);
         alert("Logout failed. Please try again.");
