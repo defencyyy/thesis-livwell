@@ -60,6 +60,7 @@ export default createStore({
       commit("clearUser");
     },
     setCompany({ commit }, company) {
+      console.log("Setting company in Vuex:", company); // Log the company data
       commit("setCompany", company); // Set company data
     },
   },
