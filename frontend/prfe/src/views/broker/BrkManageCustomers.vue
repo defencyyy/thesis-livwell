@@ -25,6 +25,8 @@
           <option value="name_desc">Name (Z-A)</option>
           <option value="site_asc">Site (A-Z)</option>
           <option value="site_desc">Site (Z-A)</option>
+          <option value="status_asc">Document Status (Complete)</option>
+          <option value="status_desc">Document Status (Pending)</option>
         </select>
       </div>
 
@@ -378,6 +380,16 @@ export default {
         case "site_desc":
           this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
+        case "status_asc": // New case for sorting by document status A-Z
+      this.customers.sort((a, b) =>
+        a.document_status.localeCompare(b.document_status)
+      );
+      break;
+    case "status_desc": // New case for sorting by document status Z-A
+      this.customers.sort((a, b) =>
+        b.document_status.localeCompare(a.document_status)
+      );
+      break;
       }
     },
     openEditModal(customer) {
