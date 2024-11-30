@@ -1,4 +1,4 @@
-# LivWell - A Rental Property E-Commerce and Management System
+# Property Listing Management Platform
 
 Members:
 
