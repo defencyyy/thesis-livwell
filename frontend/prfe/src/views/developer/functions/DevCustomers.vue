@@ -35,83 +35,6 @@
               <div class="right-section"></div>
             </div>
 
-            <!-- Broker Table -->
-            <div>
-
-              <!-- Headers outside the card -->
-              <div class="outside-headers">
-                <span class="header-item">Name</span>
-                <span class="header-item">Email</span>
-                <span class="header-item">Contact</span>
-                <span class="header-item">Broker Name</span>
-                <span class="header-item">Actions</span>
-              </div>
-
-              <!-- Conditional Rendering -->
-              <div v-if="currentCustomers.length === 0" class="no-customers-message">
-                No customers found.
-              </div>
-
-              <div
-                v-else
-                v-for="(customer, index) in currentCustomers"
-                :key="customer.id || index"
-                class="card border-0 rounded-1 mx-auto my-2"
-                style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-              >
-                <div class="card-body">
-                  <table class="customer-table">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <span class="customer-name">
-                            {{ customer.first_name + " " + customer.last_name }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="customer-email">
-                            {{ customer.email }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="customer-number">
-                            {{ customer.contact_number }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="customer-broker">
-                            {{
-                              customer.broker
-                                ? customer.broker.first_name +
-                                  " " +
-                                  customer.broker.last_name
-                                : "N/A"
-                            }}
-                          </span>
-                        </td>
-                        <td>
-                          <div class="broker-actions d-flex gap-2">
-                            <button 
-                              @click="viewCustomer(customer)"
-                              style = "
-                                border: none;
-                                background-color: transparent;
-                                color: #343a40;
-                                cursor: pointer;
-                                font-size: 18px;
-                              ">
-                              <i class = "fas fa-eye"></i>  
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-            </div>
-
             <!-- Pagination -->
             <div
               class="pagination"
@@ -129,6 +52,83 @@
 
           </div>
         </div>
+        
+        <!-- Broker Table -->
+                    <div>
+
+<!-- Headers outside the card -->
+<div class="outside-headers">
+  <span class="header-item">Name</span>
+  <span class="header-item">Email</span>
+  <span class="header-item">Contact</span>
+  <span class="header-item">Broker Name</span>
+  <span class="header-item">Actions</span>
+</div>
+
+<!-- Conditional Rendering -->
+<div v-if="currentCustomers.length === 0" class="no-customers-message">
+  No customers found.
+</div>
+
+<div
+  v-else
+  v-for="(customer, index) in currentCustomers"
+  :key="customer.id || index"
+  class="card border-0 rounded-1 mx-auto my-2"
+  style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+>
+  <div class="card-body">
+    <table class="customer-table">
+      <tbody>
+        <tr>
+          <td>
+            <span class="customer-name">
+              {{ customer.first_name + " " + customer.last_name }}
+            </span>
+          </td>
+          <td>
+            <span class="customer-email">
+              {{ customer.email }}
+            </span>
+          </td>
+          <td>
+            <span class="customer-number">
+              {{ customer.contact_number }}
+            </span>
+          </td>
+          <td>
+            <span class="customer-broker">
+              {{
+                customer.broker
+                  ? customer.broker.first_name +
+                    " " +
+                    customer.broker.last_name
+                  : "N/A"
+              }}
+            </span>
+          </td>
+          <td>
+            <div class="broker-actions d-flex gap-2">
+              <button 
+                @click="viewCustomer(customer)"
+                style = "
+                  border: none;
+                  background-color: transparent;
+                  color: #343a40;
+                  cursor: pointer;
+                  font-size: 18px;
+                ">
+                <i class = "fas fa-eye"></i>  
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
 
       </div>
     </div>
