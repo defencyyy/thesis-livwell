@@ -55,7 +55,6 @@ class SiteAdminForm(forms.ModelForm):
             site.save()
         return site
 
-
 class SiteAdmin(admin.ModelAdmin):
     form = SiteAdminForm  # Use the custom form for the SiteAdmin
     

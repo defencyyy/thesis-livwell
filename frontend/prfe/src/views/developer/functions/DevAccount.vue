@@ -4,123 +4,111 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1>Manage Your Account</h1>
-        <form @submit.prevent="updateAccount">
-          <!-- Display current data in form fields -->
-          <h2>Personal Details</h2>
-          <div class="form-group">
-            <label for="username">Username:</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="username"
-              id="username"
-            />
-          </div>
+        <div class="title-wrapper">
+          <div class="title-icon"></div>
+          <div class="edit-title">Account Settings</div>
+        </div>
+        <div
+          class="card shadow-lg border-0 rounded-1 mx-auto"
+          style="max-width: 900px"
+        >
+          <div class="card-body">
+            <form @submit.prevent="updateAccount">
+              <div class="row">
+                <!-- Personal Information Section -->
+                <div class="col-md-6">
+                  <h5 class="mb-4">Personal Information</h5>
+                  <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      v-model="firstName"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      v-model="lastName"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      v-model="email"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="contactNumber" class="form-label"
+                      >Phone Number</label
+                    >
+                    <input
+                      type="text"
+                      id="contactNumber"
+                      v-model="contactNumber"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
 
-          <div class="form-group">
-            <label for="firstName">First Name:</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="firstName"
-              id="firstName"
-            />
-          </div>
+                <!-- Password Settings Section -->
+                <div class="col-md-6">
+                  <h5 class="mb-4">Password Settings</h5>
+                  <div class="mb-3">
+                    <label for="currentPassword" class="form-label"
+                      >Current Password</label
+                    >
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      v-model="currentPassword"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="newPassword" class="form-label"
+                      >New Password</label
+                    >
+                    <input
+                      type="password"
+                      id="newPassword"
+                      v-model="newPassword"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="confirmNewPassword" class="form-label"
+                      >Confirm New Password</label
+                    >
+                    <input
+                      type="password"
+                      id="confirmNewPassword"
+                      v-model="confirmNewPassword"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div class="form-group">
-            <label for="lastName">Last Name:</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="lastName"
-              id="lastName"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input
-              type="email"
-              class="form-control"
-              v-model="email"
-              id="email"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="contactNumber">Contact Number:</label>
-            <input
-              type="text"
-              class="form-control"
-              v-model="contactNumber"
-              id="contactNumber"
-            />
-          </div>
-
-          <!-- Password Section -->
-          <h2>Change Password</h2>
-          <div class="form-group">
-            <label for="currentPassword">Current Password:</label>
-            <input
-              type="password"
-              class="form-control"
-              v-model="currentPassword"
-              id="currentPassword"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="newPassword">New Password:</label>
-            <input
-              type="password"
-              class="form-control"
-              v-model="newPassword"
-              id="newPassword"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="confirmNewPassword">Confirm New Password:</label>
-            <input
-              type="password"
-              class="form-control"
-              v-model="confirmNewPassword"
-              id="confirmNewPassword"
-            />
-          </div>
-
-          <!-- Regular Submit Button -->
-          <button
-            type="button"
-            class="btn btn-primary"
-            :disabled="loading"
-            @click="prepareUpdate"
-          >
-            {{ loading ? "Updating..." : "Update Account" }}
-          </button>
-        </form>
-
-        <!-- Confirmation Modal -->
-        <div v-if="showConfirmModal" class="modal-overlay">
-          <div class="modal-content">
-            <h3>Confirm Update</h3>
-            <p>Are you sure you want to update your account details?</p>
-            <div class="modal-buttons">
-              <button class="btn btn-secondary" @click="cancelUpdate">
-                Cancel
-              </button>
-              <button class="btn btn-primary" @click="submitUpdate">
-                Confirm
-              </button>
-            </div>
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="submit" class="btn-update" :disabled="loading">
+                  {{ loading ? "Updating..." : "Update" }}
+                </button>
+                <button type="button" class="btn-cancel" @click="cancelUpdate">
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        <!-- Error/Success Message -->
-        <p v-if="error" class="text-danger">{{ error }}</p>
-        <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
       </div>
     </div>
   </div>
@@ -270,51 +258,141 @@ export default {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .developer-account-page {
   display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #f6f6f6;
+  /* Gray background */
 }
 
-.content {
-  flex: 1;
-  padding: 20px;
-  text-align: center;
-  margin-top: 60px; /* Adjust for the header */
-}
-
-form {
-  margin-top: 20px;
-}
-
-.action-buttons {
-  margin-top: 20px;
-}
-
-/* Modal Styles */
-.modal-overlay {
+.SideNav {
+  width: 250px;
+  /* Set fixed width for the sidebar */
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeader {
+  width: 100%;
+  height: 60px;
+  /* Adjust height as needed */
+  background-color: #343a40;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  padding-left: 10px;
 }
 
-.modal-content {
-  background-color: white;
-  padding: 20px;
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
+}
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.card-body {
+  padding: 2.5rem;
+}
+
+.title-wrapper {
+  display: flex;
+  /* Align line and title horizontally */
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+
+  /* Ensure the title width matches the card's width */
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  /* Center the wrapper */
+}
+
+.edit-title {
+  color: #000000;
+  margin-bottom: 0.8rem;
+  text-align: left;
+  /* Align the text to the left */
+}
+
+.title-icon {
+  width: 15px;
+  /* Short horizontal line */
+  height: 5px;
+  /* Thin line */
+  background-color: #343a40;
+  /* Line color */
   border-radius: 5px;
-  text-align: center;
-  width: 300px;
+  /* Rounded corners */
+  margin-right: 10px;
+  /* Space between the icon and the title */
+  margin-bottom: 15px;
 }
 
-.modal-buttons {
+.row {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  /* Ensures there's space between the columns */
+}
+
+.col-md-6 {
+  width: 47%; /* You can tweak the width to suit your design */
+  margin-bottom: 20px; /* Spacing between sections */
+  padding-right: 10px; /* Optional: add some padding to prevent overlap */
+}
+
+h5 {
+  text-align: left;
+  margin-bottom: 1rem; /* Adjust spacing below the title */
+  font-size: 1.1rem; /* Optional: Adjust font size if needed */
+  font-style: italic; /* Italicize the titles */
+}
+
+.form-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  /* Adjust the value to your preferred size */
+}
+
+.btn-update {
+  background-color: #42b983; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px; /* Adjust the padding at the bottom */
+  width: 100px;
+}
+
+.btn-cancel {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

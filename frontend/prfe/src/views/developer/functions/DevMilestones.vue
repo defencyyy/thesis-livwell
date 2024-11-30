@@ -78,6 +78,7 @@
                     id="milestoneName"
                     v-model="newMilestone.name"
                     placeholder="Enter milestone name"
+                    required
                   />
                 </div>
                 <div class="mb-3">
@@ -90,6 +91,7 @@
                     v-model="newMilestone.description"
                     rows="4"
                     placeholder="Enter description"
+                    required
                   ></textarea>
                 </div>
                 <div class="mb-3">
@@ -100,6 +102,7 @@
                     id="milestoneReward"
                     v-model="newMilestone.reward"
                     placeholder="Enter reward"
+                    required
                   />
                 </div>
                 <div class="mb-3">
@@ -278,6 +281,13 @@ export default {
 
     // Update an existing milestone
     async updateMilestone() {
+      if (
+        !window.confirm(
+          "Are you sure you want to edit this milestone? Unsaved changes will be lost."
+        )
+      ) {
+        return; // Exit if the user cancels
+      }
       const axiosInstance = this.getAxiosInstance();
       const url = `http://localhost:8000/developer/milestones/${this.newMilestone.id}/`;
 
@@ -295,6 +305,29 @@ export default {
       }
     },
 
+    async deleteMilestone(milestoneId) {
+      if (!window.confirm("Are you sure you want to delete this milestone?")) {
+        return; // Exit if the user cancels
+      }
+
+      const axiosInstance = this.getAxiosInstance();
+      const url = `http://localhost:8000/developer/milestones/${milestoneId}/`;
+
+      try {
+        const response = await axiosInstance.delete(url);
+        if (response.status === 204) {
+          this.fetchMilestones(); // Refresh the list after deletion
+        }
+      } catch (error) {
+        console.error("Error deleting milestone:", error);
+      }
+    },
+
+    editMilestone(milestone) {
+      this.newMilestone = { ...milestone };
+      this.showAddForm = true;
+    },
+
     // Handle changes in milestone type selection
     onMilestoneTypeChange() {
       // Reset thresholds when changing type
@@ -303,12 +336,6 @@ export default {
       } else if (this.newMilestone.type === "commission") {
         this.newMilestone.commission_threshold = null;
       }
-    },
-
-    // Edit an existing milestone
-    editMilestone(milestone) {
-      this.newMilestone = { ...milestone };
-      this.showAddForm = true;
     },
 
     // Close the form modal
