@@ -49,33 +49,43 @@
           <!-- Milestones Achieved Table -->
           <h3>Milestones Achieved</h3>
           <table v-if="achievedMilestones.length > 0">
-            <tr>
-              <th>Name</th>
-              <th>Reward</th>
-              <th>Description</th>
-            </tr>
-            <tr v-for="milestone in achievedMilestones" :key="milestone.id">
-              <td>{{ milestone.name }}</td>
-              <td>{{ milestone.reward }}</td>
-              <td>{{ milestone.description }}</td>
-            </tr>
-          </table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Reward</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="milestone in achievedMilestones" :key="milestone.id">
+      <td>{{ milestone.name }}</td>
+      <td>{{ milestone.reward }}</td>
+      <td>{{ milestone.description }}</td>
+    </tr>
+  </tbody>
+</table>
+
           <p v-else>No milestones achieved yet.</p>
 
           <!-- Next Milestones Table -->
           <h3>Next Milestones</h3>
           <table v-if="nextMilestones.length > 0">
-            <tr>
-              <th>Name</th>
-              <th>Reward</th>
-              <th>Description</th>
-            </tr>
-            <tr v-for="milestone in nextMilestones" :key="milestone.id">
-              <td>{{ milestone.name }}</td>
-              <td>{{ milestone.reward }}</td>
-              <td>{{ milestone.description }}</td>
-            </tr>
-          </table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Reward</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="milestone in nextMilestones" :key="milestone.id">
+      <td>{{ milestone.name }}</td>
+      <td>{{ milestone.reward }}</td>
+      <td>{{ milestone.description }}</td>
+    </tr>
+  </tbody>
+</table>
+
           <p v-else>No Pending Milestones</p>
         </div>
 
