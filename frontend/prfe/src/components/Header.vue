@@ -146,9 +146,9 @@ export default {
         this.$store.commit("clearUser");
 
         if (this.userRole === "developer") {
-          this.redirectToLogin("DevLogin");
+          this.redirectToLogin("Home");
         } else if (this.userRole === "broker") {
-          this.redirectToLogin("BrokerLogin");
+          this.redirectToLogin("Home");
         }
       } catch (error) {
         console.error("Error during logout:", error);

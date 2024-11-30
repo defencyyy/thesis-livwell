@@ -135,7 +135,7 @@ export default {
     },
 
     redirectToLogin() {
-      this.$router.push({ name: "DevLogin" });
+      this.$router.push({ name: "Home" });
     },
 
     // Handle token refresh logic here
