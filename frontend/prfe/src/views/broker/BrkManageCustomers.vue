@@ -7,6 +7,16 @@
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
+      <!-- Add this search input in your template (e.g., inside the <template> tag) -->
+<div class="search-container">
+  <input 
+    v-model="searchQuery" 
+    type="text" 
+    placeholder="Search by name or customer code..." 
+    @input="filterCustomers"
+  />
+</div>
+
       <!-- Sorting and Adding Customers Section -->
       <div class="sort-options">
         <label for="sortBy">Sort by:</label>
@@ -149,13 +159,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(customer, index) in customers"
-            :key="index"
-            @click="openDocumentModal(customer)"
-          ></tr>
+           <tr
+    v-for="(customer, index) in filteredCustomers"
+    :key="index"
+    @click="openDocumentModal(customer)"
+  ></tr>
 
-          <tr v-for="(customer, index) in customers" :key="index">
+  <tr v-for="(customer, index) in filteredCustomers" :key="index">
             <td>{{ customer.customer_name }}</td>
             <td>{{ customer.customer_code }}</td>
             <td>{{ customer.site }}</td>
@@ -296,6 +306,8 @@ export default {
       filePreviews: {}, // Object to store file previews for each document type
       document_status: "Pending",
       documentFiles: {},
+      searchQuery: "", // New property for search input
+      filteredCustomers: [], // Holds the filtered list based on search query
     };
   },
   mounted() {
@@ -303,6 +315,21 @@ export default {
     this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
+     filterCustomers() {
+    const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
+    
+    if (!query) {
+      // If there's no search query, show all customers
+      this.filteredCustomers = this.customers;
+    } else {
+      // Filter customers by name or customer code
+      this.filteredCustomers = this.customers.filter((customer) => {
+        const customerName = customer.customer_name.toLowerCase();
+        const customerCode = customer.customer_code ? customer.customer_code.toLowerCase() : ""; // Assuming customer code is in customer_code field
+        return customerName.includes(query) || customerCode.includes(query);
+      });
+    }
+  },
     
     async fetchCustomers() {
       if (!this.userId) {
@@ -318,6 +345,8 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
+            this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
+
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
