@@ -7,27 +7,14 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Company Broker Management</div>
+            <div class="edit-title">Customer Details</div>
           </div>
           <!-- Header Section -->
-          <div class="total-brokers">
-            <div>Total Brokers: {{ filteredBrokers.length }}</div>
+          <div class="total-customers">
+            <div>Total Customers: {{ filteredBrokers.length }}</div>
           </div>
         </div>
 
-        <!-- Search & Filter -->
-        <!-- <div class="filter-section">
-        <input
-          v-model="searchQuery"
-          placeholder="Search Brokers"
-          class="search-bar"
-        />
-        <select v-model="brokersPerPage" class="page-limit-selector">
-          <option v-for="limit in [5, 10, 15, 20]" :key="limit" :value="limit">
-            Show {{ limit }} per page
-          </option>
-        </select>
-      </div> -->
         <div class="card border-0 rounded-1 mx-auto"
           style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
           <div class="card-body">
@@ -40,51 +27,19 @@
                     <i class="fa fa-search search-icon"></i>
                   </div>
                 </div>
-                <div class="right-section">
-                  <button @click="showModal = true" class="btn-primary add-button">
-                    Add Broker
-                  </button>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Broker Table -->
-        <!-- <table v-if="currentBrokers.length" class="table">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Contact Number</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="broker in currentBrokers" :key="broker.id">
-            <td>{{ broker.email }}</td>
-            <td>{{ broker.username }}</td>
-            <td>{{ broker.first_name }}</td>
-            <td>{{ broker.last_name }}</td>
-            <td>{{ broker.contact_number }}</td>
-            <td>
-              <button @click="openEditModal(broker)">Edit</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else>No brokers found for this company.</p> -->
-
-        <!-- Broker Table -->
+        <!-- Customer Table -->
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
             <span class="header-item">Name</span>
-            <span class="header-item">Username</span>
-            <span class="header-item">Email</span>
-            <span class="header-item">Contact</span>
+            <span class="header-item">Site</span>
+            <span class="header-item">Units Owned</span>
+            <span class="header-item">Broker Name</span>
             <span class="header-item">Actions</span>
           </div>
 
@@ -203,71 +158,6 @@
           </button>
         </div>
 
-        <!-- Modal for Adding Broker -->
-        <b-modal v-model="showModal" hide-header hide-footer>
-          <div class="modal-title p-3">
-            <h5 class="mb-0">New Broker</h5>
-          </div>
-
-          <div class="p-3">
-            <form @submit.prevent="addBroker">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="firstName" class="form-label">First Name:</label>
-                  <input type="text" v-model="firstName" id="firstName" class="form-control" required />
-                  <p v-if="firstNameError" class="text-danger">{{ firstNameError }}</p>
-                </div>
-
-                <div class="col-md-6">
-                  <label for="lastName" class="form-label">Last Name:</label>
-                  <input type="text" v-model="lastName" id="lastName" class="form-control" required />
-                  <p v-if="lastNameError" class="text-danger">{{ lastNameError }}</p>
-                </div>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" v-model="email" id="email" class="form-control" required />
-                <p v-if="emailError" class="text-danger">{{ emailError }}</p>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="contactNumber" class="form-label">Contact Number:</label>
-                <input type="text" v-model="contactNumber" id="contactNumber" class="form-control"
-                  :required="!editModalVisible" />
-                <p v-if="contactNumberError" class="text-danger">{{ contactNumberError }}</p>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" v-model="password" id="password" class="form-control" required />
-                <p v-if="passwordError" class="text-danger">{{ passwordError }}</p>
-              </div>
-
-              <!-- Optional: Add Image Upload Section if needed -->
-              <!-- <div class="form-group mb-3">
-        <label for="brokerPicture" class="form-label">Upload Photo</label>
-        <input type="file" @change="handleFileUpload" id="brokerPicture" class="form-control" accept="image/*" />
-      </div> -->
-
-              <!-- Image Preview Section (Optional) -->
-              <!-- <div v-if="imagePreview" class="text-center mb-3">
-        <h6>Image Preview</h6>
-        <img :src="imagePreview" alt="Image Preview" class="img-fluid" style="max-height: 200px; object-fit: cover" />
-      </div> -->
-
-              <!-- Submit & Cancel Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px;">
-                <button type="submit" class="btn-add" style="width: 150px">Add New Broker</button>
-                <button type="button" @click="showModal = false" class="btn-cancel">Cancel</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Error & Success Message -->
-          <p v-if="error" class="text-danger">{{ error }}</p>
-          <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
-        </b-modal>
 
       </div>
 
@@ -590,7 +480,7 @@ body {
 
 .main-content {
   display: flex;
-  margin-left: 250px;
+  /* margin-left: 250px; */
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
