@@ -70,33 +70,6 @@
         </div>
 
         <!-- Broker Table -->
-        <!-- <table v-if="currentBrokers.length" class="table">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Contact Number</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="broker in currentBrokers" :key="broker.id">
-            <td>{{ broker.email }}</td>
-            <td>{{ broker.username }}</td>
-            <td>{{ broker.first_name }}</td>
-            <td>{{ broker.last_name }}</td>
-            <td>{{ broker.contact_number }}</td>
-            <td>
-              <button @click="openEditModal(broker)">Edit</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else>No brokers found for this company.</p> -->
-
-        <!-- Broker Table -->
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
@@ -227,40 +200,6 @@
           </tbody>
         </table>
         <p v-else>No brokers found for this company.</p>
-
-        <!-- <div v-for="broker in currentBrokers" :key="broker.id" class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 1100px">
-          <div class="card-body">
-            <table class="card-table">
-              <tbody>
-                <tr>
-                  <td>{{ broker.first_name }}</td>
-                  <td>{{ broker.last_name }}</td>
-                  <td>{{ broker.username }}</td>
-                  <td>{{ broker.email }}</td>
-                  <td>{{ broker.contact_number }}</td>
-                  <td>
-      
-                    <button @click="openEditModal(broker)"
-                      style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
-                      <i class="fas fa-eye"></i>
-                    </button>
-
-                    <button @click="openEditModal(broker)"
-                      style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
-                      <i class="fas fa-edit"></i>
-                    </button>
-
-                    <button @click="openEditModal(broker)"
-                      style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div> -->
 
         <!-- Editing Brokers -->
         <b-modal
@@ -457,18 +396,6 @@
                   {{ passwordError }}
                 </p>
               </div>
-
-              <!-- Optional: Add Image Upload Section if needed -->
-              <!-- <div class="form-group mb-3">
-        <label for="brokerPicture" class="form-label">Upload Photo</label>
-        <input type="file" @change="handleFileUpload" id="brokerPicture" class="form-control" accept="image/*" />
-      </div> -->
-
-              <!-- Image Preview Section (Optional) -->
-              <!-- <div v-if="imagePreview" class="text-center mb-3">
-        <h6>Image Preview</h6>
-        <img :src="imagePreview" alt="Image Preview" class="img-fluid" style="max-height: 200px; object-fit: cover" />
-      </div> -->
 
               <!-- Submit & Cancel Buttons -->
               <div
@@ -948,7 +875,7 @@ body {
 
 .main-content {
   display: flex;
-  /* margin-left: 250px; */
+  margin-left: 250px;
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
@@ -1187,6 +1114,7 @@ body {
 .form-group .form-label,
 .row .form-label {
   font-size: 0.9rem;
+  color: #6c757d;
   /* Adjust the value to your preferred size */
 }
 
@@ -1197,10 +1125,7 @@ body {
   border: none;
   border-radius: 3px;
   /* Adjust the border radius */
-  padding-top: 5px;
-  /* Add padding at the top of the button */
-  padding-bottom: 8px;
-  /* Adjust the padding at the bottom */
+  padding: 10px;
 }
 
 .btn-cancel {

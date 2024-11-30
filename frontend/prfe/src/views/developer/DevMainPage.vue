@@ -6,7 +6,7 @@
       <div class="content">
         <div class="dashboard-container">
           <!-- Top Row -->
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+          <!-- <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
             <div class="card-body">
               <h5 class="card-title">Total Number of Units</h5>
             </div>
@@ -20,17 +20,17 @@
             <div class="card-body">
               <h5 class="card-title">Sold Units</h5>
             </div>
-          </div>
+          </div> -->
 
           <!-- Large Center Box -->
-          <div class="card shadow-lg border-0 rounded-3 mx-auto large-box">
+          <!-- <div class="card shadow-lg border-0 rounded-3 mx-auto large-box">
             <div class="card-body">
               <h5 class="card-title">Overview</h5>
             </div>
-          </div>
+          </div> -->
 
           <!-- Bottom Row -->
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
+          <!-- <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
             <div class="card-body">
               <h5 class="card-title">BROKER of the MONTH!</h5>
             </div>
@@ -44,7 +44,7 @@
             <div class="card-body">
               <h5 class="card-title">Upcoming Goals</h5>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -218,6 +218,7 @@ export default {
 .main-page {
   display: flex;
   height: 100vh;
+  background-color: #f6f6f6;
 }
 
 .SideNav {
@@ -242,7 +243,6 @@ export default {
 
 .main-content {
   display: flex;
-  margin-left: 250px;
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
