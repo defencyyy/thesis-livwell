@@ -43,7 +43,7 @@
             <hr class="dropdown-divider" />
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click.prevent="logout">
+            <a class="dropdown-item" href="#" @click="logout">
               <i class="bi bi-box-arrow-right me-2"></i> Sign Out
             </a>
           </li>
@@ -117,45 +117,25 @@ export default {
     },
     async logout() {
       try {
-        let logoutEndpoint = "";
-
-        // Determine the logout endpoint based on userRole
-        if (this.userRole === "developer") {
-          logoutEndpoint = "http://localhost:8000/api/token/devlogout/";
-        } else if (this.userRole === "broker") {
-          logoutEndpoint = "http://localhost:8000/api/token/brklogout/";
-        } else {
-          throw new Error("Unsupported user role.");
-        }
-
-        await axios.post(
-          logoutEndpoint,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        await axios.post("http://localhost:8000/api/token/brklogout/", {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("developer_id");
-        localStorage.removeItem("broker_id");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
-        this.$store.commit("clearUser");
 
-        if (this.userRole === "developer") {
-          this.redirectToLogin("DevLogin");
-        } else if (this.userRole === "broker") {
-          this.redirectToLogin("BrokerLogin");
-        }
+        this.$store.commit("clearUser");
+        this.redirectToLogin();
       } catch (error) {
         console.error("Error during logout:", error);
         alert("Logout failed. Please try again.");
       }
     },
-
     redirectToLogin(pageName) {
       this.$router.push({ name: pageName });
     },

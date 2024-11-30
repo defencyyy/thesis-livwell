@@ -182,7 +182,7 @@ export default {
 <style>
 /* Add a background image to the body or container */
 .overlay {
-  border-image: linear-gradient(hsla(57, 100%, 74%, 0.6), hsla(0, 0%, 61%, 0.6))
+  border-image: linear-gradient(hsla(110, 100%, 81%, 0.6), hsla(0, 0%, 61%, 0.6))
     fill 1;
 }
 

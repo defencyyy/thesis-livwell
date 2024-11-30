@@ -5,7 +5,7 @@
     <div class="affiliated-units-page">
       <SideNav />
       <div class="content">
-        <h1>Welcome to Affiliated Units</h1>
+        <h1 class="display-5 fw-bolder text-capitalize">Welcome to Affiliated Units</h1>
         <div v-if="sites.length" class="site-sales">
           <div class="site-card-container">
             <div
@@ -15,9 +15,9 @@
               @click="() => redirectToUnits(site.id)"
             >
               <img :src="site.picture" alt="Site Picture" />
-              <h2>{{ site.name }}</h2>
-              <p>{{ site.description }}</p>
-              <p>Location: {{ site.location }}</p>
+              <h2 class="display-6 fw-bolder text-capitalize">{{ site.name }}</h2>
+              <p class="text-start">{{ site.description }}</p>
+              <p class="text-start"><b>Location: </b> {{ site.location }}</p>
             </div>
           </div>
         </div>
@@ -99,12 +99,18 @@ export default {
 .affiliated-units-page {
   display: flex;
   height: 100vh;
+ 
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  margin: 20px 20px 20px 20px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: rgb(223, 255, 223);
 }
 
 .site-sales {
@@ -116,7 +122,7 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin: 0 auto;
-  
+ 
 }
 
 .site-card {
@@ -126,10 +132,12 @@ export default {
   text-align: center;
   cursor: pointer;
   transition: box-shadow 0.3s;
+  background-color: rgb(253, 253, 253);
 }
 
 .site-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: rgb(230, 230, 230);
 }
 
 .site-card img {

@@ -2,7 +2,7 @@
  
     <nav class="navbar navbar-expand-lg  fixed-top mask-custom shadow-0 ">
         <div class="container">
-            <a class="navbar-brand" href="./HomeView.vue"><span style="color: black;">Liv</span><span style="color: #fff;">Well</span></a>
+            <a class="navbar-brand" href="./HomeView.vue"><span style="color: black;">PN</span><span style="color: #fff;">PM</span></a>
             <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
                 data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">

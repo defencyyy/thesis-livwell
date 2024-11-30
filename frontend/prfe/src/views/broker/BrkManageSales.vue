@@ -6,7 +6,7 @@
 
     <SideNav />
     <div class="content">
-      <h1>Welcome to the Manage Sales Page</h1>
+      <h1 class="display-5 fw-bolder text-capitalize">Welcome to the Manage Sales Page</h1>
       <p>This is where you can manage sales data for brokers and developers.</p>
 
       <!-- Sales Table -->
@@ -25,11 +25,12 @@
             :key="sale.id"
             @click="openSalesAgreementModal(sale)"
             style="cursor: pointer"
-          >
-            <td>{{ sale.customer_name}}({{ sale.customer_code }})</td>
-            <td>{{ sale.site_name }}</td>
-            <td>{{ sale.unit_title }}</td>
-            <td>{{ sale.status }}</td>
+           
+          > 
+            <td class="text-uppercase">{{ sale.customer_name}}({{ sale.customer_code }})</td>
+            <td class="text-uppercase">{{ sale.site_name }}</td>
+            <td class="text-uppercase">{{ sale.unit_title }}</td>
+            <td class="text-uppercase">{{ sale.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -244,8 +245,8 @@
               <li><strong>TIN:</strong> A clear copy of the customer's Taxpayer Identification Number (TIN) certificate.</li>
               </ul>
           </div>
-        <button @click="submitToCustomer">Submit to Customer</button>
-        <button @click="closeModal">Close</button>
+            <button @click="submitToCustomer">Submit to Customer</button>
+            <button @click="closeModal">Close</button>
 
             <!-- Loading Indicator -->
         <div v-if="loading" class="loading-overlay">
@@ -614,31 +615,42 @@ export default {
   flex: 1;
   padding: 20px;
   text-align: center;
+
+  
 }
 
 .sales-table {
   width: 100%;
   margin-top: 20px;
-  border-collapse: collapse;
+  border-collapse: separate; /* Enables border radius */
+  border-spacing: 0; /* Ensures proper alignment for border radius */
   text-align: left;
+  background-color: white; /* Ensure the table has a distinct background */
+
+  box-shadow: 0 15px 12px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
+
 }
 
 .sales-table th,
 .sales-table td {
   padding: 8px;
-  border: 1px solid #ccc;
-  text-align: left;
+  border-bottom: 1px solid #ccc;
+  text-align: start
 }
 
 .sales-table th {
   background-color: #c2ffd1;
 }
 
-.sales-table:hover
-{
-  background-color:  #00f2fe;
+
+
+
+
+.sales-table tr:hover {
+  background-color: #c2c2c2;
   transition: ease 0.3s;
 }
+
 
 /* .modal {
   position: fixed;
@@ -665,15 +677,14 @@ export default {
 /* Modal Background */
 /* Modal Background */
 .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
+
   width: 100%;
   height: 100%;
-  background: linear-gradient(to right, #4facfe, #00f2fe); /* Gradient Background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  display: flex;
 }
 
 /* Modal Content */
@@ -728,6 +739,56 @@ export default {
   background: #0056b3;
 }
 
+
+
+/* BUTTON FOR ADD CUSTOMER AND CLOSE */
+
+button {
+  padding: 10px 20px; /* Add padding for a comfortable size */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 16px; /* Increase text size for better readability */
+  cursor: pointer; /* Change cursor to pointer for interactivity */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+/* Submit to Customer Button */
+button:first-of-type {
+  background-color: #28a745; /* Green background */
+  color: white; /* White text */
+}
+
+button:first-of-type:hover {
+  background-color: #218838; /* Darker green on hover */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
+}
+
+button:first-of-type:active {
+  background-color: #1e7e34; /* Even darker green on click */
+  transform: scale(0.98); /* Slight shrink effect on click */
+}
+
+/* Close Button */
+button:last-of-type {
+  background-color: #dc3545; /* Red background */
+  color: white; /* White text */
+  margin-left: 10px; /* Add spacing between buttons */
+}
+
+button:last-of-type:hover {
+  background-color: #c82333; /* Darker red on hover */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
+}
+
+button:last-of-type:active {
+  background-color: #bd2130; /* Even darker red on click */
+  transform: scale(0.98); /* Slight shrink effect on click */
+}
+
+
+
+
+
 /* Dropdown Styling */
 .dropdown {
   width: 100%;
@@ -770,10 +831,17 @@ export default {
 }
 
 .detailed-schedule {
+  color: #0056b3;
   margin-top: 20px;
   border-top: 1px solid #ccc;
   padding-top: 10px;
+
 }
+
+
+
+
+
 
 .toggle-button {
   background-color: #007bff;
@@ -932,6 +1000,43 @@ input[type="file"]::file-selector-button:hover {
 input[type="file"]::file-selector-button:focus {
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Add focus effect */
+}
+
+
+
+
+.form-group label {
+  font-size: 16px; /* Increase label size */
+  font-weight: bold; /* Make label bold */
+  color: #0056b3; /* Use a professional blue tone */
+  margin-bottom: 8px; /* Add spacing below the label */
+}
+
+.form-group input[type="number"] {
+  width: 100%; /* Make the input take up full width */
+  padding: 10px; /* Add padding for a better click area */
+  font-size: 16px; /* Match font size with the label */
+  border: 1px solid #ccc; /* Light border for input */
+  border-radius: 8px; /* Add rounded corners */
+  background-color: #f9f9f9; /* Light background for input */
+  color: #333; /* Text color */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+}
+
+.form-group input[type="number"]:hover {
+  border-color: #007bff; /* Change border color on hover */
+}
+
+.form-group input[type="number"]:focus {
+  border-color: #0056b3; /* Darker border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+}
+
+.form-group input[type="number"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
 }
 
 </style>

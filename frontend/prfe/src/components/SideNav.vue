@@ -3,11 +3,14 @@
     <div :class="['sidebar']">
       <div class="sidebar-header">
         <img
-          src="https://via.placeholder.com/150"
+          src="https://www.bworldonline.com/wp-content/uploads/2021/09/DMCI-HOMES-LOGO.jpg"
           alt="Logo"
           class="sidebar-logo"
+          width="200px"
+          height="100px"
+          style="padding-top: 20px;"
         />
-        <h4 id="sidebar-title" class="text-white">Company Name</h4>
+        <h4 id="sidebar-title" class="text-white">DMCI</h4>
       </div>
       <nav class="sidebar-nav">
         <b-nav vertical>

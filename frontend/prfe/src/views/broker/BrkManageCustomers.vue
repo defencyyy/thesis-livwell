@@ -4,7 +4,7 @@
   <div class="manage-customers-page">
     <SideNav />
     <div class="content">
-      <h1>Manage Customers</h1>
+      <h1 class="display-5 fw-bolder text-capitalize">Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
       <!-- Sorting and Adding Customers Section -->
@@ -24,37 +24,42 @@
 
       <!-- Add Customer Modal -->
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
-        <form @submit.prevent="addCustomer">
-          <div>
+        <form @submit.prevent="addCustomer" class="form-container">
+          <div class="form-group">
             <label for="email">Email:</label>
-            <input type="email" v-model="email" id="email" required />
+            <input type="email" v-model="email" id="email" class="input-field" required />
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="contactNumber">Contact Number:</label>
             <input
               type="text"
               v-model="contactNumber"
               id="contactNumber"
+              class="input-field"
               required
             />
           </div>
-          <div>
+
+          <div class="form-group">
             <label for="lastName">Last Name:</label>
-            <input type="text" v-model="lastName" id="lastName" required />
+            <input type="text" v-model="lastName" id="lastName" class="input-field" required />
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="firstName">First Name:</label>
-            <input type="text" v-model="firstName" id="firstName" required />
+            <input type="text" v-model="firstName" id="firstName" class="input-field" required />
           </div>
 
-          <button type="submit">Submit</button>
-          <button type="button" @click="showModal = false">Cancel</button>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-submit">Submit</button>
+            <button type="button" @click="showModal = false" class="btn btn-cancel">Cancel</button>
+          </div>
         </form>
 
         <p v-if="error" class="text-danger">{{ error }}</p>
       </b-modal>
+
 
       <!-- Multiple Document Upload Modal -->
       <b-modal
@@ -158,20 +163,30 @@
             <td>{{ customer.document_status }}</td>
             <td>
               <!-- Documents Button -->
+             <!-- Documents Button -->
               <button
                 @click="openDocumentModal(customer)"
                 class="btn btn-primary me-5"
               >
-                Documents
+                <i class="fas fa-file-alt"></i> Documents
               </button>
+
               <!-- Edit Button -->
-              <button @click="openEditModal(customer)" class="btn btn-warning me-5">
-                Edit
+              <button
+                @click="openEditModal(customer)"
+                class="btn btn-warning me-5"
+              >
+                <i class="fas fa-edit"></i> Edit
               </button>
-              <!-- Archive Button (Placeholder) -->
-              <button @click="archiveCustomer(customer)" class="btn btn-danger">
-                Archive
+
+              <!-- Archive Button -->
+              <button
+                @click="archiveCustomer(customer)"
+                class="btn btn-danger"
+              >
+                <i class="fas fa-archive"></i> Archive
               </button>
+
             </td>
           </tr>
         </tbody>
@@ -190,53 +205,57 @@
 
       <!-- Edit Customer Modal -->
       <b-modal v-model="showEditModal" title="Edit Customer" hide-footer>
-        <form @submit.prevent="updateCustomer">
-          <div>
+        <form @submit.prevent="updateCustomer" class="form-container">
+          <div class="form-group">
             <label for="editEmail">Email:</label>
-            <input type="email" v-model="editEmail" id="editEmail" required />
+            <input type="email" v-model="editEmail" id="editEmail" class="input-field" required />
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="editContactNumber">Contact Number:</label>
             <input
               type="text"
               v-model="editContactNumber"
               id="editContactNumber"
+              class="input-field"
               required
             />
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="editLastName">Last Name:</label>
             <input
               type="text"
               v-model="editLastName"
               id="editLastName"
+              class="input-field"
               required
             />
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="editFirstName">First Name:</label>
             <input
               type="text"
               v-model="editFirstName"
               id="editFirstName"
+              class="input-field"
               required
             />
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="submit-btn">Update Customer</button>
+            <button type="submit" class="btn btn-submit">Update Customer</button>
             <button
               type="button"
               @click="showEditModal = false"
-              class="cancel-btn"
+              class="btn btn-cancel"
             >
               Cancel
             </button>
           </div>
         </form>
+
       </b-modal>
     </div>
   </div>
@@ -811,4 +830,82 @@ export default {
 
 
 
+
+.form-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Labels */
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Input Fields */
+.input-field {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-field:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+  outline: none;
+}
+
+.form-actions {
+  
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+
+/* Buttons */
+.btn {
+  padding: 15px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+ 
+}
+
+.btn-submit {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-submit:hover {
+  background-color: #0056b3;
+}
+
+.btn-cancel {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #cc0000;
+}
 </style>
