@@ -13,7 +13,7 @@
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-        <i class="bi bi-person-circle profile-icon"></i>
+          <i class="bi bi-person-circle profile-icon"></i>
         </a>
         <ul
           class="dropdown-menu dropdown-menu-end text-small"
@@ -194,7 +194,6 @@ export default {
   color: #fff;
   margin-right: 5px; /* Space between icon and dropdown */
 }
-
 
 .dropdown-menu {
   padding: 12px 5px !important;

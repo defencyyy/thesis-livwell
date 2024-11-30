@@ -39,8 +39,7 @@ urlpatterns = [
     path('mark/<int:customer_id>/<int:sales_id>/', views.mark_unit_as_sold, name='mark_unit_as_sold'),
     path('milestones/', views.get_milestones, name='get_milestones'),
 
-
-
+    # PRBE
 
     # Developers
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  

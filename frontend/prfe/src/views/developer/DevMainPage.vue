@@ -37,28 +37,25 @@ export default {
     },
   },
   mounted() {
-    // Check if the user is logged in, has a developer role, and belongs to the correct company
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
       this.redirectToLogin();
     }
-
-    // Set up Axios interceptor to handle token refresh
     this.setupAxiosInterceptor();
   },
   watch: {
     loggedIn(newVal) {
-      if (!newVal || this.userType !== "developer" || !this.companyId) {
-        this.redirectToLogin();
+      if (!newVal) {
+        this.redirectToLogin(); // Handle redirect to login page if logged out
       }
     },
     userType(newVal) {
-      if (newVal !== "developer" || !this.companyId) {
-        this.redirectToLogin();
+      if (newVal !== "developer") {
+        this.redirectToLogin(); // Prevent access if the user is not a developer
       }
     },
     companyId(newVal) {
-      if (!newVal || this.userType !== "developer") {
-        this.redirectToLogin();
+      if (!newVal) {
+        this.redirectToLogin(); // Prevent access if no company ID
       }
     },
   },
@@ -94,23 +91,29 @@ export default {
     },
 
     redirectToLogin() {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      this.$store.commit("clearUser");
       this.$router.push({ name: "Home" });
     },
-
     // Handle token refresh logic here
     async refreshToken() {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        this.handleTokenRefreshFailure(); // Handle missing refresh token
+        return;
+      }
+
       try {
         const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/", // Your token refresh endpoint
-          {
-            refresh: localStorage.getItem("refreshToken"),
-          }
+          "http://localhost:8000/api/token/refresh/",
+          { refresh: refreshToken }
         );
         const { access } = response.data;
 
-        // Store the new access token
-        localStorage.setItem("accessToken", access);
-        this.$store.commit("setAuthToken", access); // Update Vuex store with new token
+        // Store the new access token in Vuex and localStorage
+        this.$store.commit("setAuthToken", access);
+        localStorage.setItem("accessToken", access); // Update localStorage
         return access;
       } catch (error) {
         console.error("Token refresh failed", error);
@@ -118,7 +121,6 @@ export default {
         throw error;
       }
     },
-
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
       localStorage.removeItem("accessToken");
