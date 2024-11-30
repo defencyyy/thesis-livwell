@@ -1,6 +1,7 @@
 from django.db import models
 from brokers.models import Broker
 from companies.models import Company
+from django.db.models import Max
 
 class Customer(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -15,9 +16,9 @@ class Customer(models.Model):
     class Meta:
         unique_together = ('broker', 'customer_code')  # Added unique constraint
 
-  @property
-  def name(self):
-      return f"{self.first_name} {self.last_name}"
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
         return f"{self.last_name}, {self.first_name}"
