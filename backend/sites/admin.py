@@ -2,15 +2,50 @@ from django.contrib import admin
 from django.utils.html import mark_safe
 from .models import Site, Floor
 from prbe.admin import custom_admin_site
+from django import forms
 
-# Inline to manage floors directly within the site admin page
 class FloorInline(admin.TabularInline):
     model = Floor
     extra = 1  # Shows one empty form by default for adding new floors
     fields = ['floor_number']
     readonly_fields = ['floor_number']
 
+    def get_queryset(self, request):
+        """
+        Fetch the floors for the current site being edited without using self.instance.
+        """
+        site_id = request.resolver_match.kwargs.get('object_id')  # Get the site ID from the URL
+        queryset = super().get_queryset(request)
+        if site_id:
+            return queryset.filter(site_id=site_id)  # Filter floors based on the site_id
+        return queryset
+
+# Form to allow adding multiple floors at once
+class SiteAdminForm(forms.ModelForm):
+    add_multiple_floors = forms.IntegerField(min_value=1, required=False, label="Number of Floors to Add")
+
+    class Meta:
+        model = Site
+        fields = '__all__'
+
+    def save(self, commit=True):
+        site = super().save(commit=False)
+
+        # If we are adding multiple floors, create them
+        num_floors = self.cleaned_data.get('add_multiple_floors', 0)
+        if num_floors > 0:
+            max_floor_number = site.floors.count() + 1
+            for i in range(num_floors):
+                Floor.objects.create(site=site, floor_number=max_floor_number)
+                max_floor_number += 1
+
+        if commit:
+            site.save()
+        return site
+
 class SiteAdmin(admin.ModelAdmin):
+    form = SiteAdminForm  # Use the custom form for the SiteAdmin
+    
     # Define the fields to display in the site list
     list_display = ('id', 'company', 'name', 'location', 'status', 'created_at', 'archived', 'image_preview')
     
@@ -40,4 +75,3 @@ class SiteAdmin(admin.ModelAdmin):
     image_preview.short_description = 'Logo Preview'
 
 custom_admin_site.register(Site, SiteAdmin)
-
