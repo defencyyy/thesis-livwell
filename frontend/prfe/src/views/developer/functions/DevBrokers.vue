@@ -96,31 +96,33 @@
               <td>{{ broker.first_name }}</td>
               <td>{{ broker.last_name }}</td>
               <td>{{ broker.contact_number }}</td>
-              <!-- Edit Button -->
-              <button
-                @click="openEditModal(broker)"
-                class="btn btn-sm btn-primary"
-              >
-                <i class="fas fa-edit"></i> Edit
-              </button>
+              <td>
+                <!-- Edit Button -->
+                <button
+                  @click="openEditModal(broker)"
+                  class="btn btn-sm btn-primary"
+                >
+                  <i class="fas fa-edit"></i> Edit
+                </button>
 
-              <!-- Unarchive button for archived view -->
-              <button
-                v-if="showArchived"
-                @click="unarchiveBroker(broker.id)"
-                class="btn btn-sm btn-success"
-              >
-                <i class="fas fa-undo"></i> Unarchive
-              </button>
+                <!-- Unarchive button for archived view -->
+                <button
+                  v-if="showArchived"
+                  @click="unarchiveBroker(broker.id)"
+                  class="btn btn-sm btn-success"
+                >
+                  <i class="fas fa-undo"></i> Unarchive
+                </button>
 
-              <!-- Archive button for active view -->
-              <button
-                v-else
-                @click="archiveBroker(broker.id)"
-                class="btn btn-sm btn-warning"
-              >
-                <i class="fas fa-archive"></i> Archive
-              </button>
+                <!-- Archive button for active view -->
+                <button
+                  v-else
+                  @click="archiveBroker(broker.id)"
+                  class="btn btn-sm btn-warning"
+                >
+                  <i class="fas fa-archive"></i> Archive
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

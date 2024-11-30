@@ -92,14 +92,12 @@ class SiteDetailView(APIView):
 
         data = request.data.copy()  # Make a mutable copy to avoid QueryDict issues
         data['company'] = company.id
-        print(data)
 
         serializer = SiteSerializer(site, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
-        print("Validation Errors:", serializer.errors)
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -123,3 +121,42 @@ class StatusOptionsView(APIView):
     def get(self, request):
         status_options = dict(Site.STATUS_CHOICES) 
         return Response({"status_options": status_options}, status=200)
+
+class ArchivedSiteView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        List all archived sites for the logged-in developer's company.
+        """
+        company = get_developer_company(request)
+        if not company:
+            return Response(
+                {"error": "Company not found for this developer."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        archived_sites = Site.objects.filter(company=company, archived=True)
+        serializer = SiteSerializer(archived_sites, many=True)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        company = get_developer_company(request)
+        if not company:
+            return Response(
+                {"error": "Company not found for this developer."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            site = Site.objects.get(pk=pk, company=company, archived=True)
+            site.archived = False
+            site.save()
+            return Response({"success": True, "message": "Site unarchived successfully."}, status=status.HTTP_200_OK)
+        
+        except Site.DoesNotExist:
+            return Response(
+                {"error": "Site not found or not archived."},
+                status=status.HTTP_404_NOT_FOUND,
+            )

@@ -144,34 +144,30 @@
                     <td>{{ site.location || "Location unavailable" }}</td>
                     <td>{{ site.status || "Status unavailable" }}</td>
                     <td>
-                      <!-- Edit Button as Icon (Blue) -->
+                      <!-- Edit Button -->
                       <button
                         @click.stop="openEditModal(site)"
-                        style="
-                          border: none;
-                          background-color: transparent;
-                          cursor: pointer;
-                          padding: 8px;
-                          font-size: 18px;
-                        "
+                        class="btn btn-sm btn-primary"
                       >
-                        <i class="fas fa-edit" style="color: black"></i>
-                        <!-- GINAWA KO GANTO PUTI SAKIN - Cy -->
+                        <i class="fas fa-edit"></i> Edit
                       </button>
 
-                      <!-- Delete Button as Icon (Red) -->
+                      <!-- Archive Button (for active view) -->
                       <button
+                        v-if="!site.archived"
                         @click.stop="archiveSite(site)"
-                        style="
-                          border: none;
-                          background-color: transparent;
-                          cursor: pointer;
-                          padding: 8px;
-                          font-size: 18px;
-                        "
+                        class="btn btn-sm btn-warning"
                       >
-                        <i class="fas fa-trash" style="color: black"></i>
-                        <!-- GINAWA KO GANTO PUTI SAKIN - Cy -->
+                        <i class="fas fa-archive"></i> Archive
+                      </button>
+
+                      <!-- Unarchive Button (for archived view) -->
+                      <button
+                        v-else
+                        @click.stop="unarchiveSite(site)"
+                        class="btn btn-sm btn-success"
+                      >
+                        <i class="fas fa-undo"></i> Unarchive
                       </button>
                     </td>
                   </tr>
@@ -614,6 +610,7 @@ export default {
       },
       editSite: {},
       sites: [],
+      archivedSites: [],
       regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
       provinceOptions: [], // Stores provinces in the selected region
       municipalityOptions: [], // Stores municipalities in the selected province
@@ -640,14 +637,13 @@ export default {
       return this.companyId;
     },
     filteredSites() {
-      return this.sites
+      const sitesToFilter = this.showArchived ? this.archivedSites : this.sites;
+      return sitesToFilter
         .filter(
           (site) =>
-            site &&
             site.name &&
             site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         )
-        .filter((site) => this.showArchived || !site.isArchived)
         .sort((a, b) =>
           this.sortBy === "name"
             ? (a.name || "").localeCompare(b.name || "")
@@ -717,6 +713,130 @@ export default {
         }
       }
     },
+
+    async fetchArchivedSites() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/archived/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.archivedSites = response.data.data.map((site) => ({
+            ...site,
+            location: this.constructLocation(site), // Build location dynamically
+          }));
+          console.log("Archived sites fetched:", this.archivedSites);
+        }
+      } catch (error) {
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchArchivedSites(); // Retry fetching archived sites
+          }
+        } else {
+          console.error(
+            "Error fetching archived sites:",
+            error.response || error
+          );
+        }
+      }
+    },
+    async archiveSite(site) {
+      const siteId = site.id; // Get the site ID
+      console.log("Archiving site with ID:", siteId);
+
+      if (confirm("Are you sure you want to archive this site?")) {
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/developer/sites/${siteId}/`, // Correct endpoint for updating the site
+            {
+              name: site.name, // Pass the existing name or other required fields
+              description: site.description,
+              region: site.region,
+              province: site.province,
+              municipality: site.municipality,
+              barangay: site.barangay,
+              postal_code: site.postal_code,
+              picture: site.picture, // If you want to keep the picture
+              status: site.status,
+              archived: true, // If you need to update the archive status
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+              params: { action: "archive" }, // Send action=archive as query parameter
+            }
+          );
+
+          if (response.status === 200) {
+            console.log("Site archived successfully.");
+            this.fetchSites();
+            this.fetchArchivedSites();
+          }
+        } catch (error) {
+          console.error("Error archiving site:", error.response?.data || error);
+        }
+      }
+    },
+    async unarchiveSite(site) {
+      const siteId = site.id; // Get the site ID
+      console.log("Unarchiving site with ID:", siteId);
+
+      if (confirm("Are you sure you want to unarchive this site?")) {
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/developer/sites/${siteId}/`, // Correct endpoint for updating the site
+            {
+              name: site.name, // Pass the existing name or other required fields
+              description: site.description,
+              region: site.region,
+              province: site.province,
+              municipality: site.municipality,
+              barangay: site.barangay,
+              postal_code: site.postal_code,
+              picture: site.picture, // If you want to keep the picture
+              status: site.status,
+              archived: false, // Update the archived status to false (unarchive)
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+              params: { action: "unarchive" }, // Send action=unarchive as query parameter
+            }
+          );
+
+          if (response.status === 200) {
+            console.log("Site unarchived successfully.");
+            this.fetchSites(); // Refresh the site list
+            this.fetchArchivedSites(); // Refresh the archived site list
+          }
+        } catch (error) {
+          console.error(
+            "Error unarchiving site:",
+            error.response?.data || error
+          );
+        }
+      }
+    },
+    toggleArchived() {
+      this.showArchived = !this.showArchived;
+      console.log("Toggled archived view:", this.showArchived);
+
+      if (this.showArchived && this.archivedSites.length === 0) {
+        // Fetch archived sites only when switching to archived view
+        this.fetchArchivedSites();
+      }
+    },
+    toggleView() {
+      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
+    },
     constructLocation(site) {
       const addressParts = [
         site.region,
@@ -726,13 +846,6 @@ export default {
         site.postal_code ? `Postal Code: ${site.postal_code}` : null,
       ];
       return addressParts.filter(Boolean).join(", "); // Join non-empty parts
-    },
-    toggleView() {
-      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
-    },
-    toggleArchived() {
-      this.showArchived = !this.showArchived;
-      console.log("Show archived:", this.showArchived);
     },
     async loadRegionData() {
       try {
@@ -986,31 +1099,7 @@ export default {
         }
       }
     },
-    async archiveSite(site) {
-      try {
-        console.log("Archiving site:", site);
 
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${site.id}/`,
-          { ...site, isArchived: true },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          // Update sites array
-          this.sites = this.sites.map((s) =>
-            s.id === site.id ? { ...s, isArchived: true } : s
-          );
-          console.log("Site archived successfully.");
-        }
-      } catch (error) {
-        console.error("Error archiving site:", error.response?.data || error);
-      }
-    },
     viewSite(site) {
       if (site) {
         this.selectedSite = site;
@@ -1052,6 +1141,9 @@ export default {
     console.log("Component mounted, fetching sites...");
     this.fetchSites();
     this.loadRegionData();
+    if (this.showArchived) {
+      this.fetchArchivedSites();
+    }
   },
   watch: {
     showArchived() {},
