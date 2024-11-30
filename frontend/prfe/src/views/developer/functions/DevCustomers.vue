@@ -4,15 +4,20 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <div class="title-wrapper">
-          <div class="title-icon"></div>
-          <div class="edit-title">Customer Management</div>
+        <div class = "title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Customer Details</div>
+          </div>
+          <!-- Header Section -->
+          <div class = "total-customers">
+              <div>Total Customers: {{ filteredCustomers.length }}</div>
+          </div>
         </div>
 
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 1100px"
-        >
+        <div class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+
           <div class="card-body">
             <!-- Toolbar -->
             <div class="toolbar">
@@ -30,46 +35,82 @@
               <div class="right-section"></div>
             </div>
 
-            <!-- Customer Table -->
-            <table v-if="currentCustomers.length" class="table">
-              <thead>
-                <tr>
-                  <th>First Name</th>
-                  <th>Last Name</th>
-                  <th>Email</th>
-                  <th>Contact</th>
-                  <th>Broker</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="customer in currentCustomers" :key="customer.id">
-                  <td>{{ customer.first_name }}</td>
-                  <td>{{ customer.last_name }}</td>
-                  <td>{{ customer.email }}</td>
-                  <td>{{ customer.contact_number }}</td>
-                  <td>
-                    {{
-                      customer.broker
-                        ? customer.broker.first_name +
-                          " " +
-                          customer.broker.last_name
-                        : "N/A"
-                    }}
-                  </td>
+            <!-- Broker Table -->
+            <div>
 
-                  <td>
-                    <button
-                      @click="viewCustomer(customer)"
-                      class="btn btn-info"
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p v-else>No customers found.</p>
+              <!-- Headers outside the card -->
+              <div class="outside-headers">
+                <span class="header-item">Name</span>
+                <span class="header-item">Email</span>
+                <span class="header-item">Contact</span>
+                <span class="header-item">Broker Name</span>
+                <span class="header-item">Actions</span>
+              </div>
+
+              <!-- Conditional Rendering -->
+              <div v-if="currentCustomers.length === 0" class="no-customers-message">
+                No customers found.
+              </div>
+
+              <div
+                v-else
+                v-for="(customer, index) in currentCustomers"
+                :key="customer.id || index"
+                class="card border-0 rounded-1 mx-auto my-2"
+                style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+              >
+                <div class="card-body">
+                  <table class="customer-table">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="customer-name">
+                            {{ customer.first_name + " " + customer.last_name }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="customer-email">
+                            {{ customer.email }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="customer-number">
+                            {{ customer.contact_number }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="customer-broker">
+                            {{
+                              customer.broker
+                                ? customer.broker.first_name +
+                                  " " +
+                                  customer.broker.last_name
+                                : "N/A"
+                            }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="broker-actions d-flex gap-2">
+                            <button 
+                              @click="viewCustomer(customer)"
+                              style = "
+                                border: none;
+                                background-color: transparent;
+                                color: #343a40;
+                                cursor: pointer;
+                                font-size: 18px;
+                              ">
+                              <i class = "fas fa-eye"></i>  
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
 
             <!-- Pagination -->
             <div
@@ -85,8 +126,10 @@
                 {{ page }}
               </button>
             </div>
+
           </div>
         </div>
+
       </div>
     </div>
 
@@ -409,17 +452,54 @@ export default {
 
 <style scoped>
 /* Reuse styles from DeveloperBrokers */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #f6f6f6;
+  /* Gray background */
+}
+
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeader {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
 }
 
 .main-content {
+  display: flex;
+  /* margin-left: 250px; */
+  flex-direction: column;
   flex: 1;
-  margin-left: 250px;
+  margin-top: 60px;
 }
 
 .content {
+  flex: 1;
   padding: 20px;
   text-align: center;
 }
@@ -427,14 +507,159 @@ export default {
 .title-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto; /* Center the wrapper */
 }
+
+.title-left {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  gap: 10px; /* Add space between the icon and title */
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+}
+
+.edit-title {
+  color: #000000;
+  font-size: 16px; /* Adjust as needed */
+  font-weight: bold;
+  margin: 0; /* Remove default margin */
+}
+
 
 .toolbar {
   display: flex;
+  gap: 10px;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  max-width: 1100px;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+}
+
+.customer-name {
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.customer-table th,
+.customer-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.customer-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.customer-table th:nth-child(2),
+.customer-table td:nth-child(2) {
+  /* Location column */
+  width: 20%;
+}
+
+.customer-table th:nth-child(3),
+.customer-table td:nth-child(3) {
+  /* Status column */
+  width: 25%;
+}
+
+.customer-table th:nth-child(4),
+.customer-table td:nth-child(4) {
+  /* Actions column */
+  width: 20%;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  /* Actions column */
+  width: 10%;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 25% 20% 25% 20% 10%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
 }
 
 .table {
