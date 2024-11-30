@@ -33,7 +33,6 @@
         >
           <div class="card-body">
             <div class="row">
-              <!-- Toolbar -->
               <div class="toolbar">
                 <div class="left-section">
                   <div class="search-bar-container">
@@ -48,10 +47,20 @@
                 </div>
                 <div class="right-section">
                   <button
-                    @click="showModal = true"
                     class="btn-primary add-button"
+                    @click="showModal = true"
                   >
                     Add Broker
+                  </button>
+                  <button
+                    class="btn-secondary toggle-button"
+                    @click="toggleView"
+                  >
+                    {{
+                      showArchived
+                        ? "Show Active Brokers"
+                        : "Show Archived Brokers"
+                    }}
                   </button>
                 </div>
               </div>
@@ -87,9 +96,31 @@
               <td>{{ broker.first_name }}</td>
               <td>{{ broker.last_name }}</td>
               <td>{{ broker.contact_number }}</td>
-              <td>
-                <button @click="openEditModal(broker)">Edit</button>
-              </td>
+              <!-- Edit Button -->
+              <button
+                @click="openEditModal(broker)"
+                class="btn btn-sm btn-primary"
+              >
+                <i class="fas fa-edit"></i> Edit
+              </button>
+
+              <!-- Unarchive button for archived view -->
+              <button
+                v-if="showArchived"
+                @click="unarchiveBroker(broker.id)"
+                class="btn btn-sm btn-success"
+              >
+                <i class="fas fa-undo"></i> Unarchive
+              </button>
+
+              <!-- Archive button for active view -->
+              <button
+                v-else
+                @click="archiveBroker(broker.id)"
+                class="btn btn-sm btn-warning"
+              >
+                <i class="fas fa-archive"></i> Archive
+              </button>
             </tr>
           </tbody>
         </table>
@@ -303,15 +334,17 @@ export default {
       lastName: "",
       firstName: "",
       password: "",
-      error: null,
-      successMessage: null,
+      showArchived: false,
       brokers: [],
+      archivedBrokers: [],
       searchQuery: "",
       brokersPerPage: 15,
       currentPage: 1,
       editModalVisible: false,
       editBroker: {},
-      // Add error tracking
+      // Error Tracking
+      error: null,
+      successMessage: null,
       emailError: null,
       contactNumberError: null,
       lastNameError: null,
@@ -334,24 +367,28 @@ export default {
       return this.companyId;
     },
     filteredBrokers() {
-      return this.brokers.filter(
-        (broker) =>
-          broker.first_name
+      const brokers = this.showArchived ? this.archivedBrokers : this.brokers;
+
+      // Apply search filtering
+      if (this.searchQuery) {
+        return brokers.filter((broker) =>
+          Object.values(broker)
+            .join(" ")
             .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          broker.last_name
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          broker.email.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    },
-    totalPages() {
-      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
+            .includes(this.searchQuery.toLowerCase())
+        );
+      }
+
+      return brokers;
     },
     currentBrokers() {
+      // Paginate the brokers
       const start = (this.currentPage - 1) * this.brokersPerPage;
       const end = start + this.brokersPerPage;
       return this.filteredBrokers.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
     },
   },
 
@@ -392,6 +429,30 @@ export default {
       this.editBroker = { ...broker };
       this.editModalVisible = true;
       this.resetForm(); // Reset error messages when modal opens
+    },
+    toggleView() {
+      this.showArchived = !this.showArchived;
+      if (this.showArchived) {
+        this.fetchArchivedBrokers();
+      } else {
+        this.fetchBrokers();
+      }
+    },
+    async fetchArchivedBrokers() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/brokers/archived/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.archivedBrokers = response.data;
+      } catch (error) {
+        console.error("Error fetching archived brokers:", error);
+        this.error = "Failed to load archived brokers.";
+      }
     },
 
     async fetchBrokers() {
@@ -459,6 +520,48 @@ export default {
         } catch (error) {
           console.error("Error updating broker:", error);
           this.error = "Failed to update broker. Please try again.";
+        }
+      }
+    },
+
+    async archiveBroker(brokerId) {
+      if (confirm("Are you sure you want to archive this broker?")) {
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/developer/brokers/${brokerId}/`,
+            { archived: true },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          console.log("Broker archived:", response.data);
+          alert("Broker archived successfully!");
+          // Refresh brokers list after archiving
+          this.fetchBrokers();
+        } catch (error) {
+          console.error("Error archiving broker:", error.response || error);
+          alert("Failed to archive broker. Please try again.");
+        }
+      }
+    },
+    async unarchiveBroker(brokerId) {
+      if (confirm("Are you sure you want to unarchive this broker?")) {
+        console.log("Attempting to unarchive broker:", brokerId);
+        try {
+          await axios.put(
+            `http://localhost:8000/developer/brokers/${brokerId}/`,
+            { archived: false },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          this.fetchArchivedBrokers();
+        } catch (error) {
+          console.error("Error unarchiving broker:", error.response || error);
         }
       }
     },
@@ -684,6 +787,19 @@ export default {
   /* Space on the left side */
   padding-right: 20px;
   /* Space on the right side */
+}
+
+.toggle-button {
+  margin-left: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  background-color: #e0e0e0;
 }
 
 .left-section {

@@ -26,8 +26,6 @@ class Broker(models.Model):
     last_login = models.DateTimeField(null=True, blank=True)
     archived = models.BooleanField(default=False)
 
-    is_active = models.BooleanField(default=True)
-
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
