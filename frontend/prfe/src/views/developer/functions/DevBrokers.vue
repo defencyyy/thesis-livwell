@@ -129,9 +129,11 @@
                         >
                           <i class="fas fa-edit"></i>
                         </button>
-                        <!-- Delete Button as Icon (Red) -->
+                        <!-- Unarchive button for archived view -->
                         <button
-                          @click="deleteBroker(broker)"
+                          v-if="showArchived"
+                          @click="unarchiveBroker(broker.id)"
+                          class="btn btn-sm btn-success"
                           style="
                             border: none;
                             background-color: transparent;
@@ -140,7 +142,23 @@
                             font-size: 18px;
                           "
                         >
-                          <i class="fas fa-trash"></i>
+                          <i class="fas fa-undo"></i>
+                        </button>
+
+                        <!-- Archive button for active view -->
+                        <button
+                          v-else
+                          @click="archiveBroker(broker.id)"
+                          class="btn btn-sm btn-warning"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-archive"></i>
                         </button>
                       </div>
                     </td>
@@ -150,56 +168,6 @@
             </div>
           </div>
         </div>
-
-        <table v-if="currentBrokers.length" class="table">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Username</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Contact Number</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="broker in currentBrokers" :key="broker.id">
-              <td>{{ broker.email }}</td>
-              <td>{{ broker.username }}</td>
-              <td>{{ broker.first_name }}</td>
-              <td>{{ broker.last_name }}</td>
-              <td>{{ broker.contact_number }}</td>
-              <td>
-                <!-- Edit Button -->
-                <button
-                  @click="openEditModal(broker)"
-                  class="btn btn-sm btn-primary"
-                >
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-
-                <!-- Unarchive button for archived view -->
-                <button
-                  v-if="showArchived"
-                  @click="unarchiveBroker(broker.id)"
-                  class="btn btn-sm btn-success"
-                >
-                  <i class="fas fa-undo"></i> Unarchive
-                </button>
-
-                <!-- Archive button for active view -->
-                <button
-                  v-else
-                  @click="archiveBroker(broker.id)"
-                  class="btn btn-sm btn-warning"
-                >
-                  <i class="fas fa-archive"></i> Archive
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else>No brokers found for this company.</p>
 
         <!-- Editing Brokers -->
         <b-modal

@@ -65,6 +65,13 @@
 
                 <div class="right-section">
                   <!-- Filter Button -->
+                  <button
+                    @click="toggleArchived"
+                    :class="['btn-secondary', { active: showArchived }]"
+                    class="filter-button"
+                  >
+                    {{ showArchived ? "View Archived" : "View Active" }}
+                  </button>
 
                   <!-- Add Site Button -->
                   <button
@@ -170,7 +177,7 @@
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-edit"></i> Edit
+                        <i class="fas fa-edit"></i>
                       </button>
 
                       <!-- Archive Button (for active view) -->
@@ -186,7 +193,7 @@
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-archive"></i> Archive
+                        <i class="fas fa-archive"></i>
                       </button>
 
                       <!-- Unarchive Button (for archived view) -->
