@@ -54,176 +54,129 @@
         </div>
         
         <!-- Broker Table -->
-                    <div>
+        <div>
 
-<!-- Headers outside the card -->
-<div class="outside-headers">
-  <span class="header-item">Name</span>
-  <span class="header-item">Email</span>
-  <span class="header-item">Contact</span>
-  <span class="header-item">Broker Name</span>
-  <span class="header-item">Actions</span>
-</div>
+          <!-- Headers outside the card -->
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Email</span>
+            <span class="header-item">Contact</span>
+            <span class="header-item">Broker Name</span>
+            <span class="header-item">Actions</span>
+          </div>
 
-<!-- Conditional Rendering -->
-<div v-if="currentCustomers.length === 0" class="no-customers-message">
-  No customers found.
-</div>
-
-<div
-  v-else
-  v-for="(customer, index) in currentCustomers"
-  :key="customer.id || index"
-  class="card border-0 rounded-1 mx-auto my-2"
-  style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
->
-  <div class="card-body">
-    <table class="customer-table">
-      <tbody>
-        <tr>
-          <td>
-            <span class="customer-name">
-              {{ customer.first_name + " " + customer.last_name }}
-            </span>
-          </td>
-          <td>
-            <span class="customer-email">
-              {{ customer.email }}
-            </span>
-          </td>
-          <td>
-            <span class="customer-number">
-              {{ customer.contact_number }}
-            </span>
-          </td>
-          <td>
-            <span class="customer-broker">
-              {{
-                customer.broker
-                  ? customer.broker.first_name +
-                    " " +
-                    customer.broker.last_name
-                  : "N/A"
-              }}
-            </span>
-          </td>
-          <td>
-            <div class="broker-actions d-flex gap-2">
-              <button 
-                @click="viewCustomer(customer)"
-                style = "
-                  border: none;
-                  background-color: transparent;
-                  color: #343a40;
-                  cursor: pointer;
-                  font-size: 18px;
-                ">
-                <i class = "fas fa-eye"></i>  
-              </button>
+            <!-- Conditional Rendering -->
+            <div v-if="currentCustomers.length === 0" class="no-customers-message">
+              No customers found.
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
-</div>
+            <div
+              v-else
+              v-for="(customer, index) in currentCustomers"
+              :key="customer.id || index"
+              class="card border-0 rounded-1 mx-auto my-2"
+              style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+            >
+              <div class="card-body">
+                <table class="customer-table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <span class="customer-name">
+                          {{ customer.first_name + " " + customer.last_name }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="customer-email">
+                          {{ customer.email }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="customer-number">
+                          {{ customer.contact_number }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="customer-broker">
+                          {{
+                            customer.broker
+                              ? customer.broker.first_name +
+                                " " +
+                                customer.broker.last_name
+                              : "N/A"
+                          }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="broker-actions d-flex gap-2">
+                          <button 
+                            @click="viewCustomer(customer)"
+                            style = "
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            ">
+                            <i class = "fas fa-eye"></i>  
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+        </div>
 
       </div>
     </div>
 
-    <!-- View/Edit Customer Modal -->
-    <b-modal v-model="showEditModal" title="Customer Details" hide-footer>
-      <form @submit.prevent="updateCustomer">
-        <!-- Customer Info -->
-        <h5>Customer Information</h5>
-        <div class="form-group">
-          <label for="editFirstName">First Name:</label>
-          <input
-            type="text"
-            v-model="currentCustomer.first_name"
-            id="editFirstName"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="editLastName">Last Name:</label>
-          <input
-            type="text"
-            v-model="currentCustomer.last_name"
-            id="editLastName"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="editEmail">Email:</label>
-          <input
-            type="email"
-            v-model="currentCustomer.email"
-            id="editEmail"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="editContact">Contact:</label>
-          <input
-            type="text"
-            v-model="currentCustomer.contact_number"
-            id="editContact"
-          />
-        </div>
+    <!-- View Customer Modal -->
+    <b-modal v-model="showEditModal" title="Customer Details" hide-footer centered>
+      <!-- Customer Info -->
+      <h5>Customer Information</h5>
+      <div class="form-group">
+        <label for="editFullName" style="font-weight: bold;">Full Name: </label>
+        <span id="editFullName">{{ currentCustomer.first_name }} {{ currentCustomer.last_name }}</span>
+      </div>
+      <div class="form-group">
+        <label for="editEmail" style="font-weight: bold;">Email: </label>
+        <span id="editEmail">{{ currentCustomer.email }}</span>
+      </div>
+      <div class="form-group">
+        <label for="editContact" style="font-weight: bold;">Contact: </label>
+        <span id="editContact">{{ currentCustomer.contact_number }}</span>
+      </div>
 
-        <!-- Broker Info -->
-        <h5 v-if="currentCustomer.broker">Broker Information</h5>
-        <div v-if="currentCustomer.broker" class="form-group">
-          <label for="brokerFirstName">Broker First Name:</label>
-          <input
-            type="text"
-            v-model="currentCustomer.broker.first_name"
-            id="brokerFirstName"
-            disabled
-          />
-        </div>
-        <div v-if="currentCustomer.broker" class="form-group">
-          <label for="brokerLastName">Broker Last Name:</label>
-          <input
-            type="text"
-            v-model="currentCustomer.broker.last_name"
-            id="brokerLastName"
-            disabled
-          />
-        </div>
-        <div v-if="currentCustomer.broker" class="form-group">
-          <label for="brokerEmail">Broker Email:</label>
-          <input
-            type="email"
-            v-model="currentCustomer.broker.email"
-            id="brokerEmail"
-            disabled
-          />
-        </div>
-        <div v-if="currentCustomer.broker" class="form-group">
-          <label for="brokerContact">Broker Contact:</label>
-          <input
-            type="text"
-            v-model="currentCustomer.broker.contact_number"
-            id="brokerContact"
-            disabled
-          />
-        </div>
+      <!-- Spacer -->
+      <div style="margin-top: 20px;"></div>
 
-        <!-- Buttons -->
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <button
-          type="button"
-          @click="showEditModal = false"
-          class="btn btn-secondary"
-        >
-          Cancel
-        </button>
-      </form>
+      <!-- Document Requirements -->
+      <h5>Submitted Documents</h5>
+
+      <!-- Spacer -->
+      <div style="margin-top: 20px;"></div>
+
+      <!-- Broker Info -->
+      <h5 v-if="currentCustomer.broker">Broker Information</h5>
+      <div v-if="currentCustomer.broker" class="form-group">
+        <label for="brokerFullName" style="font-weight: bold;">Broker Name: </label>
+        <span id="brokerFullName">{{ currentCustomer.broker.first_name }} {{ currentCustomer.broker.last_name }}</span>
+      </div>
+      <div v-if="currentCustomer.broker" class="form-group">
+        <label for="brokerEmail" style="font-weight: bold;">Broker Email: </label>
+        <span id="brokerEmail">{{ currentCustomer.broker.email }}</span>
+      </div>
+      <div v-if="currentCustomer.broker" class="form-group">
+        <label for="brokerContact" style="font-weight: bold;">Broker Contact: </label>
+        <span id="brokerContact">{{ currentCustomer.broker.contact_number }}</span>
+      </div>
     </b-modal>
+
+
+
   </div>
 </template>
 
@@ -660,17 +613,6 @@ body {
   font-size: 15px;
   color: #333;
   font-weight: bold;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
 }
 
 .pagination {
