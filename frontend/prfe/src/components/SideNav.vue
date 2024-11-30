@@ -231,6 +231,11 @@ export default {
             icon: "fas fa-user-tie",
           },
           {
+            name: "Customers",
+            link: "/developer/customers",
+            icon: "fas fa-user-tie",
+          },
+          {
             name: "Sites",
             link: "/developer/sites",
             icon: "fas fa-map-marker-alt",
