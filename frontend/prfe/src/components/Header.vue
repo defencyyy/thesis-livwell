@@ -13,14 +13,7 @@
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          <img
-            :src="profilePicture"
-            alt="profile"
-            class="rounded-circle"
-            width="35"
-            height="35"
-            style="margin-right: 5px"
-          />
+        <i class="bi bi-person-circle profile-icon"></i>
         </a>
         <ul
           class="dropdown-menu dropdown-menu-end text-small"
@@ -172,7 +165,7 @@ export default {
 .top-bar {
   background-color: #343a40;
   color: #fff;
-  padding: 10px 20px;
+  padding: 12px 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -200,6 +193,13 @@ export default {
   margin-left: 20px;
   margin-right: 10px;
 }
+
+.profile-icon {
+  font-size: 22px; /* Matches the size of the original image */
+  color: #fff;
+  margin-right: 5px; /* Space between icon and dropdown */
+}
+
 
 .dropdown-menu {
   padding: 12px 5px !important;

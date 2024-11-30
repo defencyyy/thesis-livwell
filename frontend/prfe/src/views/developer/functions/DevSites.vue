@@ -32,8 +32,8 @@
         </div>
 
         <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 1100px"
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <div class="card-body">
             <div class="row">
@@ -57,17 +57,22 @@
                     <option value="status">Sort: Status</option>
                   </select>
 
+                  <select v-model="sortBy" class="dropdown2">
+                    <option value="name">View: Archive</option>
+                    <option value="status">View: Active</option>
+                  </select>
+                  
+                </div>
+
+                <div class="right-section">
                   <!-- Filter Button -->
-                  <button
+                  <!-- <button
                     @click="toggleArchived"
                     :class="['btn-secondary', { active: showArchived }]"
                     class="filter-button"
                   >
                     {{ showArchived ? "Active Sites" : "Archived Sites" }}
-                  </button>
-                </div>
-
-                <div class="right-section">
+                  </button> -->
                   <!-- Add Site Button -->
                   <button
                     @click="showAddModal = true"
@@ -122,8 +127,8 @@
           <div
             v-for="(site, index) in filteredSites"
             :key="site.id || index"
-            class="card shadow-lg border-0 rounded-3 mx-auto"
-            style="max-width: 1100px"
+            class="card border-0 rounded-1 mx-auto"
+            style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
           >
             <div class="card-body">
               <table class="site-table">
@@ -150,8 +155,8 @@
                         style="
                           border: none;
                           background-color: transparent;
+                          color: #343a40;
                           cursor: pointer;
-                          padding: 8px;
                           font-size: 18px;
                         "
                       >
@@ -164,8 +169,8 @@
                         style="
                           border: none;
                           background-color: transparent;
+                          color: #343a40;
                           cursor: pointer;
-                          padding: 8px;
                           font-size: 18px;
                         "
                       >
@@ -178,8 +183,8 @@
                         style="
                           border: none;
                           background-color: transparent;
+                          color: #343a40;
                           cursor: pointer;
-                          padding: 8px;
                           font-size: 18px;
                         "
                       >
@@ -347,10 +352,10 @@
               </div>
 
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-3">
+              <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px;">
                 <button
                   type="submit"
-                  class="btn btn-primary"
+                  class="btn-add"
                   style="width: 150px"
                 >
                   Add New Site
@@ -358,7 +363,7 @@
                 <button
                   type="button"
                   @click="showAddModal = false"
-                  class="btn btn-secondary"
+                  class="btn-cancel"
                 >
                   Cancel
                 </button>
@@ -607,10 +612,10 @@
               </div>
 
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-3">
+              <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px;">
                 <button
                   type="submit"
-                  class="btn btn-success"
+                  class="btn-add"
                   style="width: 150px"
                 >
                   Save Changes
@@ -618,7 +623,7 @@
                 <button
                   type="button"
                   @click="showEditModal = false"
-                  class="btn btn-secondary"
+                  class="btn-cancel"
                 >
                   Cancel
                 </button>
@@ -698,11 +703,11 @@
             </div>
 
             <!-- Close Button -->
-            <div class="d-flex justify-content-end gap-3 mt-3">
+            <div class="d-flex justify-content-end gap-3 mt-3" style="padding-top: 15px;">
               <button
                 type="button"
                 @click="selectedSiteModal = false"
-                class="btn btn-secondary"
+                class="btn-cancel"
               >
                 Close
               </button>
@@ -995,9 +1000,18 @@ export default {
 </script>
 
 <style scoped>
+
+html, body {
+  height: 100%;
+  margin: 0; /* Removes default margin */
+  padding: 0; /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* Ensures it spans the full viewport height */
+  background-color: #f6f6f6; /* Gray background */
 }
 
 .SideNav {
@@ -1022,7 +1036,7 @@ export default {
 
 .main-content {
   display: flex;
-  /* margin-left: 250px; */
+  margin-left: 250px;
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
@@ -1053,7 +1067,7 @@ export default {
 .title-icon {
   width: 15px;
   height: 5px;
-  background-color: #6c757d;
+  background-color: #343a40;
   border-radius: 5px;
   margin-right: 10px;
 }
@@ -1067,9 +1081,9 @@ export default {
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 3px;
   overflow: hidden;
-  background-color: #f9f9f9;
+  background-color: #f6f6f6;
 }
 
 .view-icon {
@@ -1078,22 +1092,18 @@ export default {
   text-align: center;
   cursor: pointer;
   font-size: 15px;
-  color: #777;
+  color: #343a40;
   transition: background-color 0.3s, color 0.3s;
 }
 
 .view-icon.active {
-  background-color: #7d7d7d;
-  color: #fff;
-}
-
-.view-icon:hover {
-  background-color: #e0e0e0;
+  background-color: #343a40;
+  color: #f6f6f6;
 }
 
 .separator {
   width: 1px;
-  background-color: #ccc;
+  background-color: #f6f6f6;
   height: 100%;
 }
 
@@ -1127,7 +1137,7 @@ export default {
   padding: 8px 12px 8px 40px;
   /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 14px;
 }
 
@@ -1152,9 +1162,23 @@ export default {
   height: 38px;
   /* Explicitly set height */
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 14px;
   width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  
+}
+
+.dropdown2 {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 90%;
   max-width: 150px;
   background-color: white;
   color: #333;
@@ -1163,10 +1187,10 @@ export default {
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #007bff;
-  border-radius: 4px;
+  border: 1px solid #42b983;
+  border-radius: 3px;
   font-size: 14px;
-  background-color: #007bff;
+  background-color: #42b983;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -1177,10 +1201,8 @@ export default {
 }
 
 .card {
-  border-radius: 16px;
   background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-top: 0;
   max-width: 1100px;
   /* Ensures the card and grid align */
@@ -1207,18 +1229,14 @@ export default {
 
 .site-card {
   background: #fff;
-  border: 1px solid #ffffff;
-  border-radius: 16px;
   padding: 16px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
 }
 
 .site-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
 }
 
 .site-image {
@@ -1248,7 +1266,6 @@ export default {
 .site-name {
   font-size: 15px;
   font-weight: bold;
-  margin-top: 10px;
 }
 
 .site-location {
@@ -1301,7 +1318,7 @@ export default {
   /* Change to grid layout */
   grid-template-columns: 25% 35% 20% 20%;
   /* Match the column widths */
-  padding: 0px 20px;
+  padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
 }
@@ -1317,6 +1334,23 @@ export default {
 .form-group .form-label,
 .row .form-label {
   font-size: 0.9rem;
+  color: #6c757d;
   /* Adjust the value to your preferred size */
+}
+
+.btn-add{
+  background-color: #42b983; /* Button primary color */
+  color: #fff;
+  border:none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel{
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border:none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

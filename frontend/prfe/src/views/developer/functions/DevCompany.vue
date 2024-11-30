@@ -277,9 +277,23 @@ export default {
 </script>
 
 <style scoped>
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .developer-company-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #f6f6f6;
+  /* Gray background */
 }
 
 .SideNav {
@@ -307,6 +321,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin-top: 30px;
+  margin-left: 250px;
   /* Offset for header height */
   flex: 1;
   /* margin-left: 250px; */
@@ -343,8 +358,6 @@ export default {
   margin-bottom: 0.8rem;
   text-align: left;
   /* Align the text to the left */
-  background-color: #fff;
-  /* Match background with card */
 }
 
 .title-icon {
