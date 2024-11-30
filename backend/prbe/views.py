@@ -543,6 +543,7 @@ def get_customers_for_broker(request, broker_id):
                             'contact_number': contact_number,
                             "email":customer.email,
                             'site': site.name,
+                            'status':sale.status,
                             'unit': unit.unit_title,
                             'sales_id': sale.id,  # Include the sales ID
                             'company_id': company_id,  # Add company ID
@@ -560,6 +561,7 @@ def get_customers_for_broker(request, broker_id):
                         'sales_id': None,  # No sales ID if no sales exist
                         'site': "To be followed",
                         'unit': "To be followed",
+                        'status':sale.status,
                         'company_id': company_id,  # Add company ID
                         'document_status': "Pending",
                     })
@@ -573,6 +575,7 @@ def get_customers_for_broker(request, broker_id):
                     "l_name":customer.last_name,
                     "email":customer.email,
                     'contact_number': contact_number,
+                    'status':sale.status,
                     'company_id': company_id,  # Add company ID
                 })
 

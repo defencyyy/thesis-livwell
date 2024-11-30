@@ -67,6 +67,14 @@
           </button>
         </template>
 
+        <template v-if="showStatusMessage">
+          <p>Waiting for Developer to confirm Reservation</p>
+          <button type="button" @click="showDocumentModal = false">
+            Close
+          </button>
+        </template>
+        
+
         <template v-else>
           <form @submit.prevent="uploadDocuments">
             <div class="document-upload-form">
@@ -273,6 +281,7 @@ export default {
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
+      showStatusMessage:false,
       showNotification: false, // Controls the visibility of the notification modal
       email: "",
       contactNumber: "",
@@ -294,6 +303,7 @@ export default {
     this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
+    
     async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -402,6 +412,12 @@ export default {
         this.showSalesMessage = true; // Show the message to create sales first
       } else {
         this.showSalesMessage = false; // Show the document upload form
+      }
+      if (this.selectedCustomer.status != "Reserved") {
+        this.showStatusMessage = true; // Show the message to create sales first
+      }
+      else {
+        this.showStatusMessage = false; // Show the message to create sales first
       }
       this.fetchCustomerDocuments(this.selectedCustomer.id, this.selectedCustomer.sales_id);
 

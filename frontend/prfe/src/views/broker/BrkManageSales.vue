@@ -36,6 +36,14 @@
       <!-- Sales Agreement Modal -->
       <div v-if="showModal" class="modal">
         <div class="modal-content">
+          <div v-if="selectedSale.status === 'Pending Reservation'">
+      <p style="color: red; font-weight: bold; text-align: center;">
+        Reservation not yet confirmed
+      </p>
+      <button @click="closeModal">Close</button>
+
+    </div>
+        <div v-else>
           <h2>Sales Agreement</h2>
           <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
           <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
@@ -255,8 +263,10 @@
         </div>
         </div>
         </div>
+        </div>
     </div>
   </div>
+  
 </template>
 
 <script>
