@@ -1,10 +1,10 @@
 <template>
   <div>    
-  <AppHeader />
+  <HeaderLivwell />
   <div class="manage-customers-page">
     <SideNav />
     <div class="content">
-      <h1 class="display-5 fw-bolder text-capitalize">Manage Customers</h1>
+      <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
       <!-- Add this search input in your template (e.g., inside the <template> tag) -->
@@ -30,48 +30,41 @@
         </select>
       </div>
 
-      <button @click="showModal = true" class="btn custom-button">Add Customer</button>
-
-
+      <button @click="showModal = true">Add Customer</button>
 
       <!-- Add Customer Modal -->
       <b-modal v-model="showModal" title="Add Customer" hide-footer>
-        <form @submit.prevent="addCustomer" class="form-container">
-          <div class="form-group">
+        <form @submit.prevent="addCustomer">
+          <div>
             <label for="email">Email:</label>
-            <input type="email" v-model="email" id="email" class="input-field" required />
+            <input type="email" v-model="email" id="email" required />
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="contactNumber">Contact Number:</label>
             <input
               type="text"
               v-model="contactNumber"
               id="contactNumber"
-              class="input-field"
               required
             />
           </div>
-
-          <div class="form-group">
+          <div>
             <label for="lastName">Last Name:</label>
-            <input type="text" v-model="lastName" id="lastName" class="input-field" required />
+            <input type="text" v-model="lastName" id="lastName" required />
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="firstName">First Name:</label>
-            <input type="text" v-model="firstName" id="firstName" class="input-field" required />
+            <input type="text" v-model="firstName" id="firstName" required />
           </div>
 
-          <div class="form-actions">
-            <button type="submit" class="btn btn-submit">Submit</button>
-            <button type="button" @click="showModal = false" class="btn btn-cancel">Cancel</button>
-          </div>
+          <button type="submit">Submit</button>
+          <button type="button" @click="showModal = false">Cancel</button>
         </form>
 
         <p v-if="error" class="text-danger">{{ error }}</p>
       </b-modal>
-
 
       <!-- Multiple Document Upload Modal -->
       <b-modal
@@ -183,30 +176,20 @@
             <td>{{ customer.document_status }}</td>
             <td>
               <!-- Documents Button -->
-             <!-- Documents Button -->
               <button
                 @click="openDocumentModal(customer)"
-                class="btn btn-primary me-5"
+                class="btn btn-primary"
               >
-                <i class="fas fa-file-alt"></i> Documents
+                Documents
               </button>
-
               <!-- Edit Button -->
-              <button
-                @click="openEditModal(customer)"
-                class="btn btn-warning me-5"
-              >
-                <i class="fas fa-edit"></i> Edit
+              <button @click="openEditModal(customer)" class="btn btn-warning">
+                Edit
               </button>
-
-              <!-- Archive Button -->
-              <button
-                @click="archiveCustomer(customer)"
-                class="btn btn-danger"
-              >
-                <i class="fas fa-archive"></i> Archive
+              <!-- Archive Button (Placeholder) -->
+              <button @click="archiveCustomer(customer)" class="btn btn-danger">
+                Archive
               </button>
-
             </td>
           </tr>
         </tbody>
@@ -225,57 +208,53 @@
 
       <!-- Edit Customer Modal -->
       <b-modal v-model="showEditModal" title="Edit Customer" hide-footer>
-        <form @submit.prevent="updateCustomer" class="form-container">
-          <div class="form-group">
+        <form @submit.prevent="updateCustomer">
+          <div>
             <label for="editEmail">Email:</label>
-            <input type="email" v-model="editEmail" id="editEmail" class="input-field" required />
+            <input type="email" v-model="editEmail" id="editEmail" required />
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="editContactNumber">Contact Number:</label>
             <input
               type="text"
               v-model="editContactNumber"
               id="editContactNumber"
-              class="input-field"
               required
             />
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="editLastName">Last Name:</label>
             <input
               type="text"
               v-model="editLastName"
               id="editLastName"
-              class="input-field"
               required
             />
           </div>
 
-          <div class="form-group">
+          <div>
             <label for="editFirstName">First Name:</label>
             <input
               type="text"
               v-model="editFirstName"
               id="editFirstName"
-              class="input-field"
               required
             />
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-submit">Update Customer</button>
+            <button type="submit" class="submit-btn">Update Customer</button>
             <button
               type="button"
               @click="showEditModal = false"
-              class="btn btn-cancel"
+              class="cancel-btn"
             >
               Cancel
             </button>
           </div>
         </form>
-
       </b-modal>
     </div>
   </div>
@@ -283,7 +262,7 @@
 </template>
 
 <script>
-import AppHeader from "@/components/Header.vue";
+import HeaderLivwell from "@/components/HeaderLivwell.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
@@ -293,7 +272,7 @@ export default {
   components: {
     SideNav,
     BModal,
-    AppHeader,
+    HeaderLivwell,
   },
   computed: {
     ...mapState({
@@ -354,7 +333,7 @@ export default {
     }
   },
     
-    async fetchCustomers() {
+  async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
@@ -368,6 +347,7 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
+            console.log(this.customers);
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
 
           } else {
@@ -699,8 +679,6 @@ export default {
 }
 
 /* Table Hover Effect */
-
-
 .table tbody tr:hover {
   cursor: pointer;
   background-color: #f1f1f1;
@@ -817,152 +795,5 @@ export default {
 
 .btn:hover {
   opacity: 0.8;
-}
-
-
-
-
-
-/* dropdown in sort */
-/* Sort Options Styling */
-.sort-options {
-  margin-bottom: 20px;
-}
-
-.sort-options label {
-  font-size: 14px;
-  margin-right: 10px;
-  color: #333; /* Text color for the label */
-}
-
-/* Dropdown Styling */
-.sort-options select {
-  background-color: #ffffff; /* White background */
-  color: #000000; /* Black text */
-  border: 1px solid #ccc; /* Light border */
-  border-radius: 8px; /* Rounded corners */
-  padding: 8px 12px; /* Padding for better appearance */
-  font-size: 14px;
-  outline: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Dropdown Option Hover Effect */
-.sort-options select option {
-  background-color: #ffffff; /* White background */
-  color: #000000; /* Black text */
-}
-
-/* Hover Effect for Dropdown */
-.sort-options select:hover {
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text */
-}
-
-/* Focus Effect for Dropdown */
-.sort-options select:focus {
-  border-color: #007bff; /* Blue border on focus */
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Focus shadow */
-}
-
-
-/* button in add customer  */
-.custom-button {
-  background-color: #007bff; /* Bootstrap blue */
-  color: white; /* White text */
-  border-radius: 8px; /* Rounded corners */
-  margin: 10px; /* Add some space around the button */
-  padding: 10px 20px; /* Adjust padding for better appearance */
-  border: none; /* Remove default border */
-  font-size: 14px; /* Adjust font size */
-  cursor: pointer; /* Pointer cursor for better UX */
-  transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.custom-button:hover {
-  background-color: #b1b1b1; /* Darker blue on hover */
-}
-
-
-
-
-
-.form-container {
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #f9f9f9;
-}
-
-/* Form Group */
-.form-group {
-  margin-bottom: 15px;
-}
-
-/* Labels */
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #333;
-}
-
-/* Input Fields */
-.input-field {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-  background-color: #fff;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.input-field:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
-  outline: none;
-}
-
-.form-actions {
-  
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-
-/* Buttons */
-.btn {
-  padding: 15px 15px;
-  font-size: 14px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
- 
-}
-
-.btn-submit {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-submit:hover {
-  background-color: #0056b3;
-}
-
-.btn-cancel {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.btn-cancel:hover {
-  background-color: #cc0000;
 }
 </style>

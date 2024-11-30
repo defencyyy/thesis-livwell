@@ -20,7 +20,6 @@ class FloorInline(admin.TabularInline):
             return queryset.filter(site_id=site_id)  # Filter floors based on the site_id
         return queryset
 
-# Form to allow adding multiple floors at once
 class SiteAdminForm(forms.ModelForm):
     add_multiple_floors = forms.IntegerField(min_value=1, required=False, label="Number of Floors to Add")
 
@@ -29,19 +28,33 @@ class SiteAdminForm(forms.ModelForm):
         fields = '__all__'
 
     def save(self, commit=True):
+        # Save the site instance first to generate a primary key
         site = super().save(commit=False)
 
-        # If we are adding multiple floors, create them
+        # Get the number of floors to add, defaulting to 0 if None
         num_floors = self.cleaned_data.get('add_multiple_floors', 0)
+        
+        # Ensure num_floors is an integer (if it's None, set it to 0)
+        if num_floors is None:
+            num_floors = 0
+
+        # If we are adding multiple floors, create them
         if num_floors > 0:
+            # Save the site first to ensure it has a primary key
+            if commit:
+                site.save()
+
+            # After saving the site, create the floors
             max_floor_number = site.floors.count() + 1
             for i in range(num_floors):
                 Floor.objects.create(site=site, floor_number=max_floor_number)
                 max_floor_number += 1
 
+        # Save the site instance if it hasn't been saved yet (in case commit was False)
         if commit:
             site.save()
         return site
+
 
 class SiteAdmin(admin.ModelAdmin):
     form = SiteAdminForm  # Use the custom form for the SiteAdmin
