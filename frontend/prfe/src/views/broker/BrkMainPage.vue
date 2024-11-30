@@ -156,7 +156,7 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-              labels: ["Sold", "Pending", "Reserved", "Pending Sold"], // Add "Pending Sold"
+              labels: ["Sold", "Pending Reservation", "Reserved", "Pending Sold"], // Add "Pending Sold"
               datasets: [
                 {
                   data: [
