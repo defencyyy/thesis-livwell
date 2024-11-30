@@ -4,48 +4,7 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <div class="dashboard-container">
-          <!-- Top Row -->
-          <!-- <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Total Number of Units</h5>
-            </div>
-          </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Available Units</h5>
-            </div>
-          </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Sold Units</h5>
-            </div>
-          </div> -->
-
-          <!-- Large Center Box -->
-          <!-- <div class="card shadow-lg border-0 rounded-3 mx-auto large-box">
-            <div class="card-body">
-              <h5 class="card-title">Overview</h5>
-            </div>
-          </div> -->
-
-          <!-- Bottom Row -->
-          <!-- <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">BROKER of the MONTH!</h5>
-            </div>
-          </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Achievements</h5>
-            </div>
-          </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Upcoming Goals</h5>
-            </div>
-          </div> -->
-        </div>
+        <div class="dashboard-container"></div>
       </div>
     </div>
   </div>
@@ -160,13 +119,12 @@ export default {
       }
     },
 
-    // Handle token refresh failure (log out the user)
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      this.$store.commit("clearUser");
-      this.redirectToLogin();
+      this.$store.commit("clearUser"); // Clear Vuex state
+      this.redirectToLogin(); // Redirect to the login page
     },
 
     setupAxiosInterceptor() {
@@ -178,31 +136,30 @@ export default {
           }
           return config;
         },
-        (error) => {
-          return Promise.reject(error);
-        }
+        (error) => Promise.reject(error)
       );
 
       axios.interceptors.response.use(
-        (response) => {
-          return response;
-        },
+        (response) => response,
         async (error) => {
-          if (
-            error.response.status === 401 &&
-            error.response.data.detail === "Token expired"
-          ) {
-            try {
-              // Try to refresh the token if it has expired
-              await this.refreshToken();
+          if (error.response && error.response.status === 401) {
+            const detail = error.response.data.detail;
+            if (detail === "Token expired") {
+              try {
+                // Attempt to refresh the token
+                await this.refreshToken();
 
-              // Retry the original request after refreshing the token
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${localStorage.getItem("accessToken")}`;
-              return axios(error.config);
-            } catch (refreshError) {
-              // If token refresh fails, log the user out
+                // Retry the original request after refreshing the token
+                error.config.headers[
+                  "Authorization"
+                ] = `Bearer ${localStorage.getItem("accessToken")}`;
+                return axios(error.config);
+              } catch (refreshError) {
+                // If token refresh fails, handle it
+                this.handleTokenRefreshFailure();
+              }
+            } else {
+              // For any other 401 error, log out the user
               this.handleTokenRefreshFailure();
             }
           }
