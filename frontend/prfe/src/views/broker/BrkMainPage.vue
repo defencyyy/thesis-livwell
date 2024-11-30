@@ -12,7 +12,13 @@
         <h1>His, {{ brokerName }}</h1>
 
         <!-- Pie Chart Section -->
-        <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
+        <div
+          v-if="
+            salesStatus.sold === 0 &&
+            salesStatus.pending === 0 &&
+            salesStatus.reserved === 0
+          "
+        >
           <p>No sales data available.</p>
         </div>
         <div v-else>
@@ -32,7 +38,6 @@ import { mapState } from "vuex";
 import axios from "axios";
 import { Chart, ArcElement, Tooltip, Legend, PieController } from "chart.js"; // Import necessary components from Chart.js
 Chart.register(PieController, ArcElement, Tooltip, Legend);
-
 
 export default {
   name: "BrkMainPage",
@@ -85,11 +90,14 @@ export default {
       this.loading = true; // Show loading spinner while fetching data
 
       try {
-        const response = await fetch(`http://localhost:8000/brokers/${brokerId}/`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:8000/brokers/${brokerId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
 
         const data = await response.json();
         if (data.success !== false) {
@@ -97,25 +105,33 @@ export default {
           this.brokerEmail = data.email;
         }
 
-        const salesResponse = await fetch(`http://localhost:8000/sales/total/?broker_id=${brokerId}`);
+        const salesResponse = await fetch(
+          `http://localhost:8000/sales/total/?broker_id=${brokerId}`
+        );
         if (salesResponse.ok) {
           const salesData = await salesResponse.json();
           this.totalSales = salesData.total_sales;
         }
 
-        const commissionsResponse = await fetch(`http://localhost:8000/sales/commissions/?broker_id=${brokerId}`);
+        const commissionsResponse = await fetch(
+          `http://localhost:8000/sales/commissions/?broker_id=${brokerId}`
+        );
         if (commissionsResponse.ok) {
           const commissionsData = await commissionsResponse.json();
           this.totalCommissions = commissionsData.total_commissions;
         }
 
-        const customersResponse = await fetch(`http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`);
+        const customersResponse = await fetch(
+          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
+        );
         if (customersResponse.ok) {
           const customersData = await customersResponse.json();
           this.totalCustomers = customersData.total_customers;
         }
 
-        const salesStatusResponse = await fetch(`http://localhost:8000/sales/?broker_id=${brokerId}`);
+        const salesStatusResponse = await fetch(
+          `http://localhost:8000/sales/?broker_id=${brokerId}`
+        );
         if (salesStatusResponse.ok) {
           const statusData = await salesStatusResponse.json();
 
@@ -140,10 +156,15 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-          labels: ["Sold", "Pending", "Reserved", "Pending Sold"], // Add "Pending Sold"
+              labels: ["Sold", "Pending", "Reserved", "Pending Sold"], // Add "Pending Sold"
               datasets: [
                 {
-                  data: [this.salesStatus.sold, this.salesStatus.pending, this.salesStatus.reserved, this.salesStatus.Pending_sold],
+                  data: [
+                    this.salesStatus.sold,
+                    this.salesStatus.pending,
+                    this.salesStatus.reserved,
+                    this.salesStatus.Pending_sold,
+                  ],
                   backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384", "#FF9F40"], // You can adjust the colors
                 },
               ],
@@ -174,11 +195,15 @@ export default {
 
     async logout() {
       try {
-        await axios.post("http://localhost:8000/api/token/brklogout/", {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
+        await axios.post(
+          "http://localhost:8000/api/token/brklogout/",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");

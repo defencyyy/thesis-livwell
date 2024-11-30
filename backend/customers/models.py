@@ -1,6 +1,7 @@
 from django.db import models
 from brokers.models import Broker
 from companies.models import Company
+from django.db.models import Max
 
 class Customer(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)

@@ -325,6 +325,7 @@ export default {
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
+      loggedIn: (state) => state.loggedIn, // Vuex loggedIn state
     }),
     vuexUserId() {
       return this.userId;
@@ -355,7 +356,31 @@ export default {
   },
 
   mounted() {
-    this.fetchBrokers();
+    // Ensure user is logged in and has the correct role and companyId
+    if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
+      this.redirectToLogin();
+    } else {
+      this.fetchBrokers();
+      this.setupAxiosInterceptor();
+    }
+  },
+
+  watch: {
+    loggedIn(newVal) {
+      if (!newVal || this.userType !== "developer" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    userType(newVal) {
+      if (newVal !== "developer" || !this.companyId) {
+        this.redirectToLogin();
+      }
+    },
+    companyId(newVal) {
+      if (!newVal || this.userType !== "developer") {
+        this.redirectToLogin();
+      }
+    },
   },
 
   methods: {
@@ -385,7 +410,7 @@ export default {
             },
           }
         );
-        console.log("Brokers fetched:", response.data); // Log the response
+        console.log("Brokers fetched:", response.data);
         this.brokers = response.data;
       } catch (error) {
         if (error.response?.status === 401) {
@@ -437,15 +462,14 @@ export default {
         }
       }
     },
+
     validateForm() {
-      // Reset errors
       this.emailError = null;
       this.contactNumberError = null;
       this.lastNameError = null;
       this.firstNameError = null;
       this.passwordError = null;
 
-      // Simple validation logic for each field
       if (!this.email) {
         this.emailError = "Email is required.";
       } else if (!/\S+@\S+\.\S+/.test(this.email)) {
@@ -464,7 +488,6 @@ export default {
         this.passwordError = "Password is required.";
       }
 
-      // Contact number validation only if it's not optional in edit mode
       if (this.contactNumber && !/^\+?1?\d{9,15}$/.test(this.contactNumber)) {
         this.contactNumberError =
           "Enter a valid phone number (9 to 15 digits).";
@@ -500,8 +523,7 @@ export default {
 
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.$store.dispatch("logout");
       this.$router.push({ name: "DevLogin" });
     },
 
@@ -524,19 +546,20 @@ export default {
               },
             }
           );
-          console.log("Broker added:", response.data); // Check response data
+          console.log("Broker added:", response.data);
           this.successMessage = "Broker added successfully!";
           this.resetForm();
           this.showModal = false;
           this.fetchBrokers();
         } catch (error) {
-          console.error("Error adding broker:", error.response || error); // Log full error
+          console.error("Error adding broker:", error.response || error);
           this.error =
             error.response?.data?.error ||
             "Failed to add broker. Please try again.";
         }
       }
     },
+
     resetForm() {
       this.email = "";
       this.contactNumber = "";
@@ -550,6 +573,41 @@ export default {
       this.passwordError = null;
       this.error = null;
       this.successMessage = null;
+    },
+
+    redirectToLogin() {
+      this.$router.push({ name: "DevLogin" });
+    },
+
+    setupAxiosInterceptor() {
+      axios.interceptors.request.use(
+        (config) => {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+
+      axios.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          if (error.response?.status === 401) {
+            const refreshedToken = await this.refreshAccessToken();
+            if (refreshedToken) {
+              error.config.headers[
+                "Authorization"
+              ] = `Bearer ${refreshedToken}`;
+              return axios(error.config);
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
     },
   },
 };

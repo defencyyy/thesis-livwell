@@ -63,7 +63,7 @@
                     :class="['btn-secondary', { active: showArchived }]"
                     class="filter-button"
                   >
-                    {{ showArchived ? "Active Sites" : "Archived Sites" }}
+                    {{ showArchived ? "View Archived" : "View Active" }}
                   </button>
                 </div>
 
@@ -87,7 +87,7 @@
             v-for="(site, index) in filteredSites"
             :key="site.id || index"
             class="site-card"
-            @click="viewSite(site)"
+            @click="openEditModal(site)"
           >
             <!-- Site Image -->
             <img
@@ -144,20 +144,6 @@
                     <td>{{ site.location || "Location unavailable" }}</td>
                     <td>{{ site.status || "Status unavailable" }}</td>
                     <td>
-                      <!-- View Button as Icon (Yellow) -->
-                      <button
-                        @click.stop="viewSite(site)"
-                        style="
-                          border: none;
-                          background-color: transparent;
-                          cursor: pointer;
-                          padding: 8px;
-                          font-size: 18px;
-                        "
-                      >
-                        <i class="fas fa-eye"></i>
-                      </button>
-
                       <!-- Edit Button as Icon (Blue) -->
                       <button
                         @click.stop="openEditModal(site)"
@@ -169,12 +155,13 @@
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit" style="color: black"></i>
+                        <!-- GINAWA KO GANTO PUTI SAKIN - Cy -->
                       </button>
 
                       <!-- Delete Button as Icon (Red) -->
                       <button
-                        @click.stop="deleteSite(site)"
+                        @click.stop="archiveSite(site)"
                         style="
                           border: none;
                           background-color: transparent;
@@ -183,7 +170,8 @@
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash" style="color: black"></i>
+                        <!-- GINAWA KO GANTO PUTI SAKIN - Cy -->
                       </button>
                     </td>
                   </tr>
@@ -216,13 +204,14 @@
 
                   <!-- Location -->
                   <div class="row mb-3">
+                    <!-- Region Dropdown -->
                     <div class="col-md-6">
                       <label for="region" class="form-label">Region</label>
                       <select
-                        v-model="newSite.region"
+                        v-model="selectedRegion"
                         id="region"
                         class="form-select"
-                        required
+                        @change="loadProvinceData(selectedRegion)"
                       >
                         <option
                           v-for="region in regionOptions"
@@ -233,13 +222,15 @@
                         </option>
                       </select>
                     </div>
+
+                    <!-- Province Dropdown -->
                     <div class="col-md-6">
                       <label for="province" class="form-label">Province</label>
                       <select
-                        v-model="newSite.province"
+                        v-model="selectedProvince"
                         id="province"
                         class="form-select"
-                        required
+                        @change="loadMunicipalityData(selectedProvince)"
                       >
                         <option
                           v-for="province in provinceOptions"
@@ -252,24 +243,46 @@
                     </div>
                   </div>
 
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="city" class="form-label">City</label>
-                      <select
-                        v-model="newSite.city"
-                        id="city"
-                        class="form-select"
-                        required
+                  <!-- Municipality Dropdown -->
+                  <div class="form-group mb-3">
+                    <label for="municipality" class="form-label"
+                      >Municipality</label
+                    >
+                    <select
+                      v-model="selectedMunicipality"
+                      id="municipality"
+                      class="form-select"
+                      @change="loadBarangayData(selectedMunicipality)"
+                    >
+                      <option
+                        v-for="municipality in municipalityOptions"
+                        :key="municipality"
+                        :value="municipality"
                       >
-                        <option
-                          v-for="city in cityOptions"
-                          :key="city"
-                          :value="city"
-                        >
-                          {{ city }}
-                        </option>
-                      </select>
-                    </div>
+                        {{ municipality }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label for="barangay" class="form-label">Barangay</label>
+                    <select
+                      v-model="newSite.barangay"
+                      id="barangay"
+                      class="form-select"
+                      required
+                    >
+                      <option
+                        v-for="barangay in barangayOptions"
+                        :key="barangay"
+                        :value="barangay"
+                      >
+                        {{ barangay }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="row mb-3">
                     <div class="col-md-6">
                       <label for="postalCode" class="form-label"
                         >Postal Code</label
@@ -279,41 +292,26 @@
                         v-model="newSite.postalCode"
                         id="postalCode"
                         class="form-control"
-                        required
                       />
                     </div>
-                  </div>
 
-                  <div class="form-group mb-3">
-                    <label for="otherAddress" class="form-label"
-                      >Barangay, Street Name, Building No.</label
-                    >
-                    <input
-                      type="text"
-                      v-model="newSite.otherAddress"
-                      id="otherAddress"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <!-- Status -->
-                  <div class="form-group mb-3">
-                    <label for="siteStatus" class="form-label">Status</label>
-                    <select
-                      v-model="newSite.status"
-                      id="siteStatus"
-                      class="form-select"
-                      required
-                    >
-                      <option
-                        v-for="status in statusOptions"
-                        :key="status"
-                        :value="status"
+                    <div class="col-md-6">
+                      <label for="siteStatus" class="form-label">Status</label>
+                      <select
+                        v-model="newSite.status"
+                        id="siteStatus"
+                        class="form-select"
+                        required
                       >
-                        {{ status }}
-                      </option>
-                    </select>
+                        <option
+                          v-for="status in statusOptions"
+                          :key="status"
+                          :value="status"
+                        >
+                          {{ status }}
+                        </option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -326,7 +324,7 @@
                     >
                     <input
                       type="file"
-                      @change="handleFileUpload"
+                      @change="handlePictureUpload"
                       id="sitePicture"
                       class="form-control"
                       accept="image/*"
@@ -367,167 +365,95 @@
           </div>
         </b-modal>
 
-        <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
-          <form @submit.prevent="confirmEdit">
-            <!-- Site Name -->
-            <div class="form-group mb-3">
-              <label for="editSiteName" class="form-label">Site Name:</label>
-              <input
-                type="text"
-                v-model="editSite.name"
-                id="editSiteName"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- Location -->
-            <div class="form-group mb-3">
-              <label for="editSiteLocation" class="form-label">Location:</label>
-              <input
-                type="text"
-                v-model="editSite.location"
-                id="editSiteLocation"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- Status -->
-            <div class="form-group mb-3">
-              <label for="editSiteStatus" class="form-label">Status:</label>
-              <select
-                v-model="editSite.status"
-                id="editSiteStatus"
-                class="form-select"
-                required
-              >
-                <option
-                  v-for="status in statusOptions"
-                  :key="status"
-                  :value="status"
-                >
-                  {{ status }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Picture URL -->
-            <div class="form-group mb-3">
-              <label for="editSitePicture" class="form-label"
-                >Picture URL:</label
-              >
-              <input
-                type="text"
-                v-model="editSite.picture"
-                id="editSitePicture"
-                class="form-control"
-              />
-            </div>
-
-            <!-- Buttons -->
-            <div class="d-flex justify-content-end gap-3">
-              <button type="submit" class="btn btn-success">
-                Save Changes
-              </button>
-              <button
-                type="button"
-                @click="showEditModal = false"
-                class="btn btn-secondary"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </b-modal>
-
+        <!-- EDIT / VIEW -->
         <b-modal
           v-model="showEditModal"
-          title="Edit Site"
+          title="Site Details / Edit"
           hide-header
           hide-footer
           size="lg"
         >
           <div class="modal-title p-3">
-            <h5 class="mb-0">Edit Site</h5>
+            <h5 class="mb-0">Site Details / Edit</h5>
           </div>
           <div class="p-3">
-            <form @submit.prevent="confirmEdit">
+            <form @submit.prevent="manageSite">
               <div class="row">
                 <!-- Left Side (Site Name to Status) -->
                 <div class="col-md-6">
-                  <!-- Site Name -->
+                  <!-- Site Name (Read-Only) -->
                   <div class="form-group mb-3">
                     <label for="editSiteName" class="form-label"
-                      >Site Name:</label
+                      >Site Name</label
                     >
                     <input
                       type="text"
                       v-model="editSite.name"
                       id="editSiteName"
                       class="form-control"
-                      required
+                      readonly
                     />
                   </div>
 
-                  <!-- Location -->
+                  <!-- Location (Read-Only) -->
                   <div class="row mb-3">
+                    <!-- Region -->
                     <div class="col-md-6">
                       <label for="editRegion" class="form-label">Region</label>
-                      <select
+                      <input
+                        type="text"
                         v-model="editSite.region"
                         id="editRegion"
-                        class="form-select"
-                        required
-                      >
-                        <option
-                          v-for="region in regionOptions"
-                          :key="region"
-                          :value="region"
-                        >
-                          {{ region }}
-                        </option>
-                      </select>
+                        class="form-control"
+                        readonly
+                      />
                     </div>
+
+                    <!-- Province -->
                     <div class="col-md-6">
                       <label for="editProvince" class="form-label"
                         >Province</label
                       >
-                      <select
+                      <input
+                        type="text"
                         v-model="editSite.province"
                         id="editProvince"
-                        class="form-select"
-                        required
-                      >
-                        <option
-                          v-for="province in provinceOptions"
-                          :key="province"
-                          :value="province"
-                        >
-                          {{ province }}
-                        </option>
-                      </select>
+                        class="form-control"
+                        readonly
+                      />
                     </div>
                   </div>
 
+                  <!-- Municipality -->
+                  <div class="form-group mb-3">
+                    <label for="editMunicipality" class="form-label"
+                      >Municipality</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editSite.municipality"
+                      id="editMunicipality"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+
+                  <!-- Barangay -->
+                  <div class="form-group mb-3">
+                    <label for="editBarangay" class="form-label"
+                      >Barangay</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editSite.barangay"
+                      id="editBarangay"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+
+                  <!-- Postal Code -->
                   <div class="row mb-3">
-                    <div class="col-md-6">
-                      <label for="editCity" class="form-label">City</label>
-                      <select
-                        v-model="editSite.city"
-                        id="editCity"
-                        class="form-select"
-                        required
-                      >
-                        <option
-                          v-for="city in cityOptions"
-                          :key="city"
-                          :value="city"
-                        >
-                          {{ city }}
-                        </option>
-                      </select>
-                    </div>
                     <div class="col-md-6">
                       <label for="editPostalCode" class="form-label"
                         >Postal Code</label
@@ -537,73 +463,93 @@
                         v-model="editSite.postalCode"
                         id="editPostalCode"
                         class="form-control"
-                        required
+                        readonly
                       />
+                    </div>
+
+                    <!-- Status (Editable) -->
+                    <div class="col-md-6">
+                      <label for="editSiteStatus" class="form-label"
+                        >Status</label
+                      >
+                      <select
+                        v-model="editSite.status"
+                        id="editSiteStatus"
+                        class="form-select"
+                        required
+                      >
+                        <option
+                          v-for="status in statusOptions"
+                          :key="status"
+                          :value="status"
+                        >
+                          {{ status }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Side (Image Upload with Preview) -->
+                <div class="col-md-6">
+                  <!-- Display Current Picture (if any) -->
+                  <div class="mb-3">
+                    <label for="current-picture" class="form-label"
+                      >Current Picture</label
+                    >
+                    <div v-if="editSite.picture">
+                      <img
+                        :src="getPictureUrl(editSite.picture)"
+                        alt="Current Site Picture"
+                        class="img-fluid rounded shadow-sm"
+                        style="max-width: 150px; max-height: 150px"
+                      />
+                    </div>
+                    <div v-else>
+                      <p>No current picture available.</p>
                     </div>
                   </div>
 
-                  <div class="form-group mb-3">
-                    <label for="editOtherAddress" class="form-label"
-                      >Barangay, Street Name, Building No.</label
-                    >
-                    <input
-                      type="text"
-                      v-model="editSite.otherAddress"
-                      id="editOtherAddress"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <!-- Status -->
-                  <div class="form-group mb-3">
-                    <label for="editSiteStatus" class="form-label"
-                      >Status</label
-                    >
-                    <select
-                      v-model="editSite.status"
-                      id="editSiteStatus"
-                      class="form-select"
-                      required
-                    >
-                      <option
-                        v-for="status in statusOptions"
-                        :key="status"
-                        :value="status"
-                      >
-                        {{ status }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Right Side (Photo Upload with Preview) -->
-                <div class="col-md-6">
-                  <!-- Image Upload Section -->
-                  <div class="form-group mb-3">
-                    <label for="editSitePicture" class="form-label"
-                      >Upload Photo</label
+                  <!-- Upload New Picture -->
+                  <div class="mb-3">
+                    <label for="picture" class="form-label"
+                      >Upload New Picture</label
                     >
                     <input
                       type="file"
-                      @change="handleFileUpload"
-                      id="editSitePicture"
                       class="form-control"
+                      id="picture"
                       accept="image/*"
+                      @change="handlePictureUpload($event, 'edit')"
                     />
                   </div>
 
-                  <!-- Image Preview Section -->
-                  <div v-if="imagePreview" class="text-center">
-                    <h6>Image Preview</h6>
-                    <img
-                      :src="imagePreview"
-                      alt="Image Preview"
-                      class="img-fluid"
-                      style="max-height: 200px; object-fit: cover"
-                    />
+                  <!-- Preview of Uploaded Picture -->
+                  <div class="mb-3">
+                    <strong>Preview:</strong>
+                    <div v-if="imagePreview">
+                      <img
+                        :src="imagePreview"
+                        alt="Site Picture Preview"
+                        class="img-fluid rounded shadow-sm"
+                        style="max-width: 150px; max-height: 150px"
+                      />
+                    </div>
+                    <p v-else>No picture selected</p>
                   </div>
                 </div>
+              </div>
+
+              <!-- Description (Editable) -->
+              <div class="form-group mb-3">
+                <label for="editSiteDescription" class="form-label"
+                  >Description</label
+                >
+                <textarea
+                  v-model="editSite.description"
+                  id="editSiteDescription"
+                  class="form-control"
+                ></textarea>
               </div>
 
               <!-- Buttons -->
@@ -615,98 +561,16 @@
                 >
                   Save Changes
                 </button>
+                <!-- Cancel Button -->
                 <button
                   type="button"
-                  @click="showEditModal = false"
+                  @click="cancelEdit"
                   class="btn btn-secondary"
                 >
                   Cancel
                 </button>
               </div>
             </form>
-          </div>
-        </b-modal>
-
-        <!-- Site Details Modal -->
-        <b-modal
-          v-model="selectedSiteModal"
-          title="Site Details"
-          hide-header
-          hide-footer
-          size="lg"
-        >
-          <div class="modal-title p-3">
-            <h5 class="mb-0">Site Details</h5>
-          </div>
-          <div class="p-3">
-            <div class="row">
-              <!-- Left Side (Text Details) -->
-              <div class="col-md-6">
-                <!-- Site Name -->
-                <div class="form-group mb-3">
-                  <label for="siteName" class="form-label">Site Name:</label>
-                  <!-- <p>{{ selectedSite.name }}</p> -->
-                </div>
-
-                <!-- Location -->
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="region" class="form-label">Region:</label>
-                    <!-- <p>{{ selectedSite.region }}</p> -->
-                  </div>
-                  <div class="col-md-6">
-                    <label for="province" class="form-label">Province:</label>
-                    <!-- <p>{{ selectedSite.province }}</p> -->
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="city" class="form-label">City:</label>
-                    <!-- <p>{{ selectedSite.city }}</p> -->
-                  </div>
-                  <div class="col-md-6">
-                    <label for="postalCode" class="form-label"
-                      >Postal Code:</label
-                    >
-                    <!-- <p>{{ selectedSite.postalCode }}</p> -->
-                  </div>
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="otherAddress" class="form-label"
-                    >Barangay, Street Name, Building No.:</label
-                  >
-                  <!-- <p>{{ selectedSite.otherAddress }}</p> -->
-                </div>
-
-                <!-- Status -->
-                <div class="form-group mb-3">
-                  <label for="siteStatus" class="form-label">Status:</label>
-                  <!-- <p>{{ selectedSite.status }}</p> -->
-                </div>
-              </div>
-
-              <!-- Right Side (Image Preview) -->
-              <div class="col-md-6">
-                <!-- Image Preview Section -->
-                <div class="text-center">
-                  <h6>Site Photo</h6>
-                  <!-- <img :src="selectedSite.picture || '/default-image-large.jpg'" alt="Site Picture" class="img-fluid" style="max-height: 200px; object-fit: cover;" /> -->
-                </div>
-              </div>
-            </div>
-
-            <!-- Close Button -->
-            <div class="d-flex justify-content-end gap-3 mt-3">
-              <button
-                type="button"
-                @click="selectedSiteModal = false"
-                class="btn btn-secondary"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </b-modal>
       </div>
@@ -737,16 +601,29 @@ export default {
       showEditModal: false,
       selectedSite: {}, // Prevent null reference issues
       selectedSiteModal: false,
+      statusOptions: [],
       newSite: {
         name: "",
-        location: "",
         status: "",
-        picture: "",
+        region: "", // Region selection
+        province: "", // Province selection
+        municipality: "", // municipality selection
+        barangay: "", // Barangay selection
         description: "",
-      }, // Added description
+        picture: "",
+      },
       editSite: {},
-      statusOptions: ["Preselling", "Ongoing", "Completed", "Sold Out"],
       sites: [],
+      regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
+      provinceOptions: [], // Stores provinces in the selected region
+      municipalityOptions: [], // Stores municipalities in the selected province
+      barangayOptions: [], // Stores barangays in the selected municipality
+      selectedRegion: null, // Selected region from dropdown
+      selectedProvince: null, // Selected province from dropdown
+      selectedMunicipality: null, // Selected municipality from dropdown
+      selectedBarangay: null, // Selected barangay from dropdown
+      newPictureFile: null,
+      imagePreview: null,
       showArchived: false, // State to control archived sites visibility
     };
   },
@@ -763,58 +640,22 @@ export default {
       return this.companyId;
     },
     filteredSites() {
-      console.log("showArchived:", this.showArchived);
       return this.sites
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        .filter(
+          (site) =>
+            site &&
+            site.name &&
+            site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         )
         .filter((site) => this.showArchived || !site.isArchived)
         .sort((a, b) =>
           this.sortBy === "name"
-            ? a.name.localeCompare(b.name)
-            : a.status.localeCompare(b.status)
+            ? (a.name || "").localeCompare(b.name || "")
+            : (a.status || "").localeCompare(b.status || "")
         );
     },
   },
   methods: {
-    async fetchSites() {
-      console.log("Fetching sites...");
-
-      const companyId = this.vuexCompanyId;
-      if (!companyId) {
-        alert("Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
-        return;
-      }
-
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/sites/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        console.log("Sites fetched:", response.data);
-        if (response.status === 200) {
-          this.sites = response.data.data.map((site) => ({
-            ...site,
-            isArchived: site.isArchived ?? false, // Ensure isArchived exists
-          }));
-        }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchSites(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching sites:", error.response || error);
-        }
-      }
-    },
-
     async refreshAccessToken() {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
@@ -833,76 +674,203 @@ export default {
         this.handleTokenRefreshFailure();
       }
     },
-
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.$store.dispatch("logout");
       this.$router.push({ name: "DevLogin" });
     },
+    async fetchSites() {
+      console.log("Fetching sites...");
 
+      const companyId = this.vuexCompanyId;
+      if (!companyId) {
+        alert("Company ID not found. Please log in.");
+        this.$router.push({ name: "DevLogin" });
+        return;
+      }
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        console.log("Sites fetched:", response.data); // Debug API response
+        if (response.status === 200) {
+          this.sites = response.data.data.map((site) => ({
+            ...site,
+            location: this.constructLocation(site), // Dynamically build location
+            isArchived: site.isArchived ?? false,
+          }));
+          console.log("Processed Sites:", this.sites); // Debug processed sites
+        }
+      } catch (error) {
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchSites(); // Retry after refreshing
+          }
+        } else {
+          console.error("Error fetching sites:", error.response || error);
+        }
+      }
+    },
+    constructLocation(site) {
+      const addressParts = [
+        site.region,
+        site.province,
+        site.municipality,
+        site.barangay,
+        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
+      ];
+      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
+    },
     toggleView() {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     toggleArchived() {
       this.showArchived = !this.showArchived;
+      console.log("Show archived:", this.showArchived);
+    },
+    async loadRegionData() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/locations/"
+        );
+        console.log("Region Data fetched:", response.data);
+        this.regionData = response.data; // Store region data for further processing
+
+        // Sort region options: non-numeric values at the top, followed by numeric ones in ascending order
+        this.regionOptions = Object.keys(this.regionData).sort((a, b) => {
+          // Check if the keys are numeric
+          const isANumeric = !isNaN(parseInt(a));
+          const isBNumeric = !isNaN(parseInt(b));
+
+          // If both are numeric or both are non-numeric, sort numerically or lexicographically
+          if (isANumeric && isBNumeric) {
+            return parseInt(a) - parseInt(b); // Numeric sorting
+          } else if (!isANumeric && !isBNumeric) {
+            return a.localeCompare(b); // Non-numeric sorting (lexicographically)
+          } else {
+            // If one is numeric and the other is non-numeric, non-numeric goes first
+            return isANumeric ? 1 : -1;
+          }
+        });
+      } catch (error) {
+        console.error("Error loading region data:", error);
+      }
+    },
+
+    loadProvinceData(regionCode) {
+      if (!regionCode) {
+        console.error("No region selected.");
+        return;
+      }
+
+      const region = this.regionData[regionCode]; // Get the region using selectedRegion
+      if (region) {
+        this.provinceOptions = Object.keys(region.province_list); // Map available provinces from province_list
+
+        // Set the region to newSite
+        this.newSite.region = regionCode;
+
+        // Clear previous municipality and barangay options
+        this.municipalityOptions = [];
+        this.barangayOptions = [];
+        this.newSite.province = ""; // Reset province in newSite
+        this.newSite.municipality = ""; // Reset municipality in newSite
+        this.newSite.barangay = ""; // Reset barangay in newSite
+      } else {
+        console.error("Invalid region selected.");
+      }
+    },
+
+    loadMunicipalityData(provinceName) {
+      if (!this.newSite.region) {
+        console.error("No region selected.");
+        return;
+      }
+      if (!provinceName) {
+        console.error("No province selected.");
+        return;
+      }
+
+      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
+      if (region) {
+        const province = region.province_list[provinceName]; // Get the province using provinceName
+        if (province) {
+          this.municipalityOptions = Object.keys(province.municipality_list); // Map available municipalities from municipality_list
+
+          // Set the province to newSite
+          this.newSite.province = provinceName;
+
+          // Clear barangay options when a new province is selected
+          this.barangayOptions = [];
+          this.newSite.municipality = ""; // Reset municipality in newSite
+          this.newSite.barangay = ""; // Reset barangay in newSite
+        } else {
+          this.municipalityOptions = []; // Clear if no province found
+          this.barangayOptions = []; // Clear barangay options if no province is found
+        }
+      }
+    },
+
+    loadBarangayData(municipalityName) {
+      if (!municipalityName) {
+        console.error("No municipality selected.");
+        return;
+      }
+
+      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
+      if (region) {
+        const province = region.province_list[this.newSite.province]; // Get the province using newSite.province
+        if (province) {
+          const municipality = province.municipality_list[municipalityName]; // Get municipality using municipalityName
+          if (municipality) {
+            this.barangayOptions = municipality.barangay_list || []; // Map available barangays from barangay_list
+
+            // Set the municipality to newSite
+            this.newSite.municipality = municipalityName;
+          }
+        }
+      }
     },
     handlePictureUpload(event, mode) {
       const file = event.target.files[0];
       if (file) {
-        if (mode === "add") {
-          this.newSite.picture = file;
-        } else if (mode === "edit") {
-          this.editSite.picture = file;
+        // Set the image preview to the file's URL for preview
+        this.imagePreview = URL.createObjectURL(file);
+
+        // Only update the current image if you want to save it
+        if (mode === "edit") {
+          // Don't overwrite the current picture unless you're saving the change
+          this.newPictureFile = file; // Update for edit mode only when confirmed
+        } else if (mode === "add") {
+          this.newSite.picture = file; // Set for add mode
         }
+      } else {
+        this.imagePreview = null; // Clear preview if no file is selected
       }
     },
-    async saveEditSite() {
-      console.log("Saving site:", this.editSite);
-
-      const formData = new FormData();
-      formData.append("name", this.editSite.name);
-      formData.append("location", this.editSite.location);
-      formData.append("status", this.editSite.status);
-      formData.append("description", this.editSite.description || "");
-
-      if (this.editSite.picture) {
-        formData.append("picture", this.editSite.picture);
-      }
-
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.editSite.id}/`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        if (response.status === 200) {
-          const index = this.sites.findIndex(
-            (site) => site.id === this.editSite.id
-          );
-          this.sites[index] = response.data;
-          this.showEditModal = false;
-        }
-      } catch (error) {
-        console.error("Error saving site:", error.response || error);
-      }
+    // Function to get the picture URL (for the current image)
+    getPictureUrl(picture) {
+      return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+    // Add Site Function
     async addSite() {
-      console.log("Adding site with data:", this.newSite);
-
       const formData = new FormData();
-      formData.append("name", this.newSite.name);
-      formData.append("location", this.newSite.location);
-      formData.append("status", this.newSite.status || "Preselling");
       formData.append("companyId", this.vuexCompanyId);
-      formData.append("userId", this.vuexUserId);
+      formData.append("name", this.newSite.name);
       formData.append("description", this.newSite.description || ""); // Optional description field
+      formData.append("region", this.newSite.region);
+      formData.append("province", this.newSite.province);
+      formData.append("municipality", this.newSite.municipality);
+      formData.append("barangay", this.newSite.barangay);
+      formData.append("status", this.newSite.status);
 
+      // Check if the picture is selected, then append it
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
       }
@@ -918,19 +886,104 @@ export default {
             },
           }
         );
+
         if (response.status === 201) {
-          this.sites.push(response.data);
-          this.showAddModal = false;
+          // Clear the form and reset the picture preview
           this.newSite = {
             name: "",
-            location: "",
+            region: "",
+            province: "",
+            municipality: "",
+            barangay: "",
             status: "",
-            picture: "",
             description: "",
-          }; // Clear the form
+            picture: null, // Reset picture to null
+          };
+          this.imagePreview = null; // Reset image preview
+
+          // Close modal and refresh the sites list
+          this.showAddModal = false;
+          this.fetchSites();
         }
       } catch (error) {
         console.error("Error adding site:", error.response || error);
+      }
+    },
+
+    async manageSite() {
+      // Ensure that the form data contains valid values
+      if (
+        !this.editSite.name ||
+        !this.editSite.region ||
+        !this.editSite.province ||
+        !this.editSite.municipality ||
+        !this.editSite.barangay
+      ) {
+        console.error(
+          "Missing required fields: Name, Region, Province, Municipality, Barangay."
+        );
+        return;
+      }
+
+      // Create FormData to send the updated site information
+      const formData = new FormData();
+      formData.append("name", this.editSite.name);
+      formData.append("region", this.editSite.region);
+      formData.append("province", this.editSite.province);
+      formData.append("municipality", this.editSite.municipality);
+      formData.append("barangay", this.editSite.barangay);
+      formData.append("status", this.editSite.status);
+      formData.append("description", this.editSite.description || ""); // Optional description field
+
+      // Check if the picture is being updated
+      if (this.newPictureFile) {
+        formData.append("picture", this.newPictureFile);
+      }
+
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          console.error("No token found. Cannot proceed with the request.");
+          return;
+        }
+
+        // Prepare headers for the request
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        };
+
+        // Send API request to update the site
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.editSite.id}/`,
+          formData,
+          { headers }
+        );
+
+        if (response.status === 200) {
+          // Update the site in the list with the new data from the response
+          const index = this.sites.findIndex(
+            (site) => site.id === this.editSite.id
+          );
+          if (index !== -1) {
+            this.sites[index] = response.data;
+          }
+
+          // Close the edit modal and refresh the site data
+          this.showEditModal = false;
+          this.fetchSites();
+          this.resetPicturePreview();
+        } else {
+          console.error("Failed to update site. Status:", response.status);
+        }
+      } catch (error) {
+        if (error.response) {
+          console.error("Error response from API:", error.response);
+        } else if (error.request) {
+          console.error("Error with request:", error.request);
+        } else {
+          console.error("Error setting up request:", error.message);
+        }
       }
     },
     async archiveSite(site) {
@@ -970,26 +1023,41 @@ export default {
       this.editSite = { ...site };
       this.showEditModal = true;
     },
-    recomputeFilteredSites() {
-      this.filteredSites = this.sites
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .filter((site) => this.showArchived || !site.isArchived)
-        .sort((a, b) =>
-          this.sortBy === "name"
-            ? a.name.localeCompare(b.name)
-            : a.status.localeCompare(b.status)
+    resetPicturePreview() {
+      this.newPictureFile = null;
+      this.imagePreview = null;
+    },
+    cancelEdit() {
+      this.resetPicturePreview();
+      this.showEditModal = false;
+    },
+
+    async fetchStatusOptions() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/status-options/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
+        this.statusOptions = Object.keys(response.data.status_options); // Extract keys (the stored values)
+      } catch (error) {
+        console.error("Error fetching status options:", error);
+      }
     },
   },
   mounted() {
+    console.log("Component mounted, fetching sites...");
     this.fetchSites();
+    this.loadRegionData();
   },
   watch: {
-    showArchived() {
-      this.recomputeFilteredSites();
-    },
+    showArchived() {},
+  },
+  created() {
+    this.fetchStatusOptions(); // Fetch the status options when the component is created
   },
 };
 </script>
