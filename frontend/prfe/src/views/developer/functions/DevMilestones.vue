@@ -78,7 +78,7 @@
                     id="milestoneName"
                     v-model="newMilestone.name"
                     placeholder="Enter milestone name"
-                    require
+                    required
                   />
                 </div>
                 <div class="mb-3">
@@ -91,7 +91,7 @@
                     v-model="newMilestone.description"
                     rows="4"
                     placeholder="Enter description"
-                    require
+                    required
                   ></textarea>
                 </div>
                 <div class="mb-3">
@@ -102,7 +102,7 @@
                     id="milestoneReward"
                     v-model="newMilestone.reward"
                     placeholder="Enter reward"
-                    require
+                    required
                   />
                 </div>
                 <div class="mb-3">
