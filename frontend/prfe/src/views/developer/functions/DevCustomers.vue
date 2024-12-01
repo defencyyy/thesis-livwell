@@ -136,7 +136,6 @@
         </div>
       </div>
     </div>
-
     <!-- View Customer Modal -->
     <b-modal
       v-model="showEditModal"
@@ -148,10 +147,9 @@
       <h5>Customer Information</h5>
       <div class="form-group">
         <label for="editFullName" style="font-weight: bold">Full Name: </label>
-        <span id="editFullName"
-          >{{ currentCustomer.first_name }}
-          {{ currentCustomer.last_name }}</span
-        >
+        <span id="editFullName">
+          {{ currentCustomer.first_name }} {{ currentCustomer.last_name }}
+        </span>
       </div>
       <div class="form-group">
         <label for="editEmail" style="font-weight: bold">Email: </label>
@@ -167,23 +165,15 @@
 
       <!-- Document Requirements -->
       <h5>Submitted Documents</h5>
-
-      <!-- Display Documents -->
-      <div
-        v-if="currentCustomer.documents && currentCustomer.documents.length > 0"
-      >
+      <div v-if="currentCustomer.documents && currentCustomer.documents.length">
         <ul>
-          <li
-            v-for="(document, index) in currentCustomer.documents"
-            :key="index"
-          >
+          <li v-for="document in currentCustomer.documents" :key="document.url">
+            <span class="document-type">{{ document.type }}:</span>
             <a :href="document.url" target="_blank">{{ document.name }}</a>
           </li>
         </ul>
       </div>
-      <div v-else>
-        <p>No documents available.</p>
-      </div>
+      <div v-else>No documents available.</div>
 
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
@@ -194,10 +184,10 @@
         <label for="brokerFullName" style="font-weight: bold"
           >Broker Name:
         </label>
-        <span id="brokerFullName"
-          >{{ currentCustomer.broker.first_name }}
-          {{ currentCustomer.broker.last_name }}</span
-        >
+        <span id="brokerFullName">
+          {{ currentCustomer.broker.first_name }}
+          {{ currentCustomer.broker.last_name }}
+        </span>
       </div>
       <div v-if="currentCustomer.broker" class="form-group">
         <label for="brokerEmail" style="font-weight: bold"
@@ -213,6 +203,25 @@
           currentCustomer.broker.contact_number
         }}</span>
       </div>
+
+      <!-- Spacer -->
+      <div style="margin-top: 20px"></div>
+
+      <!-- Units Connected -->
+      <h5>Connected Units ({{ connectedUnitsCount }} units)</h5>
+      <!-- Display count -->
+      <div v-if="Object.keys(groupedSales).length">
+        <div v-for="(units, siteName) in groupedSales" :key="siteName">
+          <h6>Site: {{ siteName }}</h6>
+          <ul>
+            <li v-for="unit in units" :key="unit.id">
+              {{ unit.title }} (Room: {{ unit.unit_number }} - Status:
+              {{ unit.status }})
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div v-else>No connected units available.</div>
     </b-modal>
   </div>
 </template>
@@ -238,6 +247,7 @@ export default {
       customersPerPage: 25,
       currentPage: 1,
       showEditModal: false,
+      connectedUnitsCount: 0,
       newCustomer: {
         first_name: "",
         last_name: "",
@@ -246,6 +256,7 @@ export default {
       },
       currentCustomer: {
         broker: {},
+        broker_sales: [], // Ensure this exists
       },
       error: null,
     };
@@ -277,6 +288,18 @@ export default {
       const end = start + this.customersPerPage;
       return this.filteredCustomers.slice(start, end);
     },
+
+    groupedSales() {
+      if (!this.currentCustomer.broker_sales) {
+        return {};
+      }
+      return this.currentCustomer.broker_sales.reduce((acc, sale) => {
+        if (sale.site && sale.unit) {
+          acc[sale.site.name] = [...(acc[sale.site.name] || []), sale.unit];
+        }
+        return acc;
+      }, {});
+    },
   },
   mounted() {
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
@@ -301,6 +324,12 @@ export default {
       if (!newVal || this.userType !== "developer") {
         this.redirectToLogin();
       }
+    },
+    groupedSales(newGroupedSales) {
+      this.connectedUnitsCount = Object.values(newGroupedSales).reduce(
+        (acc, units) => acc + units.length,
+        0
+      );
     },
   },
   methods: {
@@ -329,22 +358,22 @@ export default {
       }
     },
     async viewCustomer(customer) {
-      if (!customer || !customer.id) {
-        console.error("Invalid customer data:", customer);
-        return;
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/customers/${customer.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.currentCustomer = response.data;
+        this.fetchCustomerDocuments(customer.id); // Make sure this is called
+        this.showEditModal = true;
+      } catch (error) {
+        console.error("Error fetching customer details:", error);
       }
-      this.currentCustomer = { ...customer };
-
-      // Fetch customer's documents
-      this.fetchCustomerDocuments(customer.id);
-
-      if (!this.currentCustomer.broker) {
-        this.fetchBrokerDetails(customer.broker_id);
-      }
-
-      this.showEditModal = true;
     },
-
     async fetchCustomerDocuments(customerId) {
       try {
         const response = await axios.get(
@@ -355,7 +384,12 @@ export default {
             },
           }
         );
-        this.currentCustomer.documents = response.data.data; // Assuming data contains the document list
+        console.log("Fetched documents:", response.data);
+        this.currentCustomer.documents = response.data.data.map((doc) => ({
+          name: doc.file.split("/").pop(), // Extract file name
+          url: doc.file,
+          type: doc.document_type.name,
+        }));
       } catch (error) {
         console.error("Error fetching customer documents:", error);
         this.error = "Failed to load customer documents.";

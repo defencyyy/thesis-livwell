@@ -1,13 +1,20 @@
 from rest_framework import serializers
-from customers.serializers import CustomerSerializer  # Import CustomerSerializer
-from brokers.serializers import DeveloperBrokerSerializer  # Import BrokerSerializer
+from .models import Sale
+from brokers.serializers import DeveloperBrokerSerializer
 from sites.serializers import SiteSerializer
 from units.serializers import UnitSerializer
-from .models import Sale
+
+
+class SaleCustomerSerializer(serializers.Serializer):
+    """Minimal representation of a customer to avoid circular imports."""
+    id = serializers.IntegerField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+
 
 class SaleSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer()  # Use CustomerSerializer
-    broker = DeveloperBrokerSerializer()  # Use BrokerSerializer
+    customer = SaleCustomerSerializer()  # Use minimal customer representation
+    broker = DeveloperBrokerSerializer()
     site = SiteSerializer()
     unit = UnitSerializer()
 
