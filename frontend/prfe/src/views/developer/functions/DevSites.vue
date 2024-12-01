@@ -152,21 +152,7 @@
                     <td>{{ site.location || "Location unavailable" }}</td>
                     <td>{{ site.status || "Status unavailable" }}</td>
                     <td>
-                      <!-- View Button as Icon (Yellow) -->
-                      <button
-                        @click.stop="viewSite(site)"
-                        style="
-                          border: none;
-                          background-color: transparent;
-                          color: #343a40;
-                          cursor: pointer;
-                          font-size: 18px;
-                        "
-                      >
-                        <i class="fas fa-eye"></i>
-                      </button>
-
-                      <!-- Edit Button as Icon (Blue) -->
+                      <!-- Edit Button -->
                       <button
                         @click.stop="openEditModal(site)"
                         style="
@@ -180,7 +166,21 @@
                         <i class="fas fa-edit"></i>
                       </button>
 
-                      <!-- Archive Button (for active view) -->
+                      <!-- Manage Floors Button -->
+                      <button
+                        @click.stop="openFloorModal(site)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
+                        <i class="fas fa-layer-group"></i>
+                      </button>
+
+                      <!-- Archive/Unarchive Buttons -->
                       <button
                         v-if="!site.archived"
                         @click.stop="archiveSite(site)"
@@ -196,7 +196,6 @@
                         <i class="fas fa-archive"></i>
                       </button>
 
-                      <!-- Unarchive Button (for archived view) -->
                       <button
                         v-else
                         @click.stop="unarchiveSite(site)"
@@ -212,6 +211,7 @@
           </div>
         </div>
 
+        <!-- Add Modal -->
         <b-modal v-model="showAddModal" hide-header hide-footer size="lg">
           <div class="modal-title p-3">
             <h5 class="mb-0">New Site</h5>
@@ -375,6 +375,20 @@
                 </div>
               </div>
 
+              <!-- Add Floors -->
+              <div class="form-group mb-3">
+                <label for="numberOfFloors">Number of Floors</label>
+                <input
+                  type="number"
+                  v-model="newSite.number_of_floors"
+                  id="numberOfFloors"
+                  class="form-control"
+                  placeholder="Enter the number of floors"
+                  min="1"
+                  required
+                />
+              </div>
+
               <!-- Buttons -->
               <div
                 class="d-flex justify-content-end gap-2 mt-3"
@@ -395,7 +409,7 @@
           </div>
         </b-modal>
 
-        <!-- EDIT / VIEW -->
+        <!-- Detail Modal -->
         <b-modal
           v-model="showEditModal"
           title="Site Details / Edit"
@@ -570,18 +584,6 @@
                 </div>
               </div>
 
-              <!-- Description (Editable) -->
-              <div class="form-group mb-3">
-                <label for="editSiteDescription" class="form-label"
-                  >Description</label
-                >
-                <textarea
-                  v-model="editSite.description"
-                  id="editSiteDescription"
-                  class="form-control"
-                ></textarea>
-              </div>
-
               <!-- Buttons -->
               <div
                 class="d-flex justify-content-end gap-2 mt-3"
@@ -590,7 +592,6 @@
                 <button type="submit" class="btn-add" style="width: 150px">
                   Save Changes
                 </button>
-                <!-- Cancel Button -->
                 <button type="button" @click="cancelEdit" class="btn-cancel">
                   Cancel
                 </button>
@@ -599,86 +600,82 @@
           </div>
         </b-modal>
 
-        <!-- Site Details Modal -->
+        <!-- Floor Modal -->
         <b-modal
-          v-model="selectedSiteModal"
-          title="Site Details"
-          hide-header
+          v-model="showFloorModal"
+          title="Manage Floors"
           hide-footer
           size="lg"
         >
           <div class="modal-title p-3">
-            <h5 class="mb-0">Site Details</h5>
+            <h5 class="mb-0">Manage Floors</h5>
           </div>
           <div class="p-3">
-            <div class="row">
-              <!-- Left Side (Text Details) -->
-              <div class="col-md-6">
-                <!-- Site Name -->
-                <div class="form-group mb-3">
-                  <label for="siteName" class="form-label">Site Name:</label>
-                  <!-- <p>{{ selectedSite.name }}</p> -->
-                </div>
-
-                <!-- Location -->
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="region" class="form-label">Region:</label>
-                    <!-- <p>{{ selectedSite.region }}</p> -->
-                  </div>
-                  <div class="col-md-6">
-                    <label for="province" class="form-label">Province:</label>
-                    <!-- <p>{{ selectedSite.province }}</p> -->
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="city" class="form-label">City:</label>
-                    <!-- <p>{{ selectedSite.city }}</p> -->
-                  </div>
-                  <div class="col-md-6">
-                    <label for="postalCode" class="form-label"
-                      >Postal Code:</label
-                    >
-                    <!-- <p>{{ selectedSite.postalCode }}</p> -->
-                  </div>
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="otherAddress" class="form-label"
-                    >Barangay, Street Name, Building No.:</label
-                  >
-                  <!-- <p>{{ selectedSite.otherAddress }}</p> -->
-                </div>
-
-                <!-- Status -->
-                <div class="form-group mb-3">
-                  <label for="siteStatus" class="form-label">Status:</label>
-                  <!-- <p>{{ selectedSite.status }}</p> -->
-                </div>
-              </div>
-
-              <!-- Right Side (Image Preview) -->
-              <div class="col-md-6">
-                <!-- Image Preview Section -->
-                <div class="text-center">
-                  <h6>Site Photo</h6>
-                  <!-- <img :src="selectedSite.picture || '/default-image-large.jpg'" alt="Site Picture" class="img-fluid" style="max-height: 200px; object-fit: cover;" /> -->
-                </div>
-              </div>
+            <!-- Site Information -->
+            <div class="mb-3">
+              <h6>Site Information</h6>
+              <p>
+                <strong>Site Name:</strong> {{ currentSite.name }} <br />
+                <strong>Total Floors:</strong> {{ currentSite.floors.length }}
+              </p>
             </div>
 
-            <!-- Close Button -->
-            <div
-              class="d-flex justify-content-end gap-3 mt-3"
-              style="padding-top: 15px"
-            >
-              <button
-                type="button"
-                @click="selectedSiteModal = false"
-                class="btn-cancel"
+            <!-- Existing Floors -->
+            <div class="mb-3">
+              <h6>Existing Floors</h6>
+              <div v-if="currentSite.floors.length">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Floor Number</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="floor in currentSite.floors"
+                      :key="floor.floor_number"
+                    >
+                      <td>Floor {{ floor.floor_number }}</td>
+                      <td>Available</td>
+                    </tr>
+                    <!-- Indicate unavailable floors if any -->
+                    <tr
+                      v-for="n in totalFloors - currentSite.floors.length"
+                      :key="'unavailable-' + n"
+                    >
+                      <td>Floor {{ currentSite.floors.length + n }}</td>
+                      <td>Unavailable</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p v-else>No floors available for this site.</p>
+            </div>
+
+            <!-- Add Floors -->
+            <div class="mb-3">
+              <h6>Add Floors</h6>
+              <div class="d-flex gap-2">
+                <input
+                  type="number"
+                  v-model="newFloorNumber"
+                  class="form-control"
+                  placeholder="Enter Floor Number"
+                  min="1"
+                />
+                <button @click="addFloor" class="btn btn-primary">
+                  Add Floor
+                </button>
+              </div>
+              <small class="text-muted"
+                >Enter the floor number to add a new floor.</small
               >
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-end gap-2">
+              <button @click="closeFloorModal" class="btn btn-secondary">
                 Close
               </button>
             </div>
@@ -716,14 +713,35 @@ export default {
       newSite: {
         name: "",
         status: "",
-        region: "", // Region selection
-        province: "", // Province selection
-        municipality: "", // municipality selection
-        barangay: "", // Barangay selection
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
         description: "",
         picture: "",
+        number_of_floors: 1, // Set number of floors here
+        floors: [], // No longer needed, as the backend will handle floors automatically
       },
-      editSite: {},
+      editSite: {
+        id: "",
+        name: "",
+        status: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        description: "",
+        picture: "",
+        floors: [], // This would be populated with existing floors
+        number_of_floors: 0,
+      },
+      showFloorModal: false,
+      currentSite: {
+        name: "", // Name of the site
+        floors: [], // Array of floor objects
+      },
+      totalFloors: 0, // Total number of floors for the site
+      newFloorNumber: null, // For adding a new floor
       sites: [],
       archivedSites: [],
       regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
@@ -791,14 +809,6 @@ export default {
       this.$router.push({ name: "DevLogin" });
     },
     async fetchSites() {
-      console.log("Fetching sites...");
-
-      const companyId = this.vuexCompanyId;
-      if (!companyId) {
-        alert("Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
-        return;
-      }
       try {
         const response = await axios.get(
           "http://localhost:8000/developer/sites/",
@@ -808,27 +818,18 @@ export default {
             },
           }
         );
-        console.log("Sites fetched:", response.data); // Debug API response
         if (response.status === 200) {
           this.sites = response.data.data.map((site) => ({
             ...site,
             location: this.constructLocation(site), // Dynamically build location
             isArchived: site.isArchived ?? false,
+            floors: site.floors || [], // Ensure floors is always an array
           }));
-          console.log("Processed Sites:", this.sites); // Debug processed sites
         }
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchSites(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching sites:", error.response || error);
-        }
+        console.error("Error fetching sites:", error.response || error);
       }
     },
-
     async fetchArchivedSites() {
       try {
         const response = await axios.get(
@@ -1086,19 +1087,55 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
-    // Add Site Function
+    openFloorModal(site) {
+      this.currentSite = site;
+      this.totalFloors = site.number_of_floors || 0;
+      this.showFloorModal = true;
+    },
+    closeFloorModal() {
+      this.showFloorModal = false;
+    },
+    addFloor() {
+      if (!this.newFloorNumber || this.newFloorNumber < 1) {
+        alert("Please enter a valid floor number.");
+        return;
+      }
+      if (this.currentSite.floors.length >= this.totalFloors) {
+        alert("All floors are already added.");
+        return;
+      }
+      const floorExists = this.currentSite.floors.some(
+        (floor) => floor.floor_number === this.newFloorNumber
+      );
+      if (floorExists) {
+        alert("Floor already exists.");
+        return;
+      }
+      this.currentSite.floors.push({
+        floor_number: this.newFloorNumber,
+        status: "Available",
+      });
+      this.newFloorNumber = null;
+    },
+
+    // Save the new site including floor details
     async addSite() {
       const formData = new FormData();
       formData.append("companyId", this.vuexCompanyId);
       formData.append("name", this.newSite.name);
-      formData.append("description", this.newSite.description || ""); // Optional description field
+      formData.append("description", this.newSite.description || "");
       formData.append("region", this.newSite.region);
       formData.append("province", this.newSite.province);
       formData.append("municipality", this.newSite.municipality);
       formData.append("barangay", this.newSite.barangay);
       formData.append("status", this.newSite.status);
 
-      // Check if the picture is selected, then append it
+      // Append the floors to the formData
+      this.newSite.floors.forEach((floor, index) => {
+        formData.append(`floors[${index}][floorNumber]`, floor.floorNumber);
+        formData.append(`floors[${index}][floorDetails]`, floor.floorDetails);
+      });
+
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
       }
@@ -1116,20 +1153,19 @@ export default {
         );
 
         if (response.status === 201) {
-          // Clear the form and reset the picture preview
+          // Reset form data after adding the site
           this.newSite = {
             name: "",
+            status: "",
             region: "",
             province: "",
             municipality: "",
             barangay: "",
-            status: "",
             description: "",
-            picture: null, // Reset picture to null
+            picture: null,
+            floors: [], // Reset floors
           };
-          this.imagePreview = null; // Reset image preview
-
-          // Close modal and refresh the sites list
+          this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
         }
@@ -1138,22 +1174,8 @@ export default {
       }
     },
 
+    // Save edited site including floor details
     async manageSite() {
-      // Ensure that the form data contains valid values
-      if (
-        !this.editSite.name ||
-        !this.editSite.region ||
-        !this.editSite.province ||
-        !this.editSite.municipality ||
-        !this.editSite.barangay
-      ) {
-        console.error(
-          "Missing required fields: Name, Region, Province, Municipality, Barangay."
-        );
-        return;
-      }
-
-      // Create FormData to send the updated site information
       const formData = new FormData();
       formData.append("name", this.editSite.name);
       formData.append("region", this.editSite.region);
@@ -1161,60 +1183,44 @@ export default {
       formData.append("municipality", this.editSite.municipality);
       formData.append("barangay", this.editSite.barangay);
       formData.append("status", this.editSite.status);
-      formData.append("description", this.editSite.description || ""); // Optional description field
+      formData.append("description", this.editSite.description || "");
 
-      // Check if the picture is being updated
+      // Append floors data for editing
+      this.editSite.floors.forEach((floor, index) => {
+        formData.append(`floors[${index}][floorNumber]`, floor.floorNumber);
+        formData.append(`floors[${index}][floorDetails]`, floor.floorDetails);
+      });
+
       if (this.newPictureFile) {
         formData.append("picture", this.newPictureFile);
       }
 
       try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          console.error("No token found. Cannot proceed with the request.");
-          return;
-        }
-
-        // Prepare headers for the request
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        };
-
-        // Send API request to update the site
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
           formData,
-          { headers }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
 
         if (response.status === 200) {
-          // Update the site in the list with the new data from the response
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
           );
           if (index !== -1) {
             this.sites[index] = response.data;
           }
-
-          // Close the edit modal and refresh the site data
           this.showEditModal = false;
           this.fetchSites();
-          this.resetPicturePreview();
-        } else {
-          console.error("Failed to update site. Status:", response.status);
         }
       } catch (error) {
-        if (error.response) {
-          console.error("Error response from API:", error.response);
-        } else if (error.request) {
-          console.error("Error with request:", error.request);
-        } else {
-          console.error("Error setting up request:", error.message);
-        }
+        console.error("Error updating site:", error.response || error);
       }
     },
-
     viewSite(site) {
       if (site) {
         this.selectedSite = site;
@@ -1224,7 +1230,7 @@ export default {
       }
     },
     openEditModal(site) {
-      this.editSite = { ...site };
+      this.editSite = { ...site, floors: site.floors || [] }; // Ensure floors is initialized
       this.showEditModal = true;
     },
     resetPicturePreview() {

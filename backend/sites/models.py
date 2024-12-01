@@ -60,11 +60,7 @@ class Site(models.Model):
         return ', '.join(filter(None, address_parts))
 
     def create_units(self, units_per_floor, template=None):
-        from units.models import Unit, UnitTemplate
-        # Create units for all floors in the site.
-        # Args:
-        #     units_per_floor (int): Number of units to create per floor.
-        #     template (dict): Default values for unit attributes (optional).
+        from units.models import Unit
         if units_per_floor <= 0:
             raise ValueError("Units per floor must be a positive integer.")
         
@@ -82,14 +78,14 @@ class Site(models.Model):
             }
         
         created_units = []
-        for floor in range(1, self.floors + 1):
+        for floor in self.floors.all():  # Access the related floors from the Floor model
             for unit_number in range(1, units_per_floor + 1):
                 unit = Unit(
                     company=self.company,
                     site=self,
-                    floor=floor,
-                    unit_title=f"Unit {floor}-{unit_number}",
-                    unit_number=f"{floor:02d}{unit_number:03d}",
+                    floor=floor.floor_number,
+                    unit_title=f"Unit {floor.floor_number}-{unit_number}",
+                    unit_number=f"{floor.floor_number:02d}{unit_number:03d}",
                     bedroom=template.get("bedroom"),
                     bathroom=template.get("bathroom"),
                     floor_area=template.get("floor_area"),
@@ -105,6 +101,8 @@ class Site(models.Model):
         # Bulk create all units at once
         Unit.objects.bulk_create(created_units)
         return len(created_units)
+
+
     
 class Floor(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="floors")

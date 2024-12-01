@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
 from developers.models import Developer
-from .models import Site
+from .models import Site, Floor
 from .serializers import SiteSerializer
 
 # Set up logging
@@ -50,14 +50,18 @@ class SiteListView(APIView):
         # Copy data to modify it
         data = request.data.copy()  # Make a mutable copy to avoid QueryDict issues
         data['company'] = company.id
-        logger.debug(f"Data before serialization: {data}")
 
+        # Handle floors in the request
+        floors_data = data.pop('floors', [])
         serializer = SiteSerializer(data=data)
 
         if serializer.is_valid():
-            logger.debug("Serializer is valid. Saving the site.")
-            serializer.save()
-            logger.debug(f"Site created with ID: {serializer.data.get('id')}")
+            site = serializer.save()
+
+            # Create the floors associated with the site
+            for floor_data in floors_data:
+                Floor.objects.create(site=site, **floor_data)
+
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
         logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
