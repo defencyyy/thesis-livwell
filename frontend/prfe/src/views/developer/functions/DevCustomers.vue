@@ -177,7 +177,10 @@
             v-for="(document, index) in currentCustomer.documents"
             :key="index"
           >
-            <a :href="document.url" target="_blank">{{ document.name }}</a>
+            <span class="document-type">{{ document.type }}:</span>
+            <a :href="document.url" target="_blank" class="document-link">
+              {{ document.name }}
+            </a>
           </li>
         </ul>
       </div>
@@ -355,7 +358,8 @@ export default {
             },
           }
         );
-        this.currentCustomer.documents = response.data.data; // Assuming data contains the document list
+        console.log("Fetched documents:", response.data);
+        this.currentCustomer.documents = response.data.data; // Adjust based on API response
       } catch (error) {
         console.error("Error fetching customer documents:", error);
         this.error = "Failed to load customer documents.";
