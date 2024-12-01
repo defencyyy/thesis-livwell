@@ -36,7 +36,7 @@
             <hr class="dropdown-divider" />
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click.prevent="logout">
+            <a class="dropdown-item" href="#" @click="logout">
               <i class="bi bi-box-arrow-right me-2"></i> Sign Out
             </a>
           </li>
@@ -110,33 +110,17 @@ export default {
     },
     async logout() {
       try {
-        let logoutEndpoint = "";
-
-        // Determine the logout endpoint based on userRole
-        if (this.userRole === "developer") {
-          logoutEndpoint = "http://localhost:8000/api/token/devlogout/";
-        } else if (this.userRole === "broker") {
-          logoutEndpoint = "http://localhost:8000/api/token/brklogout/";
-        } else {
-          throw new Error("Unsupported user role.");
-        }
-
-        await axios.post(
-          logoutEndpoint,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        await axios.post("http://localhost:8000/api/token/brklogout/", {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("developer_id");
-        localStorage.removeItem("broker_id");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
-        this.$store.commit("clearUser");
 
         if (this.userRole === "developer") {
           this.redirectToLogin("Home");
@@ -148,7 +132,6 @@ export default {
         alert("Logout failed. Please try again.");
       }
     },
-
     redirectToLogin(pageName) {
       this.$router.push({ name: pageName });
     },
@@ -160,15 +143,17 @@ export default {
 .top-bar {
   background-color: #343a40;
   color: #fff;
+
+  padding: 10px 20px;
+  padding-left: 14%;
+
   padding: 12px 30px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: fixed;
-  top: 0;
-  left: 250px; /* Sidebar width */
-  width: calc(100% - 250px);
-  z-index: 2;
+  width: 100%;
+ 
 }
 
 .welcome-text {

@@ -1,8 +1,12 @@
 <template>
+
+    <AppHeader/>
+ 
   <div class="manage-sales-page">
+
     <SideNav />
     <div class="content">
-      <h1>Welcome to the Manage Sales Page</h1>
+      <h1 class="display-5 fw-bolder text-capitalize">Welcome to the Manage Sales Page</h1>
       <p>This is where you can manage sales data for brokers and developers.</p>
 
       <!-- Sales Table -->
@@ -21,11 +25,12 @@
             :key="sale.id"
             @click="openSalesAgreementModal(sale)"
             style="cursor: pointer"
-          >
-            <td>{{ sale.customer_name}}({{ sale.customer_code }})</td>
-            <td>{{ sale.site_name }}</td>
-            <td>{{ sale.unit_title }}</td>
-            <td>{{ sale.status }}</td>
+           
+          > 
+            <td class="text-uppercase">{{ sale.customer_name}}({{ sale.customer_code }})</td>
+            <td class="text-uppercase">{{ sale.site_name }}</td>
+            <td class="text-uppercase">{{ sale.unit_title }}</td>
+            <td class="text-uppercase">{{ sale.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -36,6 +41,14 @@
       <!-- Sales Agreement Modal -->
       <div v-if="showModal" class="modal">
         <div class="modal-content">
+          <div v-if="selectedSale.status === 'Pending Reservation'">
+      <p style="color: red; font-weight: bold; text-align: center;">
+        Reservation not yet confirmed
+      </p>
+      <button @click="closeModal">Close</button>
+
+    </div>
+        <div v-else>
           <h2>Sales Agreement</h2>
           <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
           <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
@@ -72,7 +85,7 @@
           <!-- Payment Plan Section -->
           <div v-if="!salesDetailsExists">
             <div class="form-group">
-            <label for="paymentPlan">Payment Plan</label>
+            <label for="paymentPlan"><b>Payment Plan: </b></label>
             <select v-model="selectedPaymentPlan" id="paymentPlan" required>
               <option value="Spot Cash">Spot Cash</option>
               <option value="Deffered Payment">Deffered Payment</option>
@@ -85,7 +98,7 @@
 
             <!-- Spot Discount -->
             <div class="form-group">
-              <label for="spotDiscount">Spot Discount</label>
+              <label for="spotDiscount">Spot Discount: </label>
               <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails" required>
                 <option value="0">0%</option>
                 <option value="1">1%</option>
@@ -101,7 +114,7 @@
 
              <!-- TLP Discount -->
             <div class="form-group">
-              <label for="tlpDiscount">TLP Discount</label>
+              <label for="tlpDiscount">TLP Discount: </label>
               <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails" required>
                 <option value="0">None</option>
                 <option value="5">5%</option>
@@ -116,7 +129,7 @@
 
             <!-- Other Charges -->
             <div class="form-group">
-              <label for="otherCharges">Other Charges</label>
+              <label for="otherCharges">Other Charges: </label>
               <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails" required>
                 <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
@@ -240,8 +253,8 @@
               <li><strong>TIN:</strong> A clear copy of the customer's Taxpayer Identification Number (TIN) certificate.</li>
               </ul>
           </div>
-        <button @click="submitToCustomer">Submit to Customer</button>
-        <button @click="closeModal">Close</button>
+            <button @click="submitToCustomer">Submit to Customer</button>
+            <button @click="closeModal">Close</button>
 
             <!-- Loading Indicator -->
         <div v-if="loading" class="loading-overlay">
@@ -255,12 +268,15 @@
         </div>
         </div>
         </div>
+        </div>
     </div>
   </div>
+  
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue"
 import { mapState } from "vuex";
 import axios from "axios";
 
@@ -268,6 +284,7 @@ export default {
   name: "ManageSales",
   components: {
     SideNav,
+    AppHeader,
   },
   computed: {
     ...mapState({
@@ -606,25 +623,44 @@ export default {
   flex: 1;
   padding: 20px;
   text-align: center;
+
+  
 }
 
 .sales-table {
   width: 100%;
   margin-top: 20px;
-  border-collapse: collapse;
+  border-collapse: separate; /* Enables border radius */
+  border-spacing: 0; /* Ensures proper alignment for border radius */
+  text-align: left;
+  background-color: white; /* Ensure the table has a distinct background */
+
+  box-shadow: 0 15px 12px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
+
 }
 
 .sales-table th,
 .sales-table td {
   padding: 8px;
-  border: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  text-align: start
 }
 
 .sales-table th {
-  background-color: #f4f4f4;
+  background-color: #c2ffd1;
 }
 
-.modal {
+
+
+
+
+.sales-table tr:hover {
+  background-color: #c2c2c2;
+  transition: ease 0.3s;
+}
+
+
+/* .modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -634,6 +670,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  display: flex;
 }
 
 .modal-content {
@@ -641,19 +678,178 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 400px;
-  max-height: 90%; /* Ensure the modal doesn't exceed 90% of the viewport height */
-  overflow-y: auto; /* Make the content scrollable if it overflows */
+  max-height: 90%; 
+  overflow-y: auto; 
+} */
+
+/* Modal Background */
+/* Modal Background */
+.modal {
+
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
+
+/* Modal Content */
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80%;
+  overflow-y: auto;
+  text-align: left; /* Align all text to the left */
+}
+
+/* Headings */
+.modal-content h2 {
+  color: #333;
+  margin-bottom: 10px;
+  text-align: left; /* Ensure headings are aligned to the left */
+}
+
+/* Paragraph Styling */
+.modal-content p {
+  font-size: 14px;
+  margin: 8px 0;
+  text-align: left; /* Align paragraphs to the left */
+}
+
+/* Buttons */
+.button {
+  background: #ddd;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: all 0.3s;
+  text-align: center; /* Center-align button text */
+}
+
+.button:hover {
+  background: #ccc;
+}
+
+.button.primary {
+  background: #007bff;
+  color: #fff;
+}
+
+.button.primary:hover {
+  background: #0056b3;
+}
+
+
+
+/* BUTTON FOR ADD CUSTOMER AND CLOSE */
+
+button {
+  padding: 10px 20px; /* Add padding for a comfortable size */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 16px; /* Increase text size for better readability */
+  cursor: pointer; /* Change cursor to pointer for interactivity */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+/* Submit to Customer Button */
+button:first-of-type {
+  background-color: #28a745; /* Green background */
+  color: white; /* White text */
+}
+
+button:first-of-type:hover {
+  background-color: #218838; /* Darker green on hover */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
+}
+
+button:first-of-type:active {
+  background-color: #1e7e34; /* Even darker green on click */
+  transform: scale(0.98); /* Slight shrink effect on click */
+}
+
+/* Close Button */
+button:last-of-type {
+  background-color: #dc3545; /* Red background */
+  color: white; /* White text */
+  margin-left: 10px; /* Add spacing between buttons */
+}
+
+button:last-of-type:hover {
+  background-color: #c82333; /* Darker red on hover */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
+}
+
+button:last-of-type:active {
+  background-color: #bd2130; /* Even darker red on click */
+  transform: scale(0.98); /* Slight shrink effect on click */
+}
+
+
+
+
+
+/* Dropdown Styling */
+.dropdown {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #f9f9f9;
+  cursor: pointer;
+  text-align: left; /* Ensure dropdown text aligns to the left */
+}
+
+.dropdown:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Scrollable Content */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+
+
+
+
 
 .payment-summary {
   margin-bottom: 20px;
 }
 
 .detailed-schedule {
+  color: #0056b3;
   margin-top: 20px;
   border-top: 1px solid #ccc;
   padding-top: 10px;
+
 }
+
+
+
+
+
 
 .toggle-button {
   background-color: #007bff;
@@ -732,4 +928,123 @@ td {
   font-weight: bold;
   margin-bottom: 10px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Dropdown Styling */
+.form-group select {
+  background-color: white; /* Set the background to white */
+  color: black; /* Set the text color to white */
+  padding: 8px;
+  border: 1px solid #ccc; /* Add a subtle border for visibility */
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%; /* Make it responsive */
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff; /* Highlight border on focus */
+}
+
+/* Dropdown Hover Text */
+.form-group select:hover {
+  color: black; /* Change text color to black on hover for better visibility */
+}
+
+
+
+/* Style for File Input Button */
+input[type="file"] {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+  border-radius: 8px; /* Apply border radius */
+  font-size: 14px;
+  background-color: #f9f9f9; /* Light background for better contrast */
+  color: #333; /* Text color */
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+input[type="file"]::file-selector-button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Add focus effect */
+}
+
+
+
+
+.form-group label {
+  font-size: 16px; /* Increase label size */
+  font-weight: bold; /* Make label bold */
+  color: #0056b3; /* Use a professional blue tone */
+  margin-bottom: 8px; /* Add spacing below the label */
+}
+
+.form-group input[type="number"] {
+  width: 100%; /* Make the input take up full width */
+  padding: 10px; /* Add padding for a better click area */
+  font-size: 16px; /* Match font size with the label */
+  border: 1px solid #ccc; /* Light border for input */
+  border-radius: 8px; /* Add rounded corners */
+  background-color: #f9f9f9; /* Light background for input */
+  color: #333; /* Text color */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+}
+
+.form-group input[type="number"]:hover {
+  border-color: #007bff; /* Change border color on hover */
+}
+
+.form-group input[type="number"]:focus {
+  border-color: #0056b3; /* Darker border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+}
+
+.form-group input[type="number"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
 </style>

@@ -7,6 +7,16 @@
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
 
+      <!-- Add this search input in your template (e.g., inside the <template> tag) -->
+<div class="search-container">
+  <input 
+    v-model="searchQuery" 
+    type="text" 
+    placeholder="Search by name or customer code..." 
+    @input="filterCustomers"
+  />
+</div>
+
       <!-- Sorting and Adding Customers Section -->
       <div class="sort-options">
         <label for="sortBy">Sort by:</label>
@@ -15,6 +25,8 @@
           <option value="name_desc">Name (Z-A)</option>
           <option value="site_asc">Site (A-Z)</option>
           <option value="site_desc">Site (Z-A)</option>
+          <option value="status_asc">Document Status (Complete)</option>
+          <option value="status_desc">Document Status (Pending)</option>
         </select>
       </div>
 
@@ -66,6 +78,14 @@
             Close
           </button>
         </template>
+
+        <template v-if="showStatusMessage">
+          <p>Waiting for Developer to confirm Reservation</p>
+          <button type="button" @click="showDocumentModal = false">
+            Close
+          </button>
+        </template>
+        
 
         <template v-else>
           <form @submit.prevent="uploadDocuments">
@@ -141,13 +161,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(customer, index) in customers"
-            :key="index"
-            @click="openDocumentModal(customer)"
-          ></tr>
+           <tr
+    v-for="(customer, index) in filteredCustomers"
+    :key="index"
+    @click="openDocumentModal(customer)"
+  ></tr>
 
-          <tr v-for="(customer, index) in customers" :key="index">
+  <tr v-for="(customer, index) in filteredCustomers" :key="index">
             <td>{{ customer.customer_name }}</td>
             <td>{{ customer.customer_code }}</td>
             <td>{{ customer.site }}</td>
@@ -273,6 +293,7 @@ export default {
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
+      showStatusMessage:false,
       showNotification: false, // Controls the visibility of the notification modal
       email: "",
       contactNumber: "",
@@ -287,6 +308,8 @@ export default {
       filePreviews: {}, // Object to store file previews for each document type
       document_status: "Pending",
       documentFiles: {},
+      searchQuery: "", // New property for search input
+      filteredCustomers: [], // Holds the filtered list based on search query
     };
   },
   mounted() {
@@ -294,7 +317,23 @@ export default {
     this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
-    async fetchCustomers() {
+     filterCustomers() {
+    const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
+    
+    if (!query) {
+      // If there's no search query, show all customers
+      this.filteredCustomers = this.customers;
+    } else {
+      // Filter customers by name or customer code
+      this.filteredCustomers = this.customers.filter((customer) => {
+        const customerName = customer.customer_name.toLowerCase();
+        const customerCode = customer.customer_code ? customer.customer_code.toLowerCase() : ""; // Assuming customer code is in customer_code field
+        return customerName.includes(query) || customerCode.includes(query);
+      });
+    }
+  },
+    
+  async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
@@ -308,6 +347,9 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
+            console.log(this.customers);
+            this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
+
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -339,6 +381,16 @@ export default {
         case "site_desc":
           this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
+        case "status_asc": // New case for sorting by document status A-Z
+      this.customers.sort((a, b) =>
+        a.document_status.localeCompare(b.document_status)
+      );
+      break;
+    case "status_desc": // New case for sorting by document status Z-A
+      this.customers.sort((a, b) =>
+        b.document_status.localeCompare(a.document_status)
+      );
+      break;
       }
     },
     openEditModal(customer) {
@@ -402,6 +454,12 @@ export default {
         this.showSalesMessage = true; // Show the message to create sales first
       } else {
         this.showSalesMessage = false; // Show the document upload form
+      }
+      if (this.selectedCustomer.status != "Reserved") {
+        this.showStatusMessage = true; // Show the message to create sales first
+      }
+      else {
+        this.showStatusMessage = false; // Show the message to create sales first
       }
       this.fetchCustomerDocuments(this.selectedCustomer.id, this.selectedCustomer.sales_id);
 

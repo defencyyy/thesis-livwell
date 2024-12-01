@@ -5,12 +5,12 @@
     <div class="main-page">
       <SideNav />
       <div class="content">
-        <p>{{ brokerEmail }}</p>
-        <strong>Total Sales:</strong> {{ totalSales }}
-        <strong>Total Commissions:</strong> {{ totalCommissions }}
-        <p>Total Customers: {{ totalCustomers }}</p>
-        <h1>His, {{ brokerName }}</h1>
-
+        <p class="text-start display-7 fw-bolder">{{ brokerEmail }}</p>
+        <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">His, {{ brokerName }}</h1>
+        <p class="text-start pt-5"><strong>Total Sales:</strong> {{ totalSales }}</p>
+        <p class="text-start "><strong>Total Commissions:</strong> {{ totalCommissions }}</p>
+        <p class="text-start "> <strong>Total Customers: </strong> {{ totalCustomers }}</p>
+       
         <!-- Pie Chart Section -->
         <div
           v-if="
@@ -25,7 +25,7 @@
           <canvas id="salesPieChart"></canvas>
         </div>
 
-        <button @click="logout">Logout</button>
+        <!-- <button @click="logout">Logout</button> -->
       </div>
     </div>
   </div>
@@ -156,7 +156,7 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-              labels: ["Sold", "Pending", "Reserved", "Pending Sold"], // Add "Pending Sold"
+              labels: ["Sold", "Pending Reservation", "Reserved", "Pending Sold"], // Add "Pending Sold"
               datasets: [
                 {
                   data: [
@@ -236,6 +236,11 @@ export default {
   flex: 1;
   padding: 20px;
   text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  margin: 20px 20px 20px 20px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: rgb(223, 255, 223);
 }
 
 button {
@@ -257,4 +262,72 @@ canvas {
   max-height: 400px;
   margin: 20px auto;
 }
+
+#salesPieChart
+{
+  padding: 20px;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  /* margin: 20px 20px 20px 20px;   */
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: rgb(244, 244, 244);
+}
+
+/* .content {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: auto;
+}
+
+.broker-info {
+  margin-bottom: 20px;
+}
+
+.broker-info p,
+.broker-info h1 {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.broker-info strong {
+  font-weight: bold;
+  color: #0056b3;
+}
+
+h1 {
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+}
+
+#salesPieChart {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.logout-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.logout-btn {
+  padding: 10px 20px;
+  background-color: #ff4c4c; /* Red background 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #e63946; 
+} */
+
 </style>
