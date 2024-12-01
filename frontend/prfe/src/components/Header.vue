@@ -110,11 +110,26 @@ export default {
     },
     async logout() {
       try {
-        await axios.post("http://localhost:8000/api/token/brklogout/", {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
+        let logoutEndpoint = "";
+
+        // Determine the logout endpoint based on userRole
+        if (this.userRole === "developer") {
+          logoutEndpoint = "http://localhost:8000/api/token/devlogout/";
+        } else if (this.userRole === "broker") {
+          logoutEndpoint = "http://localhost:8000/api/token/brklogout/";
+        } else {
+          throw new Error("Unsupported user role.");
+        }
+
+        await axios.post(
+          logoutEndpoint,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
@@ -153,7 +168,6 @@ export default {
   align-items: center;
   justify-content: space-between;
   width: 100%;
- 
 }
 
 .welcome-text {
