@@ -32,7 +32,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         sales = (
             Sale.objects.filter(customer=obj)
             .select_related('unit__site')  # Optimize query to include related data
-            .values('id', 'status', 'reservation_fee', 'unit__id', 'unit__unit_title', 'unit__status', 'unit__site__name')  # Changed unit__title to unit__unit_title
+            .values('id', 'status', 'reservation_fee', 'unit__id', 'unit__unit_title', 'unit__status', 'unit__site__name', 'unit__unit_number')  
         )
 
         # Map the query results to match the structure expected by the frontend
@@ -44,6 +44,7 @@ class CustomerSerializer(serializers.ModelSerializer):
                 "unit": {
                     "id": sale["unit__id"],
                     "title": sale["unit__unit_title"],  # Changed unit__title to unit__unit_title
+                    "unit_number": sale["unit__unit_number"],
                     "status": sale["unit__status"],
                 },
                 "site": {

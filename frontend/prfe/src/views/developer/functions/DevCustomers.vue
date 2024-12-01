@@ -136,7 +136,6 @@
         </div>
       </div>
     </div>
-
     <!-- View Customer Modal -->
     <b-modal
       v-model="showEditModal"
@@ -148,10 +147,9 @@
       <h5>Customer Information</h5>
       <div class="form-group">
         <label for="editFullName" style="font-weight: bold">Full Name: </label>
-        <span id="editFullName"
-          >{{ currentCustomer.first_name }}
-          {{ currentCustomer.last_name }}</span
-        >
+        <span id="editFullName">
+          {{ currentCustomer.first_name }} {{ currentCustomer.last_name }}
+        </span>
       </div>
       <div class="form-group">
         <label for="editEmail" style="font-weight: bold">Email: </label>
@@ -167,8 +165,6 @@
 
       <!-- Document Requirements -->
       <h5>Submitted Documents</h5>
-
-      <!-- Display Documents -->
       <div v-if="currentCustomer.documents && currentCustomer.documents.length">
         <ul>
           <li v-for="document in currentCustomer.documents" :key="document.url">
@@ -188,10 +184,10 @@
         <label for="brokerFullName" style="font-weight: bold"
           >Broker Name:
         </label>
-        <span id="brokerFullName"
-          >{{ currentCustomer.broker.first_name }}
-          {{ currentCustomer.broker.last_name }}</span
-        >
+        <span id="brokerFullName">
+          {{ currentCustomer.broker.first_name }}
+          {{ currentCustomer.broker.last_name }}
+        </span>
       </div>
       <div v-if="currentCustomer.broker" class="form-group">
         <label for="brokerEmail" style="font-weight: bold"
@@ -211,13 +207,16 @@
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
 
-      <h5>Units Connected</h5>
+      <!-- Units Connected -->
+      <h5>Connected Units ({{ connectedUnitsCount }} units)</h5>
+      <!-- Display count -->
       <div v-if="Object.keys(groupedSales).length">
         <div v-for="(units, siteName) in groupedSales" :key="siteName">
           <h6>Site: {{ siteName }}</h6>
           <ul>
             <li v-for="unit in units" :key="unit.id">
-              {{ unit.title }} (Status: {{ unit.status }})
+              {{ unit.title }} (Room: {{ unit.unit_number }} - Status:
+              {{ unit.status }})
             </li>
           </ul>
         </div>
@@ -248,6 +247,7 @@ export default {
       customersPerPage: 25,
       currentPage: 1,
       showEditModal: false,
+      connectedUnitsCount: 0,
       newCustomer: {
         first_name: "",
         last_name: "",
@@ -269,7 +269,6 @@ export default {
       loggedIn: (state) => state.loggedIn,
     }),
     filteredCustomers() {
-      console.log("Filtered Customers:", this.filteredCustomers);
       return this.customers.filter(
         (customer) =>
           customer.first_name
@@ -285,10 +284,8 @@ export default {
       return Math.ceil(this.filteredCustomers.length / this.customersPerPage);
     },
     currentCustomers() {
-      console.log("Current Customers:", this.currentCustomers);
       const start = (this.currentPage - 1) * this.customersPerPage;
       const end = start + this.customersPerPage;
-
       return this.filteredCustomers.slice(start, end);
     },
 
@@ -297,8 +294,7 @@ export default {
         return {};
       }
       return this.currentCustomer.broker_sales.reduce((acc, sale) => {
-        // Check if sale.site exists before accessing its properties
-        if (sale.site) {
+        if (sale.site && sale.unit) {
           acc[sale.site.name] = [...(acc[sale.site.name] || []), sale.unit];
         }
         return acc;
@@ -328,6 +324,12 @@ export default {
       if (!newVal || this.userType !== "developer") {
         this.redirectToLogin();
       }
+    },
+    groupedSales(newGroupedSales) {
+      this.connectedUnitsCount = Object.values(newGroupedSales).reduce(
+        (acc, units) => acc + units.length,
+        0
+      );
     },
   },
   methods: {
