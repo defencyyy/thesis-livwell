@@ -158,16 +158,15 @@ export default {
 .top-bar {
   background-color: #343a40;
   color: #fff;
-
-  padding: 10px 20px;
-  padding-left: 14%;
-
   padding: 12px 30px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 250px; /* Sidebar width */
+  width: calc(100% - 250px);
+  z-index: 2;
 }
 
 .welcome-text {
