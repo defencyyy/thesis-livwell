@@ -5,6 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from developers.models import Developer
 from .models import Customer
 from .serializers import CustomerSerializer, EditCustomerSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.shortcuts import get_object_or_404
+from documents.models import Document
+from documents.serializers import DocumentSerializer
 
 class CustomerListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -122,16 +126,6 @@ class CustomerDetailView(APIView):
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
         except Customer.DoesNotExist:
             return Response({"error": "Customer not found"}, status=status.HTTP_404_NOT_FOUND)
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import status
-from django.shortcuts import get_object_or_404
-from documents.models import Document
-from .models import Customer
-from documents.serializers import DocumentSerializer
 
 class CustomerDocumentListView(APIView):
     authentication_classes = [JWTAuthentication]

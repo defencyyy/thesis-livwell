@@ -169,24 +169,15 @@
       <h5>Submitted Documents</h5>
 
       <!-- Display Documents -->
-      <div
-        v-if="currentCustomer.documents && currentCustomer.documents.length > 0"
-      >
+      <div v-if="currentCustomer.documents && currentCustomer.documents.length">
         <ul>
-          <li
-            v-for="(document, index) in currentCustomer.documents"
-            :key="index"
-          >
+          <li v-for="document in currentCustomer.documents" :key="document.url">
             <span class="document-type">{{ document.type }}:</span>
-            <a :href="document.url" target="_blank" class="document-link">
-              {{ document.name }}
-            </a>
+            <a :href="document.url" target="_blank">{{ document.name }}</a>
           </li>
         </ul>
       </div>
-      <div v-else>
-        <p>No documents available.</p>
-      </div>
+      <div v-else>No documents available.</div>
 
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
@@ -216,6 +207,22 @@
           currentCustomer.broker.contact_number
         }}</span>
       </div>
+
+      <!-- Spacer -->
+      <div style="margin-top: 20px"></div>
+
+      <h5>Units Connected</h5>
+      <div v-if="Object.keys(groupedSales).length">
+        <div v-for="(units, siteName) in groupedSales" :key="siteName">
+          <h6>Site: {{ siteName }}</h6>
+          <ul>
+            <li v-for="unit in units" :key="unit.id">
+              {{ unit.title }} (Status: {{ unit.status }})
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div v-else>No connected units available.</div>
     </b-modal>
   </div>
 </template>
@@ -249,6 +256,7 @@ export default {
       },
       currentCustomer: {
         broker: {},
+        broker_sales: [], // Ensure this exists
       },
       error: null,
     };
@@ -261,6 +269,7 @@ export default {
       loggedIn: (state) => state.loggedIn,
     }),
     filteredCustomers() {
+      console.log("Filtered Customers:", this.filteredCustomers);
       return this.customers.filter(
         (customer) =>
           customer.first_name
@@ -276,9 +285,24 @@ export default {
       return Math.ceil(this.filteredCustomers.length / this.customersPerPage);
     },
     currentCustomers() {
+      console.log("Current Customers:", this.currentCustomers);
       const start = (this.currentPage - 1) * this.customersPerPage;
       const end = start + this.customersPerPage;
+
       return this.filteredCustomers.slice(start, end);
+    },
+
+    groupedSales() {
+      if (!this.currentCustomer.broker_sales) {
+        return {};
+      }
+      return this.currentCustomer.broker_sales.reduce((acc, sale) => {
+        // Check if sale.site exists before accessing its properties
+        if (sale.site) {
+          acc[sale.site.name] = [...(acc[sale.site.name] || []), sale.unit];
+        }
+        return acc;
+      }, {});
     },
   },
   mounted() {
@@ -332,22 +356,22 @@ export default {
       }
     },
     async viewCustomer(customer) {
-      if (!customer || !customer.id) {
-        console.error("Invalid customer data:", customer);
-        return;
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/customers/${customer.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.currentCustomer = response.data;
+        this.fetchCustomerDocuments(customer.id); // Make sure this is called
+        this.showEditModal = true;
+      } catch (error) {
+        console.error("Error fetching customer details:", error);
       }
-      this.currentCustomer = { ...customer };
-
-      // Fetch customer's documents
-      this.fetchCustomerDocuments(customer.id);
-
-      if (!this.currentCustomer.broker) {
-        this.fetchBrokerDetails(customer.broker_id);
-      }
-
-      this.showEditModal = true;
     },
-
     async fetchCustomerDocuments(customerId) {
       try {
         const response = await axios.get(
@@ -359,7 +383,11 @@ export default {
           }
         );
         console.log("Fetched documents:", response.data);
-        this.currentCustomer.documents = response.data.data; // Adjust based on API response
+        this.currentCustomer.documents = response.data.data.map((doc) => ({
+          name: doc.file.split("/").pop(), // Extract file name
+          url: doc.file,
+          type: doc.document_type.name,
+        }));
       } catch (error) {
         console.error("Error fetching customer documents:", error);
         this.error = "Failed to load customer documents.";
