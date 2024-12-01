@@ -86,22 +86,56 @@ class SiteDetailView(APIView):
 
     def put(self, request, pk):
         company = get_developer_company(request)
+        
+        # Debugging - check if company is retrieved correctly
         if not company:
+            logger.error(f"Company not found for developer (user: {request.user.username})")
             return Response(
                 {"error": "Company not found for this developer."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Debugging - log company info
+        logger.debug(f"Company ID: {company.id} | Company Name: {company.name}")
+
         site = get_object_or_404(Site, pk=pk, company=company)
 
-        data = request.data.copy()  # Make a mutable copy to avoid QueryDict issues
+        data = request.data.copy()
         data['company'] = company.id
 
+        # Debugging - log the incoming data (site and floors)
+        logger.debug(f"Received data for site: {data}")
+        
+        floors_data = data.pop('floors', [])
+        
+        # Debugging - log the floors data
+        if floors_data:
+            logger.debug(f"Received floor data: {floors_data}")
+        else:
+            logger.debug("No floor data received.")
+
         serializer = SiteSerializer(site, data=data, partial=True)
+
         if serializer.is_valid():
-            serializer.save()
+            site = serializer.save()
+
+            # Debugging - Check if floor data is being handled correctly
+            for floor_data in floors_data:
+                floor_number = floor_data.get('floor_number')
+                logger.debug(f"Processing floor: {floor_number} | Data: {floor_data}")
+                
+                floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
+                if floor:
+                    floor.description = floor_data.get('description', '')
+                    floor.save()
+                    logger.debug(f"Updated floor {floor_number}")
+                else:
+                    Floor.objects.create(site=site, **floor_data)
+                    logger.debug(f"Created new floor {floor_number}")
+
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
+        logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):

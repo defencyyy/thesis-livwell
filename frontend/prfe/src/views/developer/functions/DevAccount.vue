@@ -19,6 +19,15 @@
                 <div class="col-md-6">
                   <h5 class="mb-4">Personal Information</h5>
                   <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input
+                      type="text"
+                      id="username"
+                      v-model="username"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
                     <label for="firstName" class="form-label">First Name</label>
                     <input
                       type="text"
@@ -128,6 +137,7 @@ export default {
   },
   data() {
     return {
+      username: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -161,7 +171,9 @@ export default {
             },
           }
         );
-        const { first_name, last_name, email, contact_number } = response.data;
+        const { username, first_name, last_name, email, contact_number } =
+          response.data;
+        this.username = username;
         this.firstName = first_name;
         this.lastName = last_name;
         this.email = email;
@@ -176,6 +188,7 @@ export default {
         await axios.put(
           "http://localhost:8000/developer/account/",
           {
+            username: this.username,
             first_name: this.firstName,
             last_name: this.lastName,
             email: this.email,

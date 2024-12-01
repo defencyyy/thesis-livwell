@@ -1,5 +1,6 @@
 from django.db import models
 from companies.models import Company
+from django.core.exceptions import ValidationError
 import os, re
 
 def logo_upload_path(instance, filename):

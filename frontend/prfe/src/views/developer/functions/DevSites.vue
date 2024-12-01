@@ -620,6 +620,27 @@
               </p>
             </div>
 
+            <!-- Add Floors -->
+            <div class="mb-3">
+              <h6>Add Floors</h6>
+              <div class="d-flex gap-2">
+                <input
+                  type="number"
+                  v-model="newFloorCount"
+                  class="form-control"
+                  placeholder="Enter number of floors"
+                  min="1"
+                  max="99"
+                />
+                <button @click="addFloors" class="btn btn-primary">
+                  Add Floors
+                </button>
+              </div>
+              <small class="text-muted">
+                Enter the number of floors to add (Max 99).
+              </small>
+            </div>
+
             <!-- Existing Floors -->
             <div class="mb-3">
               <h6>Existing Floors</h6>
@@ -628,6 +649,7 @@
                   <thead>
                     <tr>
                       <th>Floor Number</th>
+                      <th>Description</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -637,15 +659,15 @@
                       :key="floor.floor_number"
                     >
                       <td>Floor {{ floor.floor_number }}</td>
+                      <td>
+                        <input
+                          type="text"
+                          v-model="floor.description"
+                          class="form-control"
+                          placeholder="Enter description"
+                        />
+                      </td>
                       <td>Available</td>
-                    </tr>
-                    <!-- Indicate unavailable floors if any -->
-                    <tr
-                      v-for="n in totalFloors - currentSite.floors.length"
-                      :key="'unavailable-' + n"
-                    >
-                      <td>Floor {{ currentSite.floors.length + n }}</td>
-                      <td>Unavailable</td>
                     </tr>
                   </tbody>
                 </table>
@@ -653,30 +675,13 @@
               <p v-else>No floors available for this site.</p>
             </div>
 
-            <!-- Add Floors -->
-            <div class="mb-3">
-              <h6>Add Floors</h6>
-              <div class="d-flex gap-2">
-                <input
-                  type="number"
-                  v-model="newFloorNumber"
-                  class="form-control"
-                  placeholder="Enter Floor Number"
-                  min="1"
-                />
-                <button @click="addFloor" class="btn btn-primary">
-                  Add Floor
-                </button>
-              </div>
-              <small class="text-muted"
-                >Enter the floor number to add a new floor.</small
-              >
-            </div>
-
             <!-- Buttons -->
             <div class="d-flex justify-content-end gap-2">
               <button @click="closeFloorModal" class="btn btn-secondary">
                 Close
+              </button>
+              <button @click="saveSite" class="btn btn-primary">
+                Save Floors
               </button>
             </div>
           </div>
@@ -719,8 +724,7 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        number_of_floors: 1, // Set number of floors here
-        floors: [], // No longer needed, as the backend will handle floors automatically
+        number_of_floors: 0, // Set number of floors here
       },
       editSite: {
         id: "",
@@ -737,11 +741,21 @@ export default {
       },
       showFloorModal: false,
       currentSite: {
-        name: "", // Name of the site
-        floors: [], // Array of floor objects
+        id: "",
+        name: "",
+        status: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        description: "",
+        picture: "",
+        floors: [], // This would be populated with existing floors
+        number_of_floors: 0,
       },
       totalFloors: 0, // Total number of floors for the site
       newFloorNumber: null, // For adding a new floor
+      newFloorCount: null,
       sites: [],
       archivedSites: [],
       regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
@@ -1087,37 +1101,108 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+    // Open the modal to manage floors for the current site
     openFloorModal(site) {
-      this.currentSite = site;
-      this.totalFloors = site.number_of_floors || 0;
+      this.currentSite = site; // Set the current site to the selected site
       this.showFloorModal = true;
     },
+    // Close the modal
     closeFloorModal() {
       this.showFloorModal = false;
     },
-    addFloor() {
-      if (!this.newFloorNumber || this.newFloorNumber < 1) {
-        alert("Please enter a valid floor number.");
+    addFloors() {
+      if (!this.newFloorCount || this.newFloorCount < 1) {
+        alert("Please enter a valid number of floors.");
         return;
       }
-      if (this.currentSite.floors.length >= this.totalFloors) {
-        alert("All floors are already added.");
+
+      const currentFloorCount = this.currentSite.floors.length;
+      const totalFloors = currentFloorCount + this.newFloorCount;
+
+      if (totalFloors > 99) {
+        alert("Cannot add more than 99 floors in total.");
         return;
       }
-      const floorExists = this.currentSite.floors.some(
-        (floor) => floor.floor_number === this.newFloorNumber
-      );
-      if (floorExists) {
-        alert("Floor already exists.");
-        return;
+
+      const newFloors = [];
+      const currentMaxFloor =
+        currentFloorCount > 0
+          ? Math.max(
+              ...this.currentSite.floors.map((floor) => floor.floor_number)
+            )
+          : 0;
+
+      for (let i = 1; i <= this.newFloorCount; i++) {
+        newFloors.push({
+          floor_number: currentMaxFloor + i,
+          description: "", // Initially empty description
+        });
       }
-      this.currentSite.floors.push({
-        floor_number: this.newFloorNumber,
-        status: "Available",
-      });
-      this.newFloorNumber = null;
+
+      // Push the new floors into the current site
+      this.currentSite.floors.push(...newFloors);
+
+      // Update the number_of_floors with the total number of floors
+      this.currentSite.number_of_floors = this.currentSite.floors.length;
+
+      this.newFloorCount = 0; // Reset the floor count input
     },
 
+    async saveSite() {
+      const formData = new FormData();
+      formData.append("companyId", this.vuexCompanyId);
+      formData.append("name", this.currentSite.name);
+      formData.append("description", this.currentSite.description || "");
+      formData.append("region", this.currentSite.region);
+      formData.append("province", this.currentSite.province);
+      formData.append("municipality", this.currentSite.municipality);
+      formData.append("barangay", this.currentSite.barangay);
+      formData.append("status", this.currentSite.status);
+
+      // Debugging - log the company and floor data
+      console.log("Company ID being sent:", this.vuexCompanyId);
+      console.log("Floor data being sent:", this.currentSite.number_of_floors);
+
+      // Now number_of_floors should be correctly set
+      formData.append("number_of_floors", this.currentSite.number_of_floors);
+
+      // Append the floors to the formData
+      if (this.currentSite.floors && this.currentSite.floors.length > 0) {
+        this.currentSite.floors.forEach((floor, index) => {
+          formData.append(
+            `floors[${index}][floorNumber]`,
+            floor.floor_number || "" // Correcting the key to match the property in floors
+          );
+          formData.append(
+            `floors[${index}][floorDetails]`,
+            floor.description || "" // Correcting to match the property in floors
+          );
+        });
+      }
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.showFloorModal = false;
+          this.fetchSites();
+          console.log("Site updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error saving site:", error.response || error);
+        // Display generic error message in case of failure
+        alert("Failed to save site. Please try again.");
+      }
+    },
     // Save the new site including floor details
     async addSite() {
       const formData = new FormData();
@@ -1129,12 +1214,21 @@ export default {
       formData.append("municipality", this.newSite.municipality);
       formData.append("barangay", this.newSite.barangay);
       formData.append("status", this.newSite.status);
+      formData.append("number_of_floors", this.newSite.number_of_floors);
 
       // Append the floors to the formData
-      this.newSite.floors.forEach((floor, index) => {
-        formData.append(`floors[${index}][floorNumber]`, floor.floorNumber);
-        formData.append(`floors[${index}][floorDetails]`, floor.floorDetails);
-      });
+      if (this.newSite.floors && this.newSite.floors.length > 0) {
+        this.newSite.floors.forEach((floor, index) => {
+          formData.append(
+            `floors[${index}][floorNumber]`,
+            floor.floorNumber || ""
+          );
+          formData.append(
+            `floors[${index}][floorDetails]`,
+            floor.floorDetails || ""
+          );
+        });
+      }
 
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
@@ -1163,7 +1257,8 @@ export default {
             barangay: "",
             description: "",
             picture: null,
-            floors: [], // Reset floors
+            number_of_floors: 0,
+            floors: [], // Ensure floors are cleared
           };
           this.imagePreview = null;
           this.showAddModal = false;
@@ -1171,9 +1266,10 @@ export default {
         }
       } catch (error) {
         console.error("Error adding site:", error.response || error);
+        // Provide user feedback
+        this.$toast.error("Failed to add site. Please try again.");
       }
     },
-
     // Save edited site including floor details
     async manageSite() {
       const formData = new FormData();
@@ -1184,12 +1280,6 @@ export default {
       formData.append("barangay", this.editSite.barangay);
       formData.append("status", this.editSite.status);
       formData.append("description", this.editSite.description || "");
-
-      // Append floors data for editing
-      this.editSite.floors.forEach((floor, index) => {
-        formData.append(`floors[${index}][floorNumber]`, floor.floorNumber);
-        formData.append(`floors[${index}][floorDetails]`, floor.floorDetails);
-      });
 
       if (this.newPictureFile) {
         formData.append("picture", this.newPictureFile);
@@ -1221,27 +1311,18 @@ export default {
         console.error("Error updating site:", error.response || error);
       }
     },
-    viewSite(site) {
-      if (site) {
-        this.selectedSite = site;
-        this.selectedSiteModal = true;
-      } else {
-        console.error("Attempted to view a null or undefined site.");
-      }
-    },
     openEditModal(site) {
       this.editSite = { ...site, floors: site.floors || [] }; // Ensure floors is initialized
       this.showEditModal = true;
-    },
-    resetPicturePreview() {
-      this.newPictureFile = null;
-      this.imagePreview = null;
     },
     cancelEdit() {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
-
+    resetPicturePreview() {
+      this.newPictureFile = null;
+      this.imagePreview = null;
+    },
     async fetchStatusOptions() {
       try {
         const response = await axios.get(
