@@ -126,7 +126,6 @@ class SiteDetailView(APIView):
                 
                 floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
                 if floor:
-                    floor.description = floor_data.get('description', '')
                     floor.save()
                     logger.debug(f"Updated floor {floor_number}")
                 else:

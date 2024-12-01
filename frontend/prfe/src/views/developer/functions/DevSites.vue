@@ -608,14 +608,15 @@
           size="lg"
         >
           <div class="modal-title p-3">
-            <h5 class="mb-0">Manage Floors</h5>
+            <h5 class="mb-0">
+              <strong>Site Name:</strong> {{ currentSite.name }}
+            </h5>
           </div>
           <div class="p-3">
-            <!-- Site Information -->
+            <!-- Floor Information -->
             <div class="mb-3">
-              <h6>Site Information</h6>
+              <strong>Floor Information</strong>
               <p>
-                <strong>Site Name:</strong> {{ currentSite.name }} <br />
                 <strong>Total Floors:</strong> {{ currentSite.floors.length }}
               </p>
             </div>
@@ -649,8 +650,6 @@
                   <thead>
                     <tr>
                       <th>Floor Number</th>
-                      <th>Description</th>
-                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -659,15 +658,6 @@
                       :key="floor.floor_number"
                     >
                       <td>Floor {{ floor.floor_number }}</td>
-                      <td>
-                        <input
-                          type="text"
-                          v-model="floor.description"
-                          class="form-control"
-                          placeholder="Enter description"
-                        />
-                      </td>
-                      <td>Available</td>
                     </tr>
                   </tbody>
                 </table>
@@ -821,6 +811,23 @@ export default {
       alert("Session expired. Please log in again.");
       this.$store.dispatch("logout");
       this.$router.push({ name: "DevLogin" });
+    },
+    async fetchSiteDetails() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/sites/${this.siteId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        if (response.data.success) {
+          this.currentSite = response.data.data; // This should include floors
+        }
+      } catch (error) {
+        console.error("Error fetching site details:", error);
+      }
     },
     async fetchSites() {
       try {
@@ -1135,7 +1142,6 @@ export default {
       for (let i = 1; i <= this.newFloorCount; i++) {
         newFloors.push({
           floor_number: currentMaxFloor + i,
-          description: "", // Initially empty description
         });
       }
 
@@ -1172,10 +1178,6 @@ export default {
           formData.append(
             `floors[${index}][floorNumber]`,
             floor.floor_number || "" // Correcting the key to match the property in floors
-          );
-          formData.append(
-            `floors[${index}][floorDetails]`,
-            floor.description || "" // Correcting to match the property in floors
           );
         });
       }

@@ -28,6 +28,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'status',
             'created_at',
             'archived',
+            'floors',
             'number_of_floors',  # Include new field
         ]
         read_only_fields = ['id', 'created_at']
