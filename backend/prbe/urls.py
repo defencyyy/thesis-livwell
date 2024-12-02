@@ -13,6 +13,7 @@ urlpatterns = [
     path('broker/login/', views.login_view_broker, name='broker_login'),
     path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
+    path('broker/manage-accounts/<int:broker_id>/', views.get_broker_data, name='get_broker_data'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
     path('sales/total/', views.total_sales_view, name='total_sales'),

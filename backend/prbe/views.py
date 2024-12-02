@@ -228,13 +228,32 @@ def BrkResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+@csrf_exempt
+def get_broker_data(request, broker_id):
+    try:
+        # Fetch broker data from the database
+        broker = Broker.objects.get(pk=broker_id)
+        broker_data = {
+            'username': broker.username,
+            'email': broker.email,
+            'contact_number': broker.contact_number,
+        }
+        return JsonResponse(broker_data, status=200)
+    
+    except Broker.DoesNotExist:
+        return JsonResponse({'message': 'Broker not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'message': str(e)}, status=500)
 
 @csrf_exempt
 def update_broker_view(request, broker_id):
+    print("k")
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
+            print("Data received:", data)  # This will print the data being sent to the server
+
 
             if 'password' in data and data['password'] is not None:
                 password = data['password']
