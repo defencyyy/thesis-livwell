@@ -348,59 +348,63 @@
             </div>
             <div v-else>
               <form @submit.prevent="uploadDocuments">
-            <div class="document-upload-form">
-              <div
-                v-for="(docType, index) in documentTypes"
-                :key="index"
-                class="document-upload-section"
-              >
-                <label
-                  :for="'documentType' + docType.id"
-                  class="document-type-label"
-                >
-                  Select {{ docType.name }}:
-                </label>
+                <div class="document-upload-form">
+                  <div
+                    v-for="(docType, index) in documentTypes"
+                    :key="index"
+                    class="document-upload-section mb-3"
+                  >
+                    <label
+                      :for="'documentType' + docType.id"
+                      class="form-label"
+                    >
+                      <b> Upload {{ docType.name }} </b>
+                    </label>
 
-                <div class="file-input-wrapper">
-                  <!-- Show the file input if no file has been selected -->
-                  <input
-                    type="file"
-                    :id="'documentType' + docType.id"
-                    @change="handleFileUpload($event, docType.id)"
-                    class="file-input"
-                    v-if="!filePreviews[docType.id]"
-                  />
+                    <div class="file-input-wrapper d-flex align-items-center gap-2">
+                      <!-- Show the file input if no file has been selected -->
+                      <input
+                        type="file"
+                        :id="'documentType' + docType.id"
+                        @change="handleFileUpload($event, docType.id)"
+                        class="form-control"
+                        v-if="!filePreviews[docType.id]"
+                      />
 
-                  <!-- Show the file name after file has been selected -->
-                  <span v-if="filePreviews[docType.id]" class="file-name">
-                    {{ filePreviews[docType.id].name }}
-                  </span>
+                      <!-- Show the file name after file has been selected -->
+                      <div v-if="filePreviews[docType.id]" class="d-flex align-items-center gap-2">
+                        <span class="file-name">
+                          {{ filePreviews[docType.id].name }}
+                        </span>
 
-                  <!-- Show "No file chosen" only if no file has been selected -->
-                  <span v-else class="no-file-chosen">No file chosen</span>
+                        <button
+                          type="button"
+                          @click="removeFile(docType.id)"
+                          class="btn btn-danger btn-sm"
+                        >
+                        <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- If a file is uploaded, allow removing it -->
+            <div class="form-actions">
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Upload Document
+                </button>
                 <button
                   type="button"
-                  v-if="filePreviews[docType.id]"
-                  @click="removeFile(docType.id)"
-                  class="remove-file-btn"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel"
                 >
-                  Remove
+                  Cancel
                 </button>
               </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="submit-btn">Upload Documents</button>
-              <button
-                type="button"
-                @click="showDocumentModal = false"
-                class="cancel-btn"
-              >
-                Cancel
-              </button>
             </div>
           </form>
             </div>
@@ -1105,6 +1109,11 @@ body {
   border-radius: 3px; /* Adjust the border radius */
   padding: 10px;
   cursor: pointer;
+}
+
+input[type="file"] {
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 </style>
