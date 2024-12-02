@@ -43,7 +43,7 @@
 
                 <div class="right-section">
                   <!-- Add Site Button -->
-                  <button @click="showAddModal = true" class="btn-primary add-button">
+                  <button @click="showModal=true" class="btn-primary add-button">
                     Add Customer
                   </button>
                 </div>
@@ -163,9 +163,8 @@
             </div>
           </div>
         </div>
-
         <!-- Modal for Adding Customer -->
-        <b-modal v-model="showModal" hide-header hide-footer>
+        <b-modal v-model="showModal" hide-header hide-footer centered>
           <div class="modal-title p-3">
             <h5 class="mb-0">Add Customer</h5>
           </div>
@@ -220,8 +219,6 @@
                 />
               </div>
 
-
-
               <!-- Submit & Cancel Buttons -->
               <div
                 class="d-flex justify-content-end gap-2 mt-30"
@@ -240,10 +237,6 @@
               </div>
             </form>
           </div>
-
-          <!-- Error & Success Message -->
-          <p v-if="error" class="text-danger">{{ error }}</p>
-          <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
         </b-modal>
       </div>
     </div>
@@ -253,14 +246,14 @@
 <script>
 import AppHeaderLivwell from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";
-// import { BModal } from "bootstrap-vue-3";
+import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 
 export default {
   name: "ManageCustomers",
   components: {
     SideNav,
-  //  BModal,
+    BModal,
     AppHeaderLivwell,
   },
   computed: {
@@ -907,5 +900,25 @@ body {
   font-size: 15px;
   color: #333;
   font-weight: bold;
+}
+
+.btn-add {
+  background-color: #42b983;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 </style>
