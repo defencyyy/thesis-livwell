@@ -1169,8 +1169,11 @@ export default {
       console.log("Company ID being sent:", this.vuexCompanyId);
       console.log("Floor data being sent:", this.currentSite.number_of_floors);
 
-      // Now number_of_floors should be correctly set
-      formData.append("number_of_floors", this.currentSite.number_of_floors);
+      if (this.currentSite.floors && this.currentSite.floors.length > 0) {
+        this.currentSite.floors.forEach((floor) => {
+          formData.append("floors[]", JSON.stringify(floor)); // Sending as simple objects in array
+        });
+      }
 
       // Append the floors to the formData
       if (this.currentSite.floors && this.currentSite.floors.length > 0) {
@@ -1224,10 +1227,6 @@ export default {
           formData.append(
             `floors[${index}][floorNumber]`,
             floor.floorNumber || ""
-          );
-          formData.append(
-            `floors[${index}][floorDetails]`,
-            floor.floorDetails || ""
           );
         });
       }
