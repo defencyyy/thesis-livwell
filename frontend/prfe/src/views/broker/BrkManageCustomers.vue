@@ -1,278 +1,185 @@
 <template>
-  <div>    
-  <HeaderLivwell />
-  <div class="manage-customers-page">
-    <SideNav />
-    <div class="content">
-      <h1>Manage Customers</h1>
-      <p>Here you can view and manage your customers.</p>
-
-      <!-- Add this search input in your template (e.g., inside the <template> tag) -->
-<div class="search-container">
-  <input 
-    v-model="searchQuery" 
-    type="text" 
-    placeholder="Search by name or customer code..." 
-    @input="filterCustomers"
-  />
-</div>
-
-      <!-- Sorting and Adding Customers Section -->
-      <div class="sort-options">
-        <label for="sortBy">Sort by:</label>
-        <select id="sortBy" v-model="sortBy" @change="sortCustomers">
-          <option value="name_asc">Name (A-Z)</option>
-          <option value="name_desc">Name (Z-A)</option>
-          <option value="site_asc">Site (A-Z)</option>
-          <option value="site_desc">Site (Z-A)</option>
-          <option value="status_asc">Document Status (Complete)</option>
-          <option value="status_desc">Document Status (Pending)</option>
-        </select>
-      </div>
-
-      <button @click="showModal = true">Add Customer</button>
-
-      <!-- Add Customer Modal -->
-      <b-modal v-model="showModal" title="Add Customer" hide-footer>
-        <form @submit.prevent="addCustomer">
-          <div>
-            <label for="email">Email:</label>
-            <input type="email" v-model="email" id="email" required />
+  <header>
+    <AppHeaderLivwell />
+  </header>
+  <div class = "main-page">
+    <SideNav/>
+    <div class = "main-content">
+      <div class = "content">
+        <div class = "title-wrapper">
+          <div class = "title-left">
+            <div class = "title-icon"></div>
+            <div class = "edit-title">Manage Customers</div>
           </div>
+        </div>
+        <div class="card border-0 rounded-1 mx-auto" style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+          <div class="card-body">
+            <div class="row">
+              <!-- Toolbar -->
+              <div class="toolbar">
+                <div class="left-section">
+                  <!-- Search Bar -->
+                  <div class="search-bar-container">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search by Name or Customer Code"
+                      class="search-bar"
+                      @input="filterCustomers"
+                    />
+                    <i class="fa fa-search search-icon"></i>
+                  </div>
 
-          <div>
-            <label for="contactNumber">Contact Number:</label>
-            <input
-              type="text"
-              v-model="contactNumber"
-              id="contactNumber"
-              required
-            />
-          </div>
-          <div>
-            <label for="lastName">Last Name:</label>
-            <input type="text" v-model="lastName" id="lastName" required />
-          </div>
-
-          <div>
-            <label for="firstName">First Name:</label>
-            <input type="text" v-model="firstName" id="firstName" required />
-          </div>
-
-          <button type="submit">Submit</button>
-          <button type="button" @click="showModal = false">Cancel</button>
-        </form>
-
-        <p v-if="error" class="text-danger">{{ error }}</p>
-      </b-modal>
-
-      <!-- Multiple Document Upload Modal -->
-      <b-modal
-        v-model="showDocumentModal"
-        title="Upload Customer Documents"
-        hide-footer
-      >
-        <template v-if="showSalesMessage">
-          <p>Please create sales first before uploading documents.</p>
-          <button type="button" @click="showDocumentModal = false">
-            Close
-          </button>
-        </template>
-
-        <template v-if="showStatusMessage">
-          <p>Waiting for Developer to confirm Reservation</p>
-          <button type="button" @click="showDocumentModal = false">
-            Close
-          </button>
-        </template>
-        
-
-        <template v-else>
-          <form @submit.prevent="uploadDocuments">
-            <div class="document-upload-form">
-              <div
-                v-for="(docType, index) in documentTypes"
-                :key="index"
-                class="document-upload-section"
-              >
-                <label
-                  :for="'documentType' + docType.id"
-                  class="document-type-label"
-                >
-                  Select {{ docType.name }}:
-                </label>
-
-                <div class="file-input-wrapper">
-                  <!-- Show the file input if no file has been selected -->
-                  <input
-                    type="file"
-                    :id="'documentType' + docType.id"
-                    @change="handleFileUpload($event, docType.id)"
-                    class="file-input"
-                    v-if="!filePreviews[docType.id]"
-                  />
-
-                  <!-- Show the file name after file has been selected -->
-                  <span v-if="filePreviews[docType.id]" class="file-name">
-                    {{ filePreviews[docType.id].name }}
-                  </span>
-
-                  <!-- Show "No file chosen" only if no file has been selected -->
-                  <span v-else class="no-file-chosen">No file chosen</span>
+                  <!-- Sort Dropdown -->
+                  <select v-model="sortBy" @change="sortCustomers" class="dropdown">
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                    <option value="site_asc">Site (A-Z)</option>
+                    <option value="site_desc">Site (Z-A)</option>
+                    <option value="status_asc">Document Status (Complete)</option>
+                    <option value="status_desc">Document Status (Pending)</option>
+                  </select>
                 </div>
 
-                <!-- If a file is uploaded, allow removing it -->
-                <button
-                  type="button"
-                  v-if="filePreviews[docType.id]"
-                  @click="removeFile(docType.id)"
-                  class="remove-file-btn"
-                >
-                  Remove
-                </button>
+                <div class="right-section">
+                  <!-- Add Site Button -->
+                  <button @click="showAddModal = true" class="btn-primary add-button">
+                    Add Customer
+                  </button>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div class="form-actions">
-              <button type="submit" class="submit-btn">Upload Documents</button>
-              <button
-                type="button"
-                @click="showDocumentModal = false"
-                class="cancel-btn"
-              >
-                Cancel
-              </button>
+        <!-- Customer Table -->
+        <div>
+          <!-- Headers outside the card -->
+          <div class="outside-headers">
+            <span class="header-item">Code</span>
+            <span class="header-item">Customer Name</span>
+            <span class="header-item">Site</span>
+            <span class="header-item">Unit</span>
+            <span class="header-item">Contact</span>
+            <span class="header-item">Document Status</span>
+            <span class="header-item">Actions</span>
+          </div>
+
+          <!-- Conditional Rendering -->
+          <div
+            v-if="customers.length === 0"
+            class="no-customers-message"
+          >
+            No customers found.
+          </div>
+
+          <div
+            v-else
+            v-for="(customer, index) in filteredCustomers"
+            :key="index"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class="card-body">
+              <table class="customer-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="customer-code">
+                        {{ customer.customer_code }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-name">
+                        {{ customer.customer_name }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-site">
+                        {{ customer.site }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-unit">
+                        {{ customer.unit }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-contact">
+                        {{ customer.contact_number }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="customer-document">
+                        {{ customer.document_status }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="broker-actions d-flex gap-2">
+                        <button
+                          @click="openDocumentModal(customer)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-file"></i>
+                        </button>
+                        <button
+                          @click="openEditModal(customer)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button
+                          @click="archiveCustomer(customer)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-archive"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </form>
-        </template>
-      </b-modal>
-
-      <!-- Table to display the customers -->
-      <table v-if="customers.length" class="table">
-        <thead>
-          <tr>
-            <th>Customer Name</th>
-            <th>Customer Code</th>
-            <th>Site</th>
-            <th>Unit</th>
-            <th>Contact</th>
-            <th>Document Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-           <tr
-    v-for="(customer, index) in filteredCustomers"
-    :key="index"
-    @click="openDocumentModal(customer)"
-  ></tr>
-
-  <tr v-for="(customer, index) in filteredCustomers" :key="index">
-            <td>{{ customer.customer_name }}</td>
-            <td>{{ customer.customer_code }}</td>
-            <td>{{ customer.site }}</td>
-            <td>{{ customer.unit }}</td>
-            <td>{{ customer.contact_number }}</td>
-            <td>{{ customer.document_status }}</td>
-            <td>
-              <!-- Documents Button -->
-              <button
-                @click="openDocumentModal(customer)"
-                class="btn btn-primary"
-              >
-                Documents
-              </button>
-              <!-- Edit Button -->
-              <button @click="openEditModal(customer)" class="btn btn-warning">
-                Edit
-              </button>
-              <!-- Archive Button (Placeholder) -->
-              <button @click="archiveCustomer(customer)" class="btn btn-danger">
-                Archive
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-if="!customers.length">No customers found for this broker.</p>
-
-      <!-- Notification Pop-up (Success/Failure) -->
-      <b-modal
-        v-model="showNotification"
-        :title="notificationTitle"
-        hide-footer
-      >
-        <p>{{ notificationMessage }}</p>
-        <button type="button" @click="showNotification = false">Close</button>
-      </b-modal>
-
-      <!-- Edit Customer Modal -->
-      <b-modal v-model="showEditModal" title="Edit Customer" hide-footer>
-        <form @submit.prevent="updateCustomer">
-          <div>
-            <label for="editEmail">Email:</label>
-            <input type="email" v-model="editEmail" id="editEmail" required />
           </div>
-
-          <div>
-            <label for="editContactNumber">Contact Number:</label>
-            <input
-              type="text"
-              v-model="editContactNumber"
-              id="editContactNumber"
-              required
-            />
-          </div>
-
-          <div>
-            <label for="editLastName">Last Name:</label>
-            <input
-              type="text"
-              v-model="editLastName"
-              id="editLastName"
-              required
-            />
-          </div>
-
-          <div>
-            <label for="editFirstName">First Name:</label>
-            <input
-              type="text"
-              v-model="editFirstName"
-              id="editFirstName"
-              required
-            />
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="submit-btn">Update Customer</button>
-            <button
-              type="button"
-              @click="showEditModal = false"
-              class="cancel-btn"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </b-modal>
+        </div>
+      </div>
     </div>
-  </div>
   </div>
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeaderLivwell from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";
-import { BModal } from "bootstrap-vue-3";
+// import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 
 export default {
   name: "ManageCustomers",
   components: {
     SideNav,
-    BModal,
-    HeaderLivwell,
+  //  BModal,
+    AppHeaderLivwell,
   },
   computed: {
     ...mapState({
@@ -658,9 +565,50 @@ export default {
 </script>
 
 <style scoped>
-.manage-customers-page {
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
+.main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #f6f6f6;
+  /* Gray background */
+}
+
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeaderLivWell {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
+}
+
+.main-content {
+  display: flex;
+  margin-left: 250px;
+  flex-direction: column;
+  flex: 1;
+  margin-top: 60px;
 }
 
 .content {
@@ -669,131 +617,213 @@ export default {
   text-align: center;
 }
 
-/* Add some space for the sorting options */
-.sort-options {
-  margin-bottom: 20px;
-}
-
-.sort-options select {
-  margin-left: 10px;
-}
-
-/* Table Hover Effect */
-.table tbody tr:hover {
-  cursor: pointer;
-  background-color: #f1f1f1;
-}
-
-.table tbody tr.active {
-  background-color: #d3d3d3;
-}
-
-.document-upload-section {
+.title-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
-.document-type-label {
-  font-weight: bold;
-  margin-bottom: 6px;
-  font-size: 1.1em;
-}
-
-.file-input-wrapper {
-  position: relative;
+.title-left {
   display: flex;
   align-items: center;
 }
 
-.file-input {
-  padding: 8px;
-  font-size: 1em;
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.toggle-button {
+  margin-left: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  background-color: #e0e0e0;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
+  font-size: 14px;
 }
 
-.no-file-chosen {
-  color: #888;
-  font-style: italic;
-  padding-left: 8px;
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
 }
 
-.file-name {
+.dropdown {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
   color: #333;
-  padding-left: 8px;
 }
 
-.remove-file-btn {
-  background-color: #ff4d4d;
+/* Button Styles */
+.btn-primary.add-button {
+  padding: 8px 12px;
+  border: 1px solid #42b983;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #42b983;
   color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
   cursor: pointer;
-  margin-top: 6px;
-  font-size: 0.9em;
+  transition: background-color 0.2s;
 }
 
-.remove-file-btn:hover {
-  background-color: #ff1a1a;
+.btn-primary.add-button:hover {
+  background-color: #0056b3;
 }
 
-.submit-btn {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1em;
-  cursor: pointer;
-  width: 100%;
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  max-width: 1100px;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
 }
 
-.submit-btn:hover {
-  background-color: #45a049;
-}
-
-.cancel-btn {
-  background-color: #f44336;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1em;
-  cursor: pointer;
-  width: 100%;
+.customer-name {
+  font-size: 15px;
+  font-weight: bold;
   margin-top: 10px;
 }
 
-.cancel-btn:hover {
-  background-color: #e53935;
-}
-.btn {
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
 }
 
-.btn-primary {
-  background-color: #007bff;
-  color: white;
+.customer-table th,
+.customer-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
 }
 
-.btn-warning {
-  background-color: #ffc107;
-  color: black;
+.customer-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
 }
 
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
+.customer-table th:nth-child(2),
+.customer-table td:nth-child(2) {
+  /* Location column */
+  width: 10%;
 }
 
-.btn:hover {
-  opacity: 0.8;
+.customer-table th:nth-child(3),
+.customer-table td:nth-child(3) {
+  /* Status column */
+  width: 25%;
+}
+
+.customer-table th:nth-child(4),
+.customer-table td:nth-child(4) {
+  /* Actions column */
+  width: 20%;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  /* Actions column */
+  width: 15%;
+}
+
+.customer-table th:nth-child(6),
+.customer-table td:nth-child(6) {
+  /* Actions column */
+  width: 10%;
+}
+
+.customer-table th:nth-child(7),
+.customer-table td:nth-child(7) {
+  /* Actions column */
+  width: 15%;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 10% 10% 25% 20% 15% 10% 15%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
 }
 </style>
