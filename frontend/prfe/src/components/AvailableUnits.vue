@@ -318,6 +318,11 @@
               <button type="submit" class="submit-btn">Submit Reservation</button>
             </div>
             </form>
+            <div v-if="errorMessage" class="modal-overlay">
+     
+          <p>{{ errorMessage }}</p>
+          <button @click="closeModal">Close</button>
+         </div>
             <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
         </div>
       </div>
@@ -455,6 +460,8 @@ export default {
 
     closeModal() {
       this.isModalVisible = false;
+      this.errorMessage = ""; // Clear the error message and close the modal
+
     },
 
     openReserveModal() {
@@ -540,14 +547,11 @@ export default {
             Number(this.spotDownpaymentPercentage))) /
           100) *
         this.totalAmountPayable; // Correct sum of percentages
-      console.log(
-        this.balanceUponTurnover,
-        this.spotDownpaymentPercentage,
-        this.spreadDownpaymentPercentage
-      );
+     
     },
 
     async submitReservation() {
+      this.errorMessage = null;
       // Check if all required fields are filled, including the file
       if (
         !this.reservationForm.customerName ||
@@ -558,11 +562,13 @@ export default {
         (this.reservationForm.paymentMethod !== "cash" &&
           !this.reservationForm.paymentReference)
       ) {
-        this.errorMessage =
-          "All fields are required except the payment reference (if payment method is 'cash').";
+        this.errorMessage = "All fields are required except the payment reference (if payment method is 'cash').";
         return;
       }
-
+      if (this.reservationForm.paymentAmount < this.reservationFee) {
+        this.errorMessage = "Payment Amount Insufficient";
+        return;
+      }
       const data = {
         customer_name: this.reservationForm.customerName,
         site_id: parseInt(this.siteId, 10), // Convert to integer
@@ -692,6 +698,7 @@ export default {
   background-color: #e8e8e8;
   transition: ease 0.3s;
 }
+
 /* .unit-picture {
   max-width: 100%;
   height: auto;
@@ -828,6 +835,9 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+button:hover {
+  background-color: #0056b3;
 }
 
 .reserve-btn {
