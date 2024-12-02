@@ -3,30 +3,25 @@
     <SideNav />
     <div class="main-content">
       <AppHeader />
-    <div class="content">
-      <h1>Manage Customers</h1>
-      <p>Here you can view and manage your customers.</p>
+      <div class="content">
+        <h1>Manage Customers</h1>
+        <p>Here you can view and manage your customers.</p>
 
-                  <!-- Sort Dropdown -->
-                  <select v-model="sortBy" @change="sortCustomers" class="dropdown">
-                    <option value="name_asc">Name (A-Z)</option>
-                    <option value="name_desc">Name (Z-A)</option>
-                    <option value="site_asc">Site (A-Z)</option>
-                    <option value="site_desc">Site (Z-A)</option>
-                    <option value="status_asc">Document Status (Complete)</option>
-                    <option value="status_desc">Document Status (Pending)</option>
-                  </select>
-                </div>
+        <!-- Sort Dropdown -->
+        <select v-model="sortBy" @change="sortCustomers" class="dropdown">
+          <option value="name_asc">Name (A-Z)</option>
+          <option value="name_desc">Name (Z-A)</option>
+          <option value="site_asc">Site (A-Z)</option>
+          <option value="site_desc">Site (Z-A)</option>
+          <option value="status_asc">Document Status (Complete)</option>
+          <option value="status_desc">Document Status (Pending)</option>
+        </select>
 
-                <div class="right-section">
-                  <!-- Add Site Button -->
-                  <button @click="showModal=true" class="btn-primary add-button">
-                    Add Customer
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="right-section">
+          <!-- Add Site Button -->
+          <button @click="showModal = true" class="btn-primary add-button">
+            Add Customer
+          </button>
         </div>
 
         <!-- Customer Table -->
@@ -43,10 +38,7 @@
           </div>
 
           <!-- Conditional Rendering -->
-          <div
-            v-if="customers.length === 0"
-            class="no-customers-message"
-          >
+          <div v-if="customers.length === 0" class="no-customers-message">
             No customers found.
           </div>
 
@@ -139,262 +131,275 @@
               </table>
             </div>
           </div>
-        </div>
-        <!-- Modal for Adding Customer -->
-        <b-modal v-model="showModal" hide-header hide-footer centered>
-          <div class="modal-title p-3">
-            <h5 class="mb-0">Add Customer</h5>
-          </div>
 
-          <div class="p-3">
-            <form @submit.prevent="addCustomer">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="firstName" class="form-label">First Name:</label>
-                  <input
-                    type="text"
-                    v-model="firstName"
-                    id="firstName"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label for="lastName" class="form-label">Last Name:</label>
-                  <input
-                    type="text"
-                    v-model="lastName"
-                    id="lastName"
-                    class="form-control"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input
-                  type="email"
-                  v-model="email"
-                  id="email"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="contactNumber" class="form-label"
-                  >Contact Number:</label
-                >
-                <input
-                  type="text"
-                  v-model="contactNumber"
-                  id="contactNumber"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-              <!-- Submit & Cancel Buttons -->
-              <div
-                class="d-flex justify-content-end gap-2 mt-30"
-                style="padding-top: 15px"
-              >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Add Customer
-                </button>
-                <button
-                  type="button"
-                  @click="showModal = false"
-                  class="btn-cancel"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </b-modal>
-
-        <!-- Edit Customer Modal -->
-        <b-modal v-model="showEditModal" hide-header hide-footer centered>
-          <div class="modal-title p-3">
-            <h5 class="mb-0">Update Details</h5>
-          </div>
-
-          <div class="p-3">
-            <form @submit.prevent="updateCustomer">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="firstName" class="form-label">First Name:</label>
-                  <input
-                    type="text"
-                    v-model="editFirstName"
-                    id="editFirstName"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label for="lastName" class="form-label">Last Name:</label>
-                  <input
-                    type="text"
-                    v-model="editLastName"
-                    id="editLastName"
-                    class="form-control"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input
-                  type="email"
-                  v-model="editEmail"
-                  id="editEmail"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-              <div class="form-group mb-3">
-                <label for="contactNumber" class="form-label"
-                  >Contact Number:</label
-                >
-                <input
-                  type="text"
-                  v-model="editContactNumber"
-                  id="editContactNumber"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-              <!-- Submit & Cancel Buttons -->
-              <div
-                class="d-flex justify-content-end gap-2 mt-30"
-                style="padding-top: 15px"
-              >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Update
-                </button>
-                <button
-                  type="button"
-                  @click="showEditModal = false"
-                  class="btn-cancel"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </b-modal>
-
-        <!-- Documents -->
-        <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
-          <div class="modal-title p-3">
-            <h5 class="mb-0">Customer Documents</h5>
-          </div>
-
-          <div class="p-3">
-            <div v-if ="showSalesMessage">
-              <p>Please create sales first before uploading documents.</p>
-              <div class="button-container">
-                <button
-                  type="button"
-                  @click="showDocumentModal = false"
-                  class="btn-cancel-right"
-                >
-                  Close
-                </button>
-              </div>
+          <!-- Modal for Adding Customer -->
+          <b-modal v-model="showModal" hide-header hide-footer centered>
+            <div class="modal-title p-3">
+              <h5 class="mb-0">Add Customer</h5>
             </div>
-            <div v-if ="showStatusMessage">
-              <p>Waiting for Developer to confirm Reservation</p>
-              <div class="button-container">
-                <button
-                  type="button"
-                  @click="showDocumentModal = false"
-                  class="btn-cancel-right"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-            <div v-else>
-              <form @submit.prevent="uploadDocuments">
-                <div class="document-upload-form">
-                  <div
-                    v-for="(docType, index) in documentTypes"
-                    :key="index"
-                    class="document-upload-section mb-3"
-                  >
-                    <label
-                      :for="'documentType' + docType.id"
-                      class="form-label"
+
+            <div class="p-3">
+              <form @submit.prevent="addCustomer">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="firstName" class="form-label"
+                      >First Name:</label
                     >
-                      <b> Upload {{ docType.name }} </b>
-                    </label>
+                    <input
+                      type="text"
+                      v-model="firstName"
+                      id="firstName"
+                      class="form-control"
+                      required
+                    />
+                  </div>
 
-                    <div class="file-input-wrapper d-flex align-items-center gap-2">
-                      <!-- Show the file input if no file has been selected -->
-                      <input
-                        type="file"
-                        :id="'documentType' + docType.id"
-                        @change="handleFileUpload($event, docType.id)"
-                        class="form-control"
-                        v-if="!filePreviews[docType.id]"
-                      />
-
-                      <!-- Show the file name after file has been selected -->
-                      <div v-if="filePreviews[docType.id]" class="d-flex align-items-center gap-2">
-                        <span class="file-name">
-                          {{ filePreviews[docType.id].name }}
-                        </span>
-
-                        <button
-                          type="button"
-                          @click="removeFile(docType.id)"
-                          class="btn btn-danger btn-sm"
-                        >
-                        <i class="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    </div>
+                  <div class="col-md-6">
+                    <label for="lastName" class="form-label">Last Name:</label>
+                    <input
+                      type="text"
+                      v-model="lastName"
+                      id="lastName"
+                      class="form-control"
+                      required
+                    />
                   </div>
                 </div>
 
-            <div class="form-actions">
-              <div
-                class="d-flex justify-content-end gap-2 mt-30"
-                style="padding-top: 15px"
-              >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Upload Document
-                </button>
-                <button
-                  type="button"
-                  @click="showDocumentModal = false"
-                  class="btn-cancel"
+                <div class="form-group mb-3">
+                  <label for="email" class="form-label">Email:</label>
+                  <input
+                    type="email"
+                    v-model="email"
+                    id="email"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="contactNumber" class="form-label"
+                    >Contact Number:</label
+                  >
+                  <input
+                    type="text"
+                    v-model="contactNumber"
+                    id="contactNumber"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <!-- Submit & Cancel Buttons -->
+                <div
+                  class="d-flex justify-content-end gap-2 mt-30"
+                  style="padding-top: 15px"
                 >
-                  Cancel
-                </button>
+                  <button type="submit" class="btn-add" style="width: 150px">
+                    Add Customer
+                  </button>
+                  <button
+                    type="button"
+                    @click="showModal = false"
+                    class="btn-cancel"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </b-modal>
+
+          <!-- Edit Customer Modal -->
+          <b-modal v-model="showEditModal" hide-header hide-footer centered>
+            <div class="modal-title p-3">
+              <h5 class="mb-0">Update Details</h5>
+            </div>
+
+            <div class="p-3">
+              <form @submit.prevent="updateCustomer">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="firstName" class="form-label"
+                      >First Name:</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editFirstName"
+                      id="editFirstName"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="lastName" class="form-label">Last Name:</label>
+                    <input
+                      type="text"
+                      v-model="editLastName"
+                      id="editLastName"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="email" class="form-label">Email:</label>
+                  <input
+                    type="email"
+                    v-model="editEmail"
+                    id="editEmail"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="contactNumber" class="form-label"
+                    >Contact Number:</label
+                  >
+                  <input
+                    type="text"
+                    v-model="editContactNumber"
+                    id="editContactNumber"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <!-- Submit & Cancel Buttons -->
+                <div
+                  class="d-flex justify-content-end gap-2 mt-30"
+                  style="padding-top: 15px"
+                >
+                  <button type="submit" class="btn-add" style="width: 150px">
+                    Update
+                  </button>
+                  <button
+                    type="button"
+                    @click="showEditModal = false"
+                    class="btn-cancel"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </b-modal>
+
+          <!-- Documents -->
+          <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
+            <div class="modal-title p-3">
+              <h5 class="mb-0">Customer Documents</h5>
+            </div>
+
+            <div class="p-3">
+              <div v-if="showSalesMessage">
+                <p>Please create sales first before uploading documents.</p>
+                <div class="button-container">
+                  <button
+                    type="button"
+                    @click="showDocumentModal = false"
+                    class="btn-cancel-right"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <div v-if="showStatusMessage">
+                <p>Waiting for Developer to confirm Reservation</p>
+                <div class="button-container">
+                  <button
+                    type="button"
+                    @click="showDocumentModal = false"
+                    class="btn-cancel-right"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <div v-else>
+                <form @submit.prevent="uploadDocuments">
+                  <div class="document-upload-form">
+                    <div
+                      v-for="(docType, index) in documentTypes"
+                      :key="index"
+                      class="document-upload-section mb-3"
+                    >
+                      <label
+                        :for="'documentType' + docType.id"
+                        class="form-label"
+                      >
+                        <b> Upload {{ docType.name }} </b>
+                      </label>
+
+                      <div
+                        class="file-input-wrapper d-flex align-items-center gap-2"
+                      >
+                        <!-- Show the file input if no file has been selected -->
+                        <input
+                          type="file"
+                          :id="'documentType' + docType.id"
+                          @change="handleFileUpload($event, docType.id)"
+                          class="form-control"
+                          v-if="!filePreviews[docType.id]"
+                        />
+
+                        <!-- Show the file name after file has been selected -->
+                        <div
+                          v-if="filePreviews[docType.id]"
+                          class="d-flex align-items-center gap-2"
+                        >
+                          <span class="file-name">
+                            {{ filePreviews[docType.id].name }}
+                          </span>
+
+                          <button
+                            type="button"
+                            @click="removeFile(docType.id)"
+                            class="btn btn-danger btn-sm"
+                          >
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <div
+                      class="d-flex justify-content-end gap-2 mt-30"
+                      style="padding-top: 15px"
+                    >
+                      <button
+                        type="submit"
+                        class="btn-add"
+                        style="width: 150px"
+                      >
+                        Upload Document
+                      </button>
+                      <button
+                        type="button"
+                        @click="showDocumentModal = false"
+                        class="btn-cancel"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
-          </form>
-            </div>
-          </div>
-        </b-modal>
-
+          </b-modal>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import AppHeader from "@/components/Header.vue"
+import AppHeader from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
@@ -425,7 +430,7 @@ export default {
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
-      showStatusMessage:false,
+      showStatusMessage: false,
       showNotification: false, // Controls the visibility of the notification modal
       email: "",
       contactNumber: "",
@@ -449,23 +454,25 @@ export default {
     this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
-     filterCustomers() {
-    const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-    
-    if (!query) {
-      // If there's no search query, show all customers
-      this.filteredCustomers = this.customers;
-    } else {
-      // Filter customers by name or customer code
-      this.filteredCustomers = this.customers.filter((customer) => {
-        const customerName = customer.customer_name.toLowerCase();
-        const customerCode = customer.customer_code ? customer.customer_code.toLowerCase() : ""; // Assuming customer code is in customer_code field
-        return customerName.includes(query) || customerCode.includes(query);
-      });
-    }
-  },
-    
-  async fetchCustomers() {
+    filterCustomers() {
+      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
+
+      if (!query) {
+        // If there's no search query, show all customers
+        this.filteredCustomers = this.customers;
+      } else {
+        // Filter customers by name or customer code
+        this.filteredCustomers = this.customers.filter((customer) => {
+          const customerName = customer.customer_name.toLowerCase();
+          const customerCode = customer.customer_code
+            ? customer.customer_code.toLowerCase()
+            : ""; // Assuming customer code is in customer_code field
+          return customerName.includes(query) || customerCode.includes(query);
+        });
+      }
+    },
+
+    async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
@@ -481,7 +488,6 @@ export default {
             this.customers = data.customers;
             console.log(this.customers);
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
-
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -514,15 +520,15 @@ export default {
           this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
         case "status_asc": // New case for sorting by document status A-Z
-      this.customers.sort((a, b) =>
-        a.document_status.localeCompare(b.document_status)
-      );
-      break;
-    case "status_desc": // New case for sorting by document status Z-A
-      this.customers.sort((a, b) =>
-        b.document_status.localeCompare(a.document_status)
-      );
-      break;
+          this.customers.sort((a, b) =>
+            a.document_status.localeCompare(b.document_status)
+          );
+          break;
+        case "status_desc": // New case for sorting by document status Z-A
+          this.customers.sort((a, b) =>
+            b.document_status.localeCompare(a.document_status)
+          );
+          break;
       }
     },
     openEditModal(customer) {
@@ -589,11 +595,13 @@ export default {
       }
       if (this.selectedCustomer.status != "Reserved") {
         this.showStatusMessage = true; // Show the message to create sales first
-      }
-      else {
+      } else {
         this.showStatusMessage = false; // Show the message to create sales first
       }
-      this.fetchCustomerDocuments(this.selectedCustomer.id, this.selectedCustomer.sales_id);
+      this.fetchCustomerDocuments(
+        this.selectedCustomer.id,
+        this.selectedCustomer.sales_id
+      );
 
       this.showDocumentModal = true; // Open the document upload modal
     },
@@ -645,7 +653,7 @@ export default {
       }
     },
     // Fetch existing documents for the selected customer
-    async fetchCustomerDocuments(customerId,salesId) {
+    async fetchCustomerDocuments(customerId, salesId) {
       try {
         const response = await fetch(
           `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
@@ -732,13 +740,12 @@ export default {
         formData.append("files[]", file); // Append the file under "files[]"
         formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
         formData.append("sales_id", this.selectedCustomer.sales_id);
-
       }
 
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
       formData.append("company", this.selectedCustomer.company_id);
-       // Log the formData for debugging
+      // Log the formData for debugging
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {
           method: "POST",
@@ -777,15 +784,15 @@ export default {
       this.lastName = "";
       this.firstName = "";
       this.documentFiles = {}; // Clear the actual files
-  // Optionally, clear any other form-related fields
-  this.selectedCustomer = null; // Clear selected customer
+      // Optionally, clear any other form-related fields
+      this.selectedCustomer = null; // Clear selected customer
     },
     getCookie(name) {
       let value = "; " + document.cookie;
       let parts = value.split("; " + name + "=");
       if (parts.length === 2) return parts.pop().split(";").shift();
     },
-    },
+  },
 };
 </script>
 
@@ -1029,8 +1036,6 @@ body {
   width: 15%;
 }
 
-
-
 .btn-add {
   background-color: #42b983;
   /* Button primary color */
@@ -1071,5 +1076,4 @@ input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
-
 </style>
