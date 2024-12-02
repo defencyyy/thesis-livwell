@@ -34,8 +34,12 @@ urlpatterns = [
     path('salesdetails/check/<int:customer_id>/<int:site_id>/<int:unit_id>/', views.check_sales_details, name='check_sales_details'),
     path('document-types/', views.fetch_document_types, name='fetch_document_types'),
     path('upload-document/', views.upload_document, name='upload_document'),
-    path('documents/customer/<int:customer_id>/', views.fetch_customer_documents, name='fetch_customer_documents'),
+    path('documents/customer/<int:customer_id>/<int:sales_id>/', views.fetch_customer_documents, name='fetch_customer_documents'),
     path('customers/<int:customer_id>/', views.update_customer, name='update_customer'),
+    path('mark/<int:customer_id>/<int:sales_id>/', views.mark_unit_as_sold, name='mark_unit_as_sold'),
+    path('milestones/', views.get_milestones, name='get_milestones'),
+
+    # PRBE
 
     # Developers
     path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
@@ -48,7 +52,14 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('developer/company/', include('companies.urls')),  
     path('developer/brokers/', include('brokers.urls')), 
-    path('developer/sites/', include('sites.urls')), 
+    path('developer/sites/', include('sites.urls')),
+    path('developer/account/', include('developers.urls')), 
+    path('developer/customers/', include('customers.urls')), 
+    path('developer/documents/', include('documents.urls')), 
+    path('developer/milestones/', include('milestones.urls')), 
+    path('developer/sales/', include('sales.urls')), 
+    path('developer/units/', include('units.urls')), 
+    path('developer/dashboard/', include('dashboard.urls')), 
     # # path('api/token/broker/', views.login_view_broker, name='login_broker'), 
 ]
 

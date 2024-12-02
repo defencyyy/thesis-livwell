@@ -4,47 +4,98 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <div class="dashboard-container">
-          <!-- Top Row -->
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Total Number of Units</h5>
-            </div>
+        <!-- Dashboard Boxes -->
+        <div class="dashboard-boxes">
+          <div class="box">
+            <p>Brokers</p>
+            <h2>{{ brokerCount }}</h2>
           </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Available Units</h5>
-            </div>
+          <div class="box">
+            <p>Sites</p>
+            <h2>{{ siteCount }}</h2>
           </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Sold Units</h5>
-            </div>
+          <div class="box">
+            <p>Available Units</p>
+            <h2>{{ availableUnits }}</h2>
+          </div>
+          <div class="box">
+            <p>Sold Sales</p>
+            <h2>{{ salesCount }}</h2>
+          </div>
+          <div class="box">
+            <p>Ongoing Sales</p>
+            <h2>{{ ongoingSales }}</h2>
+          </div>
+        </div>
+
+        <!-- Sales Table with Search and Filter -->
+        <div class="sales-table">
+          <h3>Pending Sales</h3>
+
+          <!-- Search and Filter -->
+          <div class="search-filter-controls">
+            <input
+              type="text"
+              v-model="searchQuery"
+              @input="filterSales"
+              placeholder="Search by Names"
+              class="search-input"
+            />
+            <select
+              v-model="selectedStatus"
+              @change="filterSales"
+              class="filter-dropdown"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending Reservation">Pending Reservation</option>
+              <option value="Pending Sold">Pending Sold</option>
+            </select>
+            <select
+              v-model="selectedSite"
+              @change="filterSales"
+              class="filter-dropdown"
+            >
+              <option value="">All Sites</option>
+              <option
+                v-for="site in filteredSites"
+                :key="site.id"
+                :value="site.id"
+              >
+                {{ site.name }}
+              </option>
+            </select>
           </div>
 
-          <!-- Large Center Box -->
-          <div class="card shadow-lg border-0 rounded-3 mx-auto large-box">
-            <div class="card-body">
-              <h5 class="card-title">Overview</h5>
-            </div>
-          </div>
-
-          <!-- Bottom Row -->
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">BROKER of the MONTH!</h5>
-            </div>
-          </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Achievements</h5>
-            </div>
-          </div>
-          <div class="card shadow-lg border-0 rounded-3 mx-auto dashboard-box">
-            <div class="card-body">
-              <h5 class="card-title">Upcoming Goals</h5>
-            </div>
-          </div>
+          <table v-if="filteredSales.length">
+            <thead>
+              <tr>
+                <th>Sale ID</th>
+                <th>Broker</th>
+                <th>Customer</th>
+                <th>Site</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="sale in filteredSales" :key="sale.id">
+                <td>{{ sale.relativeID }}</td>
+                <td>{{ sale.brokerName }}</td>
+                <td>{{ sale.customerName }}</td>
+                <td>{{ sale.site ? sale.site.name : "No Site" }}</td>
+                <td>{{ sale.status }}</td>
+                <td>
+                  <button
+                    @click="redirectToEditPage(sale.id)"
+                    class="btn btn-primary"
+                  >
+                    Edit Sale
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p v-else>No pending sales found with the selected filters.</p>
         </div>
       </div>
     </div>
@@ -54,8 +105,8 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
-import { mapState } from "vuex";
 import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   name: "DevMainPage",
@@ -63,161 +114,200 @@ export default {
     SideNav,
     AppHeader,
   },
+  data() {
+    return {
+      brokerCount: 0,
+      siteCount: 0,
+      availableUnits: 0,
+      salesCount: 0,
+      ongoingSales: 0,
+      pendingSales: [],
+      filteredSales: [],
+      searchQuery: "",
+      selectedStatus: "",
+      selectedSite: "",
+      sites: [], // Initialize sites as an empty array
+      filteredSites: [], // Stores filtered sites
+      loading: true,
+      error: null,
+    };
+  },
   computed: {
     ...mapState({
-      userId: (state) => state.userId || null,
-      userType: (state) => state.userType || null,
-      companyId: (state) => state.companyId || null,
-      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
+      userId: (state) => state.userId,
+      companyId: (state) => state.companyId,
     }),
-    localStorageUserId() {
-      return localStorage.getItem("user_id");
-    },
-    localStorageCompanyId() {
-      return localStorage.getItem("company_id");
-    },
   },
   mounted() {
-    // Check if the user is logged in, has a developer role, and belongs to the correct company
-    if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
-      this.redirectToLogin();
-    }
-
-    // Set up Axios interceptor to handle token refresh
-    this.setupAxiosInterceptor();
-  },
-  watch: {
-    loggedIn(newVal) {
-      if (!newVal || this.userType !== "developer" || !this.companyId) {
-        this.redirectToLogin();
-      }
-    },
-    userType(newVal) {
-      if (newVal !== "developer" || !this.companyId) {
-        this.redirectToLogin();
-      }
-    },
-    companyId(newVal) {
-      if (!newVal || this.userType !== "developer") {
-        this.redirectToLogin();
-      }
-    },
+    this.fetchDashboardData();
+    this.fetchSites();
+    this.fetchPendingSales();
   },
   methods: {
-    async logout() {
+    async fetchDashboardData() {
+      this.loading = true;
+      this.error = null; // Clear any previous error
       try {
-        // Notify backend about logout
-        await axios.post(
-          "http://localhost:8000/api/token/devlogout/", // Update URL to match Django endpoint
-          {},
+        const response = await axios.get(
+          `http://localhost:8000/developer/dashboard/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-
-        // Clear localStorage and Vuex state
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("developer_id");
-        localStorage.removeItem("company_id");
-
-        // Call Vuex mutation to reset user state
-        this.$store.commit("clearUser");
-
-        // Redirect to login page
-        this.redirectToLogin();
+        console.log("Fetched dashboard data:", response.data);
+        this.brokerCount = response.data.brokers;
+        this.siteCount = response.data.sites;
+        this.availableUnits = response.data.availableUnits;
+        this.salesCount = response.data.salesCount;
+        this.ongoingSales = response.data.ongoingSales;
       } catch (error) {
-        console.error("Error during logout:", error);
-        alert("Logout failed. Please try again.");
+        this.error = "Error fetching dashboard data"; // Show error if request fails
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
-    redirectToLogin() {
-      this.$router.push({ name: "DevLogin" });
-    },
-
-    // Handle token refresh logic here
-    async refreshToken() {
+    async fetchSites() {
       try {
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/", // Your token refresh endpoint
+        const response = await axios.get(
+          `http://localhost:8000/developer/sites/`,
           {
-            refresh: localStorage.getItem("refreshToken"),
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
           }
         );
-        const { access } = response.data;
+        // Ensure sites is an array and log the response for inspection
+        this.sites = Array.isArray(response.data) ? response.data : [];
+        console.log("Fetched sites:", this.sites); // Log the full sites response
 
-        // Store the new access token
-        localStorage.setItem("accessToken", access);
-        this.$store.commit("setAuthToken", access); // Update Vuex store with new token
-        return access;
+        this.filterSitesWithPendingSales(); // Filter sites with pending sales after ensuring they are an array
       } catch (error) {
-        console.error("Token refresh failed", error);
-        this.handleTokenRefreshFailure();
-        throw error;
+        console.error("Error fetching sites:", error);
+      }
+    },
+    filterSitesWithPendingSales() {
+      if (!Array.isArray(this.sites)) {
+        console.error("Expected 'sites' to be an array, but it's not.");
+        return;
+      }
+
+      // Log the pending sales data
+      console.log("Pending sales to filter sites with:", this.pendingSales);
+
+      const siteIdsWithPendingSales = new Set(
+        this.pendingSales
+          .filter(
+            (sale) =>
+              sale.status === "Pending Reservation" ||
+              sale.status === "Pending Sold"
+          )
+          .map((sale) => sale.site.id)
+      );
+
+      // Log the siteIdsWithPendingSales to verify
+      console.log("Sites with pending sales IDs:", siteIdsWithPendingSales);
+
+      // Filter sites
+      const filteredSites = this.sites.filter((site) =>
+        siteIdsWithPendingSales.has(site.id)
+      );
+
+      // Log filtered sites
+      console.log("Filtered sites with pending sales:", filteredSites);
+
+      // Set filteredSites properly to trigger reactivity
+      this.filteredSites = [...filteredSites]; // Spread into a new array
+    },
+    async fetchPendingSales() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/sales/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        console.log(response.data); // Log the API response to see the structure
+
+        const sales = response.data.data || [];
+        // Filter sales by status "Pending Reservation" or "Pending Sold"
+        this.pendingSales = sales
+          .filter(
+            (sale) =>
+              sale.status === "Pending Reservation" ||
+              sale.status === "Pending Sold"
+          )
+          .map((sale, index) => ({
+            ...sale,
+            relativeID: index + 1, // Adding relativeID (index + 1)
+            brokerName: `${sale.broker.first_name} ${sale.broker.last_name}`, // Set broker name
+            customerName: `${sale.customer.first_name} ${sale.customer.last_name}`, // Set customer name
+          }));
+        this.filteredSales = this.pendingSales;
+        this.filterSitesWithPendingSales(); // Ensure filtered sites are updated
+      } catch (error) {
+        console.error("Error fetching pending sales:", error);
       }
     },
 
-    // Handle token refresh failure (log out the user)
-    handleTokenRefreshFailure() {
-      alert("Session expired. Please log in again.");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      this.$store.commit("clearUser");
-      this.redirectToLogin();
+    filterSales() {
+      let filtered = this.pendingSales;
+
+      // Filter by search query
+      if (this.searchQuery) {
+        filtered = filtered.filter(
+          (sale) =>
+            `${sale.customerName}`
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase()) ||
+            `${sale.brokerName}`
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase())
+        );
+      }
+
+      // Filter by status
+      if (this.selectedStatus) {
+        filtered = filtered.filter(
+          (sale) => sale.status === this.selectedStatus
+        );
+      }
+
+      // Filter by site
+      if (this.selectedSite) {
+        filtered = filtered.filter(
+          (sale) => sale.site.id === parseInt(this.selectedSite)
+        );
+      }
+
+      this.filteredSales = filtered;
     },
 
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-          }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
-        }
-      );
-
-      axios.interceptors.response.use(
-        (response) => {
-          return response;
-        },
-        async (error) => {
-          if (
-            error.response.status === 401 &&
-            error.response.data.detail === "Token expired"
-          ) {
-            try {
-              // Try to refresh the token if it has expired
-              await this.refreshToken();
-
-              // Retry the original request after refreshing the token
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${localStorage.getItem("accessToken")}`;
-              return axios(error.config);
-            } catch (refreshError) {
-              // If token refresh fails, log the user out
-              this.handleTokenRefreshFailure();
-            }
-          }
-          return Promise.reject(error);
-        }
-      );
+    redirectToEditPage(saleId) {
+      this.$router.push({ name: "DevSales", params: { saleId } });
     },
   },
 };
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0; /* Removes default margin */
+  padding: 0; /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
 }
 
 .SideNav {
@@ -252,5 +342,60 @@ export default {
   flex: 1;
   padding: 20px;
   text-align: center;
+}
+
+.dashboard-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.box p {
+  font-size: 14px;
+  color: #666;
+}
+
+.box h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
+}
+
+.sales-table {
+  margin: 20px 0;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sales-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-table th,
+.sales-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.sales-table th {
+  background: #f6f6f6;
+  font-weight: bold;
+}
+
+.sales-table td {
+  background: #fff;
 }
 </style>

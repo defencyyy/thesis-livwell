@@ -146,11 +146,12 @@ export default {
             localStorage.setItem("accessToken", data.tokens.access);
             localStorage.setItem("refreshToken", data.tokens.refresh);
 
-            // Assuming the response contains user details
+            // Assuming the response contains user details and company info
             const user = {
               id: data.user.id,
               user_role: data.user.user_role,
               company_id: data.user.company_id,
+              company: data.user.company, // Assuming the company data is included in the response
             };
 
             // Dispatch login action to Vuex store

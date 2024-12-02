@@ -32,8 +32,8 @@
         </div>
 
         <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 1100px"
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <div class="card-body">
             <div class="row">
@@ -57,17 +57,22 @@
                     <option value="status">Sort: Status</option>
                   </select>
 
+                  <select v-model="viewFilter" @change="toggleArchived" class="dropdown2"> 
+  <option value="active">View: Active</option>
+  <option value="archived">View: Archived</option>
+</select>
+                </div>
+
+                <div class="right-section">
                   <!-- Filter Button -->
-                  <button
+                  <!-- <button
                     @click="toggleArchived"
                     :class="['btn-secondary', { active: showArchived }]"
                     class="filter-button"
                   >
                     {{ showArchived ? "View Archived" : "View Active" }}
-                  </button>
-                </div>
+                  </button> -->
 
-                <div class="right-section">
                   <!-- Add Site Button -->
                   <button
                     @click="showAddModal = true"
@@ -122,8 +127,11 @@
           <div
             v-for="(site, index) in filteredSites"
             :key="site.id || index"
-            class="card shadow-lg border-0 rounded-3 mx-auto"
-            style="max-width: 1100px"
+            class="card border-0 rounded-1 mx-auto"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
           >
             <div class="card-body">
               <table class="site-table">
@@ -144,34 +152,56 @@
                     <td>{{ site.location || "Location unavailable" }}</td>
                     <td>{{ site.status || "Status unavailable" }}</td>
                     <td>
-                      <!-- Edit Button as Icon (Blue) -->
+                      <!-- Edit Button -->
                       <button
                         @click.stop="openEditModal(site)"
                         style="
                           border: none;
                           background-color: transparent;
+                          color: #343a40;
                           cursor: pointer;
-                          padding: 8px;
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-edit" style="color: black"></i>
-                        <!-- GINAWA KO GANTO PUTI SAKIN - Cy -->
+                        <i class="fas fa-edit"></i>
                       </button>
 
-                      <!-- Delete Button as Icon (Red) -->
+                      <!-- Manage Floors Button -->
                       <button
-                        @click.stop="archiveSite(site)"
+                        @click.stop="openFloorModal(site)"
                         style="
                           border: none;
                           background-color: transparent;
+                          color: #343a40;
                           cursor: pointer;
-                          padding: 8px;
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-trash" style="color: black"></i>
-                        <!-- GINAWA KO GANTO PUTI SAKIN - Cy -->
+                        <i class="fas fa-layer-group"></i>
+                      </button>
+
+                      <!-- Archive/Unarchive Buttons -->
+                      <button
+                        v-if="!site.archived"
+                        @click.stop="archiveSite(site)"
+                        class="btn btn-sm btn-warning"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
+                        <i class="fas fa-archive"></i>
+                      </button>
+
+                      <button
+                        v-else
+                        @click.stop="unarchiveSite(site)"
+                        class="btn btn-sm btn-success"
+                      >
+                        <i class="fas fa-undo"></i> Unarchive
                       </button>
                     </td>
                   </tr>
@@ -181,7 +211,13 @@
           </div>
         </div>
 
-        <b-modal v-model="showAddModal" hide-header hide-footer size="lg">
+        <b-modal
+          v-model="showAddModal"
+          hide-header
+          hide-footer
+          centered
+          size="lg"
+        >
           <div class="modal-title p-3">
             <h5 class="mb-0">New Site</h5>
           </div>
@@ -344,19 +380,32 @@
                 </div>
               </div>
 
+              <!-- Add Floors -->
+              <div class="form-group mb-3">
+                <label for="numberOfFloors">Number of Floors</label>
+                <input
+                  type="number"
+                  v-model="newSite.number_of_floors"
+                  id="numberOfFloors"
+                  class="form-control"
+                  placeholder="Enter the number of floors"
+                  min="1"
+                  required
+                />
+              </div>
+
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-3">
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  style="width: 150px"
-                >
+              <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
                   Add New Site
                 </button>
                 <button
                   type="button"
                   @click="showAddModal = false"
-                  class="btn btn-secondary"
+                  class="btn-cancel"
                 >
                   Cancel
                 </button>
@@ -365,12 +414,13 @@
           </div>
         </b-modal>
 
-        <!-- EDIT / VIEW -->
+        <!-- Detail Modal -->
         <b-modal
           v-model="showEditModal"
           title="Site Details / Edit"
           hide-header
           hide-footer
+          centered
           size="lg"
         >
           <div class="modal-title p-3">
@@ -540,20 +590,11 @@
                 </div>
               </div>
 
-              <!-- Description (Editable) -->
-              <div class="form-group mb-3">
-                <label for="editSiteDescription" class="form-label"
-                  >Description</label
-                >
-                <textarea
-                  v-model="editSite.description"
-                  id="editSiteDescription"
-                  class="form-control"
-                ></textarea>
-              </div>
-
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-3">
+              <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
+              >
                 <button
                   type="submit"
                   class="btn btn-success"
@@ -561,16 +602,89 @@
                 >
                   Save Changes
                 </button>
-                <!-- Cancel Button -->
-                <button
-                  type="button"
-                  @click="cancelEdit"
-                  class="btn btn-secondary"
-                >
+                <button type="button" @click="cancelEdit" class="btn-cancel">
                   Cancel
                 </button>
               </div>
             </form>
+          </div>
+        </b-modal>
+
+        <!-- Floor Modal -->
+        <b-modal
+          v-model="showFloorModal"
+          title="Manage Floors"
+          hide-footer
+          centered
+          size="lg"
+        >
+          <div class="modal-title p-3">
+            <h5 class="mb-0">
+              <strong>Site Name:</strong> {{ currentSite.name }}
+            </h5>
+          </div>
+          <div class="p-3">
+            <!-- Floor Information -->
+            <div class="mb-3">
+              <strong>Floor Information</strong>
+              <p>
+                <strong>Total Floors:</strong> {{ currentSite.floors.length }}
+              </p>
+            </div>
+
+            <!-- Add Floors -->
+            <div class="mb-3">
+              <h6>Add Floors</h6>
+              <div class="d-flex gap-2">
+                <input
+                  type="number"
+                  v-model="newFloorCount"
+                  class="form-control"
+                  placeholder="Enter number of floors"
+                  min="1"
+                  max="99"
+                />
+                <button @click="addFloors" class="btn btn-primary">
+                  Add Floors
+                </button>
+              </div>
+              <small class="text-muted">
+                Enter the number of floors to add (Max 99).
+              </small>
+            </div>
+
+            <!-- Existing Floors -->
+            <div class="mb-3">
+              <h6>Existing Floors</h6>
+              <div v-if="currentSite.floors.length">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Floor Number</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="floor in currentSite.floors"
+                      :key="floor.floor_number"
+                    >
+                      <td>Floor {{ floor.floor_number }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p v-else>No floors available for this site.</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-end gap-2">
+              <button @click="closeFloorModal" class="btn btn-secondary">
+                Close
+              </button>
+              <button @click="saveSite" class="btn btn-primary">
+                Save Floors
+              </button>
+            </div>
           </div>
         </b-modal>
       </div>
@@ -597,6 +711,7 @@ export default {
       viewMode: "table",
       sortBy: "name",
       searchQuery: "",
+      viewFilter: "active", // Tracks the selected view filter
       showAddModal: false,
       showEditModal: false,
       selectedSite: {}, // Prevent null reference issues
@@ -605,26 +720,56 @@ export default {
       newSite: {
         name: "",
         status: "",
-        region: "", // Region selection
-        province: "", // Province selection
-        municipality: "", // municipality selection
-        barangay: "", // Barangay selection
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
         description: "",
         picture: "",
+        number_of_floors: 0,
       },
-      editSite: {},
+      editSite: {
+        id: "",
+        name: "",
+        status: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        description: "",
+        picture: "",
+        floors: [],
+        number_of_floors: 0,
+      },
+      showFloorModal: false,
+      currentSite: {
+        id: "",
+        name: "",
+        status: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        description: "",
+        picture: "",
+        floors: [],
+        number_of_floors: 0,
+      },
+      totalFloors: 0,
+      newFloorNumber: null,
+      newFloorCount: null,
       sites: [],
-      regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
-      provinceOptions: [], // Stores provinces in the selected region
-      municipalityOptions: [], // Stores municipalities in the selected province
-      barangayOptions: [], // Stores barangays in the selected municipality
-      selectedRegion: null, // Selected region from dropdown
-      selectedProvince: null, // Selected province from dropdown
-      selectedMunicipality: null, // Selected municipality from dropdown
-      selectedBarangay: null, // Selected barangay from dropdown
+      archivedSites: [],
+      regionOptions: [],
+      provinceOptions: [],
+      municipalityOptions: [],
+      barangayOptions: [],
+      selectedRegion: null,
+      selectedProvince: null,
+      selectedMunicipality: null,
+      selectedBarangay: null,
       newPictureFile: null,
       imagePreview: null,
-      showArchived: false, // State to control archived sites visibility
     };
   },
   computed: {
@@ -639,21 +784,24 @@ export default {
     vuexCompanyId() {
       return this.companyId;
     },
-    filteredSites() {
-      return this.sites
-        .filter(
-          (site) =>
-            site &&
-            site.name &&
-            site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .filter((site) => this.showArchived || !site.isArchived)
-        .sort((a, b) =>
-          this.sortBy === "name"
-            ? (a.name || "").localeCompare(b.name || "")
-            : (a.status || "").localeCompare(b.status || "")
-        );
-    },
+      filteredSites() {
+        // Determine whether to filter active or archived sites
+        const sitesToFilter =
+          this.viewFilter === "archived" ? this.archivedSites : this.sites;
+
+        // Apply search and sorting
+        return sitesToFilter
+          .filter((site) =>
+            site.name
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase())
+          )
+          .sort((a, b) =>
+            this.sortBy === "name"
+              ? (a.name || "").localeCompare(b.name || "")
+              : (a.status || "").localeCompare(b.status || "")
+          );
+      },
   },
   methods: {
     async refreshAccessToken() {
@@ -679,15 +827,24 @@ export default {
       this.$store.dispatch("logout");
       this.$router.push({ name: "DevLogin" });
     },
-    async fetchSites() {
-      console.log("Fetching sites...");
-
-      const companyId = this.vuexCompanyId;
-      if (!companyId) {
-        alert("Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
-        return;
+    async fetchSiteDetails() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/sites/${this.siteId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        if (response.data.success) {
+          this.currentSite = response.data.data; // This should include floors
+        }
+      } catch (error) {
+        console.error("Error fetching site details:", error);
       }
+    },
+    async fetchSites() {
       try {
         const response = await axios.get(
           "http://localhost:8000/developer/sites/",
@@ -697,25 +854,140 @@ export default {
             },
           }
         );
-        console.log("Sites fetched:", response.data); // Debug API response
         if (response.status === 200) {
           this.sites = response.data.data.map((site) => ({
             ...site,
             location: this.constructLocation(site), // Dynamically build location
             isArchived: site.isArchived ?? false,
+            floors: site.floors || [], // Ensure floors is always an array
           }));
-          console.log("Processed Sites:", this.sites); // Debug processed sites
+        }
+      } catch (error) {
+        console.error("Error fetching sites:", error.response || error);
+      }
+    },
+    async fetchArchivedSites() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/archived/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.archivedSites = response.data.data.map((site) => ({
+            ...site,
+            location: this.constructLocation(site), // Build location dynamically
+          }));
+          console.log("Archived sites fetched:", this.archivedSites);
         }
       } catch (error) {
         if (error.response?.status === 401) {
           const refreshedToken = await this.refreshAccessToken();
           if (refreshedToken) {
-            this.fetchSites(); // Retry after refreshing
+            this.fetchArchivedSites(); // Retry fetching archived sites
           }
         } else {
-          console.error("Error fetching sites:", error.response || error);
+          console.error(
+            "Error fetching archived sites:",
+            error.response || error
+          );
         }
       }
+    },
+    async archiveSite(site) {
+      const siteId = site.id; // Get the site ID
+      console.log("Archiving site with ID:", siteId);
+
+      if (confirm("Are you sure you want to archive this site?")) {
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/developer/sites/${siteId}/`, // Correct endpoint for updating the site
+            {
+              name: site.name, // Pass the existing name or other required fields
+              description: site.description,
+              region: site.region,
+              province: site.province,
+              municipality: site.municipality,
+              barangay: site.barangay,
+              postal_code: site.postal_code,
+              picture: site.picture, // If you want to keep the picture
+              status: site.status,
+              archived: true, // If you need to update the archive status
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+              params: { action: "archive" }, // Send action=archive as query parameter
+            }
+          );
+
+          if (response.status === 200) {
+            console.log("Site archived successfully.");
+            this.fetchSites();
+            this.fetchArchivedSites();
+          }
+        } catch (error) {
+          console.error("Error archiving site:", error.response?.data || error);
+        }
+      }
+    },
+    async unarchiveSite(site) {
+      const siteId = site.id; // Get the site ID
+      console.log("Unarchiving site with ID:", siteId);
+
+      if (confirm("Are you sure you want to unarchive this site?")) {
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/developer/sites/${siteId}/`, // Correct endpoint for updating the site
+            {
+              name: site.name, // Pass the existing name or other required fields
+              description: site.description,
+              region: site.region,
+              province: site.province,
+              municipality: site.municipality,
+              barangay: site.barangay,
+              postal_code: site.postal_code,
+              picture: site.picture, // If you want to keep the picture
+              status: site.status,
+              archived: false, // Update the archived status to false (unarchive)
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+              params: { action: "unarchive" }, // Send action=unarchive as query parameter
+            }
+          );
+
+          if (response.status === 200) {
+            console.log("Site unarchived successfully.");
+            this.fetchSites(); // Refresh the site list
+            this.fetchArchivedSites(); // Refresh the archived site list
+          }
+        } catch (error) {
+          console.error(
+            "Error unarchiving site:",
+            error.response?.data || error
+          );
+        }
+      }
+    },
+    toggleArchived() {
+      this.showArchived = !this.showArchived;
+      console.log("Toggled archived view:", this.showArchived);
+
+      if (this.showArchived && this.archivedSites.length === 0) {
+        // Fetch archived sites only when switching to archived view
+        this.fetchArchivedSites();
+      }
+    },
+    toggleView() {
+      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     constructLocation(site) {
       const addressParts = [
@@ -726,13 +998,6 @@ export default {
         site.postal_code ? `Postal Code: ${site.postal_code}` : null,
       ];
       return addressParts.filter(Boolean).join(", "); // Join non-empty parts
-    },
-    toggleView() {
-      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
-    },
-    toggleArchived() {
-      this.showArchived = !this.showArchived;
-      console.log("Show archived:", this.showArchived);
     },
     async loadRegionData() {
       try {
@@ -858,19 +1123,129 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
-    // Add Site Function
+    // Open the modal to manage floors for the current site
+    openFloorModal(site) {
+      this.currentSite = site; // Set the current site to the selected site
+      this.showFloorModal = true;
+    },
+    // Close the modal
+    closeFloorModal() {
+      this.showFloorModal = false;
+    },
+    addFloors() {
+      if (!this.newFloorCount || this.newFloorCount < 1) {
+        alert("Please enter a valid number of floors.");
+        return;
+      }
+
+      const currentFloorCount = this.currentSite.floors.length;
+      const totalFloors = currentFloorCount + this.newFloorCount;
+
+      if (totalFloors > 99) {
+        alert("Cannot add more than 99 floors in total.");
+        return;
+      }
+
+      const newFloors = [];
+      const currentMaxFloor =
+        currentFloorCount > 0
+          ? Math.max(
+              ...this.currentSite.floors.map((floor) => floor.floor_number)
+            )
+          : 0;
+
+      for (let i = 1; i <= this.newFloorCount; i++) {
+        newFloors.push({
+          floor_number: currentMaxFloor + i,
+        });
+      }
+
+      // Push the new floors into the current site
+      this.currentSite.floors.push(...newFloors);
+
+      // Update the number_of_floors with the total number of floors
+      this.currentSite.number_of_floors = this.currentSite.floors.length;
+
+      this.newFloorCount = 0; // Reset the floor count input
+    },
+
+    async saveSite() {
+      const formData = new FormData();
+      formData.append("companyId", this.vuexCompanyId);
+      formData.append("name", this.currentSite.name);
+      formData.append("description", this.currentSite.description || "");
+      formData.append("region", this.currentSite.region);
+      formData.append("province", this.currentSite.province);
+      formData.append("municipality", this.currentSite.municipality);
+      formData.append("barangay", this.currentSite.barangay);
+      formData.append("status", this.currentSite.status);
+
+      // Debugging - log the company and floor data
+      console.log("Company ID being sent:", this.vuexCompanyId);
+      console.log("Floor data being sent:", this.currentSite.number_of_floors);
+
+      if (this.currentSite.floors && this.currentSite.floors.length > 0) {
+        this.currentSite.floors.forEach((floor) => {
+          formData.append("floors[]", JSON.stringify(floor)); // Sending as simple objects in array
+        });
+      }
+
+      // Append the floors to the formData
+      if (this.currentSite.floors && this.currentSite.floors.length > 0) {
+        this.currentSite.floors.forEach((floor, index) => {
+          formData.append(
+            `floors[${index}][floorNumber]`,
+            floor.floor_number || "" // Correcting the key to match the property in floors
+          );
+        });
+      }
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.showFloorModal = false;
+          this.fetchSites();
+          console.log("Site updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error saving site:", error.response || error);
+        // Display generic error message in case of failure
+        alert("Failed to save site. Please try again.");
+      }
+    },
+    // Save the new site including floor details
     async addSite() {
       const formData = new FormData();
       formData.append("companyId", this.vuexCompanyId);
       formData.append("name", this.newSite.name);
-      formData.append("description", this.newSite.description || ""); // Optional description field
+      formData.append("description", this.newSite.description || "");
       formData.append("region", this.newSite.region);
       formData.append("province", this.newSite.province);
       formData.append("municipality", this.newSite.municipality);
       formData.append("barangay", this.newSite.barangay);
       formData.append("status", this.newSite.status);
+      formData.append("number_of_floors", this.newSite.number_of_floors);
 
-      // Check if the picture is selected, then append it
+      // Append the floors to the formData
+      if (this.newSite.floors && this.newSite.floors.length > 0) {
+        this.newSite.floors.forEach((floor, index) => {
+          formData.append(
+            `floors[${index}][floorNumber]`,
+            floor.floorNumber || ""
+          );
+        });
+      }
+
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
       }
@@ -888,44 +1263,31 @@ export default {
         );
 
         if (response.status === 201) {
-          // Clear the form and reset the picture preview
+          // Reset form data after adding the site
           this.newSite = {
             name: "",
+            status: "",
             region: "",
             province: "",
             municipality: "",
             barangay: "",
-            status: "",
             description: "",
-            picture: null, // Reset picture to null
+            picture: null,
+            number_of_floors: 0,
+            floors: [], // Ensure floors are cleared
           };
-          this.imagePreview = null; // Reset image preview
-
-          // Close modal and refresh the sites list
+          this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
         }
       } catch (error) {
         console.error("Error adding site:", error.response || error);
+        // Provide user feedback
+        this.$toast.error("Failed to add site. Please try again.");
       }
     },
-
+    // Save edited site including floor details
     async manageSite() {
-      // Ensure that the form data contains valid values
-      if (
-        !this.editSite.name ||
-        !this.editSite.region ||
-        !this.editSite.province ||
-        !this.editSite.municipality ||
-        !this.editSite.barangay
-      ) {
-        console.error(
-          "Missing required fields: Name, Region, Province, Municipality, Barangay."
-        );
-        return;
-      }
-
-      // Create FormData to send the updated site information
       const formData = new FormData();
       formData.append("name", this.editSite.name);
       formData.append("region", this.editSite.region);
@@ -933,105 +1295,50 @@ export default {
       formData.append("municipality", this.editSite.municipality);
       formData.append("barangay", this.editSite.barangay);
       formData.append("status", this.editSite.status);
-      formData.append("description", this.editSite.description || ""); // Optional description field
+      formData.append("description", this.editSite.description || "");
 
-      // Check if the picture is being updated
       if (this.newPictureFile) {
         formData.append("picture", this.newPictureFile);
       }
 
       try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          console.error("No token found. Cannot proceed with the request.");
-          return;
-        }
-
-        // Prepare headers for the request
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        };
-
-        // Send API request to update the site
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
           formData,
-          { headers }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
 
         if (response.status === 200) {
-          // Update the site in the list with the new data from the response
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
           );
           if (index !== -1) {
             this.sites[index] = response.data;
           }
-
-          // Close the edit modal and refresh the site data
           this.showEditModal = false;
           this.fetchSites();
-          this.resetPicturePreview();
-        } else {
-          console.error("Failed to update site. Status:", response.status);
         }
       } catch (error) {
-        if (error.response) {
-          console.error("Error response from API:", error.response);
-        } else if (error.request) {
-          console.error("Error with request:", error.request);
-        } else {
-          console.error("Error setting up request:", error.message);
-        }
-      }
-    },
-    async archiveSite(site) {
-      try {
-        console.log("Archiving site:", site);
-
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${site.id}/`,
-          { ...site, isArchived: true },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          // Update sites array
-          this.sites = this.sites.map((s) =>
-            s.id === site.id ? { ...s, isArchived: true } : s
-          );
-          console.log("Site archived successfully.");
-        }
-      } catch (error) {
-        console.error("Error archiving site:", error.response?.data || error);
-      }
-    },
-    viewSite(site) {
-      if (site) {
-        this.selectedSite = site;
-        this.selectedSiteModal = true;
-      } else {
-        console.error("Attempted to view a null or undefined site.");
+        console.error("Error updating site:", error.response || error);
       }
     },
     openEditModal(site) {
-      this.editSite = { ...site };
+      this.editSite = { ...site, floors: site.floors || [] }; // Ensure floors is initialized
       this.showEditModal = true;
-    },
-    resetPicturePreview() {
-      this.newPictureFile = null;
-      this.imagePreview = null;
     },
     cancelEdit() {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
-
+    resetPicturePreview() {
+      this.newPictureFile = null;
+      this.imagePreview = null;
+    },
     async fetchStatusOptions() {
       try {
         const response = await axios.get(
@@ -1052,6 +1359,9 @@ export default {
     console.log("Component mounted, fetching sites...");
     this.fetchSites();
     this.loadRegionData();
+    if (this.showArchived) {
+      this.fetchArchivedSites();
+    }
   },
   watch: {
     showArchived() {},
@@ -1063,9 +1373,18 @@ export default {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0; /* Removes default margin */
+  padding: 0; /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
 }
 
 .SideNav {
@@ -1090,7 +1409,7 @@ export default {
 
 .main-content {
   display: flex;
-  /* margin-left: 250px; */
+  margin-left: 250px;
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
@@ -1121,7 +1440,7 @@ export default {
 .title-icon {
   width: 15px;
   height: 5px;
-  background-color: #6c757d;
+  background-color: #343a40;
   border-radius: 5px;
   margin-right: 10px;
 }
@@ -1135,9 +1454,9 @@ export default {
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 3px;
   overflow: hidden;
-  background-color: #f9f9f9;
+  background-color: #f6f6f6;
 }
 
 .view-icon {
@@ -1146,22 +1465,18 @@ export default {
   text-align: center;
   cursor: pointer;
   font-size: 15px;
-  color: #777;
+  color: #343a40;
   transition: background-color 0.3s, color 0.3s;
 }
 
 .view-icon.active {
-  background-color: #7d7d7d;
-  color: #fff;
-}
-
-.view-icon:hover {
-  background-color: #e0e0e0;
+  background-color: #343a40;
+  color: #f6f6f6;
 }
 
 .separator {
   width: 1px;
-  background-color: #ccc;
+  background-color: #f6f6f6;
   height: 100%;
 }
 
@@ -1195,7 +1510,7 @@ export default {
   padding: 8px 12px 8px 40px;
   /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 14px;
 }
 
@@ -1220,9 +1535,22 @@ export default {
   height: 38px;
   /* Explicitly set height */
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 14px;
   width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
+
+.dropdown2 {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 90%;
   max-width: 150px;
   background-color: white;
   color: #333;
@@ -1231,10 +1559,10 @@ export default {
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #007bff;
-  border-radius: 4px;
+  border: 1px solid #42b983;
+  border-radius: 3px;
   font-size: 14px;
-  background-color: #007bff;
+  background-color: #42b983;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -1245,10 +1573,8 @@ export default {
 }
 
 .card {
-  border-radius: 16px;
   background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-top: 0;
   max-width: 1100px;
   /* Ensures the card and grid align */
@@ -1275,18 +1601,14 @@ export default {
 
 .site-card {
   background: #fff;
-  border: 1px solid #ffffff;
-  border-radius: 16px;
   padding: 16px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
 }
 
 .site-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
 }
 
 .site-image {
@@ -1316,7 +1638,6 @@ export default {
 .site-name {
   font-size: 15px;
   font-weight: bold;
-  margin-top: 10px;
 }
 
 .site-location {
@@ -1369,7 +1690,7 @@ export default {
   /* Change to grid layout */
   grid-template-columns: 25% 35% 20% 20%;
   /* Match the column widths */
-  padding: 0px 20px;
+  padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
 }
@@ -1385,6 +1706,23 @@ export default {
 .form-group .form-label,
 .row .form-label {
   font-size: 0.9rem;
+  color: #6c757d;
   /* Adjust the value to your preferred size */
+}
+
+.btn-add {
+  background-color: #42b983; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

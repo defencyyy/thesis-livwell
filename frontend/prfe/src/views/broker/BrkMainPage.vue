@@ -1,16 +1,15 @@
 <template>
-  <div>
-    <!-- Main wrapper div -->
-    <AppHeader />
-    <div class="main-page">
-      <SideNav />
+  <div class="main-page">
+    <SideNav />
+    <div class="main-content">
+      <AppHeader />
       <div class="content">
-        <p>{{ brokerEmail }}</p>
-        <strong>Total Sales:</strong> {{ totalSales }}
-        <strong>Total Commissions:</strong> {{ totalCommissions }}
-        <p>Total Customers: {{ totalCustomers }}</p>
-        <h1>His, {{ brokerName }}</h1>
-
+        <p class="text-start display-7 fw-bolder">{{ brokerEmail }}</p>
+        <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">His, {{ brokerName }}</h1>
+        <p class="text-start pt-5"><strong>Total Sales:</strong> {{ totalSales }}</p>
+        <p class="text-start "><strong>Total Commissions:</strong> {{ totalCommissions }}</p>
+        <p class="text-start "> <strong>Total Customers: </strong> {{ totalCustomers }}</p>
+       
         <!-- Pie Chart Section -->
         <div
           v-if="
@@ -25,7 +24,7 @@
           <canvas id="salesPieChart"></canvas>
         </div>
 
-        <button @click="logout">Logout</button>
+        <!-- <button @click="logout">Logout</button> -->
       </div>
     </div>
   </div>
@@ -36,7 +35,8 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import { Chart } from "chart.js"; // Import chart.js
+import { Chart, ArcElement, Tooltip, Legend, PieController } from "chart.js"; // Import necessary components from Chart.js
+Chart.register(PieController, ArcElement, Tooltip, Legend);
 
 export default {
   name: "BrkMainPage",
@@ -155,15 +155,16 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-              labels: ["Sold", "Pending", "Reserved"],
+              labels: ["Sold", "Pending Reservation", "Reserved", "Pending Sold"], // Add "Pending Sold"
               datasets: [
                 {
                   data: [
                     this.salesStatus.sold,
                     this.salesStatus.pending,
                     this.salesStatus.reserved,
+                    this.salesStatus.Pending_sold,
                   ],
-                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
+                  backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384", "#FF9F40"], // You can adjust the colors
                 },
               ],
             },
@@ -225,9 +226,33 @@ export default {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
 
 .content {
@@ -255,4 +280,72 @@ canvas {
   max-height: 400px;
   margin: 20px auto;
 }
+
+#salesPieChart
+{
+  padding: 20px;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  /* margin: 20px 20px 20px 20px;   */
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: rgb(244, 244, 244);
+}
+
+/* .content {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: auto;
+}
+
+.broker-info {
+  margin-bottom: 20px;
+}
+
+.broker-info p,
+.broker-info h1 {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.broker-info strong {
+  font-weight: bold;
+  color: #0056b3;
+}
+
+h1 {
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+}
+
+#salesPieChart {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.logout-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.logout-btn {
+  padding: 10px 20px;
+  background-color: #ff4c4c; /* Red background 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #e63946; 
+} */
+
 </style>

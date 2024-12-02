@@ -2,7 +2,13 @@
   <div class="available-units-page">
     <SideNav />
     <div class="content">
-      <h2>Available Units for Site: {{ siteName }}</h2>
+      <router-link class="text-start" to="/broker/affiliated-units">
+        <i class="fas fa-arrow-left"></i> Back to Units
+      </router-link>
+
+      <h2 class="display-5 fw-bolder text-capitalize">
+        Available Units for Site: {{ siteName }}
+      </h2>
       <div v-if="units.length">
         <div class="units-container">
           <div
@@ -30,7 +36,8 @@
       <!-- Unit Details Modal -->
       <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
-          <div v-if="selectedUnit.images.length">
+          <!-- Image Section -->
+          <div v-if="selectedUnit.images.length" class="image-gallery">
             <img
               v-for="(image, index) in selectedUnit.images"
               :key="index"
@@ -60,38 +67,76 @@
           <p>View: {{ selectedUnit.view }}</p>
           <hr />
 
+          <!-- Unit Details -->
+          <div class="unit-details">
+            <p>
+              <strong>Price:</strong> ₱{{ selectedUnit.price }} |
+              <strong>Bedrooms:</strong> {{ selectedUnit.bedroom }} |
+              <strong>Bathrooms:</strong> {{ selectedUnit.bathroom }} |
+              <strong>Floor Area:</strong> {{ selectedUnit.floor_area }}m<sup
+                >2</sup
+              >
+            </p>
+            <hr />
+            <h3 class="details-heading">Details</h3>
+            <p>
+              <strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }} |
+              <strong>Balcony:</strong> {{ selectedUnit.balcony }} |
+              <strong>Built (Year):</strong> {{ siteYear }}
+            </p>
+            <p><strong>View:</strong> {{ selectedUnit.view }}</p>
+            <hr />
+          </div>
+
           <!-- Payment Plan Section -->
           <div class="form-group">
             <label for="paymentPlan">Payment Plan</label>
-            <select v-model="selectedPaymentPlan" id="paymentPlan" required>
+            <select
+              v-model="selectedPaymentPlan"
+              id="paymentPlan"
+              class="select-field"
+              required
+            >
               <option value="spot_cash">Spot Cash</option>
-              <option value="in_house_financing">Deffered Payment</option>
+              <option value="in_house_financing">Deferred Payment</option>
             </select>
           </div>
 
-          <!-- Spot Cash Plan -->
-          <div v-if="selectedPaymentPlan === 'spot_cash'">
+          <!-- Spot Cash Section -->
+          <div v-if="selectedPaymentPlan === 'spot_cash'" class="payment-plan">
+            <h3 class="plan-heading">Spot Cash Plan</h3>
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
-            <!-- Spot Cash Discount -->
             <div class="form-group">
               <label for="spotCashDiscount">Spot Cash Discount</label>
-              <select v-model="spotCashDiscount" id="spotCashDiscount" @change="updatePaymentDetails">
+              <select
+                v-model="spotCashDiscount"
+                id="spotCashDiscount"
+                class="select-field"
+                @change="updatePaymentDetails"
+              >
                 <option value="0">0%</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
               </select>
             </div>
-            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
 
             <!-- Unit Price after Spot Discount -->
-            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+            <p>
+              <strong>Unit Price after Spot Discount:</strong> ₱{{
+                unitPriceAfterSpotDiscount
+              }}
+            </p>
 
             <!-- TLP Discount -->
             <div class="form-group">
               <label for="tlpDiscount">TLP Discount (Optional)</label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+              <select
+                v-model="tlpDiscount"
+                id="tlpDiscount"
+                @change="updatePaymentDetails"
+              >
                 <option value="0">None</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -106,32 +151,49 @@
             <!-- Other Charges -->
             <div class="form-group">
               <label for="otherChargesPercentage">Other Charges (%)</label>
-              <select v-model="otherChargesPercentage" id="otherChargesPercentage" @change="updatePaymentDetails">
+              <select
+                v-model="otherChargesPercentage"
+                id="otherChargesPercentage"
+                @change="updatePaymentDetails"
+              >
                 <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
               </select>
             </div>
             <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+            <p v-if="netUnitPrice > 3600000">
+              <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+            </p>
             <!-- Total Amount Payable -->
-            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+            <p>
+              <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
+            </p>
 
             <!-- Reservation Fee -->
-            <p><strong>Less Reservation Fee (10%):</strong> ₱{{ reservationFee }}</p>
+            <p>
+              <strong>Less Reservation Fee (10%):</strong> ₱{{ reservationFee }}
+            </p>
 
             <!-- Net Full Payment -->
             <p><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
           </div>
 
-          <!-- In-House Financing Plan -->
-          <div v-if="selectedPaymentPlan === 'in_house_financing'">
+          <!-- In-House Financing Section -->
+          <div
+            v-if="selectedPaymentPlan === 'in_house_financing'"
+            class="payment-plan"
+          >
+            <h3 class="plan-heading">In-House Financing</h3>
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-
             <!-- Spot Discount -->
             <div class="form-group">
               <label for="spotDiscount">Spot Discount</label>
-              <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails">
+              <select
+                v-model="spotCashDiscount"
+                id="spotDiscount"
+                @change="updatePaymentDetails"
+              >
                 <option value="0">0%</option>
                 <option value="1">1%</option>
                 <option value="5">5%</option>
@@ -142,12 +204,20 @@
             <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
 
             <!-- Unit Price after Spot Discount -->
-            <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+            <p>
+              <strong>Unit Price after Spot Discount:</strong> ₱{{
+                unitPriceAfterSpotDiscount
+              }}
+            </p>
 
             <!-- TLP Discount -->
             <div class="form-group">
               <label for="tlpDiscount">TLP Discount</label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails">
+              <select
+                v-model="tlpDiscount"
+                id="tlpDiscount"
+                @change="updatePaymentDetails"
+              >
                 <option value="0">None</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -162,7 +232,11 @@
             <!-- Other Charges -->
             <div class="form-group">
               <label for="otherCharges">Other Charges</label>
-              <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails">
+              <select
+                v-model="otherChargesPercentage"
+                id="otherCharges"
+                @change="updatePaymentDetails"
+              >
                 <option value="8.5">8.5%</option>
                 <option value="10">10%</option>
                 <option value="15">15%</option>
@@ -171,15 +245,23 @@
             <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
 
             <!-- VAT Calculation -->
-            <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+            <p v-if="netUnitPrice > 3600000">
+              <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+            </p>
 
             <!-- Total Amount Payable -->
-            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+            <p>
+              <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
+            </p>
 
             <!-- Spot Downpayment -->
             <div class="form-group">
               <label for="spotDownpayment">Spot Downpayment</label>
-              <select v-model="spotDownpaymentPercentage" id="spotDownpayment" @change="updatePaymentDetails">
+              <select
+                v-model="spotDownpaymentPercentage"
+                id="spotDownpayment"
+                @change="updatePaymentDetails"
+              >
                 <option value="0">0%</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -197,7 +279,11 @@
             <!-- Spread Downpayment -->
             <div class="form-group">
               <label for="spreadDownpayment">Spread Downpayment</label>
-              <select v-model="spreadDownpaymentPercentage" id="spreadDownpayment" @change="updatePaymentDetails">
+              <select
+                v-model="spreadDownpaymentPercentage"
+                id="spreadDownpayment"
+                @change="updatePaymentDetails"
+              >
                 <option value="0">0%</option>
                 <option value="5">5%</option>
                 <option value="10">10%</option>
@@ -209,16 +295,25 @@
             <!-- Payable in Months -->
             <div class="form-group">
               <label for="months">Months to Pay</label>
-              <input type="number" v-model="payableMonths" id="months" @input="updatePaymentDetails" min="1" step="1" />
+              <input
+                type="number"
+                v-model="payableMonths"
+                id="months"
+                @input="updatePaymentDetails"
+                min="1"
+                step="1"
+              />
             </div>
             <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
 
-
             <!-- Balance Upon Turnover -->
-            <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+            <p>
+              <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
+            </p>
+            <!-- Similar logic for In-House Financing -->
           </div>
 
-
+          <!-- Button Container -->
           <div class="button-container">
             <button class="reserve-btn" @click="openReserveModal">
               Reserve Unit
@@ -229,6 +324,7 @@
           </div>
         </div>
       </div>
+
       <!-- Reserve Unit Modal -->
       <div
         v-if="isReserveModalVisible"
@@ -252,7 +348,7 @@
                   :key="customer.id"
                   :value="customer.id"
                 >
-                  {{ customer.name }}
+                  {{ customer.name }} ({{ customer.customer_code }})
                 </option>
               </select>
             </div>
@@ -326,7 +422,6 @@
   </div>
 </template>
 
-
 <script>
 import SideNav from "@/components/SideNav.vue";
 import axios from "axios";
@@ -354,15 +449,15 @@ export default {
         file: null, // This will hold the file
       },
       customers: [],
-      successMessage: '',  // Success message
-      errorMessage: '',    // Error message
+      successMessage: "", // Success message
+      errorMessage: "", // Error message
 
       // Payment Scheme Data
-      selectedPaymentPlan: 'spot_cash', // Default payment plan
+      selectedPaymentPlan: "spot_cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
       spotCashDiscount: 0,
       tlpDiscount: 0,
-      spotDiscount: 0, 
+      spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
       tlpDiscountAmount: 0,
       netUnitPrice: 0,
@@ -476,12 +571,11 @@ export default {
     },
 
     updatePaymentDetails() {
-        this.applySpotCashDiscount();
-        this.applyTLPDiscount();
-        this.applyOtherCharges();
-        this.calculateVAT();
-        this.calculateFinancingDetails();
-      
+      this.applySpotCashDiscount();
+      this.applyTLPDiscount();
+      this.applyOtherCharges();
+      this.calculateVAT();
+      this.calculateFinancingDetails();
     },
 
     applySpotCashDiscount() {
@@ -490,16 +584,17 @@ export default {
       this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
       this.updateNetUnitPrice();
     },
-    
 
     applyTLPDiscount() {
       const discountPercentage = parseFloat(this.tlpDiscount);
-      this.tlpDiscountAmount = (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
+      this.tlpDiscountAmount =
+        (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
       this.updateNetUnitPrice();
     },
 
     updateNetUnitPrice() {
-      this.netUnitPrice = this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
+      this.netUnitPrice =
+        this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
       this.applyOtherCharges();
     },
 
@@ -507,7 +602,7 @@ export default {
       const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
       this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
       this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.reservationFee = "30000" // 10% reservation fee
+      this.reservationFee = "30000"; // 10% reservation fee
       this.netFullPayment = this.totalAmountPayable - this.reservationFee;
     },
     calculateVAT() {
@@ -518,21 +613,30 @@ export default {
     },
 
     calculateFinancingDetails() {
-      this.spotDownpayment = this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment = this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
-      if (this.spotDownpaymentPercentage == '0') {
+      this.spotDownpayment =
+        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+      this.spreadDownpayment =
+        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+      if (this.spotDownpaymentPercentage == "0") {
         this.netDownpayment = this.spreadDownpayment - this.reservationFee;
         this.payablePerMonth = this.netDownpayment / this.payableMonths;
-      }
-      else {
+      } else {
         this.netDownpayment = this.spotDownpayment - this.reservationFee;
-        this.payablePerMonth = this.spreadDownpayment / this.payableMonths; 
+        this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
       }
-      this.balanceUponTurnover =(100-(Number(this.spreadDownpaymentPercentage) + Number(this.spotDownpaymentPercentage)))/100*this.totalAmountPayable;  // Correct sum of percentages
-      console.log(this.balanceUponTurnover, this.spotDownpaymentPercentage, this.spreadDownpaymentPercentage);
+      this.balanceUponTurnover =
+        ((100 -
+          (Number(this.spreadDownpaymentPercentage) +
+            Number(this.spotDownpaymentPercentage))) /
+          100) *
+        this.totalAmountPayable; // Correct sum of percentages
+      console.log(
+        this.balanceUponTurnover,
+        this.spotDownpaymentPercentage,
+        this.spreadDownpaymentPercentage
+      );
     },
 
-       
     async submitReservation() {
       // Check if all required fields are filled, including the file
       if (
@@ -607,25 +711,33 @@ export default {
 </script>
 
 <style scoped>
+.content {
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  margin: 20px 20px 20px 20px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: rgb(223, 255, 223);
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Ensure it appears on top of other content */
+  z-index: 1000;
 }
 
 .popup-content {
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  width: 300px; /* Set a fixed width */
+  width: 300px;
 }
 
 .ok-btn {
@@ -660,34 +772,147 @@ export default {
   padding: 10px;
   text-align: center;
   cursor: pointer;
+  border-radius: 8px;
 }
-.unit-picture {
+.unit-card:hover {
+  background-color: #e8e8e8;
+  transition: ease 0.3s;
+}
+/* .unit-picture {
   max-width: 100%;
   height: auto;
   margin-bottom: 10px;
-}
+} */
+
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
+
+/* Modal Content */
 .modal-content {
   background: #fff;
-  padding: 20px;
+  width: 90%;
+  max-width: 700px;
   border-radius: 10px;
-  text-align: center;
-  max-height: 80vh; /* Set max height for the modal */
-  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  max-height: 90vh;
 }
+
+/* Image Gallery */
+.image-gallery {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .unit-picture {
-  max-width: 100%;
-  max-height: 400px;
-  object-fit: contain;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Unit Details */
+.unit-details {
+  margin-bottom: 20px;
+}
+
+.details-heading {
+  text-align: center;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Dropdown Styling */
+.select-field {
+  width: 100%;
+  padding: 8px;
+  background-color: #dadada; /* White background */
+  color: #000000; /* Black text */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.select-field:focus {
+  outline: none;
+  border-color: #007bff; /* Optional: blue border on focus */
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+.select-field option {
+  background-color: #fff; /* White background for options */
+  color: #000; /* Black text for options */
+}
+
+/* Payment Plan Section */
+.payment-plan {
+  margin-top: 20px;
+}
+
+.plan-heading {
+  font-size: 18px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reserve-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.reserve-btn:hover {
+  background-color: #218838;
+}
+
+.schedule-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.schedule-btn:hover {
+  background-color: #0056b3;
 }
 </style>

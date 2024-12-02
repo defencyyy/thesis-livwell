@@ -135,19 +135,16 @@ export default {
 
       if (this.username && this.password) {
         try {
-          const response = await fetch(
-            "http://localhost:8000/broker/login/", // Replace with the correct endpoint
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: this.username,
-                password: this.password,
-              }),
-            }
-          );
+          const response = await fetch("http://localhost:8000/broker/login/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username: this.username,
+              password: this.password,
+            }),
+          });
 
           const data = await response.json();
 
@@ -156,20 +153,21 @@ export default {
             localStorage.setItem("accessToken", data.tokens.access);
             localStorage.setItem("refreshToken", data.tokens.refresh);
 
-            // Assuming the response contains user details
+            // Assuming the response contains user details and company info
             const user = {
               id: data.user.id,
               user_role: data.user.user_role,
               company_id: data.user.company_id,
+              company: data.user.company, // Assuming the company data is included in the response
             };
 
             // Dispatch login action to Vuex store
             this.$store.dispatch("login", {
               user: user,
-              token: data.tokens.access, // You can also store this in the store
+              token: data.tokens.access,
             });
 
-            // Redirect to the broker dashboard (adjust as needed)
+            // Redirect to the broker dashboard
             this.$router.push("/broker/dashboard");
           } else {
             this.error = data.message || "Login failed. Please try again.";
@@ -192,7 +190,7 @@ export default {
 <style>
 /* Add a background image to the body or container */
 .overlay {
-  border-image: linear-gradient(hsla(57, 100%, 74%, 0.6), hsla(0, 0%, 61%, 0.6))
+  border-image: linear-gradient(hsla(110, 100%, 81%, 0.6), hsla(0, 0%, 61%, 0.6))
     fill 1;
 }
 

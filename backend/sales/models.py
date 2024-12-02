@@ -15,10 +15,10 @@ def reservation_file_upload_path(instance, filename):
 
 class Sale(models.Model):
     STATUS_CHOICES = [
-        ('pending reservation', 'Pending Reservation'),  # Reservation submitted, awaiting confirmation
-        ('reserved', 'Reserved'),  # Reservation confirmed, unit is on hold
-        ('pending sold', 'Pending Sold'),  # Reservation complete, awaiting final sale confirmation
-        ('sold', 'Sold')  # Sale confirmed, unit officially sold
+        ('Pending Reservation', 'Pending Reservation'),  # Reservation submitted, awaiting confirmation
+        ('Reserved', 'Reserved'),  # Reservation confirmed, unit is on hold
+        ('Pending Sold', 'Pending Sold'),  # Reservation complete, awaiting final sale confirmation
+        ('Sold', 'Sold')  # Sale confirmed, unit officially sold
     ]
 
     PAYMENT_METHOD_CHOICES = [

@@ -12,45 +12,43 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('company', 'customer', 'document_type', 'uploaded_at')
+    list_display = ('company', 'customer', 'document_type', 'uploaded_at', 'get_related_sales')
     list_display_links = ('company', 'customer')
     search_fields = ('customer__name', 'company__name', 'document_type__name')
     list_per_page = 25
     list_filter = ('company', 'customer', 'document_type')
 
-    # Add the custom Verified filter
-    list_filter = ('company', 'customer', 'document_type')
-
+    # Remove filter_horizontal since 'sales' is not a ManyToManyField
     # Add related Sales in the list display using a custom method
     def get_related_sales(self, obj):
-        return ", ".join([sale.name for sale in obj.sale.all()])
+        # Check if the document has an associated sale
+        if obj.sales:
+            return str(obj.sales.id)  # Or you can return other properties of Sale like `obj.sales.name`
+        return "No sale linked"
     get_related_sales.short_description = 'Related Sales'
-    list_display += ('get_related_sales',)
 
     # Add content_type and object_id for Generic Foreign Key in the form
     fieldsets = (
         (None, {
-            'fields': ('company', 'customer', 'description', 'document_type', 'file', 'uploaded_at')
+            'fields': ('company', 'customer', 'description', 'document_type', 'file', 'sales')
         }),
-        ('Advanced', {
-            'classes': ('collapse',),
-            'fields': ('content_type', 'object_id')
-        }),
+      
     )
-
-    # Inline form for related Sales (ManyToMany)
-    filter_horizontal = ('sale',)
+    # Remove filter_horizontal for 'sales' as it's a ForeignKey, not ManyToMany
+    # This will use the default form widget for ForeignKey (dropdown selection)
+    # filter_horizontal = ('sales',)  # REMOVE THIS LINE
 
     def save_model(self, request, obj, form, change):
         """
         Automatically associate a document with related sales or set content_type and object_id.
         """
         super().save_model(request, obj, form, change)
-        if not obj.content_type and not obj.object_id:
-            # Set content_type and object_id for generic foreign key if not set
-            if obj.sale.exists():
-                obj.content_type = ContentType.objects.get_for_model(Sale)
-                obj.object_id = obj.sale.first().id
+        
+        # If no content_type or object_id set, set them based on the sales relationship
+        if not obj.content_type and not obj.object_id and obj.sales:
+            obj.content_type = ContentType.objects.get_for_model(Sale)
+            obj.object_id = obj.sales.id  # Set content_type and object_id based on the sales field
+            
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):

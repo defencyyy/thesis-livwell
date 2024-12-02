@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'milestones.apps.MilestonesConfig',
     'sales.apps.SalesConfig',
     'salesdetails.apps.SalesdetailsConfig',
+    'dashboard.apps.DashboardConfig',
 
     # User
     'corsheaders',

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
 from developers.models import Developer
-from .models import Site
+from .models import Site, Floor
 from .serializers import SiteSerializer
 
 # Set up logging
@@ -50,14 +50,18 @@ class SiteListView(APIView):
         # Copy data to modify it
         data = request.data.copy()  # Make a mutable copy to avoid QueryDict issues
         data['company'] = company.id
-        logger.debug(f"Data before serialization: {data}")
 
+        # Handle floors in the request
+        floors_data = data.pop('floors', [])
         serializer = SiteSerializer(data=data)
 
         if serializer.is_valid():
-            logger.debug("Serializer is valid. Saving the site.")
-            serializer.save()
-            logger.debug(f"Site created with ID: {serializer.data.get('id')}")
+            site = serializer.save()
+
+            # Create the floors associated with the site
+            for floor_data in floors_data:
+                Floor.objects.create(site=site, **floor_data)
+
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
         logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
@@ -82,24 +86,55 @@ class SiteDetailView(APIView):
 
     def put(self, request, pk):
         company = get_developer_company(request)
+        
+        # Debugging - check if company is retrieved correctly
         if not company:
+            logger.error(f"Company not found for developer (user: {request.user.username})")
             return Response(
                 {"error": "Company not found for this developer."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Debugging - log company info
+        logger.debug(f"Company ID: {company.id} | Company Name: {company.name}")
+
         site = get_object_or_404(Site, pk=pk, company=company)
 
-        data = request.data.copy()  # Make a mutable copy to avoid QueryDict issues
+        data = request.data.copy()
         data['company'] = company.id
-        print(data)
+
+        # Debugging - log the incoming data (site and floors)
+        logger.debug(f"Received data for site: {data}")
+        
+        floors_data = data.pop('floors', [])
+        
+        # Debugging - log the floors data
+        if floors_data:
+            logger.debug(f"Received floor data: {floors_data}")
+        else:
+            logger.debug("No floor data received.")
 
         serializer = SiteSerializer(site, data=data, partial=True)
+
         if serializer.is_valid():
-            serializer.save()
+            site = serializer.save()
+
+            # Debugging - Check if floor data is being handled correctly
+            for floor_data in floors_data:
+                floor_number = floor_data.get('floor_number')
+                logger.debug(f"Processing floor: {floor_number} | Data: {floor_data}")
+                
+                floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
+                if floor:
+                    floor.save()
+                    logger.debug(f"Updated floor {floor_number}")
+                else:
+                    Floor.objects.create(site=site, **floor_data)
+                    logger.debug(f"Created new floor {floor_number}")
+
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
-        print("Validation Errors:", serializer.errors)
+        logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -123,3 +158,42 @@ class StatusOptionsView(APIView):
     def get(self, request):
         status_options = dict(Site.STATUS_CHOICES) 
         return Response({"status_options": status_options}, status=200)
+
+class ArchivedSiteView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        List all archived sites for the logged-in developer's company.
+        """
+        company = get_developer_company(request)
+        if not company:
+            return Response(
+                {"error": "Company not found for this developer."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        archived_sites = Site.objects.filter(company=company, archived=True)
+        serializer = SiteSerializer(archived_sites, many=True)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        company = get_developer_company(request)
+        if not company:
+            return Response(
+                {"error": "Company not found for this developer."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            site = Site.objects.get(pk=pk, company=company, archived=True)
+            site.archived = False
+            site.save()
+            return Response({"success": True, "message": "Site unarchived successfully."}, status=status.HTTP_200_OK)
+        
+        except Site.DoesNotExist:
+            return Response(
+                {"error": "Site not found or not archived."},
+                status=status.HTTP_404_NOT_FOUND,
+            )

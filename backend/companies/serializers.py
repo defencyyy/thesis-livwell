@@ -12,7 +12,7 @@ class CompanySerializer(serializers.ModelSerializer):
         if value is None:  # Allow `None` to pass through
             return value
 
-        max_size = 5 * 1024 * 1024  
+        max_size = 10 * 1024 * 1024  
         if value.size > max_size:
             raise serializers.ValidationError("Logo file size must be less than 5 MB.")
 

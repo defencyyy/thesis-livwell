@@ -4,79 +4,33 @@
     <div class="main-content">
       <AppHeader />
       <div class="container mt-5">
-        <!-- Company Details Section -->
         <div class="title-wrapper">
           <div class="title-icon"></div>
           <div class="edit-title">Company Details</div>
         </div>
         <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
+          class="card shadow-lg border-0 rounded-1 mx-auto"
           style="max-width: 900px"
         >
           <div class="card-body">
             <div class="row">
-              <!-- Company Information -->
-              <div class="col-md-8">
-                <p class="mb-2">
-                  <strong>Company Name:</strong> {{ company.name || "N/A" }}
-                </p>
-                <p>
-                  <strong>Company Description:</strong>
-                  {{ company.description || "N/A" }}
-                </p>
-              </div>
-              <!-- Company Logo -->
               <div class="col-md-4 text-center">
-                <strong>Company Logo:</strong>
-                <div class="mt-2">
+                <div class="profile-pic" style="margin-top: 10px">
                   <img
                     v-if="company.logo"
                     :src="getLogoUrl(company.logo)"
                     alt="Company Logo"
-                    class="img-fluid rounded shadow-sm"
-                    style="max-width: 150px; max-height: 150px"
+                    class="img-fluid rounded-circle shadow-sm"
+                    style="width: 200px; height: 200px; object-fit: cover"
                   />
                   <span v-else>No Logo Available</span>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="title-wrapper">
-          <div class="title-icon"></div>
-          <div class="edit-title">Edit Company Details</div>
-        </div>
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 900px"
-        >
-          <div class="card-body">
-            <div class="row">
-              <!-- Right Section: Description -->
-              <div class="col-md-6 order-md-2">
-                <div class="mb-3">
-                  <label for="tempDescription" class="form-label"
-                    >Description</label
-                  >
-                  <textarea
-                    class="form-control"
-                    id="description"
-                    v-model="tempDescription"
-                    rows="6"
-                    placeholder="Enter company description"
-                  ></textarea>
-                </div>
-                <div class="d-flex justify-content-end">
-                  <button @click="updateCompany" class="btn btn-primary">
-                    Save Changes
-                  </button>
-                </div>
+                <h5 class="mt-4" style="font-weight: bold">
+                  {{ company.name || "Company Information" }}
+                </h5>
               </div>
 
-              <!-- Left Section: Upload Photo -->
-              <div
-                class="col-md-6 order-md-1 d-flex flex-column align-items-center"
-              >
+              <div class="col-md-8">
                 <div class="mb-3">
                   <label for="logo" class="form-label">Upload Logo</label>
                   <input
@@ -87,15 +41,27 @@
                     @change="onFileChange"
                   />
                 </div>
+
                 <div class="mb-3">
-                  <strong>Preview:</strong>
-                  <img
-                    v-if="previewLogo"
-                    :src="previewLogo"
-                    alt="Logo Preview"
-                    width="100"
-                  />
-                  <p v-else>No logo selected</p>
+                  <label for="companyDescription" class="form-label"
+                    >Company Description</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="companyDescription"
+                    v-model="company.description"
+                    rows="6"
+                    placeholder="Enter company description"
+                  ></textarea>
+                </div>
+
+                <div
+                  class="d-flex justify-content-end"
+                  style="padding-top: 15px"
+                >
+                  <button @click="updateCompany" class="btn-save">
+                    Save Changes
+                  </button>
                 </div>
               </div>
             </div>
@@ -118,7 +84,6 @@ export default {
   data() {
     return {
       company: {},
-      tempDescription: "",
       newLogo: null,
       previewLogo: null,
       error: null,
@@ -177,7 +142,6 @@ export default {
         );
         if (response.status === 200) {
           this.company = response.data;
-          this.tempDescription = response.data.description; // Set tempDescription
         } else {
           alert("Error fetching company details.");
         }
@@ -223,11 +187,14 @@ export default {
 
     async updateCompany() {
       try {
+        // Log the company.description to verify the value being saved
+        console.log("Description to update:", this.company.description);
+
         const formData = new FormData();
 
         // Only append the description if it has changed
-        if (this.tempDescription !== this.company.description) {
-          formData.append("description", this.tempDescription); // Use tempDescription
+        if (this.company.description !== this.company.originalDescription) {
+          formData.append("description", this.company.description); // Update with the new description
         }
 
         // Only append the logo if it was selected
@@ -249,10 +216,8 @@ export default {
 
         if (response.status === 200) {
           alert("Company updated successfully!");
-          // Update company description after saving
-          this.company.description = this.tempDescription;
-          this.fetchCompany(); // Refresh company data
-          this.previewLogo = null; // Clear preview after successful update
+          this.company.originalDescription = this.company.description; // Save the current description as the original one
+          this.fetchCompany();
         } else {
           alert("Error updating company.");
         }
@@ -269,12 +234,6 @@ export default {
       const file = event.target.files[0];
       if (file) {
         this.newLogo = file;
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.previewLogo = reader.result;
-          console.log("Preview logo set:", this.previewLogo);
-        };
-        reader.readAsDataURL(file);
       }
     },
 
@@ -321,9 +280,22 @@ export default {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .developer-company-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
 }
 
 .SideNav {
@@ -351,6 +323,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin-top: 30px;
+  margin-left: 250px;
   /* Offset for header height */
   flex: 1;
   /* margin-left: 250px; */
@@ -387,8 +360,6 @@ export default {
   margin-bottom: 0.8rem;
   text-align: left;
   /* Align the text to the left */
-  background-color: #fff;
-  /* Match background with card */
 }
 
 .title-icon {
@@ -396,7 +367,7 @@ export default {
   /* Short horizontal line */
   height: 5px;
   /* Thin line */
-  background-color: #6c757d;
+  background-color: #343a40;
   /* Line color */
   border-radius: 5px;
   /* Rounded corners */
@@ -409,10 +380,6 @@ export default {
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
-}
-
-img {
-  object-fit: cover;
 }
 
 /* Styling for the text area */
@@ -444,5 +411,13 @@ textarea:focus {
 .user-info {
   margin-bottom: 20px;
   text-align: left;
+}
+
+.btn-save {
+  background-color: #42b983; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="top-bar">
     <div class="welcome-text">Welcome Back, {{ roleName }}!</div>
     <div class="d-flex align-items-center">
-      <button class="btn btn-link text-white">
+      <button class="btn-bell">
         <i class="bi bi-bell"></i>
       </button>
       <div class="dropdown">
@@ -13,14 +13,7 @@
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          <img
-            :src="profilePicture"
-            alt="profile"
-            class="rounded-circle"
-            width="35"
-            height="35"
-            style="margin-right: 5px"
-          />
+          <i class="bi bi-person-circle profile-icon"></i>
         </a>
         <ul
           class="dropdown-menu dropdown-menu-end text-small"
@@ -43,7 +36,7 @@
             <hr class="dropdown-divider" />
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click.prevent="logout">
+            <a class="dropdown-item" href="#" @click="logout">
               <i class="bi bi-box-arrow-right me-2"></i> Sign Out
             </a>
           </li>
@@ -73,23 +66,23 @@ export default {
     setHeaderContent() {
       if (this.userRole === "developer") {
         this.roleName = "Developer";
-        this.profilePicture = "/assets/developer-profile.png"; // Example custom image
+        this.profilePicture = "/assets/account.png"; // Example custom image
         this.dropdownOptions = [
           {
             name: "Account Settings",
             link: "/developer/account",
             icon: "bi bi-gear",
           },
-          {
-            name: "Display Settings",
-            link: "/developer/display-settings",
-            icon: "bi bi-moon",
-          },
-          {
-            name: "Help & Support",
-            link: "/developer/help",
-            icon: "bi bi-question-circle",
-          },
+          // {
+          //   name: "Display Settings",
+          //   link: "/developer/display-settings",
+          //   icon: "bi bi-moon",
+          // },
+          // {
+          //   name: "Help & Support",
+          //   link: "/developer/help",
+          //   icon: "bi bi-question-circle",
+          // },
         ];
       } else if (this.userRole === "broker") {
         this.roleName = "Broker";
@@ -100,11 +93,11 @@ export default {
             link: "/broker/account",
             icon: "bi bi-gear",
           },
-          {
-            name: "Help & Support",
-            link: "/broker/help",
-            icon: "bi bi-question-circle",
-          },
+          // {
+          //   name: "Help & Support",
+          //   link: "/broker/help",
+          //   icon: "bi bi-question-circle",
+          // },
         ];
       } else {
         this.roleName = "Guest";
@@ -140,22 +133,20 @@ export default {
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("developer_id");
-        localStorage.removeItem("broker_id");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
-        this.$store.commit("clearUser");
 
         if (this.userRole === "developer") {
-          this.redirectToLogin("DevLogin");
+          this.redirectToLogin("Home");
         } else if (this.userRole === "broker") {
-          this.redirectToLogin("BrokerLogin");
+          this.redirectToLogin("Home");
         }
       } catch (error) {
         console.error("Error during logout:", error);
         alert("Logout failed. Please try again.");
       }
     },
-
     redirectToLogin(pageName) {
       this.$router.push({ name: pageName });
     },
@@ -165,9 +156,9 @@ export default {
 
 <style scoped>
 .top-bar {
-  background-color: #343a40;
-  color: #fff;
-  padding: 10px 20px;
+  background-color: #ffffff;
+  color: #343a40;
+  padding: 12px 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -176,6 +167,7 @@ export default {
   left: 250px; /* Sidebar width */
   width: calc(100% - 250px);
   z-index: 2;
+  height: 68px;
 }
 
 .welcome-text {
@@ -196,9 +188,34 @@ export default {
   margin-right: 10px;
 }
 
+.profile-icon {
+  font-size: 22px; /* Matches the size of the original image */
+  color: #343a40;
+  margin-right: 5px; /* Space between icon and dropdown */
+}
+
+.btn-bell {
+  background: none;
+  border: none;
+  color: #343a40; /* Match profile icon color */
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+}
+
 .dropdown-menu {
   padding: 12px 5px !important;
   width: 210px;
   transform: translateY(40px) !important;
+}
+
+.dropdown-toggle::after {
+  display: inline-block;
+  margin-left: 0.25em;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid #343a40; /* Match profile icon color */
+  border-right: 0.3em solid transparent;
+  border-left: 0.3em solid transparent;
 }
 </style>

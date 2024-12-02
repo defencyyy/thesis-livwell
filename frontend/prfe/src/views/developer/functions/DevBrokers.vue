@@ -5,14 +5,15 @@
       <AppHeader />
       <div class="content">
         <div class="title-wrapper">
-          <div class="title-icon"></div>
-          <div class="edit-title">Company Broker Management</div>
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Company Broker Management</div>
+          </div>
+          <!-- Header Section -->
+          <div class="total-brokers">
+            <div>Total Brokers: {{ filteredBrokers.length }}</div>
+          </div>
         </div>
-        <!-- Header Section -->
-        <!-- <div class="header">
-        <h1>Total Brokers: {{ filteredBrokers.length }}</h1>
-        <button @click="showModal = true">Add Broker</button>
-      </div> -->
 
         <!-- Search & Filter -->
         <!-- <div class="filter-section">
@@ -28,12 +29,11 @@
         </select>
       </div> -->
         <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 1100px"
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <div class="card-body">
             <div class="row">
-              <!-- Toolbar -->
               <div class="toolbar">
                 <div class="left-section">
                   <div class="search-bar-container">
@@ -45,14 +45,28 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
+                  <select v-model="viewFilter" @change="toggleView" class="dropdown">
+                    <option value="active">View: Active</option>
+                    <option value="archived">View: Archived</option>
+                  </select>
                 </div>
                 <div class="right-section">
                   <button
-                    @click="showModal = true"
                     class="btn-primary add-button"
+                    @click="showModal = true"
                   >
                     Add Broker
                   </button>
+                  <!-- <button
+                    class="btn-secondary toggle-button"
+                    @click="toggleView"
+                  >
+                    {{
+                      showArchived
+                        ? "Show Active Brokers"
+                        : "Show Archived Brokers"
+                    }}
+                  </button> -->
                 </div>
               </div>
             </div>
@@ -60,152 +74,206 @@
         </div>
 
         <!-- Broker Table -->
-        <div class="outside-headers">
-          <span class="header-item">First Name</span>
-          <span class="header-item">Last Name</span>
-          <span class="header-item">Username</span>
-          <span class="header-item">Email</span>
-          <span class="header-item">Contact</span>
-          <span class="header-item">Actions</span>
+        <div>
+          <!-- Headers outside the card -->
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Username</span>
+            <span class="header-item">Email</span>
+            <span class="header-item">Contact</span>
+            <span class="header-item">Actions</span>
+          </div>
+
+          <div
+            v-for="(broker, index) in currentBrokers"
+            :key="broker.id || index"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class="card-body">
+              <table class="broker-table">
+                <tbody>
+                  <tr>
+                    <td>
+  <!-- User Icon as Profile Picture -->
+  <i class="fas fa-user broker-icon" style="font-size: 30px; color: #343a40;"></i>
+  <span class="broker-name">
+    {{ broker.first_name }} {{ broker.last_name }}
+  </span>
+</td>
+                    <td>
+                      <span class="broker-username">{{ broker.username }}</span>
+                    </td>
+                    <td>
+                      <span class="broker-email">{{ broker.email }}</span>
+                    </td>
+                    <td>
+                      <span class="broker-contact">{{
+                        broker.contact_number
+                      }}</span>
+                    </td>
+                    <td>
+                      <div class="broker-actions d-flex gap-2">
+                        <!-- Edit Button as Icon (Blue) -->
+                        <button
+                          @click="openEditModal(broker)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <!-- Unarchive button for archived view -->
+                        <button
+                          v-if="showArchived"
+                          @click="unarchiveBroker(broker.id)"
+                          class="btn btn-sm btn-success"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-undo"></i>
+                        </button>
+
+                        <!-- Archive button for active view -->
+                        <button
+                          v-else
+                          @click="archiveBroker(broker.id)"
+                          class="btn btn-sm btn-warning"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-archive"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <table v-if="currentBrokers.length" class="table">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Username</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Contact Number</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="broker in currentBrokers" :key="broker.id">
-              <td>{{ broker.email }}</td>
-              <td>{{ broker.username }}</td>
-              <td>{{ broker.first_name }}</td>
-              <td>{{ broker.last_name }}</td>
-              <td>{{ broker.contact_number }}</td>
-              <td>
-                <button @click="openEditModal(broker)">Edit</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else>No brokers found for this company.</p>
-
-        <!-- <div v-for="broker in currentBrokers" :key="broker.id" class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 1100px">
-          <div class="card-body">
-            <table class="card-table">
-              <tbody>
-                <tr>
-                  <td>{{ broker.first_name }}</td>
-                  <td>{{ broker.last_name }}</td>
-                  <td>{{ broker.username }}</td>
-                  <td>{{ broker.email }}</td>
-                  <td>{{ broker.contact_number }}</td>
-                  <td>
-      
-                    <button @click="openEditModal(broker)"
-                      style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
-                      <i class="fas fa-eye"></i>
-                    </button>
-
-                    <button @click="openEditModal(broker)"
-                      style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
-                      <i class="fas fa-edit"></i>
-                    </button>
-
-                    <button @click="openEditModal(broker)"
-                      style="border: none; background-color: transparent; cursor: pointer; padding: 8px; font-size: 18px;">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div> -->
-
         <!-- Editing Brokers -->
-        <b-modal v-model="editModalVisible" title="Edit Broker" hide-footer>
-          <form @submit.prevent="confirmEdit">
-            <div class="form-group">
-              <label for="editEmail">Email:</label>
-              <input
-                type="email"
-                v-model="editBroker.email"
-                id="editEmail"
-                required
-              />
-            </div>
+        <b-modal
+          v-model="editModalVisible"
+          title="Edit Broker"
+          hide-footer
+          hide-header
+        >
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Edit Broker</h5>
+          </div>
+          <div class="p-3">
+            <form @submit.prevent="confirmEdit">
+              <!-- First Name -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="editFirstName" class="form-label"
+                    >First Name:</label
+                  >
+                  <input
+                    type="text"
+                    v-model="editBroker.first_name"
+                    id="editFirstName"
+                    class="form-control"
+                    required
+                  />
+                </div>
 
-            <div class="form-group">
-              <label for="editUsername">Username:</label>
-              <input
-                type="text"
-                v-model="editBroker.username"
-                id="editUsername"
-                required
-              />
-            </div>
+                <!-- Last Name -->
+                <div class="col-md-6">
+                  <label for="editLastName" class="form-label"
+                    >Last Name:</label
+                  >
+                  <input
+                    type="text"
+                    v-model="editBroker.last_name"
+                    id="editLastName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
 
-            <div class="form-group">
-              <label for="editContactNumber">Contact Number:</label>
-              <input
-                type="text"
-                v-model="editBroker.contact_number"
-                id="editContactNumber"
-                required
-              />
-              <p v-if="contactNumberError" class="text-danger">
-                {{ contactNumberError }}
-              </p>
-            </div>
+              <!-- Username -->
+              <div class="form-group mb-3">
+                <label for="editUsername" class="form-label">Username:</label>
+                <input
+                  type="text"
+                  v-model="editBroker.username"
+                  id="editUsername"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-            <div class="form-group">
-              <label for="editFirstName">First Name:</label>
-              <input
-                type="text"
-                v-model="editBroker.first_name"
-                id="editFirstName"
-                required
-              />
-            </div>
+              <!-- Email -->
+              <div class="form-group mb-3">
+                <label for="editEmail" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  v-model="editBroker.email"
+                  id="editEmail"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-            <div class="form-group">
-              <label for="editLastName">Last Name:</label>
-              <input
-                type="text"
-                v-model="editBroker.last_name"
-                id="editLastName"
-                required
-              />
-            </div>
+              <!-- Contact Number -->
+              <div class="form-group mb-3">
+                <label for="editContactNumber" class="form-label"
+                  >Contact Number:</label
+                >
+                <input
+                  type="text"
+                  v-model="editBroker.contact_number"
+                  id="editContactNumber"
+                  class="form-control"
+                  required
+                />
+                <p v-if="contactNumberError" class="text-danger">
+                  {{ contactNumberError }}
+                </p>
+              </div>
 
-            <div class="form-group">
-              <label for="editPassword">Password:</label>
-              <input
-                type="password"
-                v-model="editBroker.password"
-                id="editPassword"
-              />
-              <p class="text-muted">
-                Leave blank to keep the existing password.
-              </p>
-            </div>
+              <!-- Buttons -->
+              <div
+                class="d-flex justify-content-end gap-3 mt-3"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  @click="editModalVisible = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
 
-            <button type="submit">Submit</button>
-            <button type="button" @click="editModalVisible = false">
-              Cancel
-            </button>
-          </form>
-
-          <p v-if="error" class="text-danger">{{ error }}</p>
+            <p v-if="error" class="text-danger">{{ error }}</p>
+          </div>
         </b-modal>
-
         <!-- Pagination -->
         <div class="pagination" v-if="filteredBrokers.length > brokersPerPage">
           <button
@@ -219,60 +287,105 @@
         </div>
 
         <!-- Modal for Adding Broker -->
-        <b-modal v-model="showModal" title="Add Broker" hide-footer>
-          <form @submit.prevent="addBroker">
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input type="email" v-model="email" id="email" required />
-              <p v-if="emailError" class="text-danger">{{ emailError }}</p>
-            </div>
+        <b-modal v-model="showModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">New Broker</h5>
+          </div>
 
-            <div class="form-group">
-              <label for="contactNumber">Contact Number:</label>
-              <input
-                type="text"
-                v-model="contactNumber"
-                id="contactNumber"
-                :required="!editModalVisible"
-              />
-              <p v-if="contactNumberError" class="text-danger">
-                {{ contactNumberError }}
-              </p>
-            </div>
+          <div class="p-3">
+            <form @submit.prevent="addBroker">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label">First Name:</label>
+                  <input
+                    type="text"
+                    v-model="firstName"
+                    id="firstName"
+                    class="form-control"
+                    required
+                  />
+                  <p v-if="firstNameError" class="text-danger">
+                    {{ firstNameError }}
+                  </p>
+                </div>
 
-            <div class="form-group">
-              <label for="lastName">Last Name:</label>
-              <input type="text" v-model="lastName" id="lastName" required />
-              <p v-if="lastNameError" class="text-danger">
-                {{ lastNameError }}
-              </p>
-            </div>
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label">Last Name:</label>
+                  <input
+                    type="text"
+                    v-model="lastName"
+                    id="lastName"
+                    class="form-control"
+                    required
+                  />
+                  <p v-if="lastNameError" class="text-danger">
+                    {{ lastNameError }}
+                  </p>
+                </div>
+              </div>
 
-            <div class="form-group">
-              <label for="firstName">First Name:</label>
-              <input type="text" v-model="firstName" id="firstName" required />
-              <p v-if="firstNameError" class="text-danger">
-                {{ firstNameError }}
-              </p>
-            </div>
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  v-model="email"
+                  id="email"
+                  class="form-control"
+                  required
+                />
+                <p v-if="emailError" class="text-danger">{{ emailError }}</p>
+              </div>
 
-            <div class="form-group">
-              <label for="password">Password:</label>
-              <input
-                type="password"
-                v-model="password"
-                id="password"
-                required
-              />
-              <p v-if="passwordError" class="text-danger">
-                {{ passwordError }}
-              </p>
-            </div>
+              <div class="form-group mb-3">
+                <label for="contactNumber" class="form-label"
+                  >Contact Number:</label
+                >
+                <input
+                  type="text"
+                  v-model="contactNumber"
+                  id="contactNumber"
+                  class="form-control"
+                  :required="!editModalVisible"
+                />
+                <p v-if="contactNumberError" class="text-danger">
+                  {{ contactNumberError }}
+                </p>
+              </div>
 
-            <button type="submit">Submit</button>
-            <button type="button" @click="showModal = false">Cancel</button>
-          </form>
+              <div class="form-group mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input
+                  type="password"
+                  v-model="password"
+                  id="password"
+                  class="form-control"
+                  required
+                />
+                <p v-if="passwordError" class="text-danger">
+                  {{ passwordError }}
+                </p>
+              </div>
 
+              <!-- Submit & Cancel Buttons -->
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Add New Broker
+                </button>
+                <button
+                  type="button"
+                  @click="showModal = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Error & Success Message -->
           <p v-if="error" class="text-danger">{{ error }}</p>
           <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
         </b-modal>
@@ -292,26 +405,29 @@ export default {
   name: "DeveloperBrokers",
   components: {
     SideNav,
-    BModal,
     AppHeader,
+    BModal,
   },
   data() {
     return {
       showModal: false,
+      viewFilter: 'active',
       email: "",
       contactNumber: "",
       lastName: "",
       firstName: "",
       password: "",
-      error: null,
-      successMessage: null,
+      showArchived: false,
       brokers: [],
+      archivedBrokers: [],
       searchQuery: "",
       brokersPerPage: 15,
       currentPage: 1,
       editModalVisible: false,
       editBroker: {},
-      // Add error tracking
+      // Error Tracking
+      error: null,
+      successMessage: null,
       emailError: null,
       contactNumberError: null,
       lastNameError: null,
@@ -334,28 +450,33 @@ export default {
       return this.companyId;
     },
     filteredBrokers() {
-      return this.brokers.filter(
-        (broker) =>
-          broker.first_name
+      const brokers = this.showArchived ? this.archivedBrokers : this.brokers;
+
+      // Apply search filtering
+      if (this.searchQuery) {
+        return brokers.filter((broker) =>
+          Object.values(broker)
+            .join(" ")
             .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          broker.last_name
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          broker.email.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    },
-    totalPages() {
-      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
+            .includes(this.searchQuery.toLowerCase())
+        );
+      }
+
+      return brokers;
     },
     currentBrokers() {
+      // Paginate the brokers
       const start = (this.currentPage - 1) * this.brokersPerPage;
       const end = start + this.brokersPerPage;
       return this.filteredBrokers.slice(start, end);
     },
+    totalPages() {
+      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
+    },
   },
 
   mounted() {
+    this.fetchBrokers();
     // Ensure user is logged in and has the correct role and companyId
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
       this.redirectToLogin();
@@ -393,6 +514,30 @@ export default {
       this.editModalVisible = true;
       this.resetForm(); // Reset error messages when modal opens
     },
+    toggleView() {
+      this.showArchived = !this.showArchived;
+      if (this.showArchived) {
+        this.fetchArchivedBrokers();
+      } else {
+        this.fetchBrokers();
+      }
+    },
+    async fetchArchivedBrokers() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/brokers/archived/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.archivedBrokers = response.data;
+      } catch (error) {
+        console.error("Error fetching archived brokers:", error);
+        this.error = "Failed to load archived brokers.";
+      }
+    },
 
     async fetchBrokers() {
       const companyId = this.vuexCompanyId;
@@ -410,7 +555,7 @@ export default {
             },
           }
         );
-        console.log("Brokers fetched:", response.data);
+        console.log("Brokers fetched:", response.data); // Log the response
         this.brokers = response.data;
       } catch (error) {
         if (error.response?.status === 401) {
@@ -463,13 +608,57 @@ export default {
       }
     },
 
+    async archiveBroker(brokerId) {
+      if (confirm("Are you sure you want to archive this broker?")) {
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/developer/brokers/${brokerId}/`,
+            { archived: true },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          console.log("Broker archived:", response.data);
+          alert("Broker archived successfully!");
+          // Refresh brokers list after archiving
+          this.fetchBrokers();
+        } catch (error) {
+          console.error("Error archiving broker:", error.response || error);
+          alert("Failed to archive broker. Please try again.");
+        }
+      }
+    },
+    async unarchiveBroker(brokerId) {
+      if (confirm("Are you sure you want to unarchive this broker?")) {
+        console.log("Attempting to unarchive broker:", brokerId);
+        try {
+          await axios.put(
+            `http://localhost:8000/developer/brokers/${brokerId}/`,
+            { archived: false },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          this.fetchArchivedBrokers();
+        } catch (error) {
+          console.error("Error unarchiving broker:", error.response || error);
+        }
+      }
+    },
+
     validateForm() {
+      // Reset errors
       this.emailError = null;
       this.contactNumberError = null;
       this.lastNameError = null;
       this.firstNameError = null;
       this.passwordError = null;
 
+      // Simple validation logic for each field
       if (!this.email) {
         this.emailError = "Email is required.";
       } else if (!/\S+@\S+\.\S+/.test(this.email)) {
@@ -488,6 +677,7 @@ export default {
         this.passwordError = "Password is required.";
       }
 
+      // Contact number validation only if it's not optional in edit mode
       if (this.contactNumber && !/^\+?1?\d{9,15}$/.test(this.contactNumber)) {
         this.contactNumberError =
           "Enter a valid phone number (9 to 15 digits).";
@@ -524,6 +714,8 @@ export default {
     handleTokenRefreshFailure() {
       alert("Session expired. Please log in again.");
       this.$store.dispatch("logout");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       this.$router.push({ name: "DevLogin" });
     },
 
@@ -546,20 +738,19 @@ export default {
               },
             }
           );
-          console.log("Broker added:", response.data);
+          console.log("Broker added:", response.data); // Check response data
           this.successMessage = "Broker added successfully!";
           this.resetForm();
           this.showModal = false;
           this.fetchBrokers();
         } catch (error) {
-          console.error("Error adding broker:", error.response || error);
+          console.error("Error adding broker:", error.response || error); // Log full error
           this.error =
             error.response?.data?.error ||
             "Failed to add broker. Please try again.";
         }
       }
     },
-
     resetForm() {
       this.email = "";
       this.contactNumber = "";
@@ -614,9 +805,22 @@ export default {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
 }
 
 .SideNav {
@@ -641,7 +845,7 @@ export default {
 
 .main-content {
   display: flex;
-  /* margin-left: 250px; */
+  margin-left: 250px;
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
@@ -656,16 +860,27 @@ export default {
 .title-wrapper {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
   /* Center the wrapper */
 }
 
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.total-broker {
+  display: flex;
+  align-items: center;
+}
+
 .title-icon {
   width: 15px;
   height: 5px;
-  background-color: #6c757d;
+  background-color: #343a40;
   border-radius: 5px;
   margin-right: 10px;
 }
@@ -684,6 +899,19 @@ export default {
   /* Space on the left side */
   padding-right: 20px;
   /* Space on the right side */
+}
+
+.toggle-button {
+  margin-left: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  background-color: #e0e0e0;
 }
 
 .left-section {
@@ -741,10 +969,10 @@ export default {
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #007bff;
-  border-radius: 4px;
+  border: 1px solid #42b983;
+  border-radius: 3px;
   font-size: 14px;
-  background-color: #007bff;
+  background-color: #42b983;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -767,31 +995,116 @@ export default {
   margin-right: auto;
 }
 
-.filter-section {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+.broker-info {
+  flex-direction: row;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.broker-icon {
+  width: 20px;
+  /* Small size for the table */
+  height: 20px;
+  /* Make the image smaller */
+  object-fit: cover;
+  /* Crop the image if necessary */
+  margin-right: 10px;
+  /* Adds some spacing between the image and the name */
+  border-radius: 50%;
+  /* Makes the image circular */
+}
+
+.broker-name {
+  font-size: 15px;
+  font-weight: bold;
   margin-top: 10px;
 }
 
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.broker-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
 }
 
-.pagination {
-  display: flex;
-  gap: 5px;
-  margin-top: 20px;
+.broker-table th,
+.broker-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
 }
 
-.pagination .active {
+.broker-table th {
+  background-color: #f9f9f9;
   font-weight: bold;
+}
+
+.broker-table th:nth-child(2),
+.broker-table td:nth-child(2) {
+  /* Location column */
+  width: 20%;
+}
+
+.broker-table th:nth-child(3),
+.broker-table td:nth-child(3) {
+  /* Status column */
+  width: 25%;
+}
+
+.broker-table th:nth-child(4),
+.broker-table td:nth-child(4) {
+  /* Actions column */
+  width: 20%;
+}
+
+.broker-table th:nth-child(5),
+.broker-table td:nth-child(5) {
+  /* Actions column */
+  width: 10%;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 25% 20% 25% 20% 10%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+.form-group .form-label,
+.row .form-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  /* Adjust the value to your preferred size */
+}
+
+.btn-add {
+  background-color: #42b983;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

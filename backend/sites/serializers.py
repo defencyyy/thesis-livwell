@@ -1,27 +1,70 @@
 from rest_framework import serializers
 from .models import Site, Company
+from .models import Floor
+
+class FloorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Floor
+        fields = ['id', 'floor_number']
 
 class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
+    number_of_floors = serializers.IntegerField(write_only=True, required=False)  # New field to add floors
 
     class Meta:
         model = Site
         fields = [
             'id',
             'company',
+            'picture',
             'name',
             'description',
-            'region',       
-            'province',      
-            'municipality',     
-            'barangay',        
-            'postal_code',     
+            'region',
+            'province',
+            'municipality',
+            'barangay',
+            'postal_code',
             'picture',
             'status',
             'created_at',
-            'archived',  
+            'archived',
+            'floors',
+            'number_of_floors',  # Include new field
         ]
         read_only_fields = ['id', 'created_at']
+
+    def create(self, validated_data):
+        # Extract the number of floors
+        number_of_floors = validated_data.pop('number_of_floors', 0)
+        
+        # Create the site
+        site = super().create(validated_data)
+
+        # Create floors based on the number_of_floors
+        for i in range(1, number_of_floors + 1):
+            Floor.objects.create(site=site, floor_number=i)
+
+        return site
+
+    def update(self, instance, validated_data):
+        floors_data = validated_data.pop('floors', [])
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+
+        # Handle floor updates (if any)
+        existing_floors = {floor.floor_number: floor for floor in instance.floors.all()}
+        for floor_data in floors_data:
+            floor_number = floor_data['floor_number']
+            if floor_number in existing_floors:
+                floor = existing_floors[floor_number]
+                floor.floor_number = floor_data['floor_number']
+                floor.save()
+            else:
+                Floor.objects.create(site=instance, **floor_data)
+
+        return instance
+
 
     def validate_status(self, value):
         """Ensure the status is within the allowed choices."""

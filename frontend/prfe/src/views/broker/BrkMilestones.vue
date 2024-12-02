@@ -1,66 +1,115 @@
 <template>
-  <HeaderLivwell />
-  <div class="milestones-page">
+  <div class="main-page">
     <SideNav />
-    <div class="content">
-      <h2>Milestones Summary</h2>
+    <div class="main-content">
+      <AppHeader />
+      <div class="content">
+        <h2>Milestones Summary</h2>
 
-      <div v-if="loading" class="loading-message">Loading data...</div>
+        <div v-if="loading" class="loading-message">Loading data...</div>
 
-      <div v-if="error" class="error-message">{{ error }}</div>
+        <div v-if="error" class="error-message">{{ error }}</div>
 
-      <div class="milestones-summary" v-else>
-        <div class="milestone-item">
-          <strong>Total Sales:</strong> {{ totalSales }}
-        </div>
-        <div class="milestone-item">
-          <strong>Total Commissions:</strong> {{ totalCommissions }}
-        </div>
-      </div>
-
-      <div v-if="siteSales.length > 0" class="site-sales">
-        <h3>Site Sales Information</h3>
-        <div class="site-container">
-          <div
-            v-for="site in siteSales"
-            :key="site.id"
-            class="site"
-            @click="openModal(site)"
-          >
-            <img
-              :src="site.picture || 'https://via.placeholder.com/100'"
-              alt="Site Image"
-            />
-            <h4>{{ site.name }}</h4>
-            <p>Total Sales: {{ site.total_sales }}</p>
+        <div class="milestones-summary" v-else>
+          <div class="milestone-item">
+            <strong>Total Sales:</strong> {{ totalSales }}
+          </div>
+          <div class="milestone-item">
+            <strong>Total Commissions:</strong> {{ totalCommissions }}
+          </div>
+          <div class="milestone-item">
+            <strong>Total Milestones:</strong> {{ totalMilestones }}
           </div>
         </div>
-      </div>
 
-      <div v-else-if="!loading" class="no-progress">
-        <p>No progress yet.</p>
-      </div>
-
-      <!-- Modal -->
-      <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-        <div class="modal-content">
-          <button class="close-button" @click="closeModal">X</button>
-
-          <p v-if="selectedSite">{{ selectedSite.name }}</p>
-
-          <div v-if="selectedSite && selectedSite.sales.length > 0">
-            <h4>Sales Details:</h4>
-            <ul>
-              <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
-                <strong>Unit Name:</strong> {{ sale.unit_name }} <br />
-                <strong>Customer Name:</strong> {{ sale.customer_name }} <br />
-                <strong>Date Sold:</strong> {{ sale.date_sold }}
-              </li>
-            </ul>
+        <div v-if="siteSales.length > 0" class="site-sales">
+          <h3>Site Sales Information</h3>
+          <div class="site-container">
+            <div
+              v-for="site in siteSales"
+              :key="site.id"
+              class="site"
+              @click="openModal(site)"
+            >
+              <img
+                :src="site.picture || 'https://via.placeholder.com/100'"
+                alt="Site Image"
+              />
+              <h4>{{ site.name }}</h4>
+              <p>Total Sales: {{ site.total_sales }}</p>
+            </div>
           </div>
+        </div>
 
-          <div v-else-if="selectedSite">
-            <p>No sales found for this site.</p>
+        <div v-else-if="!loading" class="no-progress">
+          <p>No progress yet.</p>
+        </div>
+
+        <div class="milestones-section">
+          <!-- Milestones Achieved Table -->
+          <h3>Milestones Achieved</h3>
+          <table v-if="achievedMilestones.length > 0">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Reward</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="milestone in achievedMilestones" :key="milestone.id">
+      <td>{{ milestone.name }}</td>
+      <td>{{ milestone.reward }}</td>
+      <td>{{ milestone.description }}</td>
+    </tr>
+  </tbody>
+</table>
+
+          <p v-else>No milestones achieved yet.</p>
+
+          <!-- Next Milestones Table -->
+          <h3>Next Milestones</h3>
+          <table v-if="nextMilestones.length > 0">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Reward</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="milestone in nextMilestones" :key="milestone.id">
+      <td>{{ milestone.name }}</td>
+      <td>{{ milestone.reward }}</td>
+      <td>{{ milestone.description }}</td>
+    </tr>
+  </tbody>
+</table>
+
+          <p v-else>No Pending Milestones</p>
+        </div>
+
+        <!-- Modal -->
+        <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+          <div class="modal-content">
+            <button class="close-button" @click="closeModal">X</button>
+
+            <p v-if="selectedSite">{{ selectedSite.name }}</p>
+
+            <div v-if="selectedSite && selectedSite.sales.length > 0">
+              <h4>Sales Details:</h4>
+              <ul>
+                <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
+                  <strong>Unit Name:</strong> {{ sale.unit_name }} <br />
+                  <strong>Customer Name:</strong> {{ sale.customer_name }} <br />
+                  <strong>Date Sold:</strong> {{ sale.date_sold }}
+                </li>
+              </ul>
+            </div>
+
+            <div v-else-if="selectedSite">
+              <p>No sales found for this site.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -69,7 +118,7 @@
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeader from "@/components/Header.vue"
 import SideNav from "@/components/SideNav.vue";
 import { mapGetters } from "vuex";
 
@@ -77,7 +126,7 @@ export default {
   name: "BrkMilestones",
   components: {
     SideNav,
-    HeaderLivwell,
+    AppHeader,
   },
   data() {
     return {
@@ -85,10 +134,12 @@ export default {
       totalCommissions: 0,
       totalMilestones: 0,
       siteSales: [],
+      achievedMilestones: [],
+      nextMilestones: [],
       showModal: false,
       selectedSite: null,
-      error: null, // For error messages
-      loading: false, // To handle loading state
+      error: null,
+      loading: false,
     };
   },
   computed: {
@@ -96,14 +147,14 @@ export default {
   },
   methods: {
     async fetchMilestonesData() {
-      const brokerId = this.getUserId; // Use Vuex getter for broker ID
+      const brokerId = this.getUserId;
 
       if (!brokerId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
       }
 
-      this.loading = true; // Set loading state
+      this.loading = true;
       try {
         // Fetch total sales
         const salesResponse = await fetch(
@@ -127,6 +178,16 @@ export default {
           this.error = "Failed to fetch total commissions.";
         }
 
+        // Fetch milestones data
+        const milestonesResponse = await fetch(`http://localhost:8000/milestones/?broker_id=${brokerId}`);
+        if (milestonesResponse.ok) {
+          const milestonesData = await milestonesResponse.json();
+          this.achievedMilestones = milestonesData.achieved_milestones;
+          this.nextMilestones = milestonesData.next_milestones;
+        } else {
+          this.error = "Failed to fetch milestones.";
+        }
+
         // Fetch site sales data
         const sitesResponse = await fetch(
           `http://localhost:8000/sales/sites/?broker_id=${brokerId}`
@@ -142,12 +203,12 @@ export default {
       } catch (error) {
         this.error = "An error occurred while fetching milestones data.";
       } finally {
-        this.loading = false; // Reset loading state
+        this.loading = false;
       }
     },
 
     async fetchSalesDetails(site) {
-      const brokerId = this.getUserId; // Use Vuex getter for broker ID
+      const brokerId = this.getUserId;
 
       if (!brokerId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -173,8 +234,8 @@ export default {
     },
 
     async openModal(site) {
-      await this.fetchSalesDetails(site); // Fetch site details
-      this.showModal = true; // Open modal
+      await this.fetchSalesDetails(site);
+      this.showModal = true;
     },
 
     closeModal() {
@@ -183,15 +244,40 @@ export default {
     },
   },
   mounted() {
-    this.fetchMilestonesData(); // Fetch data on mount
+    this.fetchMilestonesData();
   },
 };
 </script>
 
+
 <style scoped>
-.milestones-page {
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
+.main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
 
 .content {
