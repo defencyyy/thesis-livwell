@@ -75,7 +75,7 @@ export default {
           {
             name: "Dashboard",
             link: "/developer/dashboard",
-            icon: "fas fa-chart-line",
+            icon: "fas fa-chart-pie",
           },
           {
             name: "Company",
@@ -90,7 +90,7 @@ export default {
           {
             name: "Customers",
             link: "/developer/customers",
-            icon: "fas fa-user-tie",
+            icon: "fas fa-users",
           },
           {
             name: "Sites",
@@ -98,9 +98,9 @@ export default {
             icon: "fas fa-map-marker-alt",
           },
           { name: "Units", link: "/developer/units", icon: "fas fa-home" },
-          { name: "Documents", link: "/developer/documents" },
-          { name: "Milestones", link: "/developer/milestones" },
-          { name: "Sales", link: "/developer/sales" },
+          { name: "Documents", link: "/developer/documents", icon: "fas fa-folder-open", },
+          { name: "Milestones", link: "/developer/milestones", icon: "fas fa-trophy", },
+          { name: "Sales", link: "/developer/sales", icon: "fas fa-chart-line", },
           {
             name: "Payment Schedules",
             link: "/developer/payment-schedule",
@@ -112,28 +112,29 @@ export default {
           {
             name: "Dashboard",
             link: "/broker/dashboard",
-            icon: "fas fa-chart-line",
+            icon: "fas fa-chart-pie",
           },
           {
             name: "Units",
             link: "/broker/affiliated-units",
+            icon: "fas fa-home"
+          },
+          {
+            name: "Sales",
+            link: "/broker/manage-sales",
             icon: "fas fa-chart-line",
           },
           {
-            name: "Manage Sales",
-            link: "/broker/manage-sales",
-            icon: "fas fa-dollar-sign",
-          },
-          {
-            name: "Manage Customer",
+            name: "Customers",
             link: "/broker/manage-customer",
             icon: "fas fa-users",
           },
           {
             name: "Milestones",
             link: "/broker/milestones",
-            icon: "fas fa-flag-checkered",
+            icon: "fas fa-trophy",
           },
+          
         ];
       } else {
         this.menuItems = [
@@ -153,7 +154,7 @@ export default {
 .sidebar {
   position: fixed;
   width: 250px;
-  background-color: #ffffff;
+  background-color: #343a40;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -163,7 +164,7 @@ export default {
 .sidebar-menu-title {
   font-size: 11px;
   font-weight: bold;
-  color: #909090;
+  color: #acacac;
   padding-left: 16px;
   padding-bottom: 15px;
 }
@@ -172,7 +173,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 17px;
-  border-bottom: 2px solid #f6f6f6;
+  border-bottom: 2px solid #acacac;
   height: 68px;
   box-sizing: border-box;
 }
@@ -193,7 +194,7 @@ export default {
 }
 
 #sidebar-title {
-  color: #343a40;
+  color: #ffffff;
   font-size: 1.2rem;
   margin: 0;
 }
@@ -203,6 +204,6 @@ export default {
   text-align: center;
   margin-right: 8px;
   flex-shrink: 0;
-  color: #343a40;
+  color: #ffffff;
 }
 </style>

@@ -1,9 +1,8 @@
 <template>
-  <div>
-    <!-- Main wrapper div -->
-    <AppHeader />
-    <div class="main-page">
-      <SideNav />
+  <div class="main-page">
+    <SideNav />
+    <div class="main-content">
+      <AppHeader />
       <div class="content">
         <p class="text-start display-7 fw-bolder">{{ brokerEmail }}</p>
         <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">His, {{ brokerName }}</h1>
@@ -227,20 +226,39 @@ export default {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  margin: 20px 20px 20px 20px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
-  background-color: rgb(223, 255, 223);
 }
 
 button {

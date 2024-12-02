@@ -1380,7 +1380,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh; /* Ensures it spans the full viewport height */
-  background-color: #f6f6f6; /* Gray background */
+  background-color: #ebebeb; /* Gray background */
 }
 
 .SideNav {

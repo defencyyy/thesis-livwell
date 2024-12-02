@@ -1,8 +1,8 @@
 <template>
-  <div>    
-  <HeaderLivwell />
-  <div class="manage-customers-page">
+  <div class="main-page">
     <SideNav />
+    <div class="main-content">
+      <AppHeader />
     <div class="content">
       <h1>Manage Customers</h1>
       <p>Here you can view and manage your customers.</p>
@@ -262,7 +262,7 @@
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeader from "@/components/Header.vue"
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
@@ -272,7 +272,7 @@ export default {
   components: {
     SideNav,
     BModal,
-    HeaderLivwell,
+    AppHeader,
   },
   computed: {
     ...mapState({
@@ -658,9 +658,33 @@ export default {
 </script>
 
 <style scoped>
-.manage-customers-page {
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
+.main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
 
 .content {
