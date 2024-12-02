@@ -225,7 +225,83 @@
                 style="padding-top: 15px"
               >
                 <button type="submit" class="btn-add" style="width: 150px">
-                  Add New Broker
+                  Add Customer
+                </button>
+                <button
+                  type="button"
+                  @click="showModal = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </b-modal>
+
+        <!-- Edit Customer Modal -->
+        <b-modal v-model="showEditModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Update Details</h5>
+          </div>
+
+          <div class="p-3">
+            <form @submit.prevent="updateCustomer">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label">First Name:</label>
+                  <input
+                    type="text"
+                    v-model="editFirstName"
+                    id="editFirstName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label">Last Name:</label>
+                  <input
+                    type="text"
+                    v-model="editLastName"
+                    id="editLastName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  v-model="editEmail"
+                  id="editEmail"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="contactNumber" class="form-label"
+                  >Contact Number:</label
+                >
+                <input
+                  type="text"
+                  v-model="editContactNumber"
+                  id="editContactNumber"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- Submit & Cancel Buttons -->
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Update
                 </button>
                 <button
                   type="button"
