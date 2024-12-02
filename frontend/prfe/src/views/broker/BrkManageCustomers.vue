@@ -325,59 +325,63 @@
             </div>
             <div v-else>
               <form @submit.prevent="uploadDocuments">
-            <div class="document-upload-form">
-              <div
-                v-for="(docType, index) in documentTypes"
-                :key="index"
-                class="document-upload-section"
-              >
-                <label
-                  :for="'documentType' + docType.id"
-                  class="document-type-label"
-                >
-                  Select {{ docType.name }}:
-                </label>
+                <div class="document-upload-form">
+                  <div
+                    v-for="(docType, index) in documentTypes"
+                    :key="index"
+                    class="document-upload-section mb-3"
+                  >
+                    <label
+                      :for="'documentType' + docType.id"
+                      class="form-label"
+                    >
+                      <b> Upload {{ docType.name }} </b>
+                    </label>
 
-                <div class="file-input-wrapper">
-                  <!-- Show the file input if no file has been selected -->
-                  <input
-                    type="file"
-                    :id="'documentType' + docType.id"
-                    @change="handleFileUpload($event, docType.id)"
-                    class="file-input"
-                    v-if="!filePreviews[docType.id]"
-                  />
+                    <div class="file-input-wrapper d-flex align-items-center gap-2">
+                      <!-- Show the file input if no file has been selected -->
+                      <input
+                        type="file"
+                        :id="'documentType' + docType.id"
+                        @change="handleFileUpload($event, docType.id)"
+                        class="form-control"
+                        v-if="!filePreviews[docType.id]"
+                      />
 
-                  <!-- Show the file name after file has been selected -->
-                  <span v-if="filePreviews[docType.id]" class="file-name">
-                    {{ filePreviews[docType.id].name }}
-                  </span>
+                      <!-- Show the file name after file has been selected -->
+                      <div v-if="filePreviews[docType.id]" class="d-flex align-items-center gap-2">
+                        <span class="file-name">
+                          {{ filePreviews[docType.id].name }}
+                        </span>
 
-                  <!-- Show "No file chosen" only if no file has been selected -->
-                  <span v-else class="no-file-chosen">No file chosen</span>
+                        <button
+                          type="button"
+                          @click="removeFile(docType.id)"
+                          class="btn btn-danger btn-sm"
+                        >
+                        <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- If a file is uploaded, allow removing it -->
+            <div class="form-actions">
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Upload Document
+                </button>
                 <button
                   type="button"
-                  v-if="filePreviews[docType.id]"
-                  @click="removeFile(docType.id)"
-                  class="remove-file-btn"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel"
                 >
-                  Remove
+                  Cancel
                 </button>
               </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="submit-btn">Upload Documents</button>
-              <button
-                type="button"
-                @click="showDocumentModal = false"
-                class="cancel-btn"
-              >
-                Cancel
-              </button>
             </div>
           </form>
             </div>
@@ -956,80 +960,76 @@ body {
   margin-top: 10px;
 }
 
+.outside-headers {
+  display: grid;
+  grid-template-columns: 10% 15% 20% 20% 15% 10% 15%; /* Match column widths */
+  padding: 10px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+  font-weight: bold;
+  text-align: left; /* Left-align for consistency with table */
+}
+
+.outside-headers .header-item {
+  display: flex;
+  justify-content: flex-start; /* Align text horizontally to the left */
+  align-items: center; /* Center vertically */
+  padding: 5px 0; /* Consistent with table cell padding */
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
 .customer-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
-  background: #fff;
+  text-align: left; /* Consistent with headers */
 }
 
-.customer-table th,
 .customer-table td {
-  padding-bottom: 5px;
-  text-align: left;
-  vertical-align: middle;
-  border: none;
-  /* Remove borders from all cells */
+  padding: 10px 18px; /* Matches outside-headers padding */
 }
 
-.customer-table th {
-  background-color: #f9f9f9;
-  font-weight: bold;
-}
-
-.customer-table th:nth-child(2),
-.customer-table td:nth-child(2) {
-  /* Location column */
+.customer-table td:nth-child(1),
+.outside-headers .header-item:nth-child(1) {
   width: 10%;
 }
 
-.customer-table th:nth-child(3),
-.customer-table td:nth-child(3) {
-  /* Status column */
-  width: 25%;
+.customer-table td:nth-child(2),
+.outside-headers .header-item:nth-child(2) {
+  width: 15%;
 }
 
-.customer-table th:nth-child(4),
-.customer-table td:nth-child(4) {
-  /* Actions column */
+.customer-table td:nth-child(3),
+.outside-headers .header-item:nth-child(3) {
   width: 20%;
 }
 
-.customer-table th:nth-child(5),
-.customer-table td:nth-child(5) {
-  /* Actions column */
+.customer-table td:nth-child(4),
+.outside-headers .header-item:nth-child(4) {
+  width: 20%;
+}
+
+.customer-table td:nth-child(5),
+.outside-headers .header-item:nth-child(5) {
   width: 15%;
 }
 
-.customer-table th:nth-child(6),
-.customer-table td:nth-child(6) {
-  /* Actions column */
+.customer-table td:nth-child(6),
+.outside-headers .header-item:nth-child(6) {
   width: 10%;
 }
 
-.customer-table th:nth-child(7),
-.customer-table td:nth-child(7) {
-  /* Actions column */
+/* For the header */
+.outside-headers .header-item:nth-child(6) {
+  margin-left: -10px; /* Moves it slightly to the left */
+}
+
+.customer-table td:nth-child(7),
+.outside-headers .header-item:nth-child(7) {
   width: 15%;
 }
 
-.outside-headers {
-  display: grid;
-  /* Change to grid layout */
-  grid-template-columns: 10% 10% 25% 20% 15% 10% 15%;
-  /* Match the column widths */
-  padding: 0px 18px;
-  margin: 20px auto 10px;
-  max-width: 1100px;
-}
 
-.header-item {
-  flex: 1;
-  text-align: left;
-  font-size: 15px;
-  color: #333;
-  font-weight: bold;
-}
 
 .btn-add {
   background-color: #42b983;
@@ -1065,6 +1065,11 @@ body {
   border-radius: 3px; /* Adjust the border radius */
   padding: 10px;
   cursor: pointer;
+}
+
+input[type="file"] {
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 </style>
