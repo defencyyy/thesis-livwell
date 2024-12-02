@@ -57,21 +57,21 @@
                     <option value="status">Sort: Status</option>
                   </select>
 
-                  <select v-model="sortBy" class="dropdown2">
-                    <option value="name">View: Archive</option>
-                    <option value="status">View: Active</option>
-                  </select>
+                  <select v-model="viewFilter" @change="toggleArchived" class="dropdown2"> 
+  <option value="active">View: Active</option>
+  <option value="archived">View: Archived</option>
+</select>
                 </div>
 
                 <div class="right-section">
                   <!-- Filter Button -->
-                  <button
+                  <!-- <button
                     @click="toggleArchived"
                     :class="['btn-secondary', { active: showArchived }]"
                     class="filter-button"
                   >
                     {{ showArchived ? "View Archived" : "View Active" }}
-                  </button>
+                  </button> -->
 
                   <!-- Add Site Button -->
                   <button
@@ -711,6 +711,7 @@ export default {
       viewMode: "table",
       sortBy: "name",
       searchQuery: "",
+      viewFilter: "active", // Tracks the selected view filter
       showAddModal: false,
       showEditModal: false,
       selectedSite: {}, // Prevent null reference issues
@@ -725,7 +726,7 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        number_of_floors: 0, // Set number of floors here
+        number_of_floors: 0,
       },
       editSite: {
         id: "",
@@ -737,7 +738,7 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        floors: [], // This would be populated with existing floors
+        floors: [],
         number_of_floors: 0,
       },
       showFloorModal: false,
@@ -751,25 +752,24 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        floors: [], // This would be populated with existing floors
+        floors: [],
         number_of_floors: 0,
       },
-      totalFloors: 0, // Total number of floors for the site
-      newFloorNumber: null, // For adding a new floor
+      totalFloors: 0,
+      newFloorNumber: null,
       newFloorCount: null,
       sites: [],
       archivedSites: [],
-      regionOptions: [], // Stores regions like 'REGION I', 'REGION II', etc.
-      provinceOptions: [], // Stores provinces in the selected region
-      municipalityOptions: [], // Stores municipalities in the selected province
-      barangayOptions: [], // Stores barangays in the selected municipality
-      selectedRegion: null, // Selected region from dropdown
-      selectedProvince: null, // Selected province from dropdown
-      selectedMunicipality: null, // Selected municipality from dropdown
-      selectedBarangay: null, // Selected barangay from dropdown
+      regionOptions: [],
+      provinceOptions: [],
+      municipalityOptions: [],
+      barangayOptions: [],
+      selectedRegion: null,
+      selectedProvince: null,
+      selectedMunicipality: null,
+      selectedBarangay: null,
       newPictureFile: null,
       imagePreview: null,
-      showArchived: false, // State to control archived sites visibility
     };
   },
   computed: {
@@ -784,20 +784,24 @@ export default {
     vuexCompanyId() {
       return this.companyId;
     },
-    filteredSites() {
-      const sitesToFilter = this.showArchived ? this.archivedSites : this.sites;
-      return sitesToFilter
-        .filter(
-          (site) =>
-            site.name &&
-            site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .sort((a, b) =>
-          this.sortBy === "name"
-            ? (a.name || "").localeCompare(b.name || "")
-            : (a.status || "").localeCompare(b.status || "")
-        );
-    },
+      filteredSites() {
+        // Determine whether to filter active or archived sites
+        const sitesToFilter =
+          this.viewFilter === "archived" ? this.archivedSites : this.sites;
+
+        // Apply search and sorting
+        return sitesToFilter
+          .filter((site) =>
+            site.name
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase())
+          )
+          .sort((a, b) =>
+            this.sortBy === "name"
+              ? (a.name || "").localeCompare(b.name || "")
+              : (a.status || "").localeCompare(b.status || "")
+          );
+      },
   },
   methods: {
     async refreshAccessToken() {
@@ -1380,7 +1384,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh; /* Ensures it spans the full viewport height */
-  background-color: #f6f6f6; /* Gray background */
+  background-color: #ebebeb; /* Gray background */
 }
 
 .SideNav {

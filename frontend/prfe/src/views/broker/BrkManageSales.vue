@@ -1,10 +1,8 @@
 <template>
-
-    <AppHeader/>
- 
-  <div class="manage-sales-page">
-
+<div class="main-page">
     <SideNav />
+    <div class="main-content">
+      <AppHeader />
     <div class="content">
       <h1 class="display-5 fw-bolder text-capitalize">Welcome to the Manage Sales Page</h1>
       <p>This is where you can manage sales data for brokers and developers.</p>
@@ -270,6 +268,7 @@
         </div>
         </div>
     </div>
+  </div>
   </div>
   
 </template>
@@ -614,17 +613,39 @@ export default {
 </script>
 
 <style scoped>
-.manage-sales-page {
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
+/* Ensure .main-page fills the available space */
+.main-page {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
-
-  
 }
 
 .sales-table {

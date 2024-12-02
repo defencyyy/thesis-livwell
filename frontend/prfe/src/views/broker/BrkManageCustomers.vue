@@ -1,34 +1,11 @@
 <template>
-  <header>
-    <AppHeaderLivwell />
-  </header>
-  <div class = "main-page">
-    <SideNav/>
-    <div class = "main-content">
-      <div class = "content">
-        <div class = "title-wrapper">
-          <div class = "title-left">
-            <div class = "title-icon"></div>
-            <div class = "edit-title">Manage Customers</div>
-          </div>
-        </div>
-        <div class="card border-0 rounded-1 mx-auto" style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
-          <div class="card-body">
-            <div class="row">
-              <!-- Toolbar -->
-              <div class="toolbar">
-                <div class="left-section">
-                  <!-- Search Bar -->
-                  <div class="search-bar-container">
-                    <input
-                      type="text"
-                      v-model="searchQuery"
-                      placeholder="Search by Name or Customer Code"
-                      class="search-bar"
-                      @input="filterCustomers"
-                    />
-                    <i class="fa fa-search search-icon"></i>
-                  </div>
+  <div class="main-page">
+    <SideNav />
+    <div class="main-content">
+      <AppHeader />
+    <div class="content">
+      <h1>Manage Customers</h1>
+      <p>Here you can view and manage your customers.</p>
 
                   <!-- Sort Dropdown -->
                   <select v-model="sortBy" @change="sortCustomers" class="dropdown">
@@ -413,7 +390,7 @@
 </template>
 
 <script>
-import AppHeaderLivwell from "@/components/Header.vue";
+import AppHeader from "@/components/Header.vue"
 import SideNav from "@/components/SideNav.vue";
 import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
@@ -423,7 +400,7 @@ export default {
   components: {
     SideNav,
     BModal,
-    AppHeaderLivwell,
+    AppHeader,
   },
   computed: {
     ...mapState({
@@ -823,36 +800,19 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #f6f6f6;
+  background-color: #ebebeb; /* Gray background */
   /* Gray background */
-}
-
-.SideNav {
-  width: 250px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background-color: #343a40;
-  z-index: 1;
-}
-
-.AppHeaderLivWell {
-  width: 100%;
-  height: 60px;
-  background-color: #343a40;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  color: #ffffff;
 }
 
 .main-content {
   display: flex;
-  margin-left: 250px;
   flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
   flex: 1;
-  margin-top: 60px;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
 
 .content {

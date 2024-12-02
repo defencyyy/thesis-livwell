@@ -45,6 +45,10 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
+                  <select v-model="viewFilter" @change="toggleView" class="dropdown">
+                    <option value="active">View: Active</option>
+                    <option value="archived">View: Archived</option>
+                  </select>
                 </div>
                 <div class="right-section">
                   <button
@@ -53,7 +57,7 @@
                   >
                     Add Broker
                   </button>
-                  <button
+                  <!-- <button
                     class="btn-secondary toggle-button"
                     @click="toggleView"
                   >
@@ -62,7 +66,7 @@
                         ? "Show Active Brokers"
                         : "Show Archived Brokers"
                     }}
-                  </button>
+                  </button> -->
                 </div>
               </div>
             </div>
@@ -94,15 +98,12 @@
                 <tbody>
                   <tr>
                     <td>
-                      <img
-                        :src="require('@/assets/home.png')"
-                        alt="Broker Image"
-                        class="broker-image"
-                      />
-                      <span class="broker-name">
-                        {{ broker.first_name }} {{ broker.last_name }}
-                      </span>
-                    </td>
+  <!-- User Icon as Profile Picture -->
+  <i class="fas fa-user broker-icon" style="font-size: 30px; color: #343a40;"></i>
+  <span class="broker-name">
+    {{ broker.first_name }} {{ broker.last_name }}
+  </span>
+</td>
                     <td>
                       <span class="broker-username">{{ broker.username }}</span>
                     </td>
@@ -410,6 +411,7 @@ export default {
   data() {
     return {
       showModal: false,
+      viewFilter: 'active',
       email: "",
       contactNumber: "",
       lastName: "",
@@ -817,7 +819,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #f6f6f6;
+  background-color: #ebebeb; /* Gray background */
   /* Gray background */
 }
 
@@ -997,10 +999,10 @@ body {
   flex-direction: row;
 }
 
-.broker-image {
-  width: 30px;
+.broker-icon {
+  width: 20px;
   /* Small size for the table */
-  height: 30px;
+  height: 20px;
   /* Make the image smaller */
   object-fit: cover;
   /* Crop the image if necessary */

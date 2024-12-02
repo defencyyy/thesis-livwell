@@ -2,7 +2,7 @@
   <div class="top-bar">
     <div class="welcome-text">Welcome Back, {{ roleName }}!</div>
     <div class="d-flex align-items-center">
-      <button class="btn btn-link text-white">
+      <button class="btn-bell">
         <i class="bi bi-bell"></i>
       </button>
       <div class="dropdown">
@@ -156,8 +156,8 @@ export default {
 
 <style scoped>
 .top-bar {
-  background-color: #343a40;
-  color: #fff;
+  background-color: #ffffff;
+  color: #343a40;
   padding: 12px 30px;
   display: flex;
   align-items: center;
@@ -167,6 +167,7 @@ export default {
   left: 250px; /* Sidebar width */
   width: calc(100% - 250px);
   z-index: 2;
+  height: 68px;
 }
 
 .welcome-text {
@@ -189,13 +190,32 @@ export default {
 
 .profile-icon {
   font-size: 22px; /* Matches the size of the original image */
-  color: #fff;
+  color: #343a40;
   margin-right: 5px; /* Space between icon and dropdown */
+}
+
+.btn-bell {
+  background: none;
+  border: none;
+  color: #343a40; /* Match profile icon color */
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
 }
 
 .dropdown-menu {
   padding: 12px 5px !important;
   width: 210px;
   transform: translateY(40px) !important;
+}
+
+.dropdown-toggle::after {
+  display: inline-block;
+  margin-left: 0.25em;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid #343a40; /* Match profile icon color */
+  border-right: 0.3em solid transparent;
+  border-left: 0.3em solid transparent;
 }
 </style>
