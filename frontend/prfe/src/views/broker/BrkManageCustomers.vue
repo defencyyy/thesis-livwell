@@ -163,6 +163,88 @@
             </div>
           </div>
         </div>
+
+        <!-- Modal for Adding Customer -->
+        <b-modal v-model="showModal" hide-header hide-footer>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Add Customer</h5>
+          </div>
+
+          <div class="p-3">
+            <form @submit.prevent="addCustomer">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label">First Name:</label>
+                  <input
+                    type="text"
+                    v-model="firstName"
+                    id="firstName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label">Last Name:</label>
+                  <input
+                    type="text"
+                    v-model="lastName"
+                    id="lastName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  v-model="email"
+                  id="email"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="contactNumber" class="form-label"
+                  >Contact Number:</label
+                >
+                <input
+                  type="text"
+                  v-model="contactNumber"
+                  id="contactNumber"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+
+
+              <!-- Submit & Cancel Buttons -->
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Add New Broker
+                </button>
+                <button
+                  type="button"
+                  @click="showModal = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Error & Success Message -->
+          <p v-if="error" class="text-danger">{{ error }}</p>
+          <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
+        </b-modal>
       </div>
     </div>
   </div>
