@@ -40,19 +40,3 @@ class EditBrokerSerializer(serializers.ModelSerializer):
 
         # Update other fields
         return super().update(instance, validated_data)
-
-
-# editing own acc (broker)
-# class BrokerSelfEditSerializer(serializers.ModelSerializer):
-#     # Ensure password is hashed before saving
-#     password = serializers.CharField(write_only=True, required=False)
-
-#     class Meta:
-#         model = Broker
-#         fields = ['id', 'email', 'username', 'contact_number', 'password']
-
-#     def update(self, instance, validated_data):
-#         password = validated_data.pop('password', None)
-#         if password:
-#             instance.password = make_password(password)
-#         return super().update(instance, validated_data)
