@@ -481,6 +481,9 @@ def get_available_units(request):
                     'lot_area': unit.lot_area,  # Optionally include lot area
                     'reservation_fee': unit.reservation_fee,  # If reservation fee is required
                     'other_charges': unit.other_charges,  # Any other charges
+                    'TLP_Discount':unit.spot_discount_flat,
+                    'spot_discount':unit.spot_discount_percentage,
+                    'vat_percent':unit.vat_percentage,
                 })
 
             return JsonResponse({'units': unit_data}, status=200)
@@ -501,7 +504,6 @@ def get_customers_for_broker(request, broker_id):
         # Fetch customers for the broker
         customers = Customer.objects.filter(broker_id=broker_id)
         total_customers = customers.count()
-        print(f"Total customers for broker {broker_id}: {total_customers}")  # Debug print
 
         customer_data = []
         required_document_types = DocumentType.objects.all()
@@ -512,11 +514,9 @@ def get_customers_for_broker(request, broker_id):
             company_id = customer.company.id
             document_status = "Pending"
 
-            print(f"\nCustomer: {customer_name}")  # Debug print
             
             if include_sales:
                 sales = Sale.objects.filter(customer_id=customer.id)
-                print(f"  Sales count for {customer_name}: {sales.count()}")  # Debug print
                 
                 if sales.exists():
                     for sale in sales:
@@ -545,7 +545,6 @@ def get_customers_for_broker(request, broker_id):
                             'company_id': company_id,
                             'document_status': document_status,
                         }
-                        print(f"  Customer Data Entry: {customer_entry}")  # Debug print
                         customer_data.append(customer_entry)
                 else:
                     customer_entry = {
@@ -563,7 +562,6 @@ def get_customers_for_broker(request, broker_id):
                         'company_id': company_id,
                         'document_status': "Pending",
                     }
-                    print(f"  No Sales Customer Data Entry: {customer_entry}")  # Debug print
                     customer_data.append(customer_entry)
             else:
                 customer_entry = {
@@ -577,7 +575,6 @@ def get_customers_for_broker(request, broker_id):
                     'status': "No sales info",
                     'company_id': company_id,
                 }
-                print(f"  Basic Customer Data Entry: {customer_entry}")  # Debug print
                 customer_data.append(customer_entry)
 
         # print(f"\nFinal Customer Data: {customer_data}")  # Final debug print before response
@@ -710,7 +707,12 @@ def fetch_sales(request):
                 'status': sale.status,
                 'email': sale.customer.email,
                 'broker_id': sale.broker.id if sale.broker else None, # broker_id
-                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name     
+                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name  
+                'reservation_fee': sale.unit.reservation_fee,  # If reservation fee is required
+                'other_charges': sale.unit.other_charges,  # Any other charges
+                'TLP_Discount':sale.unit.spot_discount_flat,
+                'spot_discount':sale.unit.spot_discount_percentage,
+                'vat_percent':sale.unit.vat_percentage,   
             })      
          # Group the sales by status and count occurrences
         status_count = Counter(sale.status for sale in sales)
@@ -1139,7 +1141,6 @@ def mark_unit_as_sold(request, customer_id, sales_id):
         }, status=500)
     
 def get_milestones(request):
-    print("k")
     try:
         broker_id = request.GET.get('broker_id')  # Get broker_id from query parameter
         broker = Broker.objects.get(id=broker_id)  # Retrieve broker by id
@@ -1163,7 +1164,6 @@ def get_milestones(request):
         # Separate achieved and next milestones
         achieved_milestones = []
         next_milestones = []
-        print(total_commission)
 
         for milestone in milestones:
             if milestone.type == 'sales' and total_sales >= milestone.sales_threshold:
@@ -1189,10 +1189,7 @@ def get_milestones(request):
             } for m in next_milestones],
         }
 
-        # Print the data to inspect it
-        print("Achieved Milestones:", data['achieved_milestones'])
-        print("Next Milestones:", data['next_milestones'])
-
+       
         return JsonResponse(data, status=200)
 
     except Exception as e:

@@ -96,16 +96,18 @@
             <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
             <!-- Spot Discount -->
-            <div class="form-group">
-              <label for="spotDiscount">Spot Discount: </label>
-              <select v-model="spotCashDiscount" id="spotDiscount" @change="updatePaymentDetails" required>
-                <option value="0">0%</option>
-                <option value="1">1%</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
+             <div class="form-group">
+            <label for="spotDiscount">Spot Discount</label>
+            <input
+              type="number"
+              id="spotDiscount"
+              v-model="spotCashDiscount"
+              @input="updatePaymentDetails"
+              class="form-control"
+              min="0"
+              max="100"
+            />
+          </div>
             <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
 
             <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
@@ -113,14 +115,17 @@
 
              <!-- TLP Discount -->
             <div class="form-group">
-              <label for="tlpDiscount">TLP Discount: </label>
-              <select v-model="tlpDiscount" id="tlpDiscount" @change="updatePaymentDetails" required>
-                <option value="0">None</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
+            <label for="tlpDiscount">TLP Discount (Optional)</label>
+            <input
+              type="number"
+              id="tlpDiscount"
+              v-model="tlpDiscount"
+              @input="updatePaymentDetails"
+              class="form-control"
+              min="0"
+              max="100"
+            />
+          </div>
             <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
 
             <!-- Net Unit Price -->
@@ -128,13 +133,17 @@
 
             <!-- Other Charges -->
             <div class="form-group">
-              <label for="otherCharges">Other Charges: </label>
-              <select v-model="otherChargesPercentage" id="otherCharges" @change="updatePaymentDetails" required>
-                <option value="8.5">8.5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
+          <label for="otherChargesPercentage">Other Charges (%)</label>
+          <input
+            type="number"
+            id="otherChargesPercentage"
+            v-model="otherChargesPercentage"
+            @input="updatePaymentDetails"
+            class="form-control"
+            min="0"
+            step="0.1"
+          />
+        </div>
             <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
 
             <!-- VAT Calculation -->
@@ -412,6 +421,11 @@ export default {
       this.selectedSale = sale;
       this.unitPrice = sale.price; // Set unitPrice to the selected sale's unit price
       this.showModal = true;
+      this.spotCashDiscount = this.selectedSale.spot_discount;
+      this.tlpDiscount = this.selectedSale.TLP_Discount;
+      this.otherChargesPercentage = this.selectedSale.other_charges;
+      this.reservationFee = this.selectedSale.reservation_fee;
+      this.vat = this.selectedSale.vat_percent;
 
      
       // Check if the sales details already exist for this customer and unit
@@ -435,7 +449,7 @@ export default {
     // Extract values from salesDetails for calculation
     const sales = this.salesDetails;
 
-      this.unitPrice = sales.unit_price;
+    this.unitPrice = sales.unit_price;
     this.spotCashDiscount = sales.spot_discount;
     this.tlpDiscount = sales.tlp_discount;
     this.otherChargesPercentage = sales.other_charges_percent;

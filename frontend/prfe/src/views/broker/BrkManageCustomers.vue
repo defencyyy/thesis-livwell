@@ -151,8 +151,8 @@
       <table v-if="customers.length" class="table">
         <thead>
           <tr>
-            <th>Customer Name</th>
             <th>Customer Code</th>
+            <th>Customer Name</th>
             <th>Site</th>
             <th>Unit</th>
             <th>Contact</th>
@@ -168,8 +168,8 @@
   ></tr>
 
   <tr v-for="(customer, index) in filteredCustomers" :key="index">
-            <td>{{ customer.customer_name }}</td>
             <td>{{ customer.customer_code }}</td>
+            <td>{{ customer.customer_name }}</td>
             <td>{{ customer.site }}</td>
             <td>{{ customer.unit }}</td>
             <td>{{ customer.contact_number }}</td>
@@ -455,7 +455,7 @@ export default {
       } else {
         this.showSalesMessage = false; // Show the document upload form
       }
-      if (this.selectedCustomer.status != "Reserved") {
+      if (this.selectedCustomer.document_status != "Reserved") {
         this.showStatusMessage = true; // Show the message to create sales first
       }
       else {
