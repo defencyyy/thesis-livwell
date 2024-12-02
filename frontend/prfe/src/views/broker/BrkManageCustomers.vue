@@ -79,7 +79,7 @@
           </button>
         </template>
 
-        <template v-if="showStatusMessage">
+        <template v-else-if="showStatusMessage">
           <p>Waiting for Developer to confirm Reservation</p>
           <button type="button" @click="showDocumentModal = false">
             Close
@@ -483,7 +483,6 @@ export default {
 
     },
     async deleteSaleFromBackend(customer_id, salesId) {
-    console.log(this.showSalesMessage, customer_id,salesId);
 
     try {
         let url = "";
