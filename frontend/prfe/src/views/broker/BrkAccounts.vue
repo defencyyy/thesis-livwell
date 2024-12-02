@@ -1,6 +1,133 @@
 <template>
   <header>
-    <AppHeaderLivwell/>
+    <AppHeaderLivwell />
+  </header>
+  <div class = "broker-account-page">
+    <SideNav />
+  <div class = "main-content">
+    <div class = "content">
+      <div class = "title-wrapper">
+        <div class = "title-icon"></div>
+        <div class = "edit-title">Account Settings</div>
+      </div>
+      <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 900px">
+        <div class = "card-body">
+          <form @submit.prevent="updateAccount">
+            <div class = "row">
+              <!-- Personal Information Section -->
+              <div class = "col-md-6">
+                <h5 class="mb-4">Personal Information</h5>
+                <div class="mb-3">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    v-model="firstName"
+                    class="form-control"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    v-model="lastName"
+                    class="form-control"
+                  />
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      v-model="email"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="contactNumber" class="form-label"
+                      >Phone Number</label
+                    >
+                    <input
+                      type="text"
+                      id="contactNumber"
+                      v-model="contactNumber"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="username" class="form-label"
+                      >Username</label
+                    >
+                    <input
+                      type="text"
+                      id="username"
+                      v-model="username"
+                      class="form-control"
+                    />
+                  </div>
+              </div>
+
+              <!-- Password Settings Section -->            
+              <div class="col-md-6">
+                <h5 class="mb-4">Password Settings</h5>
+                <div class="mb-3">
+                  <label for="currentPassword" class="form-label"
+                    >Current Password</label
+                  >
+                  <input
+                    type="password"
+                    id="currentPassword"
+                    v-model="currentPassword"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label"
+                    >New Password</label
+                  >
+                  <input
+                    type="password"
+                    id="password"
+                    v-model="password"
+                    class="form-control"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="confirmNewPassword" class="form-label"
+                    >Confirm New Password</label
+                  >
+                  <input
+                    type="password"
+                    id="confirmNewPassword"
+                    v-model="confirmNewPassword"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button type="submit" class="btn-update" :disabled="loading">
+                {{ loading ? "Updating..." : "Update" }}
+              </button>
+              <button type="button" class="btn-cancel" @click="cancelUpdate">
+                Cancel
+              </button>
+            </div>
+          </form>
+          <p v-if="error" class="text-danger">{{ error }}</p>
+          <p v-if="successMessage" class="text-success">
+            {{ successMessage }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- 
+  <header>
+    <AppHeaderLivwell />
   </header>
   <div class="accounts-page">
     <SideNav />
@@ -71,7 +198,9 @@
       </div>
     </div>
   </div>
+  -->
 </template>
+
 
 <script>
 import { mapGetters } from "vuex";
@@ -190,106 +319,141 @@ export default {
 </script>
 
 <style scoped>
-/* Account Page Layout */
-.accounts-page {
-  display: flex;
-  height: 100vh; /* Ensure it fills the full viewport height */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
 }
 
-/* Content Area (form container) */
-.content {
-  flex-grow: 1;
-  background-color: #f8f9fa; /* Light background for the form */
+/* Ensure .main-page fills the available space */
+.broker-account-page {
   display: flex;
-  justify-content: center;
-  align-items: start;
-  padding-top: 20px;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #f6f6f6;
+  /* Gray background */
 }
 
-/* Card Styling */
-.card {
+.SideNav {
+  width: 250px;
+  /* Set fixed width for the sidebar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeader {
   width: 100%;
-  max-width: 600px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
+  height: 60px;
+  /* Adjust height as needed */
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
 }
 
-.card-header {
-  background-color: #007bff; /* Blue background for header */
-  color: white;
-  padding: 20px;
-  text-align: center;
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
+}
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
 }
 
 .card-body {
-  padding: 30px;
-  background-color: white;
+  padding: 2.5rem;
+}
+
+.title-wrapper {
+  display: flex;
+  /* Align line and title horizontally */
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+
+  /* Ensure the title width matches the card's width */
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  /* Center the wrapper */
+}
+
+.edit-title {
+  color: #000000;
+  margin-bottom: 0.8rem;
   text-align: left;
+  /* Align the text to the left */
 }
 
-/* Form Input Styling */
-.form-group {
-  margin-bottom: 1.5rem; /* Spacing between form groups */
+.title-icon {
+  width: 15px;
+  /* Short horizontal line */
+  height: 5px;
+  /* Thin line */
+  background-color: #343a40;
+  /* Line color */
+  border-radius: 5px;
+  /* Rounded corners */
+  margin-right: 10px;
+  /* Space between the icon and the title */
+  margin-bottom: 15px;
 }
 
-label {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  display: block;
+.row {
+  display: flex;
+  justify-content: space-between;
+  /* Ensures there's space between the columns */
 }
 
-input.form-control {
-  width: 100%;
+.col-md-6 {
+  width: 47%; /* You can tweak the width to suit your design */
+  margin-bottom: 20px; /* Spacing between sections */
+  padding-right: 10px; /* Optional: add some padding to prevent overlap */
+}
+
+h5 {
+  text-align: left;
+  margin-bottom: 1rem; /* Adjust spacing below the title */
+  font-size: 1.1rem; /* Optional: Adjust font size if needed */
+  font-style: italic; /* Italicize the titles */
+}
+
+.form-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  /* Adjust the value to your preferred size */
+}
+
+.btn-update {
+  background-color: #42b983; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px; /* Adjust the padding at the bottom */
+  width: 100px;
+}
+
+.btn-cancel {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
   padding: 10px;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ced4da;
 }
-
-input.form-control:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:disabled {
-  background-color: #c0c0c0;
-  cursor: not-allowed;
-}
-
-button:not(:disabled):hover {
-  background-color: #0056b3; /* Darken button on hover */
-}
-
-/* Success/Error Message */
-.text-success, .text-danger {
-  margin-top: 15px;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* Media Query for Responsiveness */
-@media (max-width: 768px) {
-  .card {
-    margin: 0 20px;
-  }
-
-  .content {
-    padding: 15px;
-  }
-}
-
-
-
-
 </style>
