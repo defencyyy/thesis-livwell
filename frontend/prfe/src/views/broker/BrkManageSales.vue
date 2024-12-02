@@ -1,7 +1,6 @@
 <template>
-
+  <div>
     <AppHeader/>
- 
   <div class="manage-sales-page">
 
     <SideNav />
@@ -270,6 +269,7 @@
         </div>
         </div>
     </div>
+  </div>
   </div>
   
 </template>
