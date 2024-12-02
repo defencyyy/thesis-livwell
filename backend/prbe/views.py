@@ -247,13 +247,14 @@ def get_broker_data(request, broker_id):
 
 @csrf_exempt
 def update_broker_view(request, broker_id):
-    print("k")
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
-            print("Data received:", data)  # This will print the data being sent to the server
 
+            current_password = data.get('current_password')
+            if current_password and not broker.check_password(current_password):
+                return JsonResponse({"success": False, "message": "Current password is incorrect."}, status=400)
 
             if 'password' in data and data['password'] is not None:
                 password = data['password']
@@ -264,6 +265,8 @@ def update_broker_view(request, broker_id):
 
                 broker.password = make_password(password)
 
+            if 'username' in data and data['username'] is not None:
+                broker.username = data['username']
             if 'email' in data and data['email'] is not None:
                 broker.email = data['email']
             if 'contact_number' in data and data['contact_number'] is not None:
@@ -272,15 +275,22 @@ def update_broker_view(request, broker_id):
             broker.save()
             return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
 
-        except Broker.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Broker does not exist."}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
+            error_message = str(e).lower()
+            
+            # Check for specific fields causing the unique constraint violation
+            if 'username' in error_message and 'already exists' in error_message:
+                return JsonResponse({"success": False, "message": "The username is already taken. Please choose a different one."}, status=400)
+            elif 'email' in error_message and 'already exists' in error_message:
+                return JsonResponse({"success": False, "message": "The email is already taken. Please choose a different one."}, status=400)
+            elif 'unique constraint' in error_message:
+                return JsonResponse({"success": False, "message": "The provided data violates a unique constraint."}, status=400)
+
             print(f"Error updating broker: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 
 @csrf_exempt  # This decorator is optional if you are using CSRF tokens correctly in your request
 def add_customer(request):

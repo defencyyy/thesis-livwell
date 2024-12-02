@@ -67,7 +67,6 @@
                     id="currentPassword"
                     v-model="currentPassword"
                     class="form-control"
-                    required
                   />
                 </div>
                 <div class="mb-3">
@@ -150,7 +149,6 @@ export default {
     async fetchBrokerData() {
       const brokerId = this.getUserId;
       const authToken = this.getAuthToken;
-
       try {
         const response = await fetch(
           `http://localhost:8000/broker/manage-accounts/${brokerId}/`,
@@ -175,7 +173,8 @@ export default {
         this.error = "An error occurred while fetching broker data.";
       }
     },
- async updateAccount() {
+    async updateAccount() {
+    const brokerId = this.getUserId;
     // Validate password on client-side
     if (this.password) {
       if (this.password.length < 8) {
@@ -203,9 +202,13 @@ export default {
         this.successMessage = null;
         return;
       }
-    }
+      }
+    
 
-    const brokerId = localStorage.getItem("broker_id");
+  if (this.password && this.password !== this.confirmNewPassword) {
+    this.error = "New passwords do not match.";
+    return;
+  }
     if (brokerId) {
       try {
         const response = await fetch(`http://localhost:8000/broker/manage-account/${brokerId}/`, {
@@ -215,6 +218,7 @@ export default {
             'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: JSON.stringify({
+            current_password: this.currentPassword, 
             username: this.username || undefined,
             email: this.email || undefined,
             contact_number: this.contactNumber || undefined,
