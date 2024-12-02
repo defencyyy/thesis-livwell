@@ -198,7 +198,7 @@
           </div>
         </div>
 
-        <b-modal v-model="showAddModal" hide-header hide-footer size="lg">
+        <b-modal v-model="showAddModal" hide-header hide-footer centered size="lg">
           <div class="modal-title p-3">
             <h5 class="mb-0">New Site</h5>
           </div>
@@ -372,7 +372,7 @@
           </div>
         </b-modal>
 
-        <b-modal v-model="showEditModal" title="Edit Site" hide-footer>
+        <b-modal v-model="showEditModal" title="Edit Site" hide-footer centered>
           <form @submit.prevent="confirmEdit">
             <!-- Site Name -->
             <div class="form-group mb-3">
@@ -451,6 +451,7 @@
           title="Edit Site"
           hide-header
           hide-footer
+          centered
           size="lg"
         >
           <div class="modal-title p-3">
@@ -638,6 +639,7 @@
           title="Site Details"
           hide-header
           hide-footer
+          centered
           size="lg"
         >
           <div class="modal-title p-3">

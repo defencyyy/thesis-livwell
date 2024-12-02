@@ -203,6 +203,7 @@ export default {
         if (response.status === 200) {
           alert("Company updated successfully!");
           this.company.originalDescription = this.company.description; // Save the current description as the original one
+          this.fetchCompany();
         } else {
           alert("Error updating company.");
         }

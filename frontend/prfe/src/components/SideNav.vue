@@ -243,6 +243,7 @@ export default {
 
         if (response.status === 200) {
           this.company = response.data; // Store company data in the `company` object
+          this.fetchCompany();
         } else {
           console.error("Error fetching company details.");
         }
