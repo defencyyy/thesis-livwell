@@ -58,6 +58,7 @@ urlpatterns = [
     path('developer/documents/', include('documents.urls')), 
     path('developer/milestones/', include('milestones.urls')), 
     path('developer/sales/', include('sales.urls')), 
+    path('developer/units/', include('units.urls')), 
     # # path('api/token/broker/', views.login_view_broker, name='login_broker'), 
 ]
 

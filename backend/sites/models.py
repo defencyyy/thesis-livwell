@@ -55,7 +55,7 @@ class Site(models.Model):
             self.region,
             self.province,
             self.municipality,
-            self.barangay if self.barangay else None, 
+            self.barangay, 
             f"Postal Code: {self.postal_code}" if self.postal_code else None, 
         ]
         return ', '.join(filter(None, address_parts))

@@ -109,6 +109,7 @@ class Unit(models.Model):
         return f"{self.site.name} - {self.unit_title} (Unit {self.unit_number})"
 
 class UnitTemplate(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=100, unique=True)
     bedroom = models.PositiveIntegerField(default=1)
     bathroom = models.PositiveIntegerField(default=1)

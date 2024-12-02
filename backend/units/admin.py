@@ -4,6 +4,21 @@ from .models import Unit, UnitImage, UnitTemplate
 from prbe.admin import custom_admin_site
 from django import forms
 
+# UnitTemplate Admin
+class UnitTemplateAdmin(admin.ModelAdmin):
+    list_display = ('id', 'company', 'name', 'bedroom', 'bathroom', 'floor_area', 'lot_area', 'price', 'view', 'balcony', 'commission', 'description')
+    list_display_links = ('id', 'name')
+    search_fields = ('name', 'description')
+    list_filter = ('view', 'balcony')
+    ordering = ('name',)
+    list_per_page = 25
+
+    def save_model(self, request, obj, form, change):
+        # Optionally add any additional logic during saving
+        super().save_model(request, obj, form, change)
+
+custom_admin_site.register(UnitTemplate, UnitTemplateAdmin)
+
 # UnitImage Inline
 class UnitImageInline(admin.TabularInline):
     model = UnitImage

@@ -536,7 +536,7 @@ body {
 
 .main-content {
   display: flex;
-  /* margin-left: 250px; */
+  margin-left: 250px;
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
