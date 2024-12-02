@@ -74,7 +74,6 @@
                 <th>Customer</th>
                 <th>Site</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -84,14 +83,6 @@
                 <td>{{ sale.customerName }}</td>
                 <td>{{ sale.site ? sale.site.name : "No Site" }}</td>
                 <td>{{ sale.status }}</td>
-                <td>
-                  <button
-                    @click="redirectToEditPage(sale.id)"
-                    class="btn btn-primary"
-                  >
-                    Edit Sale
-                  </button>
-                </td>
               </tr>
             </tbody>
           </table>
@@ -126,8 +117,8 @@ export default {
       searchQuery: "",
       selectedStatus: "",
       selectedSite: "",
-      sites: [], // Initialize sites as an empty array
-      filteredSites: [], // Stores filtered sites
+      sites: [],
+      filteredSites: [],
       loading: true,
       error: null,
     };
@@ -142,11 +133,12 @@ export default {
     this.fetchDashboardData();
     this.fetchSites();
     this.fetchPendingSales();
+    this.setupAxiosInterceptors(); // Add Axios Interceptor setup
   },
   methods: {
     async fetchDashboardData() {
       this.loading = true;
-      this.error = null; // Clear any previous error
+      this.error = null;
       try {
         const response = await axios.get(
           `http://localhost:8000/developer/dashboard/`,
@@ -163,7 +155,7 @@ export default {
         this.salesCount = response.data.salesCount;
         this.ongoingSales = response.data.ongoingSales;
       } catch (error) {
-        this.error = "Error fetching dashboard data"; // Show error if request fails
+        this.error = "Error fetching dashboard data";
         console.error("Error fetching dashboard data:", error);
       } finally {
         this.loading = false;
@@ -180,24 +172,14 @@ export default {
             },
           }
         );
-        // Ensure sites is an array and log the response for inspection
         this.sites = Array.isArray(response.data) ? response.data : [];
-        console.log("Fetched sites:", this.sites); // Log the full sites response
-
-        this.filterSitesWithPendingSales(); // Filter sites with pending sales after ensuring they are an array
+        this.filterSitesWithPendingSales();
       } catch (error) {
         console.error("Error fetching sites:", error);
       }
     },
+
     filterSitesWithPendingSales() {
-      if (!Array.isArray(this.sites)) {
-        console.error("Expected 'sites' to be an array, but it's not.");
-        return;
-      }
-
-      // Log the pending sales data
-      console.log("Pending sales to filter sites with:", this.pendingSales);
-
       const siteIdsWithPendingSales = new Set(
         this.pendingSales
           .filter(
@@ -208,20 +190,13 @@ export default {
           .map((sale) => sale.site.id)
       );
 
-      // Log the siteIdsWithPendingSales to verify
-      console.log("Sites with pending sales IDs:", siteIdsWithPendingSales);
-
-      // Filter sites
       const filteredSites = this.sites.filter((site) =>
         siteIdsWithPendingSales.has(site.id)
       );
 
-      // Log filtered sites
-      console.log("Filtered sites with pending sales:", filteredSites);
-
-      // Set filteredSites properly to trigger reactivity
-      this.filteredSites = [...filteredSites]; // Spread into a new array
+      this.filteredSites = [...filteredSites];
     },
+
     async fetchPendingSales() {
       try {
         const response = await axios.get(
@@ -232,10 +207,7 @@ export default {
             },
           }
         );
-        console.log(response.data); // Log the API response to see the structure
-
         const sales = response.data.data || [];
-        // Filter sales by status "Pending Reservation" or "Pending Sold"
         this.pendingSales = sales
           .filter(
             (sale) =>
@@ -244,12 +216,12 @@ export default {
           )
           .map((sale, index) => ({
             ...sale,
-            relativeID: index + 1, // Adding relativeID (index + 1)
-            brokerName: `${sale.broker.first_name} ${sale.broker.last_name}`, // Set broker name
-            customerName: `${sale.customer.first_name} ${sale.customer.last_name}`, // Set customer name
+            relativeID: index + 1,
+            brokerName: `${sale.broker.first_name} ${sale.broker.last_name}`,
+            customerName: `${sale.customer.first_name} ${sale.customer.last_name}`,
           }));
         this.filteredSales = this.pendingSales;
-        this.filterSitesWithPendingSales(); // Ensure filtered sites are updated
+        this.filterSitesWithPendingSales();
       } catch (error) {
         console.error("Error fetching pending sales:", error);
       }
@@ -258,7 +230,6 @@ export default {
     filterSales() {
       let filtered = this.pendingSales;
 
-      // Filter by search query
       if (this.searchQuery) {
         filtered = filtered.filter(
           (sale) =>
@@ -271,14 +242,12 @@ export default {
         );
       }
 
-      // Filter by status
       if (this.selectedStatus) {
         filtered = filtered.filter(
           (sale) => sale.status === this.selectedStatus
         );
       }
 
-      // Filter by site
       if (this.selectedSite) {
         filtered = filtered.filter(
           (sale) => sale.site.id === parseInt(this.selectedSite)
@@ -288,8 +257,49 @@ export default {
       this.filteredSales = filtered;
     },
 
-    redirectToEditPage(saleId) {
-      this.$router.push({ name: "DevSales", params: { saleId } });
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          {
+            refresh: refreshToken,
+          }
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
+        }
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+        this.handleTokenRefreshFailure();
+      }
+    },
+
+    handleTokenRefreshFailure() {
+      alert("Session expired. Redirecting to home.");
+      localStorage.clear();
+      this.$store.dispatch("logout");
+      this.$router.push({ name: "Home" });
+    },
+
+    setupAxiosInterceptors() {
+      axios.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          if (error.response?.status === 401) {
+            const refreshedToken = await this.refreshAccessToken();
+            if (refreshedToken) {
+              error.config.headers[
+                "Authorization"
+              ] = `Bearer ${refreshedToken}`;
+              return axios(error.config);
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
     },
   },
 };

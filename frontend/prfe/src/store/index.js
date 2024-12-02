@@ -57,7 +57,10 @@ export default createStore({
       commit("setAuthToken", token);
     },
     logout({ commit }) {
+      // Clear everything from localStorage and Vuex
       commit("clearUser");
+      localStorage.removeItem("refreshToken");
+      this.$router.push({ name: "Home" }); // Redirect to home or login page
     },
     setCompany({ commit }, company) {
       console.log("Setting company in Vuex:", company); // Log the company data
