@@ -286,7 +286,7 @@
         </div>
 
         <!-- Modal for Adding Broker -->
-        <b-modal v-model="showModal" hide-header hide-footer>
+        <b-modal v-model="showModal" hide-header hide-footer centered>
           <div class="modal-title p-3">
             <h5 class="mb-0">New Broker</h5>
           </div>

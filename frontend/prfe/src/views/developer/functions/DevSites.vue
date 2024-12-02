@@ -211,8 +211,13 @@
           </div>
         </div>
 
-        <!-- Add Modal -->
-        <b-modal v-model="showAddModal" hide-header hide-footer size="lg">
+        <b-modal
+          v-model="showAddModal"
+          hide-header
+          hide-footer
+          centered
+          size="lg"
+        >
           <div class="modal-title p-3">
             <h5 class="mb-0">New Site</h5>
           </div>
@@ -415,6 +420,7 @@
           title="Site Details / Edit"
           hide-header
           hide-footer
+          centered
           size="lg"
         >
           <div class="modal-title p-3">
@@ -589,7 +595,11 @@
                 class="d-flex justify-content-end gap-2 mt-3"
                 style="padding-top: 15px"
               >
-                <button type="submit" class="btn-add" style="width: 150px">
+                <button
+                  type="submit"
+                  class="btn btn-success"
+                  style="width: 150px"
+                >
                   Save Changes
                 </button>
                 <button type="button" @click="cancelEdit" class="btn-cancel">
@@ -605,6 +615,7 @@
           v-model="showFloorModal"
           title="Manage Floors"
           hide-footer
+          centered
           size="lg"
         >
           <div class="modal-title p-3">
