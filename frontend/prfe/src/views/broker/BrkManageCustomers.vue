@@ -447,15 +447,13 @@ export default {
     // Opens the document upload modal for the selected customer
     openDocumentModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
-      if (
-        this.selectedCustomer.site === "To be followed" ||
-        this.selectedCustomer.unit === "To be followed"
-      ) {
+      if (this.selectedCustomer.site === "To be followed" || this.selectedCustomer.unit === "To be followed") {
         this.showSalesMessage = true; // Show the message to create sales first
       } else {
         this.showSalesMessage = false; // Show the document upload form
       }
-      if (this.selectedCustomer.document_status != "Reserved") {
+      if (this.selectedCustomer.status === "Pending Reservation") {
+
         this.showStatusMessage = true; // Show the message to create sales first
       }
       else {

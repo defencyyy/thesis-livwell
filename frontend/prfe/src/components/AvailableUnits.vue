@@ -24,13 +24,12 @@
       <div v-else>
         <p>No units available for this site.</p>
       </div>
-
+      
       <!-- Success Message Pop-up -->
-      <div v-if="successMessage" class="popup-overlay">
-        <div class="popup-content">
+      <div v-if="successMessage"  class="success-message"
+      :class="{ show: showSuccessMessage }">
           <p>{{ successMessage }}</p>
           <button @click="closePopup" class="ok-btn">OK</button>
-        </div>
       </div>
 
       <!-- Unit Details Modal -->
@@ -180,7 +179,7 @@
             <p v-if="selectedPaymentPlan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
 
             <!-- Reservation Fee -->
-            <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+            <p><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
             <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
 
 
@@ -228,7 +227,7 @@
             </button>
           </div>
       </div>
-
+      </div>
 
       <!-- Reserve Unit Modal -->
       <div
@@ -238,6 +237,7 @@
       >
         <div class="modal-content" @click.stop>
           <h3>Reserve Unit</h3>
+          <!-- Success Message Pop-up -->
           <form @submit.prevent="submitReservation">
             <!-- Customer Name Dropdown -->
             <div class="form-group">
@@ -314,16 +314,13 @@
               />
             </div>
             <!-- Submit Button -->
-            <div class="form-group">
-              <button type="submit" class="submit-btn">
-                Submit Reservation
-              </button>
+             <div class="form-group">
+              <button type="submit" class="submit-btn">Submit Reservation</button>
             </div>
-          </form>
-          <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
+            </form>
+            <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
         </div>
       </div>
-    </div>
   </div>
   </div>
 </template>
@@ -357,6 +354,8 @@ export default {
       customers: [],
       successMessage: "", // Success message
       errorMessage: "", // Error message
+      showSuccessMessage: false,  // Control the visibility of the success message
+
 
       // Payment Scheme Data
       selectedPaymentPlan: "Spot Cash", // Default payment plan
@@ -514,7 +513,6 @@ export default {
       const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
       this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
       this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.reservationFee = "30000"; // 10% reservation fee
       this.netFullPayment = this.totalAmountPayable - this.reservationFee;
     },
     calculateVAT() {
@@ -593,6 +591,11 @@ export default {
         // Set the success message to display in the pop-up
         this.successMessage = "Reservation submitted successfully!";
 
+          setTimeout(() => {
+      this.showSuccessMessage = true; // Trigger to show success message
+    }, 500);
+
+
         // Close the modal after success
         this.closeReserveModal();
 
@@ -637,21 +640,20 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1000; /* Ensure it appears on top of other content */
 }
 
 .popup-content {
-  background: rgb(255, 255, 255);
+  background: white;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  width: 300px;
+  width: 300px; /* Set a fixed width */
 }
-
 .ok-btn {
   background: #007bff;
   color: white;
@@ -720,6 +722,24 @@ export default {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   max-height: 90vh;
+}
+
+.success-message {
+  position: fixed;  /* Position it relative to the screen */
+  top: 50%;         /* Center the message */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Adjust to truly center */
+  background-color: rgba(0, 128, 0, 0.8);  /* Green background, slightly transparent */
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  font-size: 18px;
+  z-index: 1100;    /* Make sure it's on top of the modal */
+  display: none;    /* Initially hidden */
+}
+
+.success-message.show {
+  display: block;   /* Show the success message when it's needed */
 }
 
 /* Image Gallery */
