@@ -1,36 +1,36 @@
 <template>
   <div>
-    <HeaderLivwell />
+    <AppHeader />
 
-  <div class="affiliated-units-page">
-    <SideNav />
-    <div class="content">
-      <h1>Welcome to Affiliated Units</h1>
-      <div v-if="sites.length" class="site-sales">
-        <div class="site-card-container">
-          <div
-            v-for="site in sites"
-            :key="site.id"
-            class="site-card"
-            @click="() => redirectToUnits(site.id)"
-          >
-            <img :src="site.picture" alt="Site Picture" />
-            <h2>{{ site.name }}</h2>
-            <p>{{ site.description }}</p>
-            <p>Location: {{ site.location }}</p>
+    <div class="affiliated-units-page">
+      <SideNav />
+      <div class="content">
+        <h1 class="display-5 fw-bolder text-capitalize">Welcome to Affiliated Units</h1>
+        <div v-if="sites.length" class="site-sales">
+          <div class="site-card-container">
+            <div
+              v-for="site in sites"
+              :key="site.id"
+              class="site-card"
+              @click="() => redirectToUnits(site.id)"
+            >
+              <img :src="site.picture" alt="Site Picture" />
+              <h2 class="display-6 fw-bolder text-capitalize">{{ site.name }}</h2>
+              <p class="text-start">{{ site.description }}</p>
+              <p class="text-start"><b>Location: </b> {{ site.location }}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else>
-        <p>No sites with available units.</p>
+        <div v-else>
+          <p>No sites with available units.</p>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
 <script>
-import HeaderLivwell from "@/components/HeaderLivwell.vue";
+import AppHeader from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue"; // Importing the SideNav component
 import axios from "axios"; // Ensure you have axios installed
 import { useRouter } from "vue-router"; // Import useRouter
@@ -40,7 +40,7 @@ export default {
   name: "AffiliatedUnits",
   components: {
     SideNav,
-    HeaderLivwell, // Registering the SideNav component
+    AppHeader, // Registering the SideNav component
   },
   setup() {
     const router = useRouter();
@@ -99,12 +99,18 @@ export default {
 .affiliated-units-page {
   display: flex;
   height: 100vh;
+ 
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  margin: 20px 20px 20px 20px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: rgb(223, 255, 223);
 }
 
 .site-sales {
@@ -116,6 +122,7 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin: 0 auto;
+ 
 }
 
 .site-card {
@@ -125,10 +132,12 @@ export default {
   text-align: center;
   cursor: pointer;
   transition: box-shadow 0.3s;
+  background-color: rgb(253, 253, 253);
 }
 
 .site-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: rgb(230, 230, 230);
 }
 
 .site-card img {

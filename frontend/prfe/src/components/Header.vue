@@ -36,7 +36,7 @@
             <hr class="dropdown-divider" />
           </li>
           <li>
-            <a class="dropdown-item" href="#" @click.prevent="logout">
+            <a class="dropdown-item" href="#" @click="logout">
               <i class="bi bi-box-arrow-right me-2"></i> Sign Out
             </a>
           </li>
@@ -133,10 +133,9 @@ export default {
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("developer_id");
-        localStorage.removeItem("broker_id");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
-        this.$store.commit("clearUser");
 
         if (this.userRole === "developer") {
           this.redirectToLogin("Home");
@@ -148,7 +147,6 @@ export default {
         alert("Logout failed. Please try again.");
       }
     },
-
     redirectToLogin(pageName) {
       this.$router.push({ name: pageName });
     },
