@@ -305,7 +305,7 @@
                 </button>
                 <button
                   type="button"
-                  @click="showModal = false"
+                  @click="showEditModal = false"
                   class="btn-cancel"
                 >
                   Cancel
@@ -314,6 +314,99 @@
             </form>
           </div>
         </b-modal>
+
+        <!-- Documents -->
+        <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Customer Documents</h5>
+          </div>
+
+          <div class="p-3">
+            <div v-if ="showSalesMessage">
+              <p>Please create sales first before uploading documents.</p>
+              <div class="button-container">
+                <button
+                  type="button"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel-right"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div v-if ="showStatusMessage">
+              <p>Waiting for Developer to confirm Reservation</p>
+              <div class="button-container">
+                <button
+                  type="button"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel-right"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div v-else>
+              <form @submit.prevent="uploadDocuments">
+            <div class="document-upload-form">
+              <div
+                v-for="(docType, index) in documentTypes"
+                :key="index"
+                class="document-upload-section"
+              >
+                <label
+                  :for="'documentType' + docType.id"
+                  class="document-type-label"
+                >
+                  Select {{ docType.name }}:
+                </label>
+
+                <div class="file-input-wrapper">
+                  <!-- Show the file input if no file has been selected -->
+                  <input
+                    type="file"
+                    :id="'documentType' + docType.id"
+                    @change="handleFileUpload($event, docType.id)"
+                    class="file-input"
+                    v-if="!filePreviews[docType.id]"
+                  />
+
+                  <!-- Show the file name after file has been selected -->
+                  <span v-if="filePreviews[docType.id]" class="file-name">
+                    {{ filePreviews[docType.id].name }}
+                  </span>
+
+                  <!-- Show "No file chosen" only if no file has been selected -->
+                  <span v-else class="no-file-chosen">No file chosen</span>
+                </div>
+
+                <!-- If a file is uploaded, allow removing it -->
+                <button
+                  type="button"
+                  v-if="filePreviews[docType.id]"
+                  @click="removeFile(docType.id)"
+                  class="remove-file-btn"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="submit-btn">Upload Documents</button>
+              <button
+                type="button"
+                @click="showDocumentModal = false"
+                class="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+            </div>
+          </div>
+        </b-modal>
+
       </div>
     </div>
   </div>
@@ -997,4 +1090,21 @@ body {
   /* Adjust the border radius */
   padding: 10px;
 }
+
+/* Flex container for button alignment */
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+}
+
+/* Button styling */
+.btn-cancel-right {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
+  cursor: pointer;
+}
+
 </style>
