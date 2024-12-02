@@ -1000,80 +1000,76 @@ body {
   margin-top: 10px;
 }
 
+.outside-headers {
+  display: grid;
+  grid-template-columns: 10% 15% 20% 20% 15% 10% 15%; /* Match column widths */
+  padding: 10px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+  font-weight: bold;
+  text-align: left; /* Left-align for consistency with table */
+}
+
+.outside-headers .header-item {
+  display: flex;
+  justify-content: flex-start; /* Align text horizontally to the left */
+  align-items: center; /* Center vertically */
+  padding: 5px 0; /* Consistent with table cell padding */
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
 .customer-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
-  background: #fff;
+  text-align: left; /* Consistent with headers */
 }
 
-.customer-table th,
 .customer-table td {
-  padding-bottom: 5px;
-  text-align: left;
-  vertical-align: middle;
-  border: none;
-  /* Remove borders from all cells */
+  padding: 10px 18px; /* Matches outside-headers padding */
 }
 
-.customer-table th {
-  background-color: #f9f9f9;
-  font-weight: bold;
-}
-
-.customer-table th:nth-child(2),
-.customer-table td:nth-child(2) {
-  /* Location column */
+.customer-table td:nth-child(1),
+.outside-headers .header-item:nth-child(1) {
   width: 10%;
 }
 
-.customer-table th:nth-child(3),
-.customer-table td:nth-child(3) {
-  /* Status column */
-  width: 25%;
+.customer-table td:nth-child(2),
+.outside-headers .header-item:nth-child(2) {
+  width: 15%;
 }
 
-.customer-table th:nth-child(4),
-.customer-table td:nth-child(4) {
-  /* Actions column */
+.customer-table td:nth-child(3),
+.outside-headers .header-item:nth-child(3) {
   width: 20%;
 }
 
-.customer-table th:nth-child(5),
-.customer-table td:nth-child(5) {
-  /* Actions column */
+.customer-table td:nth-child(4),
+.outside-headers .header-item:nth-child(4) {
+  width: 20%;
+}
+
+.customer-table td:nth-child(5),
+.outside-headers .header-item:nth-child(5) {
   width: 15%;
 }
 
-.customer-table th:nth-child(6),
-.customer-table td:nth-child(6) {
-  /* Actions column */
+.customer-table td:nth-child(6),
+.outside-headers .header-item:nth-child(6) {
   width: 10%;
 }
 
-.customer-table th:nth-child(7),
-.customer-table td:nth-child(7) {
-  /* Actions column */
+/* For the header */
+.outside-headers .header-item:nth-child(6) {
+  margin-left: -10px; /* Moves it slightly to the left */
+}
+
+.customer-table td:nth-child(7),
+.outside-headers .header-item:nth-child(7) {
   width: 15%;
 }
 
-.outside-headers {
-  display: grid;
-  /* Change to grid layout */
-  grid-template-columns: 10% 10% 25% 20% 15% 10% 15%;
-  /* Match the column widths */
-  padding: 0px 18px;
-  margin: 20px auto 10px;
-  max-width: 1100px;
-}
 
-.header-item {
-  flex: 1;
-  text-align: left;
-  font-size: 15px;
-  color: #333;
-  font-weight: bold;
-}
 
 .btn-add {
   background-color: #42b983;
