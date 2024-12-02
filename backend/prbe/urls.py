@@ -39,6 +39,10 @@ urlpatterns = [
     path('customers/<int:customer_id>/', views.update_customer, name='update_customer'),
     path('mark/<int:customer_id>/<int:sales_id>/', views.mark_unit_as_sold, name='mark_unit_as_sold'),
     path('milestones/', views.get_milestones, name='get_milestones'),
+    path('delete_sale/<int:sale_id>/', views.delete_sale, name='delete_sale'),
+    path('delete_customer/<int:customer_id>/', views.delete_customer, name='delete_customer'),
+
+
 
     # PRBE
 

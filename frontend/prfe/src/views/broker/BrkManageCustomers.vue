@@ -187,8 +187,8 @@
                 Edit
               </button>
               <!-- Archive Button (Placeholder) -->
-              <button @click="archiveCustomer(customer)" class="btn btn-danger">
-                Archive
+              <button @click="DeleteSaleModal(customer)" class="btn btn-danger">
+                Delete
               </button>
             </td>
           </tr>
@@ -256,6 +256,15 @@
           </div>
         </form>
       </b-modal>
+       <!-- Delete Confirmation Modal -->
+  <b-modal v-model="showDeleteModal" title="Delete Confirmation" hide-footer>
+    <p>Are you sure you want to delete this unit affiliation for this customer?</p>
+    
+    <div class="form-actions">
+      <button type="button" @click="deleteSaleFromBackend(selectedCustomer.id,selectedCustomer.sales_id)" class="btn btn-danger">Yes, Delete</button>
+      <button type="button" @click="showDeleteModal = false" class="btn btn-secondary">Cancel</button>
+    </div>
+  </b-modal>
     </div>
   </div>
   </div>
@@ -292,6 +301,7 @@ export default {
       showModal: false, // Controls the visibility of the Add Customer modal
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
+      showDeleteModal: false, // To toggle the delete modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
       showStatusMessage:false,
       showNotification: false, // Controls the visibility of the notification modal
@@ -347,7 +357,6 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
-            console.log(this.customers);
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
 
           } else {
@@ -463,6 +472,62 @@ export default {
 
       this.showDocumentModal = true; // Open the document upload modal
     },
+    DeleteSaleModal(customer) {
+      this.selectedCustomer = customer; // Set the selected customer
+      if (this.selectedCustomer.site === "To be followed" || this.selectedCustomer.unit === "To be followed") {
+        this.showSalesMessage = true; // Show the message to create sales first
+      } else {
+        this.showSalesMessage = false; // Show the document upload form
+      }
+      this.showDeleteModal = true; // Show the modal
+
+    },
+    async deleteSaleFromBackend(customer_id, salesId) {
+    console.log(this.showSalesMessage, customer_id,salesId);
+
+    try {
+        let url = "";
+
+        if (this.showSalesMessage) {
+            // If showSalesMessage is true, delete the customer
+            url = `http://localhost:8000/delete_customer/${customer_id}/`;
+        } else {
+            // Otherwise, delete the sale
+            url = `http://localhost:8000/delete_sale/${salesId}/`;
+        }
+
+        // Send a POST request with DELETE override if CSRF protection is enabled
+        const response = await fetch(url, {
+            method: 'POST', // Use POST with _method override
+            headers: {
+                'Content-Type': 'application/json',
+                "X-CSRFToken": this.getCookie("csrftoken"),
+            },
+            body: JSON.stringify({ _method: 'DELETE' }), // Overriding method to DELETE
+        });
+
+        if (response.ok) {
+            this.notificationTitle = "Success!";
+            this.notificationMessage = this.showSalesMessage 
+                ? "Customer Removed Successfully!" 
+                : "Customer Sale Removed Successfully!";
+            this.showNotification = true;
+            this.showDeleteModal = false; // Close the modal
+            this.fetchCustomers();  // Refresh customers list after deletion
+        } else {
+            this.notificationTitle = "Error!";
+            this.notificationMessage = this.showSalesMessage 
+                ? "Customer Removal Failed!" 
+                : "Customer Sale Removal Failed!";
+            this.showNotification = true;
+            this.showDeleteModal = false; // Close the modal
+            this.fetchCustomers(); // Refresh customers list even if there's an error
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the sale or customer');
+    }
+},
     // Add a new customer
     async addCustomer() {
       const companyId = this.companyId; // Directly access the mapped state
@@ -651,7 +716,7 @@ export default {
       let parts = value.split("; " + name + "=");
       if (parts.length === 2) return parts.pop().split(";").shift();
     },
-    },
+},
 };
 </script>
 

@@ -438,7 +438,7 @@ def get_available_sites(request):
             site_data = []
             for site in sites:
                 # Check if there are any available units for this site
-                available_units = Unit.objects.filter(site=site, status='available')
+                available_units = Unit.objects.filter(site=site, status='Available')
                 if available_units.exists():  # Only add the site if there are available units
                     site_data.append({
                         'id': site.id,
@@ -483,7 +483,7 @@ def get_available_units(request):
 
         try:
             # Fetch only units that are associated with the given site ID and have a status of 'available'
-            units = Unit.objects.filter(site_id=site_id, status='available')
+            units = Unit.objects.filter(site_id=site_id, status='Available')
 
             # Prepare the response data
             unit_data = []
@@ -666,7 +666,7 @@ def update_customer(request, customer_id):
 
 def fetch_sites(request):
     # Filter sites that have available units
-    sites = Site.objects.filter(unit__status='available').distinct()
+    sites = Site.objects.filter(unit__status='Available').distinct()
 
     site_data = []
     for site in sites:
@@ -678,7 +678,7 @@ def fetch_sites(request):
                     'id': unit.id,
                     'unit_title': unit.unit_title  # Unit title
                 }
-                for unit in site.unit_set.filter(status='available')  # Only available units for the site
+                for unit in site.unit_set.filter(status='Available')  # Only available units for the site
             ]
         })
 
@@ -690,7 +690,7 @@ def fetch_units(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     
     # Get available units for the site
-    units = Unit.objects.filter(site=site, status='available')
+    units = Unit.objects.filter(site=site, status='Available')
 
     unit_data = [
         {
@@ -1175,9 +1175,7 @@ def get_milestones(request):
         broker = Broker.objects.get(id=broker_id)  # Retrieve broker by id
         milestones = Milestone.objects.filter(company=broker.company)
 
-        # If there are no milestones, we can still return an empty response
-        if not milestones.exists():
-            print("No milestones available.")
+   
         
         # Calculate total sales and commission
         total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
@@ -1225,7 +1223,33 @@ def get_milestones(request):
         print(f"Error: {str(e)}")  # Print the error if something goes wrong
         return JsonResponse({'error': str(e)}, status=500)
 
+@csrf_exempt  # Use this temporarily for debugging
+def delete_sale(request, sale_id):
+    # If you want to handle _method POST -> DELETE override
+    if request.method == 'POST' and request.body:
+        data = json.loads(request.body)
+        if data.get('_method') == 'DELETE':
+            # Process the delete operation
+            sale = get_object_or_404(Sale, id=sale_id)
+            sale.delete()
+            # Update unit status
+            unit = sale.unit
+            unit.status = 'Available'
+            unit.save()
 
+            return JsonResponse({"message": "Sale and unit affiliation deleted successfully"})
+
+    return JsonResponse({"message": "Invalid request"}, status=400)
+
+@csrf_exempt  # Use this temporarily for debugging
+# For deleting the customer
+def delete_customer(request, customer_id):
+    try:
+        customer = Customer.objects.get(id=customer_id)
+        customer.delete()
+        return JsonResponse({"message": "Customer removed successfully"}, status=200)
+    except Customer.DoesNotExist:
+        return JsonResponse({"message": "Customer not found"}, status=404)
 
 # Developers
 @csrf_exempt
