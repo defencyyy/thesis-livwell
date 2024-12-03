@@ -907,6 +907,12 @@ body {
   width: 25%;
 }
 
+.card:hover {
+  transform: scale(1.02); /* Slightly enlarges the card */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Adds a stronger shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
+}
+
 
 /* Modal Background */
 .modal {
