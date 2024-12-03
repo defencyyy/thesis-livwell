@@ -79,9 +79,9 @@ export default {
           {
             label: "Sales",
             data: salesByMonth,
-            fill: false,
-            borderColor: "rgba(75, 192, 192, 1)",
-            tension: 0.1,
+            backgroundColor: "rgba(75, 192, 192, 0.2)", // Bar color
+            borderColor: "rgba(75, 192, 192, 1)", // Border color
+            borderWidth: 1,
           },
         ],
       };
@@ -102,7 +102,7 @@ export default {
 
       const ctx = document.getElementById("sales-chart").getContext("2d");
       this.chart = new Chart(ctx, {
-        type: "line",
+        type: "bar", // Change to bar graph
         data: this.getChartData(),
         options: {
           responsive: true,
