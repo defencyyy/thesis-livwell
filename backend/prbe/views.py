@@ -529,9 +529,10 @@ def get_customers_for_broker(request, broker_id):
         broker = get_object_or_404(Broker, pk=broker_id)
         
         include_sales = request.GET.get('include_sales', 'false') == 'true'
+        
 
-        # Fetch customers for the broker
-        customers = Customer.objects.filter(broker_id=broker_id)
+                # Fetch customers for the broker
+        customers = Customer.objects.filter(broker_id=broker_id, archived=False)
         total_customers = customers.count()
 
         customer_data = []
@@ -1242,12 +1243,15 @@ def delete_sale(request, sale_id):
     return JsonResponse({"message": "Invalid request"}, status=400)
 
 @csrf_exempt  # Use this temporarily for debugging
-# For deleting the customer
 def delete_customer(request, customer_id):
     try:
         customer = Customer.objects.get(id=customer_id)
-        customer.delete()
-        return JsonResponse({"message": "Customer removed successfully"}, status=200)
+        if customer.archived:
+            return JsonResponse({"message": "Customer is already archived"}, status=400)
+        
+        customer.archived = True
+        customer.save()
+        return JsonResponse({"message": "Customer archived successfully"}, status=200)
     except Customer.DoesNotExist:
         return JsonResponse({"message": "Customer not found"}, status=404)
 
