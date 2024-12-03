@@ -7,7 +7,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Manage Customers</div>
+            <div class="edit-title">Manage Customer Sales</div>
           </div>
         </div>
   
@@ -916,26 +916,28 @@ body {
 
 /* Modal Background */
 .modal {
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 80%; 
+  max-width: 800px; /* Ensure a max-width to prevent excessive stretching */
+  height: 70%; 
+  max-height: 600px; /* Optional */
+  background-color: #fff; 
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+  border-radius: 10px; 
   display: flex;
   justify-content: center;
   align-items: center;
-  display: flex;
+  position: fixed;
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%);
 }
 
-/* Modal Content */
 .modal-content {
-  background: #fff;
+  width: 100%; /* Adjust to parent width */
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 500px;
-  max-height: 80%;
   overflow-y: auto;
-  text-align: left; /* Align all text to the left */
+  text-align: left;
+  height: 100%; /* Allow content to use the full height */
 }
 
 /* Headings */
