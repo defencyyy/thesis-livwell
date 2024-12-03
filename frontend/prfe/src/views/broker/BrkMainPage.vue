@@ -4,27 +4,38 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <p class="text-start display-7 fw-bolder">{{ brokerEmail }}</p>
-        <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">His, {{ brokerName }}</h1>
-        <p class="text-start pt-5"><strong>Total Sales:</strong> {{ totalSales }}</p>
-        <p class="text-start "><strong>Total Commissions:</strong> {{ totalCommissions }}</p>
-        <p class="text-start "> <strong>Total Customers: </strong> {{ totalCustomers }}</p>
-       
-        <!-- Pie Chart Section -->
-        <div
+        <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">{{ brokerName }}</h1>
+        <p class="text-start display-7 fw-bolder">@{{ brokerEmail }}</p>
+        <div class = "dashboard-boxes">
+          <div class = "box">
+            <p>Total Sales</p>
+            <h2>{{ totalSales }}</h2>
+          </div>
+          <div class = "box">
+            <p>Total Commissions</p>
+            <h2>{{ totalCommissions }}</h2>
+          </div>
+          <div class = "box">
+            <p>Total Customers</p>
+            <h2>{{ totalCustomers }}</h2>
+          </div>
+        </div>
+
+        <div class = "piechart-container">
+          <div
           v-if="
             salesStatus.sold === 0 &&
             salesStatus.pending === 0 &&
             salesStatus.reserved === 0
           "
-        >
-          <p>No sales data available.</p>
+          >
+            <p>No sales data available.</p>
+          </div>
+          <div v-else>
+            <canvas id="salesPieChart"></canvas>
+          </div>
         </div>
-        <div v-else>
-          <canvas id="salesPieChart"></canvas>
-        </div>
-
-        <!-- <button @click="logout">Logout</button> -->
+        <!-- Pie Chart Section -->
       </div>
     </div>
   </div>
@@ -281,6 +292,12 @@ canvas {
   margin: 20px auto;
 }
 
+.piechart-container {
+  display: grid;
+  justify-items: start; /* Aligns grid items to the left */
+}
+
+
 #salesPieChart
 {
   padding: 20px;
@@ -288,7 +305,35 @@ canvas {
   border: 2px solid #ccc;
   border-radius: 10px;
   /* margin: 20px 20px 20px 20px;   */
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
-  background-color: rgb(244, 244, 244);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.dashboard-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 50px; /* Adds more space at the top */
+  margin-bottom: 20px; /* Keeps bottom margin as is */
+}
+
+
+.box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.box p {
+  font-size: 14px;
+  color: #666;
+}
+
+.box h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
 }
 </style>
