@@ -5,6 +5,7 @@ from brokers.models import Broker
 from sites.models import Site
 from companies.models import Company
 import os
+from datetime import date
 
 def reservation_file_upload_path(instance, filename):
     company_name = instance.company.name if instance.company else 'new_company'
@@ -34,13 +35,22 @@ class Sale(models.Model):
     broker = models.ForeignKey(Broker, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     date_sold = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_reservation')
+    date_sold = models.DateField(blank=True, null=True)  # Make this optional
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending Reservation')
 
-    # New fields
+    # Additional fields
     reservation_fee = models.DecimalField(max_digits=10, decimal_places=2)  # Amount paid as reservation fee
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)  # Cash, card, transfer
     payment_reference = models.CharField(max_length=100, blank=True, null=True)  # Optional reference (e.g., transaction ID)
     reservation_file = models.FileField(upload_to=reservation_file_upload_path, blank=True, null=True)  # Optional file upload
+
+    def save(self, *args, **kwargs):
+        # Automatically set date_sold if the status is set to "Sold"
+        if self.status == 'Sold' and self.date_sold is None:
+            self.date_sold = date.today()
+        elif self.status != 'Sold':  # Reset date_sold if status changes away from "Sold"
+            self.date_sold = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Sale of {self.unit.unit_title} to {self.customer.first_name} {self.customer.last_name}"

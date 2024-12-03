@@ -5,7 +5,42 @@
       <AppHeader />
       <div class="content">
         <h1>Manage Sales</h1>
-        <p>View and manage sales details for your company.</p>
+        <p>
+          View and manage sales details for your company. Lagay siguro to sa
+          header?
+        </p>
+
+        <!-- Grid displaying summary info -->
+        <div class="info-grid">
+          <div class="grid-item">
+            <strong>Sales:</strong>
+            <select
+              v-model="salesPeriod"
+              @change="calculateSalesStatistics"
+              class="sales-dropdown"
+            >
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+              <option value="all">All-Time</option>
+            </select>
+            {{ displayedSales }}
+          </div>
+
+          <div class="grid-item">
+            <strong>Ongoing Sales:</strong> {{ ongoingSales }}
+          </div>
+          <div class="grid-item">
+            <strong>Total Units:</strong> {{ totalUnits }}
+          </div>
+          <div class="grid-item">
+            <strong>Available Units:</strong> {{ availableUnits }}
+          </div>
+          <div class="grid-item">
+            <strong>Sold Units:</strong> {{ soldUnits }}
+          </div>
+        </div>
+
+        <SalesChart v-if="sales.length" :salesData="sales" />
 
         <!-- Search and Filter Controls -->
         <div class="search-filter-controls">
@@ -161,10 +196,11 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+import SalesChart from "@/components/DevSalesChart.vue";
 
 export default {
   name: "DevSales",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, SalesChart },
   data() {
     return {
       sales: [],
@@ -180,6 +216,12 @@ export default {
       customers: [],
       sites: [],
       statuses: ["Pending Reservation", "Reserved", "Pending Sold", "Sold"],
+      salesPeriod: "monthly",
+      displayedSales: 0,
+      ongoingSales: 0,
+      totalUnits: 0,
+      availableUnits: 0,
+      soldUnits: 0,
     };
   },
   computed: {
@@ -194,6 +236,7 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchSales();
+      this.fetchUnits();
     }
   },
   methods: {
@@ -210,14 +253,67 @@ export default {
         this.sales = response.data.data || [];
         this.filteredSales = this.sales;
 
-        // Extract brokers, customers, and sites from sales data
-        this.brokers = [...new Set(this.sales.map((sale) => sale.broker))];
-        this.customers = [...new Set(this.sales.map((sale) => sale.customer))];
-        this.sites = [...new Set(this.sales.map((sale) => sale.site))];
+        // Calculate initial statistics
+        this.calculateSalesStatistics();
+        this.extractEntities();
       } catch (error) {
         console.error("Error fetching sales data:", error);
-        this.errorMessage = "Failed to load sales data.";
       }
+    },
+    async fetchUnits() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/units/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        const units = response.data.data || [];
+        this.availableUnits = units.filter(
+          (unit) => unit.status === "Available"
+        ).length;
+      } catch (error) {
+        console.error("Error fetching units data:", error);
+      }
+    },
+    calculateSalesStatistics() {
+      const currentDate = new Date();
+      let filteredSales = this.sales;
+
+      if (this.salesPeriod === "monthly") {
+        filteredSales = this.sales.filter((sale) => {
+          if (!sale.date_sold) return false; // Skip if `date_sold` is missing
+          const saleDate = new Date(sale.date_sold);
+          return (
+            saleDate.getMonth() === currentDate.getMonth() &&
+            saleDate.getFullYear() === currentDate.getFullYear()
+          );
+        });
+      } else if (this.salesPeriod === "yearly") {
+        filteredSales = this.sales.filter((sale) => {
+          if (!sale.date_sold) return false; // Skip if `date_sold` is missing
+          const saleDate = new Date(sale.date_sold);
+          return saleDate.getFullYear() === currentDate.getFullYear();
+        });
+      }
+
+      this.displayedSales = filteredSales.length;
+
+      // Recalculate ongoing sales, total units, and sold units
+      this.ongoingSales = this.sales.filter(
+        (sale) => sale.status !== "Sold"
+      ).length;
+      this.totalUnits = this.sales.length;
+      this.soldUnits = this.sales.filter(
+        (sale) => sale.status === "Sold"
+      ).length;
+    },
+    extractEntities() {
+      this.brokers = [...new Set(this.sales.map((sale) => sale.broker))];
+      this.customers = [...new Set(this.sales.map((sale) => sale.customer))];
+      this.sites = [...new Set(this.sales.map((sale) => sale.site))];
     },
     filterSales() {
       let filtered = this.sales;
@@ -494,5 +590,26 @@ body {
 }
 .status-sold {
   color: #28a745;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.grid-item {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sales-dropdown {
+  padding: 4px;
+  margin-left: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
 }
 </style>

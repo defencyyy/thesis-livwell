@@ -116,7 +116,6 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCompany();
-      this.setupAxiosInterceptor();
     }
   },
 
@@ -146,36 +145,8 @@ export default {
           alert("Error fetching company details.");
         }
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchCompany(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching company data:", error);
-          alert("Error fetching company data.");
-        }
-      }
-    },
-
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          {
-            refresh: refreshToken,
-          }
-        );
-        if (response.status === 200) {
-          const { access } = response.data;
-          localStorage.setItem("accessToken", access);
-          return access;
-        } else {
-          this.handleTokenRefreshFailure();
-        }
-      } catch (error) {
-        this.handleTokenRefreshFailure();
+        console.error("Error fetching company data:", error);
+        alert("Error fetching company data.");
       }
     },
 
@@ -243,37 +214,6 @@ export default {
 
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
-    },
-
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-          }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
-        }
-      );
-
-      axios.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          if (error.response?.status === 401) {
-            const refreshedToken = await this.refreshAccessToken();
-            if (refreshedToken) {
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${refreshedToken}`;
-              return axios(error.config);
-            }
-          }
-          return Promise.reject(error);
-        }
-      );
     },
   },
 };

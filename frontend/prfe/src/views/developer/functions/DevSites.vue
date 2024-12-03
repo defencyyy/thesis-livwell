@@ -57,10 +57,14 @@
                     <option value="status">Sort: Status</option>
                   </select>
 
-                  <select v-model="viewFilter" @change="toggleArchived" class="dropdown2"> 
-  <option value="active">View: Active</option>
-  <option value="archived">View: Archived</option>
-</select>
+                  <select
+                    v-model="viewFilter"
+                    @change="toggleArchived"
+                    class="dropdown2"
+                  >
+                    <option value="active">View: Active</option>
+                    <option value="archived">View: Archived</option>
+                  </select>
                 </div>
 
                 <div class="right-section">
@@ -784,49 +788,24 @@ export default {
     vuexCompanyId() {
       return this.companyId;
     },
-      filteredSites() {
-        // Determine whether to filter active or archived sites
-        const sitesToFilter =
-          this.viewFilter === "archived" ? this.archivedSites : this.sites;
+    filteredSites() {
+      // Determine whether to filter active or archived sites
+      const sitesToFilter =
+        this.viewFilter === "archived" ? this.archivedSites : this.sites;
 
-        // Apply search and sorting
-        return sitesToFilter
-          .filter((site) =>
-            site.name
-              .toLowerCase()
-              .includes(this.searchQuery.toLowerCase())
-          )
-          .sort((a, b) =>
-            this.sortBy === "name"
-              ? (a.name || "").localeCompare(b.name || "")
-              : (a.status || "").localeCompare(b.status || "")
-          );
-      },
+      // Apply search and sorting
+      return sitesToFilter
+        .filter((site) =>
+          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        )
+        .sort((a, b) =>
+          this.sortBy === "name"
+            ? (a.name || "").localeCompare(b.name || "")
+            : (a.status || "").localeCompare(b.status || "")
+        );
+    },
   },
   methods: {
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          { refresh: refreshToken }
-        );
-        if (response.status === 200) {
-          const { access } = response.data;
-          localStorage.setItem("accessToken", access);
-          return access;
-        } else {
-          this.handleTokenRefreshFailure();
-        }
-      } catch (error) {
-        this.handleTokenRefreshFailure();
-      }
-    },
-    handleTokenRefreshFailure() {
-      alert("Session expired. Please log in again.");
-      this.$store.dispatch("logout");
-      this.$router.push({ name: "DevLogin" });
-    },
     async fetchSiteDetails() {
       try {
         const response = await axios.get(
@@ -1354,6 +1333,50 @@ export default {
         console.error("Error fetching status options:", error);
       }
     },
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          {
+            refresh: refreshToken,
+          }
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
+        }
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+        this.handleTokenRefreshFailure();
+      }
+    },
+
+    handleTokenRefreshFailure() {
+      alert("Session expired. Redirecting to home.");
+      localStorage.clear();
+      this.$store.dispatch("logout");
+      this.$router.push({ name: "Home" });
+    },
+
+    setupAxiosInterceptors() {
+      axios.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          if (error.response?.status === 401) {
+            const refreshedToken = await this.refreshAccessToken();
+            if (refreshedToken) {
+              error.config.headers[
+                "Authorization"
+              ] = `Bearer ${refreshedToken}`;
+              return axios(error.config);
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
+    },
   },
   mounted() {
     console.log("Component mounted, fetching sites...");
@@ -1362,6 +1385,7 @@ export default {
     if (this.showArchived) {
       this.fetchArchivedSites();
     }
+    this.setupAxiosInterceptors();
   },
   watch: {
     showArchived() {},

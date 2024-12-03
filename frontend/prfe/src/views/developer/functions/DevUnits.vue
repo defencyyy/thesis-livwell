@@ -14,67 +14,16 @@
 
           <!-- Actions -->
           <div class="actions" v-if="!isLoading && !errorMessage">
-            <button @click="showUnitTemplates">Manage Unit Templates</button>
-            <button @click="showUnits">Manage Units</button>
-          </div>
-
-          <!-- Unit Templates Section -->
-          <div v-if="view === 'templates'">
-            <h2>Unit Templates</h2>
-            <!-- Total Unit Templates -->
-            <div>
-              <p>Total Unit Templates: {{ templates.length }}</p>
-            </div>
-
-            <!-- Search and Create Template -->
-            <div class="search-create">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search by template name"
-                @input="filterTemplates"
-              />
-              <button @click="openCreateTemplateModal">
-                Create Unit Template
-              </button>
-            </div>
-
-            <!-- Templates Table -->
-            <table>
-              <thead>
-                <tr>
-                  <th>RelativeId</th>
-                  <th>Name</th>
-                  <th>Bedrooms</th>
-                  <th>Bathrooms</th>
-                  <th>Price</th>
-                  <th>Floor Area</th>
-                  <th>Lot Area</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Display templates based on search/filter -->
-                <tr v-for="template in filteredTemplates" :key="template.id">
-                  <td>{{ template.relativeId }}</td>
-                  <td>{{ template.name }}</td>
-                  <td>{{ template.bedroom }}</td>
-                  <td>{{ template.bathroom }}</td>
-                  <td>{{ template.price }}</td>
-                  <td>{{ template.floor_area }}</td>
-                  <td>{{ template.lot_area }}</td>
-                  <td>
-                    <button @click="editTemplate(template)">Edit</button>
-                    <button @click="deleteTemplate(template.id)">Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <button @click="redirectToUnits">Manage Units</button>
+            <button @click="redirectToUnitTemplates">
+              Manage Unit Templates
+            </button>
           </div>
 
           <!-- Units Section -->
-          <div v-if="view === 'units'">
+          <div>
             <h2>Units</h2>
+            <button @click="addUnit">Add Unit</button>
             <table>
               <thead>
                 <tr>
@@ -85,7 +34,6 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Display units -->
                 <tr v-for="unit in units" :key="unit.id">
                   <td>{{ unit.unit_number }}</td>
                   <td>{{ unit.unit_title }}</td>
@@ -97,7 +45,6 @@
                 </tr>
               </tbody>
             </table>
-            <button @click="addUnit">Add Unit</button>
           </div>
         </div>
       </div>
@@ -115,43 +62,26 @@ export default {
   components: { SideNav, AppHeader },
   data() {
     return {
-      view: "units", // Default view: units
-      templates: [], // Template data
-      units: [], // Unit data
+      units: [],
       isLoading: false,
       errorMessage: null,
-      searchQuery: "", // Search input for templates
-      filteredTemplates: [], // Filtered templates based on search
-      selectedUnit: null, // Selected unit for editing
-      selectedTemplate: null, // Selected template for editing
     };
   },
   methods: {
-    // Fetch Unit Templates
-    async fetchTemplates() {
-      try {
-        this.isLoading = true;
-        this.errorMessage = null;
-        const response = await axios.get(
-          "http://localhost:8000/developer/units/templates/"
-        );
-        this.templates = response.data.data;
-        this.filteredTemplates = this.templates; // Initially display all templates
-      } catch (error) {
-        this.errorMessage = "Failed to load templates.";
-      } finally {
-        this.isLoading = false;
-      }
-    },
-
-    // Fetch Units
     async fetchUnits() {
       try {
         this.isLoading = true;
         this.errorMessage = null;
         const response = await axios.get(
-          "http://localhost:8000/developer/units/"
+          "http://localhost:8000/developer/units/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
+
         this.units = response.data.data;
       } catch (error) {
         this.errorMessage = "Failed to load units.";
@@ -159,93 +89,29 @@ export default {
         this.isLoading = false;
       }
     },
-
-    // Filter templates based on search query
-    filterTemplates() {
-      if (this.searchQuery) {
-        this.filteredTemplates = this.templates.filter((template) =>
-          template.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      } else {
-        this.filteredTemplates = this.templates; // Show all if no search query
-      }
-    },
-
-    // Show Unit Templates
-    showUnitTemplates() {
-      this.view = "templates";
-      this.fetchTemplates();
-    },
-
-    // Show Units
-    showUnits() {
-      this.view = "units";
-      this.fetchUnits();
-    },
-
-    // Create Unit
     addUnit() {
-      this.selectedUnit = null; // Reset selected unit
-      this.openUnitModal();
+      console.log("Add unit logic.");
     },
-
-    // Edit Unit
     editUnit(unit) {
-      this.selectedUnit = unit; // Set unit for editing
-      this.openUnitModal();
+      console.log("Edit unit logic for:", unit);
     },
-
-    // Delete Unit
     deleteUnit(unitId) {
       if (confirm("Are you sure you want to delete this unit?")) {
         this.units = this.units.filter((unit) => unit.id !== unitId);
       }
     },
 
-    // Open Create Template Modal
-    openCreateTemplateModal() {
-      this.selectedTemplate = null;
-      this.openTemplateModal();
+    redirectToUnits() {
+      this.$router.push({ name: "DevFuncUnits" });
     },
 
-    // Create Template
-    async createTemplate(templateData) {
-      try {
-        const response = await axios.post("/api/templates/", templateData);
-        this.templates.push(response.data.data); // Add new template
-        this.showUnitTemplates(); // Show templates view
-      } catch (error) {
-        this.errorMessage = "Failed to create template.";
-      }
-    },
-
-    // Delete Template
-    async deleteTemplate(templateId) {
-      if (confirm("Are you sure you want to delete this template?")) {
-        try {
-          await axios.delete(`/api/templates/${templateId}/`);
-          this.templates = this.templates.filter(
-            (template) => template.id !== templateId
-          );
-        } catch (error) {
-          this.errorMessage = "Failed to delete template.";
-        }
-      }
-    },
-
-    // Open Modals (Unit & Template)
-    openUnitModal() {
-      console.log("Open unit modal for", this.selectedUnit);
-      // Open modal for adding/editing unit
-    },
-
-    openTemplateModal() {
-      console.log("Open template modal for", this.selectedTemplate);
-      // Open modal for adding/editing template
+    // Redirect to Unit Management Page
+    redirectToUnitTemplates() {
+      this.$router.push({ name: "DevUnitTemplates" });
     },
   },
   mounted() {
-    this.showUnits(); // Default view to show units
+    this.fetchUnits();
   },
 };
 </script>

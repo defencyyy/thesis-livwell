@@ -306,7 +306,7 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCustomers();
-      this.setupAxiosInterceptor();
+      this.setupAxiosInterceptor(); // Make sure the interceptor is set up for token handling
     }
   },
   watch: {
@@ -336,36 +336,19 @@ export default {
     async fetchCustomers() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/customers/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
+          "http://localhost:8000/developer/customers/"
         );
         console.log("Fetched customers:", response.data);
         this.customers = response.data;
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchCustomers(); // Retry with refreshed token
-          }
-        } else {
-          console.error("Error fetching customers:", error);
-          this.error = "Failed to load customers.";
-        }
+        console.error("Error fetching customers:", error);
+        this.error = "Failed to load customers.";
       }
     },
     async viewCustomer(customer) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/customers/${customer.id}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
+          `http://localhost:8000/developer/customers/${customer.id}/`
         );
         this.currentCustomer = response.data;
         this.fetchCustomerDocuments(customer.id); // Make sure this is called
@@ -377,12 +360,7 @@ export default {
     async fetchCustomerDocuments(customerId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/customers/${customerId}/documents/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
+          `http://localhost:8000/developer/customers/${customerId}/documents/`
         );
         console.log("Fetched documents:", response.data);
         this.currentCustomer.documents = response.data.data.map((doc) => ({
@@ -398,12 +376,7 @@ export default {
     async fetchBrokerDetails(brokerId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/brokers/${brokerId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
+          `http://localhost:8000/developer/brokers/${brokerId}/`
         );
         this.currentCustomer.broker = response.data;
       } catch (error) {
@@ -416,45 +389,13 @@ export default {
         console.log("Updating customer with ID:", this.currentCustomer.id);
         await axios.put(
           `http://localhost:8000/developer/customers/${this.currentCustomer.id}/`,
-          this.currentCustomer,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
+          this.currentCustomer
         );
         this.showEditModal = false;
         this.fetchCustomers();
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.updateCustomer(); // Retry with refreshed token
-          }
-        } else {
-          console.error("Error updating customer:", error);
-          this.error = "Failed to update customer.";
-        }
-      }
-    },
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/refresh-token/",
-          {
-            refresh: refreshToken,
-          }
-        );
-
-        const newAccessToken = response.data.access;
-        localStorage.setItem("accessToken", newAccessToken);
-
-        return newAccessToken;
-      } catch (error) {
-        console.error("Error refreshing access token:", error);
-        this.error = "Failed to refresh access token.";
-        return null;
+        console.error("Error updating customer:", error);
+        this.error = "Failed to update customer.";
       }
     },
     redirectToLogin() {
@@ -478,13 +419,8 @@ export default {
         (response) => response,
         async (error) => {
           if (error.response?.status === 401) {
-            const refreshedToken = await this.refreshAccessToken();
-            if (refreshedToken) {
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${refreshedToken}`;
-              return axios(error.config);
-            }
+            // Token refresh will be handled by App.vue interceptor, so no need to retry here
+            return Promise.reject(error);
           }
           return Promise.reject(error);
         }
