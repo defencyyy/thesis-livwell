@@ -224,9 +224,7 @@
                 class="d-flex justify-content-end gap-2 mt-30"
                 style="padding-top: 15px"
               >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Add Customer
-                </button>
+                <button type="submit" class="btn-add">Submit</button>
                 <button
                   type="button"
                   @click="showModal = false"
