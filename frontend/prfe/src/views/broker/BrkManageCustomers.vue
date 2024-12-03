@@ -15,6 +15,9 @@
           <option value="site_desc">Site (Z-A)</option>
           <option value="status_asc">Document Status (Complete)</option>
           <option value="status_desc">Document Status (Pending)</option>
+          <option value="customer_code_asc">Customer Code (A-Z)</option>
+          <option value="customer_code_desc">Customer Code (Z-A)</option>
+          <!-- New sorting option -->
         </select>
 
         <div class="right-section">
@@ -295,18 +298,6 @@
             </div>
 
             <div class="p-3">
-              <div v-if="showSalesMessage">
-                <p>Please create sales first before uploading documents.</p>
-                <div class="button-container">
-                  <button
-                    type="button"
-                    @click="showDocumentModal = false"
-                    class="btn-cancel-right"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
               <div v-if="showStatusMessage">
                 <p>Waiting for Developer to confirm Reservation</p>
                 <div class="button-container">
@@ -429,6 +420,7 @@ export default {
       showModal: false, // Controls the visibility of the Add Customer modal
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
+      showDeleteModal: false, // To toggle the delete modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
       showStatusMessage: false,
       showNotification: false, // Controls the visibility of the notification modal
@@ -486,8 +478,8 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
-            console.log(this.customers);
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
+            this.sortCustomers(); // Call the sorting function here
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -502,7 +494,9 @@ export default {
 
     // Sort customers based on selected option
     sortCustomers() {
-      switch (this.sortBy) {
+      switch (
+        this.sortBy // Default to "name_asc"
+      ) {
         case "name_asc":
           this.customers.sort((a, b) =>
             a.customer_name.localeCompare(b.customer_name)
@@ -527,6 +521,16 @@ export default {
         case "status_desc": // New case for sorting by document status Z-A
           this.customers.sort((a, b) =>
             b.document_status.localeCompare(a.document_status)
+          );
+          break;
+        case "customer_code_asc":
+          this.customers.sort((a, b) =>
+            a.customer_code.localeCompare(b.customer_code)
+          );
+          break;
+        case "customer_code_desc":
+          this.customers.sort((a, b) =>
+            b.customer_code.localeCompare(a.customer_code)
           );
           break;
       }
@@ -593,7 +597,7 @@ export default {
       } else {
         this.showSalesMessage = false; // Show the document upload form
       }
-      if (this.selectedCustomer.status != "Reserved") {
+      if (this.selectedCustomer.status === "Pending Reservation") {
         this.showStatusMessage = true; // Show the message to create sales first
       } else {
         this.showStatusMessage = false; // Show the message to create sales first
@@ -604,6 +608,62 @@ export default {
       );
 
       this.showDocumentModal = true; // Open the document upload modal
+    },
+    DeleteSaleModal(customer) {
+      this.selectedCustomer = customer; // Set the selected customer
+      if (
+        this.selectedCustomer.site === "To be followed" ||
+        this.selectedCustomer.unit === "To be followed"
+      ) {
+        this.showSalesMessage = true; // Show the message to create sales first
+      } else {
+        this.showSalesMessage = false; // Show the document upload form
+      }
+      this.showDeleteModal = true; // Show the modal
+    },
+    async deleteSaleFromBackend(customer_id, salesId) {
+      try {
+        let url = "";
+
+        if (this.showSalesMessage) {
+          // If showSalesMessage is true, delete the customer
+          url = `http://localhost:8000/delete_customer/${customer_id}/`;
+        } else {
+          // Otherwise, delete the sale
+          url = `http://localhost:8000/delete_sale/${salesId}/`;
+        }
+
+        // Send a POST request with DELETE override if CSRF protection is enabled
+        const response = await fetch(url, {
+          method: "POST", // Use POST with _method override
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": this.getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ _method: "DELETE" }), // Overriding method to DELETE
+        });
+
+        if (response.ok) {
+          this.notificationTitle = "Success!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removed Successfully!"
+            : "Customer Sale Removed Successfully!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchCustomers(); // Refresh customers list after deletion
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removal Failed!"
+            : "Customer Sale Removal Failed!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchCustomers(); // Refresh customers list even if there's an error
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while deleting the sale or customer");
+      }
     },
     // Add a new customer
     async addCustomer() {

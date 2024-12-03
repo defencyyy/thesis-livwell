@@ -4,7 +4,9 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1 class="display-5 fw-bolder text-capitalize">Welcome to Affiliated Units</h1>
+        <h1 class="display-5 fw-bolder text-capitalize">
+          Welcome to Affiliated Units
+        </h1>
         <div v-if="sites.length" class="site-sales">
           <div class="site-card-container">
             <div
@@ -14,7 +16,9 @@
               @click="() => redirectToUnits(site.id)"
             >
               <img :src="site.picture" alt="Site Picture" />
-              <h2 class="display-6 fw-bolder text-capitalize">{{ site.name }}</h2>
+              <h2 class="display-6 fw-bolder text-capitalize">
+                {{ site.name }}
+              </h2>
               <p class="text-start">{{ site.description }}</p>
               <p class="text-start"><b>Location: </b> {{ site.location }}</p>
             </div>
@@ -63,7 +67,7 @@ export default {
       companyId: (state) => state.companyId,
     }),
   },
-   vuexUserId() {
+  vuexUserId() {
     return this.userId;
   },
   vuexCompanyId() {
@@ -75,6 +79,7 @@ export default {
   methods: {
     async fetchAvailableSites() {
       try {
+        console.log("Fetching sites for company ID:", this.companyId);
         const response = await axios.get(
           `http://localhost:8000/sites/available/`,
           {
@@ -83,9 +88,16 @@ export default {
             },
           }
         );
+        console.log("API response for available sites:", response.data);
         this.sites = response.data.sites;
+        if (!this.sites.length) {
+          console.warn("No sites with available units found.");
+        }
       } catch (error) {
-        console.error("Error fetching available sites:", error);
+        console.error(
+          "Error fetching available sites:",
+          error.response || error.message
+        );
       } finally {
         this.loading = false;
       }
@@ -139,7 +151,6 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin: 0 auto;
- 
 }
 
 .site-card {
