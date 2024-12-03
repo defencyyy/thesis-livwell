@@ -45,6 +45,8 @@
             No customers found.
           </div>
 
+          
+
           <div
             v-else
             v-for="(customer, index) in filteredCustomers"
@@ -116,7 +118,7 @@
                           <i class="fas fa-edit"></i>
                         </button>
                         <button
-                          @click="archiveCustomer(customer)"
+                          @click="DeleteSaleModal(customer)"
                           style="
                             border: none;
                             background-color: transparent;
@@ -383,6 +385,22 @@
               </div>
             </div>
           </b-modal>
+            <b-modal v-model="showDeleteModal" title="Delete Confirmation" hide-footer>
+    <p>Are you sure you want to delete this unit affiliation for this customer?</p>
+    
+    <div class="form-actions">
+      <button type="button" @click="deleteSaleFromBackend(selectedCustomer.id,selectedCustomer.sales_id)" class="btn btn-danger">Yes, Delete</button>
+      <button type="button" @click="showDeleteModal = false" class="btn btn-secondary">Cancel</button>
+    </div>
+  </b-modal>
+  <b-modal
+        v-model="showNotification"
+        :title="notificationTitle"
+        hide-footer
+      >
+        <p>{{ notificationMessage }}</p>
+        <button type="button" @click="showNotification = false">Close</button>
+      </b-modal>
         </div>
       </div>
     </div>
