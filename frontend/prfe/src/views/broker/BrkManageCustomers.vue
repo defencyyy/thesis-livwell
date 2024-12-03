@@ -422,13 +422,14 @@
           v-model="showDeleteModal"
           title="Delete Confirmation"
           hide-footer
+          centered
         >
           <p>
             Are you sure you want to delete this unit affiliation for this
             customer?
           </p>
 
-          <div class="form-actions">
+          <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px">
             <button
               type="button"
               @click="
@@ -437,14 +438,14 @@
                   selectedCustomer.sales_id
                 )
               "
-              class="btn btn-danger"
+              class="btn-add"
             >
-              Yes, Delete
+              Yes
             </button>
             <button
               type="button"
               @click="showDeleteModal = false"
-              class="btn btn-secondary"
+              class="btn-cancel"
             >
               Cancel
             </button>
@@ -454,9 +455,12 @@
           v-model="showNotification"
           :title="notificationTitle"
           hide-footer
+          centered
         >
           <p>{{ notificationMessage }}</p>
-          <button type="button" @click="showNotification = false">Close</button>
+          <div class = "button-container">
+            <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
+          </div>
         </b-modal>
       </div>
     </div>
