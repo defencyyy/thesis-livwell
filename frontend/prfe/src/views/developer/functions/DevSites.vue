@@ -68,15 +68,6 @@
                 </div>
 
                 <div class="right-section">
-                  <!-- Filter Button -->
-                  <!-- <button
-                    @click="toggleArchived"
-                    :class="['btn-secondary', { active: showArchived }]"
-                    class="filter-button"
-                  >
-                    {{ showArchived ? "View Archived" : "View Active" }}
-                  </button> -->
-
                   <!-- Add Site Button -->
                   <button
                     @click="showAddModal = true"
@@ -627,12 +618,13 @@
               <strong>Site Name:</strong> {{ currentSite.name }}
             </h5>
           </div>
+
           <div class="p-3">
             <!-- Floor Information -->
             <div class="mb-3">
               <strong>Floor Information</strong>
               <p>
-                <strong>Total Floors:</strong> {{ currentSite.floors.length }}
+                <strong>Current Floors:</strong> {{ currentSite.floors.length }}
               </p>
             </div>
 
@@ -647,6 +639,7 @@
                   placeholder="Enter number of floors"
                   min="1"
                   max="99"
+                  @input="updateTotalFloors"
                 />
                 <button @click="addFloors" class="btn btn-primary">
                   Add Floors
@@ -657,27 +650,9 @@
               </small>
             </div>
 
-            <!-- Existing Floors -->
+            <!-- Total Floors After Adding -->
             <div class="mb-3">
-              <h6>Existing Floors</h6>
-              <div v-if="currentSite.floors.length">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Floor Number</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="floor in currentSite.floors"
-                      :key="floor.floor_number"
-                    >
-                      <td>Floor {{ floor.floor_number }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p v-else>No floors available for this site.</p>
+              <h6>Total Floors: {{ totalFloors }}</h6>
             </div>
 
             <!-- Buttons -->
@@ -1102,15 +1077,18 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
-    // Open the modal to manage floors for the current site
     openFloorModal(site) {
       this.currentSite = site; // Set the current site to the selected site
+      this.totalFloors = this.currentSite.floors.length; // Set the total floors based on current site floors
       this.showFloorModal = true;
     },
+
     // Close the modal
     closeFloorModal() {
       this.showFloorModal = false;
     },
+
+    // Add floors based on the input
     addFloors() {
       if (!this.newFloorCount || this.newFloorCount < 1) {
         alert("Please enter a valid number of floors.");
@@ -1142,12 +1120,19 @@ export default {
       // Push the new floors into the current site
       this.currentSite.floors.push(...newFloors);
 
-      // Update the number_of_floors with the total number of floors
-      this.currentSite.number_of_floors = this.currentSite.floors.length;
+      // Update the totalFloors
+      this.totalFloors = this.currentSite.floors.length;
 
-      this.newFloorCount = 0; // Reset the floor count input
+      // Reset the input value for number of floors to add
+      this.newFloorCount = 1;
     },
 
+    // Update the total floors dynamically as the user enters a number
+    updateTotalFloors() {
+      const currentFloorCount = this.currentSite.floors.length;
+      const totalFloors = currentFloorCount + parseInt(this.newFloorCount) || 0;
+      this.totalFloors = totalFloors;
+    },
     async saveSite() {
       const formData = new FormData();
       formData.append("companyId", this.vuexCompanyId);
@@ -1161,21 +1146,16 @@ export default {
 
       // Debugging - log the company and floor data
       console.log("Company ID being sent:", this.vuexCompanyId);
-      console.log("Floor data being sent:", this.currentSite.number_of_floors);
-
-      if (this.currentSite.floors && this.currentSite.floors.length > 0) {
-        this.currentSite.floors.forEach((floor) => {
-          formData.append("floors[]", JSON.stringify(floor)); // Sending as simple objects in array
-        });
-      }
+      console.log("Floor data being sent:", this.currentSite.floors);
 
       // Append the floors to the formData
       if (this.currentSite.floors && this.currentSite.floors.length > 0) {
         this.currentSite.floors.forEach((floor, index) => {
           formData.append(
             `floors[${index}][floorNumber]`,
-            floor.floor_number || "" // Correcting the key to match the property in floors
+            floor.floorNumber || ""
           );
+          // You can add other fields here for each floor, e.g., floor type, area, etc.
         });
       }
 
@@ -1193,15 +1173,15 @@ export default {
 
         if (response.status === 200) {
           this.showFloorModal = false;
-          this.fetchSites();
+          this.fetchSites(); // Assuming this function will fetch the updated sites
           console.log("Site updated successfully!");
         }
       } catch (error) {
         console.error("Error saving site:", error.response || error);
-        // Display generic error message in case of failure
         alert("Failed to save site. Please try again.");
       }
     },
+
     // Save the new site including floor details
     async addSite() {
       const formData = new FormData();
