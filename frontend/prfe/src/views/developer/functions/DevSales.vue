@@ -385,7 +385,6 @@ body {
   text-align: center;
 }
 
-
 .search-filter-controls {
   display: flex;
   gap: 10px;

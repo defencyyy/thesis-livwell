@@ -88,6 +88,9 @@ class Unit(models.Model):
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
 
     def save(self, *args, **kwargs):
+        if self.status:
+            self.status = self.status.capitalize()
+
         # Validate that the floor belongs to the same site
         if self.floor.site != self.site:
             raise ValueError("The selected floor does not belong to the specified site.")

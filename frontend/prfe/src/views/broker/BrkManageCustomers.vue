@@ -2,17 +2,20 @@
   <header>
     <AppHeaderLivwell />
   </header>
-  <div class = "main-page">
-    <SideNav/>
-    <div class = "main-content">
-      <div class = "content">
-        <div class = "title-wrapper">
-          <div class = "title-left">
-            <div class = "title-icon"></div>
-            <div class = "edit-title">Manage Customers</div>
+  <div class="main-page">
+    <SideNav />
+    <div class="main-content">
+      <div class="content">
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Manage Customers</div>
           </div>
         </div>
-        <div class="card border-0 rounded-1 mx-auto" style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
           <div class="card-body">
             <div class="row">
               <!-- Toolbar -->
@@ -31,19 +34,30 @@
                   </div>
 
                   <!-- Sort Dropdown -->
-                  <select v-model="sortBy" @change="sortCustomers" class="dropdown">
+                  <select
+                    v-model="sortBy"
+                    @change="sortCustomers"
+                    class="dropdown"
+                  >
                     <option value="name_asc">Name (A-Z)</option>
                     <option value="name_desc">Name (Z-A)</option>
                     <option value="site_asc">Site (A-Z)</option>
                     <option value="site_desc">Site (Z-A)</option>
-                    <option value="status_asc">Document Status (Complete)</option>
-                    <option value="status_desc">Document Status (Pending)</option>
+                    <option value="status_asc">
+                      Document Status (Complete)
+                    </option>
+                    <option value="status_desc">
+                      Document Status (Pending)
+                    </option>
                   </select>
                 </div>
 
                 <div class="right-section">
                   <!-- Add Site Button -->
-                  <button @click="showModal=true" class="btn-primary add-button">
+                  <button
+                    @click="showModal = true"
+                    class="btn-primary add-button"
+                  >
                     Add Customer
                   </button>
                 </div>
@@ -66,10 +80,7 @@
           </div>
 
           <!-- Conditional Rendering -->
-          <div
-            v-if="customers.length === 0"
-            class="no-customers-message"
-          >
+          <div v-if="customers.length === 0" class="no-customers-message">
             No customers found.
           </div>
 
@@ -320,19 +331,7 @@
           </div>
 
           <div class="p-3">
-            <div v-if ="showSalesMessage">
-              <p>Please create sales first before uploading documents.</p>
-              <div class="button-container">
-                <button
-                  type="button"
-                  @click="showDocumentModal = false"
-                  class="btn-cancel-right"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-            <div v-if ="showStatusMessage">
+            <div v-if="showStatusMessage">
               <p>Waiting for Developer to confirm Reservation</p>
               <div class="button-container">
                 <button
@@ -359,7 +358,9 @@
                       <b> Upload {{ docType.name }} </b>
                     </label>
 
-                    <div class="file-input-wrapper d-flex align-items-center gap-2">
+                    <div
+                      class="file-input-wrapper d-flex align-items-center gap-2"
+                    >
                       <!-- Show the file input if no file has been selected -->
                       <input
                         type="file"
@@ -370,7 +371,10 @@
                       />
 
                       <!-- Show the file name after file has been selected -->
-                      <div v-if="filePreviews[docType.id]" class="d-flex align-items-center gap-2">
+                      <div
+                        v-if="filePreviews[docType.id]"
+                        class="d-flex align-items-center gap-2"
+                      >
                         <span class="file-name">
                           {{ filePreviews[docType.id].name }}
                         </span>
@@ -380,35 +384,34 @@
                           @click="removeFile(docType.id)"
                           class="btn btn-danger btn-sm"
                         >
-                        <i class="fas fa-trash"></i>
+                          <i class="fas fa-trash"></i>
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
 
-            <div class="form-actions">
-              <div
-                class="d-flex justify-content-end gap-2 mt-30"
-                style="padding-top: 15px"
-              >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Upload Document
-                </button>
-                <button
-                  type="button"
-                  @click="showDocumentModal = false"
-                  class="btn-cancel"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </form>
+                <div class="form-actions">
+                  <div
+                    class="d-flex justify-content-end gap-2 mt-30"
+                    style="padding-top: 15px"
+                  >
+                    <button type="submit" class="btn-add" style="width: 150px">
+                      Upload Document
+                    </button>
+                    <button
+                      type="button"
+                      @click="showDocumentModal = false"
+                      class="btn-cancel"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </b-modal>
-
       </div>
     </div>
   </div>
@@ -446,7 +449,7 @@ export default {
       showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
-      showStatusMessage:false,
+      showStatusMessage: false,
       showNotification: false, // Controls the visibility of the notification modal
       email: "",
       contactNumber: "",
@@ -470,23 +473,25 @@ export default {
     this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
-     filterCustomers() {
-    const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-    
-    if (!query) {
-      // If there's no search query, show all customers
-      this.filteredCustomers = this.customers;
-    } else {
-      // Filter customers by name or customer code
-      this.filteredCustomers = this.customers.filter((customer) => {
-        const customerName = customer.customer_name.toLowerCase();
-        const customerCode = customer.customer_code ? customer.customer_code.toLowerCase() : ""; // Assuming customer code is in customer_code field
-        return customerName.includes(query) || customerCode.includes(query);
-      });
-    }
-  },
-    
-  async fetchCustomers() {
+    filterCustomers() {
+      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
+
+      if (!query) {
+        // If there's no search query, show all customers
+        this.filteredCustomers = this.customers;
+      } else {
+        // Filter customers by name or customer code
+        this.filteredCustomers = this.customers.filter((customer) => {
+          const customerName = customer.customer_name.toLowerCase();
+          const customerCode = customer.customer_code
+            ? customer.customer_code.toLowerCase()
+            : ""; // Assuming customer code is in customer_code field
+          return customerName.includes(query) || customerCode.includes(query);
+        });
+      }
+    },
+
+    async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
         return;
@@ -502,7 +507,6 @@ export default {
             this.customers = data.customers;
             console.log(this.customers);
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
-
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -535,15 +539,15 @@ export default {
           this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
         case "status_asc": // New case for sorting by document status A-Z
-      this.customers.sort((a, b) =>
-        a.document_status.localeCompare(b.document_status)
-      );
-      break;
-    case "status_desc": // New case for sorting by document status Z-A
-      this.customers.sort((a, b) =>
-        b.document_status.localeCompare(a.document_status)
-      );
-      break;
+          this.customers.sort((a, b) =>
+            a.document_status.localeCompare(b.document_status)
+          );
+          break;
+        case "status_desc": // New case for sorting by document status Z-A
+          this.customers.sort((a, b) =>
+            b.document_status.localeCompare(a.document_status)
+          );
+          break;
       }
     },
     openEditModal(customer) {
@@ -610,11 +614,13 @@ export default {
       }
       if (this.selectedCustomer.status != "Reserved") {
         this.showStatusMessage = true; // Show the message to create sales first
-      }
-      else {
+      } else {
         this.showStatusMessage = false; // Show the message to create sales first
       }
-      this.fetchCustomerDocuments(this.selectedCustomer.id, this.selectedCustomer.sales_id);
+      this.fetchCustomerDocuments(
+        this.selectedCustomer.id,
+        this.selectedCustomer.sales_id
+      );
 
       this.showDocumentModal = true; // Open the document upload modal
     },
@@ -666,7 +672,7 @@ export default {
       }
     },
     // Fetch existing documents for the selected customer
-    async fetchCustomerDocuments(customerId,salesId) {
+    async fetchCustomerDocuments(customerId, salesId) {
       try {
         const response = await fetch(
           `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
@@ -753,13 +759,12 @@ export default {
         formData.append("files[]", file); // Append the file under "files[]"
         formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
         formData.append("sales_id", this.selectedCustomer.sales_id);
-
       }
 
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
       formData.append("company", this.selectedCustomer.company_id);
-       // Log the formData for debugging
+      // Log the formData for debugging
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {
           method: "POST",
@@ -798,15 +803,15 @@ export default {
       this.lastName = "";
       this.firstName = "";
       this.documentFiles = {}; // Clear the actual files
-  // Optionally, clear any other form-related fields
-  this.selectedCustomer = null; // Clear selected customer
+      // Optionally, clear any other form-related fields
+      this.selectedCustomer = null; // Clear selected customer
     },
     getCookie(name) {
       let value = "; " + document.cookie;
       let parts = value.split("; " + name + "=");
       if (parts.length === 2) return parts.pop().split(";").shift();
     },
-    },
+  },
 };
 </script>
 
@@ -1067,8 +1072,6 @@ body {
   width: 15%;
 }
 
-
-
 .btn-add {
   background-color: #42b983;
   /* Button primary color */
@@ -1109,5 +1112,4 @@ input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
-
 </style>
