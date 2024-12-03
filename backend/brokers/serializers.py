@@ -4,10 +4,12 @@ from .models import Broker
 
 class DeveloperBrokerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Make sure the password is write-only
+    total_sales = serializers.ReadOnlyField()
+    total_commissions = serializers.ReadOnlyField()
 
     class Meta:
         model = Broker
-        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived']
+        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'total_sales', 'total_commissions']
         extra_kwargs = {
             'username': {'required': False},  # Allow username to be set later
         }

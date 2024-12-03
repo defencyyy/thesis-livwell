@@ -16,10 +16,10 @@ def reservation_file_upload_path(instance, filename):
 
 class Sale(models.Model):
     STATUS_CHOICES = [
-        ('Pending Reservation', 'Pending Reservation'),  # Reservation submitted, awaiting confirmation
-        ('Reserved', 'Reserved'),  # Reservation confirmed, unit is on hold
-        ('Pending Sold', 'Pending Sold'),  # Reservation complete, awaiting final sale confirmation
-        ('Sold', 'Sold')  # Sale confirmed, unit officially sold
+        ('Pending Reservation', 'Pending Reservation'),
+        ('Reserved', 'Reserved'),
+        ('Pending Sold', 'Pending Sold'),
+        ('Sold', 'Sold')
     ]
 
     PAYMENT_METHOD_CHOICES = [
@@ -34,8 +34,7 @@ class Sale(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     broker = models.ForeignKey(Broker, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    date_sold = models.DateField(auto_now_add=True)
-    date_sold = models.DateField(blank=True, null=True)  # Make this optional
+    date_sold = models.DateField(auto_now_add=True, blank=True, null=True)  # Make this optional
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending Reservation')
 
     # Additional fields
@@ -44,12 +43,24 @@ class Sale(models.Model):
     payment_reference = models.CharField(max_length=100, blank=True, null=True)  # Optional reference (e.g., transaction ID)
     reservation_file = models.FileField(upload_to=reservation_file_upload_path, blank=True, null=True)  # Optional file upload
 
+    # Commission field
+    commission = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True, 
+        help_text="The commission earned from this sale (based on the unit's commission)"
+    )
+
     def save(self, *args, **kwargs):
         # Automatically set date_sold if the status is set to "Sold"
         if self.status == 'Sold' and self.date_sold is None:
             self.date_sold = date.today()
-        elif self.status != 'Sold':  # Reset date_sold if status changes away from "Sold"
-            self.date_sold = None
+        
+        # Automatically set commission if the unit is sold
+        if self.status == 'Sold' and self.commission is None:
+            self.commission = self.unit.commission  # The commission comes from the unit's commission
+
         super().save(*args, **kwargs)
 
     def __str__(self):

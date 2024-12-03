@@ -8,7 +8,7 @@ from django.core.validators import RegexValidator
 class Broker(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
     email = models.EmailField(max_length=50, unique=True)
-    username = models.CharField(max_length=100, unique=True, editable=True)  # Set editable=False to prevent manual input
+    username = models.CharField(max_length=100, unique=True, editable=True)
     contact_number = models.CharField(
         max_length=20,
         blank=True,
@@ -30,7 +30,6 @@ class Broker(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
-        # Hash the password if not already hashed
         if self.password and not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
         super().save(*args, **kwargs)
@@ -48,6 +47,26 @@ class Broker(models.Model):
 
     def get_short_name(self):
         return self.first_name
+
+    @property
+    def total_sales(self):
+        from sales.models import Sale  # Importing Sale here to avoid circular import
+        return Sale.objects.filter(broker=self, status='Sold').count()
+
+    @property
+    def total_commissions(self):
+        from sales.models import Sale  # Importing Sale here to avoid circular import
+        return Sale.objects.filter(broker=self).aggregate(total_commission=models.Sum('commission'))['total_commission'] or 0
+
+    def meets_sales_milestone(self, milestone):
+        if milestone.type == "sales":
+            return self.total_sales >= milestone.sales_threshold
+        return False
+
+    def meets_commission_milestone(self, milestone):
+        if milestone.type == "commission":
+            return self.total_commissions >= milestone.commission_threshold
+        return False
 
     class Meta:
         ordering = ['last_name', 'first_name']
