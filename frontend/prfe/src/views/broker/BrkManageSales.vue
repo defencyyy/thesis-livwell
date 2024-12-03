@@ -4,39 +4,51 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1 class="display-5 fw-bolder text-capitalize">
-          Welcome to the Manage Sales Page
-        </h1>
-        <p>
-          This is where you can manage sales data for brokers and developers.
-        </p>
-
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Manage Customers</div>
+          </div>
+        </div>
+  
         <!-- Sales Table -->
-        <table v-if="sales.length > 0" class="sales-table">
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Site Name</th>
-              <th>Unit Title</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="sale in sales"
-              :key="sale.id"
-              @click="openSalesAgreementModal(sale)"
-              style="cursor: pointer"
-            >
-              <td class="text-uppercase">
-                {{ sale.customer_name }}({{ sale.customer_code }})
-              </td>
-              <td class="text-uppercase">{{ sale.site_name }}</td>
-              <td class="text-uppercase">{{ sale.unit_title }}</td>
-              <td class="text-uppercase">{{ sale.status }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div style = "margin-top: 50px;">
+          <div class="outside-headers">
+            <span class="header-item">Customer Name</span>
+            <span class="header-item">Site Name</span>
+            <span class="header-item">Unit Title</span>
+            <span class="header-item">Status</span>
+          </div>
+        </div> 
+        <div class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            ">
+          <div class = "card-body"> 
+            <table v-if="sales.length > 0" class = "salesCustomer-table">
+            <tbody>
+              <tr v-for="sale in sales"
+                :key="sale.id"
+                @click="openSalesAgreementModal(sale)"
+                style="cursor: pointer">
+                <td>
+                  <span class = "customer-name">{{ sale.customer_name }} ({{ sale.customer_code }})</span>
+                </td>
+                <td>
+                  <span class = "customer-site">{{ sale.site_name }}</span>
+                </td>
+                <td>
+                  <span class = "customer-unit">{{ sale.unit_title }}</span>
+                </td>
+                <td>
+                  <span class = "customer-status">{{ sale.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
 
         <!-- No customers found message -->
         <p v-if="!sales.length">No sales found.</p>
@@ -800,19 +812,16 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #f6f6f6;
   /* Gray background */
 }
 
 .main-content {
   display: flex;
-  flex-direction: column;
-  margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
+  flex-direction: column;
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
+  margin-top: 60px;
 }
 
 .content {
@@ -821,56 +830,84 @@ body {
   text-align: center;
 }
 
-.sales-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: separate; /* Enables border radius */
-  border-spacing: 0; /* Ensures proper alignment for border radius */
-  text-align: left;
-  background-color: white; /* Ensure the table has a distinct background */
-
-  box-shadow: 0 15px 12px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
-}
-
-.sales-table th,
-.sales-table td {
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
-  text-align: start;
-}
-
-.sales-table th {
-  background-color: #c2ffd1;
-}
-
-.sales-table tr:hover {
-  background-color: #c2c2c2;
-  transition: ease 0.3s;
-}
-
-/* .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+.title-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  max-height: 90%; 
-  overflow-y: auto; 
-} */
+.title-left {
+  display: flex;
+  align-items: center;
+}
 
-/* Modal Background */
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%; /* Adjust column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.salesCustomer-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left; /* Consistent with headers */
+  border: none; /* Removes the table border */
+}
+
+.salesCustomer-table td{
+  padding: 10px 18px; /* Matches outside-headers padding */
+  border: none; /* Removes borders between table cells */
+  text-align: left; /* Consistent alignment */
+}
+
+.salesCustomer-table tr{
+  border: none; /* Removes borders between table cells */
+}
+
+.salesCustomer-table td:nth-child(2),
+.outside-headers .header-item:nth-child(2) {
+  width: 25%;
+}
+
+.salesCustomer-table td:nth-child(3),
+.outside-headers .header-item:nth-child(3) {
+  width: 25%;
+}
+
+.salesCustomer-table td:nth-child(4),
+.outside-headers .header-item:nth-child(4) {
+  width: 25%;
+}
+
+
 /* Modal Background */
 .modal {
   width: 100%;
