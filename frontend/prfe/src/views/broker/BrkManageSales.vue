@@ -52,8 +52,9 @@
 
         <!-- No customers found message -->
         <p v-if="!sales.length">No sales found.</p>
+
         <!-- Sales Agreement Modal -->
-        <b-modal v-model="showModal" title = "Sales Agreement" centered hide-footer>
+        <b-modal v-model="showModal" title = "Sales Agreement" size="lg" centered hide-footer >
           <div v-if="selectedSale.status === 'Pending Reservation'">
             <p style="text-align: center">
               Reservation not yet confirmed
@@ -163,10 +164,13 @@
               </div>
               <div v-if="!salesDetailsExists">
                 <div class="form-group">
-                  <label for="paymentPlan"><b>Payment Plan: </b></label>
+                  <br>
+                  <label for="paymentPlan"><b>Payment Plan </b></label>
+                  <br>
                   <select
                     v-model="selectedPaymentPlan"
                     id="paymentPlan"
+                    class = "dropdown"
                     required
                   >
                     <option value="Spot Cash">Spot Cash</option>
@@ -179,6 +183,7 @@
 
                 <!-- Spot Discount -->
                 <div class="form-group">
+                  <br>
                   <label for="spotDiscount">Spot Discount</label>
                   <input
                     type="number"
@@ -199,6 +204,7 @@
 
                 <!-- TLP Discount -->
                 <div class="form-group">
+                  <br>
                   <label for="tlpDiscount">TLP Discount (Optional)</label>
                   <input
                     type="number"
@@ -217,6 +223,7 @@
 
                 <!-- Other Charges -->
                 <div class="form-group">
+                  <br>
                   <label for="otherChargesPercentage">Other Charges (%)</label>
                   <input
                     type="number"
@@ -388,10 +395,12 @@
 
                 <!-- Required Documents Section (Always Displayed) -->
                 <div class="form-group">
+                  <br>
                   <h3>Required Documents</h3>
                   <ul>
                     <li>
                       <strong>Reservation Agreement:</strong>
+                      <br>
                       <input
                         type="file"
                         @change="handleFileChange"
@@ -963,6 +972,20 @@ body {
   padding: 10px;
 }
 
+/* Dropdown Styling */
+.dropdown {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
+
 /* juju end */
 
 /* Modal Background */
@@ -1072,23 +1095,6 @@ button:last-of-type:hover {
 button:last-of-type:active {
   background-color: #bd2130; /* Even darker red on click */
   transform: scale(0.98); /* Slight shrink effect on click */
-}
-
-/* Dropdown Styling */
-.dropdown {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #f9f9f9;
-  cursor: pointer;
-  text-align: left; /* Ensure dropdown text aligns to the left */
-}
-
-.dropdown:focus {
-  border-color: #007bff;
-  outline: none;
 }
 
 /* Scrollable Content */
@@ -1223,35 +1229,8 @@ td {
 
 /* Style for File Input Button */
 input[type="file"] {
-  display: inline-block;
-  padding: 8px 12px;
-  border: 1px solid #ccc; /* Optional: Add a border for better visibility */
-  border-radius: 8px; /* Apply border radius */
-  font-size: 14px;
-  background-color: #f9f9f9; /* Light background for better contrast */
-  color: #333; /* Text color */
-  cursor: pointer;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-input[type="file"]::file-selector-button {
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 6px 10px;
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text */
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-input[type="file"]::file-selector-button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-}
-
-input[type="file"]::file-selector-button:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Add focus effect */
 }
 
 .form-group label {
@@ -1262,14 +1241,12 @@ input[type="file"]::file-selector-button:focus {
 }
 
 .form-group input[type="number"] {
-  width: 100%; /* Make the input take up full width */
+  width: 70%; /* Make the input take up full width */
   padding: 10px; /* Add padding for a better click area */
   font-size: 16px; /* Match font size with the label */
   border: 1px solid #ccc; /* Light border for input */
   border-radius: 8px; /* Add rounded corners */
-  background-color: #f9f9f9; /* Light background for input */
   color: #333; /* Text color */
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   transition: all 0.3s ease; /* Smooth transition for hover/focus */
 }
 
