@@ -297,15 +297,19 @@ def add_customer(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            # Check if the email already exists in the database
-            if Customer.objects.filter(email=data['email']).exists():
-                return JsonResponse({"success": False, "message": "Email already taken."}, status=400)
+            broker_id = data['broker']
+            company_id = data['company_id']
+            email = data['email']
+            
+            # Check if the email already exists for the same broker and company
+            if Customer.objects.filter(email=email, broker_id=broker_id, company_id=company_id).exists():
+                return JsonResponse({"success": False, "message": "Email already taken for this broker and company."}, status=400)
 
             # Create a new customer instance, including company_id
             customer = Customer.objects.create(
-                broker_id=data['broker'],
-                company_id=data['company_id'],  # Include company_id
-                email=data['email'],
+                broker_id=broker_id,
+                company_id=company_id,  # Include company_id
+                email=email,
                 contact_number=data['contact_number'],
                 last_name=data['last_name'],
                 first_name=data['first_name']
