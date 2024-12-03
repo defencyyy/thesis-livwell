@@ -52,22 +52,22 @@
 
         <!-- No customers found message -->
         <p v-if="!sales.length">No sales found.</p>
-
         <!-- Sales Agreement Modal -->
-        <div v-if="showModal" class="modal">
-          <div class="modal-content">
-            <div v-if="selectedSale.status === 'Pending Reservation'">
-              <p style="color: red; font-weight: bold; text-align: center">
-                Reservation not yet confirmed
-              </p>
-              <button @click="closeModal">Close</button>
+        <b-modal v-model="showModal" title = "Sales Agreement" centered hide-footer>
+          <div v-if="selectedSale.status === 'Pending Reservation'">
+            <p style="text-align: center">
+              Reservation not yet confirmed
+            </p>
+            <div class = "button-container">
+              <button @click="closeModal" class = "btn-cancel-right">Close</button>
             </div>
-            <div v-else>
-              <h2>Sales Agreement</h2>
-              <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
-              <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
-              <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
-              <div v-if="salesDetailsExists">
+          </div>
+          
+          <div v-else>
+            <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
+            <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
+            <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
+            <div v-if="salesDetailsExists">
                 <p>
                   <strong>Payment Plan:</strong>
                   {{ salesDetails.payment_plan }}
@@ -143,21 +143,24 @@
                     balanceUponTurnover
                   }}
                 </p>
+
+                <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+                >
                 <button
                   v-if="
                     selectedSale.status !== 'Pending Sold' &&
                     selectedSale.status !== 'Sold'
                   "
                   @click="markUnitAsSold"
+                  class = "btn-add"
                 >
                   Mark Unit as Sold
                 </button>
-                <button @click="closeModal">Close</button>
-
-                <!-- Add other fields you want to display here -->
+                <button @click="closeModal" class = "btn-cancel">Close</button>
+                </div>
               </div>
-
-              <!-- Payment Plan Section -->
               <div v-if="!salesDetailsExists">
                 <div class="form-group">
                   <label for="paymentPlan"><b>Payment Plan: </b></label>
@@ -188,7 +191,6 @@
                   />
                 </div>
                 <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-
                 <p>
                   <strong>Unit Price after Spot Discount:</strong> ₱{{
                     unitPriceAfterSpotDiscount
@@ -239,6 +241,7 @@
                     totalAmountPayable
                   }}
                 </p>
+
                 <!-- Spot Downpayment -->
                 <div
                   v-if="selectedPaymentPlan === 'Deffered Payment'"
@@ -256,7 +259,7 @@
                     required
                   />
                 </div>
-
+                
                 <p v-if="selectedPaymentPlan === 'Deffered Payment'">
                   <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
                 </p>
@@ -382,6 +385,7 @@
                     </table>
                   </div>
                 </div>
+
                 <!-- Required Documents Section (Always Displayed) -->
                 <div class="form-group">
                   <h3>Required Documents</h3>
@@ -417,8 +421,14 @@
                     </li>
                   </ul>
                 </div>
-                <button @click="submitToCustomer">Submit to Customer</button>
-                <button @click="closeModal">Close</button>
+                
+                <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+                >
+                  <button @click="submitToCustomer" class = "btn-add">Submit to Customer</button>
+                  <button @click="closeModal" class = "btn-cancel">Close</button>
+                </div>
 
                 <!-- Loading Indicator -->
                 <div v-if="loading" class="loading-overlay">
@@ -431,18 +441,19 @@
                 <p v-if="errorMessage" class="error-message">
                   {{ errorMessage }}
                 </p>
+
               </div>
-            </div>
           </div>
+        </b-modal>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 import axios from "axios";
 
@@ -450,6 +461,7 @@ export default {
   name: "ManageSales",
   components: {
     SideNav,
+    BModal,
     AppHeader,
   },
   computed: {
@@ -470,7 +482,9 @@ export default {
     return {
       sales: [], // List of sales data
       showModal: false,
-      selectedSale: null, // Currently selected sale row
+      selectedSale: {
+      status: '', // Initialize with a default value
+      },
       salesDetailsExists: false, // Flag to check if sales details already exist
       salesDetails: null, // S
       // Payment Scheme Data
@@ -913,6 +927,43 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
 }
 
+/* Flex container for button alignment */
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+}
+
+/* Button styling */
+.btn-cancel-right {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
+  cursor: pointer;
+}
+
+.btn-add {
+  background-color: #42b983;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+/* juju end */
 
 /* Modal Background */
 .modal {
