@@ -27,6 +27,8 @@
           <option value="site_desc">Site (Z-A)</option>
           <option value="status_asc">Document Status (Complete)</option>
           <option value="status_desc">Document Status (Pending)</option>
+          <option value="customer_code_asc">Customer Code (A-Z)</option>
+          <option value="customer_code_desc">Customer Code (Z-A)</option> <!-- New sorting option -->
         </select>
       </div>
 
@@ -358,6 +360,7 @@ export default {
           if (data.success) {
             this.customers = data.customers;
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
+            this.sortCustomers(); // Call the sorting function here
 
           } else {
             this.error = data.message || "Failed to fetch customer data.";
@@ -372,25 +375,25 @@ export default {
     },
 
     // Sort customers based on selected option
-    sortCustomers() {
-      switch (this.sortBy) {
-        case "name_asc":
-          this.customers.sort((a, b) =>
-            a.customer_name.localeCompare(b.customer_name)
-          );
-          break;
-        case "name_desc":
-          this.customers.sort((a, b) =>
-            b.customer_name.localeCompare(a.customer_name)
-          );
-          break;
-        case "site_asc":
-          this.customers.sort((a, b) => a.site.localeCompare(b.site));
-          break;
-        case "site_desc":
-          this.customers.sort((a, b) => b.site.localeCompare(a.site));
-          break;
-        case "status_asc": // New case for sorting by document status A-Z
+   sortCustomers() {
+  switch (this.sortBy) { // Default to "name_asc"
+    case "name_asc":
+      this.customers.sort((a, b) =>
+        a.customer_name.localeCompare(b.customer_name)
+      );
+      break;
+    case "name_desc":
+      this.customers.sort((a, b) =>
+        b.customer_name.localeCompare(a.customer_name)
+      );
+      break;
+    case "site_asc":
+      this.customers.sort((a, b) => a.site.localeCompare(b.site));
+      break;
+    case "site_desc":
+      this.customers.sort((a, b) => b.site.localeCompare(a.site));
+      break;
+    case "status_asc": // New case for sorting by document status A-Z
       this.customers.sort((a, b) =>
         a.document_status.localeCompare(b.document_status)
       );
@@ -400,8 +403,18 @@ export default {
         b.document_status.localeCompare(a.document_status)
       );
       break;
-      }
-    },
+      case "customer_code_asc":
+      this.customers.sort((a, b) =>
+        a.customer_code.localeCompare(b.customer_code)
+      );
+      break;
+    case "customer_code_desc":
+      this.customers.sort((a, b) =>
+        b.customer_code.localeCompare(a.customer_code)
+      );
+      break;
+  }
+},
     openEditModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       this.editEmail = customer.email;
