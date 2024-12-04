@@ -457,8 +457,8 @@ def get_available_sites(request):
                         'description': site.description,
                         'location': site.location,
                         'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
+                        'status_site':site.status,
                     })
-
             logger.info(f"Returning {len(site_data)} sites with available units.")
             return JsonResponse({'sites': site_data}, status=200)
 
@@ -1318,9 +1318,6 @@ def sales_by_month(request):
         .order_by('-year')
 
     available_years = [year['year'] for year in years]
-    print("Month Sales Data:", month_sales)
-    print("Available Years:", available_years)
-
     return JsonResponse({
         "success": True,
         "month_sales": month_sales,  # Sales per month
