@@ -321,17 +321,17 @@
                   <!-- Spread Downpayment -->
                   <div class="form-group">
                     <label for="spreadDownpayment">Spread Downpayment</label>
-                    <select
-                      v-model="spreadDownpaymentPercentage"
-                      id="spreadDownpayment"
-                      @change="updatePaymentDetails"
-                      required
-                    >
-                      <option value="0">0%</option>
-                      <option value="5">5%</option>
-                      <option value="10">10%</option>
-                      <option value="15">15%</option>
-                    </select>
+                    <input
+                    type="number"
+                    v-model="spreadDownpaymentPercentage"
+                    id="spreadDownpayment"
+                    @input="updatePaymentDetails"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                    placeholder="Enter percentage"
+                  />
                   </div>
                   <p>
                     <strong>Spread Downpayment:</strong> ₱{{
@@ -429,11 +429,14 @@
                 </div>
 
                 <!-- Required Documents Section (Always Displayed) -->
-                <!-- Required Documents Section (Always Displayed) -->
 <div class="form-group">
   <br>
   <h3>Required Documents</h3>
   <ul>
+    <li>
+    <strong>Reservation Agreement:</strong>
+    <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
+    </li>
     <li v-for="document in documentTypes" :key="document.id">
       <strong>{{ document.name }}:</strong>
       <br v-if="document.id === 'reservationAgreement'">
@@ -447,9 +450,7 @@
       <span v-else>{{ document.description }}</span>
     </li>
   </ul>
-</div>
-
-                
+</div>                
                 <div
                 class="d-flex justify-content-end gap-2 mt-30"
                 style="padding-top: 15px"

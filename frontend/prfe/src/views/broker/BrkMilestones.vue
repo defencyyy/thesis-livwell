@@ -4,7 +4,14 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h2>Milestones Summary</h2>
+
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Milestones Summary</div>
+          </div>
+        </div>
+
 
         <div v-if="loading" class="loading-message">Loading data...</div>
 
@@ -271,19 +278,44 @@ body {
 
 .main-content {
   display: flex;
-  flex-direction: column;
-  margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
+  flex-direction: column;
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
+  margin-top: 60px;
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
 }
 
 .milestones-summary {
