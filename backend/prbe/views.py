@@ -16,6 +16,12 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.db.models import Sum
+from datetime import timedelta
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth, ExtractYear
+
+
+
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -1267,6 +1273,59 @@ def delete_customer(request, customer_id):
     except Customer.DoesNotExist:
         return JsonResponse({"message": "Customer not found"}, status=404)
 
+
+
+def sales_by_month(request):
+    broker_id = request.GET.get('broker_id')
+    year = request.GET.get('year')  # Get the year from the query params
+
+    if not broker_id:
+        return JsonResponse({"success": False, "message": "Broker ID is required"}, status=400)
+
+    # If no year is provided, default to the current year
+    if not year:
+        year = timezone.now().year
+    else:
+        try:
+            year = int(year)  # Ensure the year is an integer
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid year"}, status=400)
+
+    # Get the count of sales grouped by month for a specific broker and year
+    sales_data = Sale.objects.filter(broker_id=broker_id, status='Sold', date_sold__year=year) \
+        .annotate(month=ExtractMonth('date_sold')) \
+        .values('month') \
+        .annotate(sales_count=Count('id')) \
+        .order_by('month')
+
+    # Prepare the data for months and sales count
+    months = [sale['month'] for sale in sales_data]
+    sales_count = [sale['sales_count'] for sale in sales_data]
+
+    # Month names (1 = January, 2 = February, etc.)
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    # Prepare the response data mapping month numbers to their names and sales count
+    month_sales = {}
+    for month, count in zip(months, sales_count):
+        month_sales[month_names[month - 1]] = count  # Adjust month because month is 1-based
+
+    # Get distinct years the broker has made sales
+    years = Sale.objects.filter(broker_id=broker_id) \
+        .annotate(year=ExtractYear('date_sold')) \
+        .values('year') \
+        .distinct() \
+        .order_by('-year')
+
+    available_years = [year['year'] for year in years]
+    print("Month Sales Data:", month_sales)
+    print("Available Years:", available_years)
+
+    return JsonResponse({
+        "success": True,
+        "month_sales": month_sales,  # Sales per month
+        "years": available_years,  # Available years for the dropdown
+    })
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

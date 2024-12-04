@@ -41,6 +41,8 @@ urlpatterns = [
     path('milestones/', views.get_milestones, name='get_milestones'),
     path('delete_sale/<int:sale_id>/', views.delete_sale, name='delete_sale'),
     path('delete_customer/<int:customer_id>/', views.delete_customer, name='delete_customer'),
+    path('sales/by-month/', views.sales_by_month, name='sales_by_month'),
+
 
 
 
