@@ -17,15 +17,18 @@
 
         <div v-if="error" class="error-message">{{ error }}</div>
 
-        <div class="milestones-summary" v-else>
-          <div class="milestone-item">
-            <strong>Total Sales:</strong> {{ totalSales }}
+        <div class = "dashboard-boxes" v-else>
+          <div class = "box">
+            <p>Total Sales</p>
+            <h2>{{ totalSales }}</h2>
           </div>
-          <div class="milestone-item">
-            <strong>Total Commissions:</strong> {{ totalCommissions }}
+          <div class = "box">
+            <p>Total Commissions</p>
+            <h2>{{ totalCommissions }}</h2>
           </div>
-          <div class="milestone-item">
-            <strong>Total Milestones:</strong> {{ totalMilestones }}
+          <div class = "box">
+            <p>Total Milestones</p>
+            <h2>{{ totalMilestones }}</h2>
           </div>
         </div>
 
@@ -53,47 +56,79 @@
         </div>
 
         <div class="milestones-section">
+
           <!-- Milestones Achieved Table -->
-          <h3>Milestones Achieved</h3>
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title">Milestones Achieved</div>
+            </div>
+          </div>
+        
           <table v-if="achievedMilestones.length > 0">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Reward</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="milestone in achievedMilestones" :key="milestone.id">
-      <td>{{ milestone.name }}</td>
-      <td>{{ milestone.reward }}</td>
-      <td>{{ milestone.description }}</td>
-    </tr>
-  </tbody>
-</table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Reward</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="milestone in achievedMilestones" :key="milestone.id">
+                <td>{{ milestone.name }}</td>
+                <td>{{ milestone.reward }}</td>
+                <td>{{ milestone.description }}</td>
+              </tr>
+            </tbody>
+          </table>
 
           <p v-else>No milestones achieved yet.</p>
 
           <!-- Next Milestones Table -->
-          <h3>Next Milestones</h3>
-          <table v-if="nextMilestones.length > 0">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Reward</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="milestone in nextMilestones" :key="milestone.id">
-      <td>{{ milestone.name }}</td>
-      <td>{{ milestone.reward }}</td>
-      <td>{{ milestone.description }}</td>
-    </tr>
-  </tbody>
-</table>
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title">Next Milestones</div>
+            </div>
+          </div>
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Reward</span>
+            <span class="header-item">Description</span>
+          </div>
 
-          <p v-else>No Pending Milestones</p>
+          <div v-if="nextMilestones.length === 0">
+            No pending milestones.
+          </div>
+
+          <div
+            v-else
+            v-for="milestone in nextMilestones"
+            :key="milestone.id"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class = "card-body">
+              <table class = "next-milestone-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span>{{ milestone.name }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.reward }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.description }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <!-- Modal -->
@@ -318,16 +353,78 @@ body {
   text-align: left;
 }
 
-.milestones-summary {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
+.dashboard-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px; /* Adds more space at the top */
+  margin-bottom: 20px; /* Keeps bottom margin as is */
 }
 
-.milestone-item {
-  flex: 1;
+.box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.box p {
+  font-size: 14px;
+  color: #666;
+}
+
+.box h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
+}
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 25% 25% 50%; /* Match column widths */
+  padding: 10px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+  font-weight: bold;
+  text-align: left; /* Left-align for consistency with table */
+}
+
+.outside-headers .header-item {
+  display: flex;
+  justify-content: flex-start; /* Align text horizontally to the left */
+  align-items: center; /* Center vertically */
+  padding: 5px 0; /* Consistent with table cell padding */
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
+.next-milestone-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left; /* Consistent with headers */
+}
+
+.next-milestone-table td {
+  padding: 10px 0; /* Matches outside-headers padding */
+}
+
+.next-milestone-table td:nth-child(1),
+.outside-headers .header-item:nth-child(1) {
+  width: 25%;
+}
+
+.next-milestone-table td:nth-child(2),
+.outside-headers .header-item:nth-child(2) {
+  width: 25%;
+}
+
+.next-milestone-table td:nth-child(3),
+.outside-headers .header-item:nth-child(3) {
+  width: 50%;
+}
+
+/* juju end */
 
 .site-sales {
   margin-top: 20px;
