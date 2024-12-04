@@ -64,26 +64,45 @@
               <div class="edit-title">Milestones Achieved</div>
             </div>
           </div>
-        
-          <table v-if="achievedMilestones.length > 0">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Reward</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="milestone in achievedMilestones" :key="milestone.id">
-                <td>{{ milestone.name }}</td>
-                <td>{{ milestone.reward }}</td>
-                <td>{{ milestone.description }}</td>
-              </tr>
-            </tbody>
-          </table>
 
-          <p v-else>No milestones achieved yet.</p>
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Reward</span>
+            <span class="header-item">Description</span>
+          </div>
 
+          <div v-if="achievedMilestones.length === 0">
+            No milestones achieved yet.
+          </div>
+          <div
+            v-else
+            v-for="milestone in achievedMilestones"
+            :key="milestone.id"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class = "card-body">
+              <table class = "next-milestone-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span>{{ milestone.name }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.reward }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.description }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+      
           <!-- Next Milestones Table -->
           <div class="title-wrapper">
             <div class="title-left">
