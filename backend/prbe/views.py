@@ -621,7 +621,6 @@ def get_customers_for_broker(request, broker_id):
                 }
                 customer_data.append(customer_entry)
 
-        # print(f"\nFinal Customer Data: {customer_data}")  # Final debug print before response
         return JsonResponse({
             'success': True,
             'total_customers': total_customers,
@@ -629,7 +628,6 @@ def get_customers_for_broker(request, broker_id):
         }, status=200)
 
     except Exception as e:
-       # print(f"Error: {str(e)}")  # Print the error for debugging
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 
@@ -1041,7 +1039,6 @@ def upload_document(request):
 
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
-
 
         if not customer_id or not document_type_ids or not files or not sales_id:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)

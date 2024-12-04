@@ -882,7 +882,7 @@ export default {
 
       // Append customer and company information
       formData.append("customer", this.selectedCustomer.id);
-      formData.append("company", this.selectedCustomer.company_id);
+      formData.append("company", this.companyId);
       // Log the formData for debugging
       try {
         const response = await fetch("http://localhost:8000/upload-document/", {

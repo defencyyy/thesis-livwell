@@ -18,6 +18,8 @@
             <span class="header-item">Site Name</span>
             <span class="header-item">Unit Title</span>
             <span class="header-item">Status</span>
+            <span class="header-item">Action</span>
+
           </div>
         </div> 
         <div class="card border-0 rounded-1 mx-auto my-2"
@@ -29,9 +31,7 @@
             <table v-if="sales.length > 0" class = "salesCustomer-table">
             <tbody>
               <tr v-for="sale in sales"
-                :key="sale.id"
-                @click="openSalesAgreementModal(sale)"
-                style="cursor: pointer">
+                :key="sale.id">
                 <td>
                   <span class = "customer-name">{{ sale.customer_name }} ({{ sale.customer_code }})</span>
                 </td>
@@ -44,6 +44,17 @@
                 <td>
                   <span class = "customer-status">{{ sale.status }}</span>
                 </td>
+                <td>
+          <button @click="openSalesAgreementModal(sale)">
+            <i class="fas fa-dollar-sign"></i>
+          </button>
+          <button @click="openDocumentModal(sale)">
+            <i class="fas fa-file"></i>
+          </button>
+          <button @click="DeleteSaleModal(sale)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
               </tr>
             </tbody>
             </table>
@@ -454,6 +465,107 @@
               </div>
           </div>
         </b-modal>
+
+         <!-- Documents -->
+        <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Customer Documents</h5>
+          </div>
+
+          <div class="p-3">
+            <div v-if="showStatusMessage">
+              <p>Waiting for Developer to confirm Reservation</p>
+              <div class="button-container">
+                <button
+                  type="button"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel-right"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div v-else>
+              <form @submit.prevent="uploadDocuments">
+                <div class="document-upload-form">
+                  <div
+                    v-for="(docType, index) in documentTypes"
+                    :key="index"
+                    class="document-upload-section mb-3"
+                  >
+                    <label
+                      :for="'documentType' + docType.id"
+                      class="form-label"
+                    >
+                      <b> Upload {{ docType.name }} </b>
+                    </label>
+
+                    <div
+                      class="file-input-wrapper d-flex align-items-center gap-2"
+                    >
+                      <!-- Show the file input if no file has been selected -->
+                      <input
+                        type="file"
+                        :id="'documentType' + docType.id"
+                        @change="handleFileUpload($event, docType.id)"
+                        class="form-control"
+                        v-if="!filePreviews[docType.id]"
+                      />
+
+                      <!-- Show the file name after file has been selected -->
+                      <div
+                        v-if="filePreviews[docType.id]"
+                        class="d-flex align-items-center gap-2"
+                      >
+                        <span class="file-name">
+                          {{ filePreviews[docType.id].name }}
+                        </span>
+
+                        <button
+                          type="button"
+                          @click="removeFile(docType.id)"
+                          class="btn btn-danger btn-sm"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <div
+                    class="d-flex justify-content-end gap-2 mt-30"
+                    style="padding-top: 15px"
+                  >
+                    <button type="submit" class="btn-add" style="width: 150px">
+                      Upload Document
+                    </button>
+                    <button
+                      type="button"
+                      @click="showDocumentModal = false"
+                      class="btn-cancel"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class = "button-container">
+            <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
+          </div>
+        </b-modal>
+
         </div>
       </div>
     </div>
@@ -491,6 +603,7 @@ export default {
     return {
       sales: [], // List of sales data
       showModal: false,
+      showDocumentModal: false, // Controls the visibility of the document modal
       selectedSale: {
       status: '', // Initialize with a default value
       },
@@ -521,14 +634,25 @@ export default {
       errorMessage: "", // Error message
       showDetailedSchedule: false, // To toggle detailed payment schedule
       loading: false, // Track loading state
+      showStatusMessage: false,
+      selectedCustomer: null, // To hold the currently selected customer
+      documentFiles: {},
+      filePreviews: {}, // Object to store file previews for each document type
+      notificationMessage: "", // Message for the notification modal
+      notificationTitle: "", // Title for the notification modal (Success/Failure)
+      showNotification: false, // Controls the visibility of the notification modal
+
+
+
     };
   },
   mounted() {
     this.fetchSales(); // Fetch sales when the component is mounted
-
+    this.fetchDocumentTypes(); // New function to fetch document types
     if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
       this.redirectToLogin();
     }
+
   },
   watch: {
     loggedIn(newVal) {
@@ -806,7 +930,6 @@ export default {
     redirectToLogin() {
       this.$router.push({ name: "BrkLogin" });
     },
-    // Close the modal
     closeModal() {
       this.showModal = false;
       this.salesAgreement = {
@@ -815,6 +938,162 @@ export default {
         installment_term: "",
         special_terms: "",
       };
+    },
+    // Opens the document upload modal for the selected customer
+    openDocumentModal(sale) {
+      this.selectedCustomer = sale; // Set the selected customer
+      if (this.selectedCustomer.status === "Pending Reservation") {
+        this.showStatusMessage = true; // Show the message to create sales first
+      } else {
+        this.showStatusMessage = false; // Show the message to create sales first
+      }
+      this.fetchCustomerDocuments(
+        this.selectedCustomer.customer_id,
+        this.selectedCustomer.sale_id
+      );
+
+      this.showDocumentModal = true; // Open the document upload modal
+    },
+    async fetchCustomerDocuments(customerId, salesId) {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // Store the documents in the component's data
+            this.customerDocuments = data.documents; // An array of the customer's documents
+            this.updateDocumentPreviews(); // Update the file previews based on existing documents
+          } else {
+            this.error = data.message || "Failed to fetch customer documents.";
+          }
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching customer documents.";
+      }
+    },
+     // Update file previews based on existing documents
+    updateDocumentPreviews() {
+      // Initialize filePreviews as an empty object
+      this.filePreviews = {};
+
+      // Loop through each document type and check if it's already uploaded
+      this.documentTypes.forEach((docType) => {
+        const existingDoc = this.customerDocuments.find(
+          (doc) => doc.document_type_id === docType.id
+        );
+
+        if (existingDoc) {
+          // If a document exists for this document type, set the preview
+          this.filePreviews[docType.id] = {
+            name: existingDoc.file_name, // Use the file name from the database
+            url: existingDoc.file_url, // Optionally, you could store the file URL for further use
+          };
+        }
+      });
+    },
+
+    // Fetch document types from the API
+    async fetchDocumentTypes() {
+      try {
+        const response = await fetch("http://localhost:8000/document-types/");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.documentTypes = data.documentTypes;
+          } else {
+            this.error = data.message || "Failed to fetch document types.";
+          }
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching document types.";
+      }
+    },
+
+    // Handle file selection for multiple document types
+    handleFileUpload(event, docTypeId) {
+      const file = event.target.files[0];
+      if (file) {
+        if (this.filePreviews[docTypeId]) {
+          this.removeFile(docTypeId); // This will remove the old file
+        }
+        this.filePreviews[docTypeId] = file; // Store the file preview
+        this.documentFiles[docTypeId] = file; // Store the actual file
+      }
+    },
+
+    // Remove file preview and file data for a document type
+    removeFile(docTypeId) {
+      delete this.filePreviews[docTypeId];
+      delete this.documentFiles[docTypeId];
+    },
+
+    // Upload multiple documents
+    async uploadDocuments() {
+      console.log("k");
+      const formData = new FormData();
+
+      // Loop through the documentFiles object to process each file and its document type
+      for (const docTypeId in this.documentFiles) {
+        const file = this.documentFiles[docTypeId];
+
+        // Append the file and the associated document type to formData
+        formData.append("files[]", file); // Append the file under "files[]"
+        formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
+        formData.append("sales_id", this.selectedCustomer.sale_id);
+      }
+
+      // Append customer and company information
+      formData.append("customer", this.selectedCustomer.customer_id);
+      formData.append("company", this.companyId);
+      // Log the formData for debugging
+
+  
+      try {
+        const response = await fetch("http://localhost:8000/upload-document/", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-CSRFToken": this.getCookie("csrftoken"),
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          console.log("ll");
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Documents uploaded successfully!";
+          this.showNotification = true;
+          this.showDocumentModal = false;
+          this.resetForm();
+
+          this.fetchCustomers(); // Refresh customer list
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage =
+            data.message || "Failed to upload documents.";
+          this.showNotification = true;
+        }
+      } catch (error) {
+        this.showNotification = true;
+      }
+    },
+    // Reset the form when the modal is closed
+    resetForm() {
+      this.email = "";
+      this.contactNumber = "";
+      this.lastName = "";
+      this.firstName = "";
+      this.documentFiles = {}; // Clear the actual files
+      // Optionally, clear any other form-related fields
+      this.selectedCustomer = null; // Clear selected customer
+    },
+    
+    getCookie(name) {
+      let value = "; " + document.cookie;
+      let parts = value.split("; " + name + "=");
+      if (parts.length === 2) return parts.pop().split(";").shift();
     },
   },
 };
