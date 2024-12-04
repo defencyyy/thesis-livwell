@@ -122,12 +122,16 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  /* Removes default padding */
 }
 
+/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  background-color: #ebebeb;
+  /* Ensures it spans the full viewport height */
+  background-color: #e8f0fa;
+  /* Gray background */
 }
 
 .SideNav {
@@ -137,6 +141,7 @@ body {
   left: 0;
   height: 100%;
   background-color: #343a40;
+  z-index: 1;
 }
 
 .AppHeader {
@@ -161,55 +166,5 @@ body {
   flex: 1;
   padding: 20px;
   text-align: center;
-}
-
-.actions {
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-.search-create {
-  margin-bottom: 20px;
-}
-
-.search-create input {
-  padding: 8px;
-  margin-right: 10px;
-}
-
-.search-create button {
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.search-create button:hover {
-  background-color: #0056b3;
-}
-
-.loading-indicator {
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.error-message {
-  text-align: center;
-  color: red;
-  font-weight: bold;
 }
 </style>

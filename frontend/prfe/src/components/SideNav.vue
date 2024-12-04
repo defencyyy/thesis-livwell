@@ -2,22 +2,22 @@
   <div>
     <div :class="['sidebar']">
       <div class="sidebar-header">
-        <!-- Use company logo from Vuex -->
-        <img
-          v-if="company.logo"
-          :src="getLogoUrl(company.logo)"
-          alt="Company Logo"
-          class="sidebar-logo"
-        />
+        <!-- Replace company logo with a Font Awesome icon or any other icon -->
+        <i class="fas fa-cogs sidebar-logo" style="color: #0560fd;"></i> <!-- Font Awesome Icon -->
         <h4 id="sidebar-title">{{ company.name || "Company Name" }}</h4>
       </div>
       <nav class="sidebar-nav">
-        <div class="sidebar-menu-title">MAIN MENU</div>
-        <b-nav vertical>
+        <b-nav vertical pills >
           <template v-for="(item, index) in menuItems" :key="index">
-            <b-nav-item v-if="!item.children" :to="item.link" exact custom>
-              <i :class="item.icon" class="menu-icon"></i>
-              {{ item.name }}
+            <b-nav-item v-if="!item.children" :to="item.link" exact custom >
+              <i
+                :class="['menu-icon', item.icon, { active: isActive(item) }]"
+              ></i>
+              <span
+                :class="['item-name', { active: isActive(item) }]"
+              >
+                {{ item.name }}
+              </span>
             </b-nav-item>
 
             <div v-else>
@@ -38,6 +38,7 @@
             </div>
           </template>
         </b-nav>
+        <div class="right-line"></div> <!-- The vertical line -->
       </nav>
     </div>
   </div>
@@ -146,6 +147,9 @@ export default {
     getLogoUrl(logoPath) {
       return `http://localhost:8000${logoPath}`;
     },
+    isActive(item) {
+      return this.$route.path === item.link;
+    }
   },
 };
 </script>
@@ -154,33 +158,28 @@ export default {
 .sidebar {
   position: fixed;
   width: 250px;
-  background-color: #343a40;
+  background-color: #ffffff;
   height: 100%;
   display: flex;
   flex-direction: column;
   transition: width 0.3s;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1); /* Adds shadow on the right */
+  z-index: 2;
 }
 
-.sidebar-menu-title {
-  font-size: 11px;
-  font-weight: bold;
-  color: #acacac;
-  padding-left: 16px;
-  padding-bottom: 15px;
-}
 
 .sidebar-header {
   display: flex;
   align-items: center;
   padding: 17px;
-  border-bottom: 2px solid #acacac;
   height: 68px;
   box-sizing: border-box;
+  margin-top: 5px;
 }
 
 .sidebar-logo {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   margin-right: 10px;
   margin-left: 5px;
@@ -194,7 +193,7 @@ export default {
 }
 
 #sidebar-title {
-  color: #ffffff;
+  color: #343a40;
   font-size: 1.2rem;
   margin: 0;
 }
@@ -204,6 +203,25 @@ export default {
   text-align: center;
   margin-right: 8px;
   flex-shrink: 0;
-  color: #ffffff;
+  color: #343a40;
 }
+
+.item-name {
+  color:#343a40; /* Set the text color */
+  font-size: 14px; /* Customize the font size */
+}
+
+.item-name:hover {
+  color: #0056b3; /* Change color on hover */
+}
+
+.active {
+  color: white !important; /* Make both icon and text white when active */
+}
+
+/* Optional: Active hover effect */
+.active:hover {
+  color: white; /* Ensure color stays white on hover */
+}
+
 </style>

@@ -260,7 +260,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 

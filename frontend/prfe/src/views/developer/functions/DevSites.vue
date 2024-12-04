@@ -1380,15 +1380,19 @@ export default {
 html,
 body {
   height: 100%;
-  margin: 0; /* Removes default margin */
-  padding: 0; /* Removes default padding */
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
 }
 
 /* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  min-height: 100vh; /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #eff4fb;
+  /* Gray background */
 }
 
 .SideNav {
@@ -1563,10 +1567,10 @@ body {
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #42b983;
+  border: 1px solid #0560fd;
   border-radius: 3px;
   font-size: 14px;
-  background-color: #42b983;
+  background-color: #0560fd;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -1715,18 +1719,22 @@ body {
 }
 
 .btn-add {
-  background-color: #42b983; /* Button primary color */
+  background-color: #0560fd;
+  /* Button primary color */
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
+  border-radius: 3px;
+  /* Adjust the border radius */
   padding: 10px;
 }
 
 .btn-cancel {
-  background-color: #343a40; /* Button primary color */
+  background-color: #343a40;
+  /* Button primary color */
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
+  border-radius: 3px;
+  /* Adjust the border radius */
   padding: 10px;
 }
 </style>

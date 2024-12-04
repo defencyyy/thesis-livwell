@@ -30,7 +30,7 @@
       </div> -->
         <div
           class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <div class="card-body">
             <div class="row">
@@ -83,7 +83,7 @@
             :key="broker.id || index"
             class="card border-0 rounded-1 mx-auto my-2"
             style="
-              max-width: 1100px;
+             
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
@@ -744,7 +744,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #eff4fb;
   /* Gray background */
 }
 
@@ -778,7 +778,7 @@ body {
 
 .content {
   flex: 1;
-  padding: 20px;
+  margin: 20px;
   text-align: center;
 }
 
@@ -786,8 +786,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   max-width: 1100px;
+  width: 100%;
   margin: 20px auto;
   /* Center the wrapper */
 }
@@ -879,6 +879,7 @@ body {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
   height: 38px;
   /* Explicitly set height */
@@ -889,15 +890,20 @@ body {
   max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #42b983;
+  border: 1px solid #0560fd;
   border-radius: 3px;
   font-size: 14px;
-  background-color: #42b983;
+  background-color: #0560fd;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -914,6 +920,7 @@ body {
   margin-bottom: 15px;
   margin-top: 0;
   max-width: 1100px;
+  width: 100%;
   /* Ensures the card and grid align */
   margin-left: auto;
   /* Centers the card */
@@ -995,6 +1002,7 @@ body {
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
+  width: 100%;
   max-width: 1100px;
 }
 
@@ -1014,7 +1022,7 @@ body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   /* Button primary color */
   color: #fff;
   border: none;

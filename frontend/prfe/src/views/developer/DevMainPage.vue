@@ -7,32 +7,159 @@
         <!-- Dashboard Boxes -->
         <div class="dashboard-boxes">
           <div class="box">
-            <p>Brokers</p>
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-user" style="font-size: 13px"></i>
+                <!-- Replace with your desired icon -->
+              </div>
+              <p>Brokers</p>
+            </div>
             <h2>{{ brokerCount }}</h2>
           </div>
           <div class="box">
-            <p>Sites</p>
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-building" style="font-size: 13px"></i>
+                <!-- Replace with your desired icon -->
+              </div>
+              <p>Sites</p>
+            </div>
             <h2>{{ siteCount }}</h2>
           </div>
           <div class="box">
-            <p>Available Units</p>
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-home" style="font-size: 13px"></i>
+                <!-- Replace with your desired icon -->
+              </div>
+              <p>Available Units</p>
+            </div>
             <h2>{{ availableUnits }}</h2>
           </div>
           <div class="box">
-            <p>Sold Sales</p>
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
+                <!-- Replace with your desired icon -->
+              </div>
+              <p>Sold Sales</p>
+            </div>
             <h2>{{ salesCount }}</h2>
           </div>
           <div class="box">
-            <p>Ongoing Sales</p>
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-spinner" style="font-size: 13px"></i>
+                <!-- Replace with your desired icon -->
+              </div>
+              <p>Ongoing Sales</p>
+            </div>
             <h2>{{ ongoingSales }}</h2>
           </div>
         </div>
 
-        <!-- Sales Table with Search and Filter -->
-        <div class="sales-table">
+        <div class="grid-layout">
+          <!-- Left Section -->
+          <div class="left-content">
+            <div class="title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">Pending Sales</div>
+              </div>
+            </div>
+            <div
+              class="card border-0 rounded-1 mx-auto"
+              style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+            >
+              <div class="card-body">
+                <div class="row">
+                  <div class="toolbar">
+                    <div class="left-section">
+                      <div class="search-bar-container">
+                        <input
+                          type="text"
+                          v-model="searchQuery"
+                          @input="filterSales"
+                          placeholder="Search Broker/Customer/Site"
+                          class="search-bar"
+                        />
+                        <i class="fa fa-search search-icon"></i>
+                      </div>
+                      <select
+                        v-model="selectedStatus"
+                        @change="filterSales"
+                        class="dropdown"
+                      >
+                        <option value="">All Status</option>
+                        <option value="Pending Reservation">
+                          Pending Reservation
+                        </option>
+                        <option value="Pending Sold">Pending Sold</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="outside-headers">
+              <span class="header-item">ID</span>
+              <span class="header-item">Broker</span>
+              <span class="header-item">Customer</span>
+              <span class="header-item">Site</span>
+              <span class="header-item">Status</span>
+            </div>
+
+            <div v-if="filteredSales.length > 0">
+              <div
+                v-for="sale in filteredSales"
+                :key="sale.id"
+                class="card border-0 rounded-1 mx-auto"
+                style="
+                  max-width: 1100px;
+                  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <div class="card-body">
+                  <table class="sale-table">
+                    <tbody>
+                      <tr>
+                        <td>{{ sale.relativeID }}</td>
+                        <td>{{ sale.brokerName }}</td>
+                        <td>{{ sale.customerName }}</td>
+                        <td>{{ sale.site ? sale.site.name : "No Site" }}</td>
+                        <td>{{ sale.status }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <p v-else>No pending sales found with the selected filters.</p>
+          </div>
+
+          <!-- Right Section -->
+          <div class="right-content">
+            <div
+              class="card border-0 rounded-1 mx-auto"
+              style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); height: 60vh"
+            >
+              <div class="card-body">
+                <div class="row">
+                  <div class="toolbar">
+                    <div class="left-section"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="sales-table">
           <h3>Pending Sales</h3>
 
-          <!-- Search and Filter -->
           <div class="search-filter-controls">
             <input
               type="text"
@@ -73,10 +200,7 @@
             </tbody>
           </table>
           <p v-else>No pending sales found with the selected filters.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+        </div> -->
 </template>
 
 <script>
@@ -273,15 +397,19 @@ export default {
 html,
 body {
   height: 100%;
-  margin: 0; /* Removes default margin */
-  padding: 0; /* Removes default padding */
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
 }
 
 /* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
-  min-height: 100vh; /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #e8f0fa;
+  /* Gray background */
 }
 
 .SideNav {
@@ -301,7 +429,6 @@ body {
   display: flex;
   align-items: center;
   padding-left: 10px;
-  color: #ffffff;
 }
 
 .main-content {
@@ -309,67 +436,296 @@ body {
   margin-left: 250px;
   flex-direction: column;
   flex: 1;
-  margin-top: 60px;
+  margin-top: 90px;
 }
 
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  display: flex;
+  /* Use flexbox to center the content */
+  align-items: center;
+  /* Center vertically */
+  flex-direction: column;
+  /* Stack the dashboard boxes and sales table vertically */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  width: 100%;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  /* Equal width for both columns */
+
+  gap: 20px;
+  /* Match the spacing of the dashboard boxes */
+  width: 100%;
+  max-width: 1100px;
+  /* Match the max-width of the dashboard-boxes */
+  margin-left: 5px;
+  /* Center grid-layout horizontally */
+}
+
+.left-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.right-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.card {
+  width: 100%;
+  margin-bottom: 5px;
+  margin-top: 0;
+  max-width: 1100px;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.toggle-button {
+  margin-left: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 250px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 .dashboard-boxes {
   display: grid;
+  /* Use grid for responsive layout */
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* Responsive grid */
   gap: 20px;
-  margin: 20px 0;
+  /* Add spacing between boxes */
+  max-width: 1100px;
+  width: 100%;
+  /* Set a max width */
+  margin: 0 auto;
+  /* Center the container horizontally */
 }
 
-.box {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.box p {
-  font-size: 14px;
-  color: #666;
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  /* Space between icon and title */
 }
 
 .box h2 {
-  font-size: 24px;
   margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
 }
 
-.sales-table {
-  margin: 20px 0;
+.box {
+  position: relative;
+  /* Make the box a positioning context */
   background: #fff;
-  padding: 20px;
+  border: 1px solid #ddd;
   border-radius: 8px;
+  padding: 20px;
+  text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.sales-table table {
+.box-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 15px;
+  margin: 0;
+}
+
+.icon-container {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* Make the icon circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.box-header p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #000000;
+}
+
+/* Ensure that the sale table's headers and columns align */
+.sale-table {
   width: 100%;
   border-collapse: collapse;
+  /* Ensures there is no space between cells */
+  table-layout: fixed;
+  /* Forces equal width for columns */
 }
 
-.sales-table th,
-.sales-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
+.sale-table th,
+.sale-table td {
+  text-align: left;
 }
 
-.sales-table th {
-  background: #f6f6f6;
+.sale-table th {
+  background-color: #f7f7f7;
   font-weight: bold;
 }
 
-.sales-table td {
-  background: #fff;
+.sale-table td {
+  word-wrap: break-word;
+  /* Ensures long text breaks properly */
+}
+
+/* Align the outside headers with the table */
+.outside-headers {
+  display: grid;
+  grid-template-columns: 5% 30% 25% 20% 20%;
+  /* Adjust widths for better layout */
+  width: 100%;
+  padding: 0 15px;
+  margin: 12px auto 10px;
+}
+
+.header-item {
+  text-align: left;
+  font-size: 12px;
+  color: #333;
+  font-weight: bold;
+}
+
+.sale-table th:nth-child(2),
+.sale-table td:nth-child(2) {
+  /* Location column */
+  width: 30%;
+}
+
+.sale-table th:nth-child(3),
+.sale-table td:nth-child(3) {
+  /* Status column */
+  width: 25%;
+}
+
+.sale-table th:nth-child(4),
+.sale-table td:nth-child(4) {
+  /* Actions column */
+  width: 20%;
+}
+
+.sale-table th:nth-child(5),
+.sale-table td:nth-child(5) {
+  /* Actions column */
+  width: 20%;
+}
+
+td {
+  font-size: 12px;
 }
 </style>
