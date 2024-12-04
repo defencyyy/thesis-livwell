@@ -32,13 +32,44 @@
           </div>
         </div>
 
-        <div v-if="siteSales.length > 0" class="site-sales">
-          <h3>Site Sales Information</h3>
+        <br><br>
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Site Sales Information</div>
+          </div>
+        </div>
+        <div v-if="siteSales.length === 0">
+            No progress yet.
+        </div>
+        <div v-else class = "site-grid">
+          <div
+                v-for="site in siteSales"
+                :key="site.id"
+                class="site-card"
+                @click="openModal(site)"
+              >
+              <img
+                  :src="site.picture || 'https://via.placeholder.com/100'"
+                  alt="Site Image"
+                  class = "site-image"
+                />
+              <h2 class="site-name">
+                {{ site.name }}
+              </h2>
+              <p class="site-totalsales">
+                <strong>Total Sales</strong><br>{{ site.total_sales }}
+              </p>
+            </div>
+        </div>
+
+
+        <!-- <div v-if="siteSales.length > 0" class="site-sales">
           <div class="site-container">
             <div
               v-for="site in siteSales"
               :key="site.id"
-              class="site"
+              class="site-card"
               @click="openModal(site)"
             >
               <img
@@ -49,15 +80,16 @@
               <p>Total Sales: {{ site.total_sales }}</p>
             </div>
           </div>
-        </div>
+        </div> -->
 
-        <div v-else-if="!loading" class="no-progress">
+        <!-- <div v-else-if="!loading" class="no-progress">
           <p>No progress yet.</p>
-        </div>
+        </div> -->
 
         <div class="milestones-section">
 
           <!-- Milestones Achieved Table -->
+          <br><br>
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
@@ -442,6 +474,47 @@ body {
 .next-milestone-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
   width: 50%;
+}
+
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  /* Matches the max-width of the card */
+  margin: 0 auto;
+  /* Centers the grid within the parent */
+}
+
+.site-card {
+  background: #fff;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+}
+
+.site-card:hover {
+  transform: translateY(-2px);
+}
+
+.site-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  /* Ensures the image is cropped to fit the area */
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.site-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.site-totalsales {
+  font-size: 14px;
+  color: #777;
 }
 
 /* juju end */
