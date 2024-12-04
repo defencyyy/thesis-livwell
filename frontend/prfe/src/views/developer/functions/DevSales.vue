@@ -4,11 +4,60 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1>Manage Sales</h1>
-        <p>View and manage sales details for your company.</p>
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Sales Management</div>
+          </div>
+        </div>
+
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
+          <div class="card-body">
+            <div class="row">
+              <div class="toolbar">
+                <div class="left-section">
+                  <div class="search-bar-container">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      @input="filterSales"
+                      placeholder="Search Customer/Broker/Unit/Site "
+                      class="search-bar"
+                    />
+                    <i class="fa fa-search search-icon"></i>
+                  </div>
+                  <select v-model="selectedBroker" @change="filterSales" class="dropdown">
+                    <option value="">All Brokers</option>
+            <option
+              v-for="broker in brokers"
+              :key="broker.id"
+              :value="broker.id"
+            >
+              {{ broker.first_name }} {{ broker.last_name }}
+            </option>
+                  </select>
+                  <select
+            v-model="selectedStatus"
+            @change="filterSales"
+            class="dropdown"
+          >
+            <option value="">All Status</option>
+            <option value="Pending Reservation">Pending Reservation</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Pending Sold">Pending Sold</option>
+            <option value="Sold">Sold</option>
+          </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Search and Filter Controls -->
-        <div class="search-filter-controls">
+        <!-- <div class="search-filter-controls">
           <input
             type="text"
             v-model="searchQuery"
@@ -66,41 +115,51 @@
             <option value="Sold">Sold</option>
           </select>
           <button @click="filterSales" class="search-button">Search</button>
-        </div>
+        </div> -->
 
-        <!-- Sales Table -->
-        <table v-if="filteredSales.length" class="sales-table">
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Broker Name</th>
-              <th>Unit Title</th>
-              <th>Site Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="sale in filteredSales" :key="sale.id">
-              <td>
+        <div class="outside-headers">
+            <span class="header-item">Customer Name</span>
+            <span class="header-item">Broker Name</span>
+            <span class="header-item">Site Name</span>
+            <span class="header-item">Unit #</span>
+            <span class="header-item">Status</span>
+            <span class="header-item">Action</span>
+          </div>
+
+          <div v-if="filteredSales.length > 0">
+              <div v-for="sale in filteredSales" :key="sale.id" class="card border-0 rounded-1 mx-auto" style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            ">
+                <div class="card-body">
+                  <table class="sale-table">
+                    <tbody>
+                      <tr>
+                        <td>
                 {{ sale.customer.first_name }} {{ sale.customer.last_name }}
               </td>
               <td>{{ sale.broker.first_name }} {{ sale.broker.last_name }}</td>
-              <td>{{ sale.unit.unit_title }}</td>
               <td>{{ sale.site.name || "N/A" }}</td>
+              <td>{{ sale.unit.unit_title }}</td>
               <td :class="getStatusClass(sale.status)">{{ sale.status }}</td>
               <td>
                 <button
                   @click="openSalesDetailModal(sale)"
                   class="btn btn-primary"
                 >
-                  Manage Sale
+                  Manage
                 </button>
               </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else>No sales match the selected criteria.</p>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                </div>
+
+              </div>
+              
+            </div>
+            <p v-else>No sales match the selected criteria.</p>
 
         <!-- Sales Detail Modal -->
         <div v-if="showModal" class="modal">
@@ -347,7 +406,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 
@@ -384,6 +443,187 @@ body {
   padding: 20px;
   text-align: center;
 }
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Push items to opposite sides */
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.card {
+  background-color: #fff;
+  margin-bottom: 10px;
+  margin-top: 0;
+  max-width: 1100px;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+} 
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 20% 20% 20% 15% 15% 10%;
+  /* Adjust widths for better layout */
+  max-width: 1100px;
+  width: 100%;
+  padding: 0 15px;
+  margin: 12px auto 10px;
+}
+
+.header-item {
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+
+}
+
+.sale-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Ensures there is no space between cells */
+  table-layout: fixed;
+  /* Forces equal width for columns */
+}
+
+.sale-table th,
+.sale-table td {
+  text-align: left;
+}
+
+.sale-table th {
+  background-color: #f7f7f7;
+  font-weight: bold;
+}
+
+.sale-table td {
+  word-wrap: break-word;
+  /* Ensures long text breaks properly */
+}
+
+.sale-table th:nth-child(2),
+.sale-table td:nth-child(2) {
+  /* Location column */
+  width: 20%;
+}
+
+.sale-table th:nth-child(3),
+.sale-table td:nth-child(3) {
+  /* Status column */
+  width: 20%;
+}
+
+.sale-table th:nth-child(4),
+.sale-table td:nth-child(4) {
+  /* Actions column */
+  width: 15%;
+}
+
+.sale-table th:nth-child(5),
+.sale-table td:nth-child(5) {
+  /* Actions column */
+  width: 15%;
+}
+
+.sale-table th:nth-child(6),
+.sale-table td:nth-child(6) {
+  /* Actions column */
+  width: 10%;
+}
+
 
 
 .search-filter-controls {

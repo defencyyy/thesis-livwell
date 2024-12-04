@@ -70,7 +70,7 @@
                     <div class="left-section">
                       <div class="search-bar-container">
                         <input type="text" v-model="searchQuery" @input="filterSales"
-                          placeholder="Search Broker/Customer Name" class="search-bar" />
+                          placeholder="Search Broker/Customer" class="search-bar" />
                         <i class="fa fa-search search-icon"></i>
                       </div>
                       <select v-model="selectedStatus" @change="filterSales" class="dropdown">
@@ -493,7 +493,7 @@ body {
   width: 100%;
   max-width: 1100px;
   /* Match the max-width of the dashboard-boxes */
-  margin: 10px auto;
+  margin-left: 5px;
   /* Center grid-layout horizontally */
 
 }
@@ -701,7 +701,7 @@ body {
   grid-template-columns: 5% 30% 25% 20% 20%;
   /* Adjust widths for better layout */
   width: 100%;
-  padding: 0 18px;
+  padding: 0 15px;
   margin: 12px auto 10px;
 }
 
