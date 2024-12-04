@@ -89,8 +89,6 @@ export default {
     return {
       sites: [],
       loading: true,
-      searchQuery: "",
-      sortBy: "name", // Default sort by name
     };
   },
   computed: {
@@ -110,25 +108,6 @@ export default {
     this.fetchAvailableSites();
   },
   methods: {
-    filteredSites() {
-      // Apply search and sort filters
-      let filtered = this.sites;
-
-      // Search filter: Case-insensitive search by site name
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter(site => site.name.toLowerCase().includes(query));
-      }
-
-      // Sort logic
-      if (this.sortBy === "name") {
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (this.sortBy === "status") {
-        filtered.sort((a, b) => a.status_site.localeCompare(b.status_site));
-      }
-
-      return filtered;
-    },
     async fetchAvailableSites() {
       try {
         console.log("Fetching sites for company ID:", this.companyId);
