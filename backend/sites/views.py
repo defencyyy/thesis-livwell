@@ -85,6 +85,7 @@ class SiteDetailView(APIView):
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
+        print("PUT request received for site:", pk)  # or use logger.debug()
         company = get_developer_company(request)
         
         # Debugging - check if company is retrieved correctly
