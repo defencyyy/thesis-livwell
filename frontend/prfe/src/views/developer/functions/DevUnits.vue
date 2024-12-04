@@ -121,6 +121,7 @@ html,
 body {
   height: 100%;
   margin: 0;
+  /* Removes default margin */
   padding: 0;
   /* Removes default padding */
 }
