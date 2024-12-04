@@ -45,16 +45,18 @@
                   <span class = "customer-status">{{ sale.status }}</span>
                 </td>
                 <td>
-          <button @click="openSalesAgreementModal(sale)">
-            <i class="fas fa-dollar-sign"></i>
-          </button>
-          <button @click="openDocumentModal(sale)">
-            <i class="fas fa-file"></i>
-          </button>
-          <button @click="DeleteSaleModal(sale)">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
+  <div style="display: flex; gap: 10px;">
+    <button @click="openSalesAgreementModal(sale)">
+      <i class="fas fa-dollar-sign"></i>
+    </button>
+    <button @click="openDocumentModal(sale)">
+      <i class="fas fa-file"></i>
+    </button>
+    <button @click="DeleteSaleModal(sale)">
+      <i class="fas fa-trash"></i>
+    </button>
+  </div>
+</td>
               </tr>
             </tbody>
             </table>
@@ -1615,4 +1617,5 @@ input[type="file"] {
   color: #888; /* Lighter text for placeholder */
   font-style: italic; /* Italicize placeholder text */
 }
+
 </style>
