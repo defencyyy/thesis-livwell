@@ -63,5 +63,6 @@ class Sale(models.Model):
 
         super().save(*args, **kwargs)
 
+    is_archived = models.BooleanField(default=False)
     def __str__(self):
         return f"Sale of {self.unit.unit_title} to {self.customer.first_name} {self.customer.last_name}"

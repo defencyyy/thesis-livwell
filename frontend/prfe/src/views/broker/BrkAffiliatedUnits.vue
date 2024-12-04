@@ -5,8 +5,39 @@
       <AppHeader />
       <div class="content">
         <h1 class="display-5 fw-bolder text-capitalize">
-          Welcome to Affiliated Units
+        Available units
         </h1>
+         <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
+          <div class="card-body">
+            <div class="row">
+              <!-- Toolbar -->
+              <div class="toolbar">
+                <div class="left-section">
+                  <!-- Search Bar -->
+                  <div class="search-bar-container">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search Site"
+                      class="search-bar"
+                    />
+                    <i class="fa fa-search search-icon"></i>
+                  </div>
+
+                  <!-- Sort Dropdown -->
+                  <select v-model="sortBy" class="dropdown">
+                    <option value="name">Sort: Name</option>
+                    <option value="status">Sort: Status</option>
+                  </select>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        
         <div v-if="sites.length" class="site-sales">
           <div class="site-card-container">
             <div
@@ -88,7 +119,6 @@ export default {
             },
           }
         );
-        console.log("API response for available sites:", response.data);
         this.sites = response.data.sites;
         if (!this.sites.length) {
           console.warn("No sites with available units found.");
@@ -194,4 +224,107 @@ body {
   object-fit: cover;
   border-radius: 4px;
 }
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
+
+.dropdown2 {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 90%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
+
+/* Button Styles */
+.btn-primary.add-button {
+  padding: 8px 12px;
+  border: 1px solid #42b983;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #42b983;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary.add-button:hover {
+  background-color: #0056b3;
+}
+
+.card {
+  background-color: #fff;
+  margin-bottom: 10px;
+  margin-top: 0;
+  max-width: 1100px;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+}
+
 </style>
