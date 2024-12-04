@@ -42,12 +42,6 @@
                     <option value="name_desc">Name (Z-A)</option>
                     <option value="site_asc">Site (A-Z)</option>
                     <option value="site_desc">Site (Z-A)</option>
-                    <option value="status_asc">
-                      Document Status (Complete)
-                    </option>
-                    <option value="status_desc">
-                      Document Status (Pending)
-                    </option>
                     <option value="customer_code_asc">
                       Customer Code (A-Z)
                     </option>
@@ -81,7 +75,6 @@
             <span class="header-item">Site</span>
             <span class="header-item">Unit</span>
             <span class="header-item">Contact</span>
-            <span class="header-item">Document Status</span>
             <span class="header-item">Actions</span>
           </div>
 
@@ -127,11 +120,6 @@
                     <td>
                       <span class="customer-contact">
                         {{ customer.contact_number }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="customer-document">
-                        {{ customer.document_status }}
                       </span>
                     </td>
                     <td>
@@ -575,16 +563,6 @@ export default {
         case "site_desc":
           this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
-        case "status_asc": // New case for sorting by document status A-Z
-          this.customers.sort((a, b) =>
-            a.document_status.localeCompare(b.document_status)
-          );
-          break;
-        case "status_desc": // New case for sorting by document status Z-A
-          this.customers.sort((a, b) =>
-            b.document_status.localeCompare(a.document_status)
-          );
-          break;
         case "customer_code_asc":
           this.customers.sort((a, b) =>
             a.customer_code.localeCompare(b.customer_code)
@@ -991,7 +969,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 10% 15% 20% 20% 15% 10% 15%; /* Match column widths */
+  grid-template-columns: 16% 16% 16% 16% 16% 16%; /* Match column widths */
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1015,48 +993,40 @@ body {
 }
 
 .customer-table td {
-  padding: 10px 18px; /* Matches outside-headers padding */
+  padding: 10px 0; /* Matches outside-headers padding */
 }
 
 .customer-table td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 10%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 15%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 20%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 20%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(5),
 .outside-headers .header-item:nth-child(5) {
-  width: 15%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(6),
 .outside-headers .header-item:nth-child(6) {
-  width: 10%;
+  width: 16%;
 }
 
-/* For the header */
-.outside-headers .header-item:nth-child(6) {
-  margin-left: -10px; /* Moves it slightly to the left */
-}
 
-.customer-table td:nth-child(7),
-.outside-headers .header-item:nth-child(7) {
-  width: 15%;
-}
 
 .btn-add {
   background-color: #42b983;
