@@ -1,6 +1,6 @@
 <template>
+  <div>
   <AppHeader />
-
   <div class="main-page">
     <SideNav />
     <div class="main-content">
@@ -464,6 +464,7 @@
         </b-modal>
       </div>
     </div>
+  </div>
   </div>
 </template>
 <script>
