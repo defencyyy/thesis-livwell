@@ -2,10 +2,10 @@
   <div v-if="salesDetail">
     <h2>Sales Agreement Details</h2>
 
-    <p><strong>Customer ID:</strong> {{ salesDetail.customer_name }}</p>
-    <p><strong>Site ID:</strong> {{ salesDetail.site_name }}</p>
-    <p><strong>Unit ID:</strong> {{ salesDetail.unit_name }}</p>
-    <p><strong>Broker ID:</strong> {{ salesDetail.broker_name }}</p>
+    <p><strong>Customer Name:</strong> {{ salesDetail.customer_name }}</p>
+    <p><strong>Site Name:</strong> {{ salesDetail.site_name }}</p>
+    <p><strong>Unit Name:</strong> {{ salesDetail.unit_name }}</p>
+    <p><strong>Broker Name:</strong> {{ salesDetail.broker_name }}</p>
     <p><strong>Payment Plan:</strong> {{ salesDetail.payment_plan }}</p>
     <p><strong>Unit Price:</strong> ₱{{ salesDetail.unit_price }}</p>
     <p>
