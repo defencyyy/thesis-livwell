@@ -23,14 +23,18 @@
                       v-model="searchQuery"
                       placeholder="Search Site"
                       class="search-bar"
+                      @input="filterSites"
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
 
                   <!-- Sort Dropdown -->
-                  <select v-model="sortBy" class="dropdown">
-                    <option value="name">Sort: Name</option>
-                    <option value="status">Sort: Status</option>
+                  <select v-model="sortBy" @change="sortSites" class="dropdown">
+                    <option value="site_asc">Site (A-Z)</option>
+                    <option value="site_desc">Site (Z-A)</option>
+                    <option value="status_pre">Status (Preselling)</option>
+                    <option value="status_comp">Status (Complete)</option>
+                    <option value="status_on">Status (On Going)</option>
                   </select>
         </div>
         </div>
@@ -38,26 +42,25 @@
         </div>
         </div>
         
-        <div v-if="sites.length" class="site-sales">
-          <div class="site-card-container">
-            <div
-              v-for="site in sites"
-              :key="site.id"
-              class="site-card"
-              @click="() => redirectToUnits(site.id)"
-            >
-              <img :src="site.picture" alt="Site Picture" />
-              <h2 class="display-6 fw-bolder text-capitalize">
-                {{ site.name }}
-              </h2>
-              <p class="text-start">{{ site.description }}</p>
-              <p class="text-start"><b>Location: </b> {{ site.location }}</p>
-            </div>
-          </div>
-        </div>
-        <div v-else>
-          <p>No sites with available units.</p>
-        </div>
+        <div v-if="filteredSites.length" class="site-sales">
+  <div class="site-card-container">
+    <div
+      v-for="site in filteredSites"
+      :key="site.id"
+      class="site-card"
+      @click="() => redirectToUnits(site.id)"
+    >
+      <img :src="site.picture" alt="Site Picture" />
+      <h2 class="display-6 fw-bolder text-capitalize">{{ site.name }}</h2>
+      <p class="text-start">{{ site.description }}</p>
+      <p class="text-start"><b>Location: </b>{{ site.location }}</p>
+    </div>
+  </div>
+</div>
+<div v-else>
+  <p>No sites with available units.</p>
+</div>
+
       </div>
     </div>
   </div>
@@ -89,6 +92,10 @@ export default {
     return {
       sites: [],
       loading: true,
+      sortBy: "site_asc",
+      searchQuery: "", // New property for search input
+      filteredSites:[],
+
     };
   },
   computed: {
@@ -120,6 +127,8 @@ export default {
           }
         );
         this.sites = response.data.sites;
+        this.filteredSites = this.sites; // Initialize filtered sites
+
         if (!this.sites.length) {
           console.warn("No sites with available units found.");
         }
@@ -130,6 +139,54 @@ export default {
         );
       } finally {
         this.loading = false;
+      }
+    },
+    filterSites() {
+  const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
+  if (!query) {
+  // If there's no search query, show all sites
+    this.filteredSites = this.sites;
+  } else {
+    // Filter sites by name
+    this.filteredSites = this.sites.filter((site) => {
+      const siteName = site.name.toLowerCase(); // Correctly reference the `name` property
+      return siteName.includes(query);
+    });
+  }
+},
+
+    sortSites() {
+      switch (this.sortBy) {
+        case 'site_asc':
+          this.sites.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'site_desc':
+          this.sites.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        case 'status_pre':
+      this.sites.sort((a, b) => {
+        if (a.status === 'preselling' && b.status !== 'preselling') return -1;
+        if (a.status !== 'preselling' && b.status === 'preselling') return 1;
+        return 0;
+      });
+      break;
+    case 'status_comp':
+      this.sites.sort((a, b) => {
+        if (a.status === 'completed' && b.status !== 'completed') return -1;
+        if (a.status !== 'completed' && b.status === 'completed') return 1;
+        return 0;
+      });
+      break;
+    case 'status_on':
+      this.sites.sort((a, b) => {
+        if (a.status === 'on going' && b.status !== 'on going') return -1;
+        if (a.status !== 'on going' && b.status === 'on going') return 1;
+        return 0;
+      });
+      break;
+    default:
+      break;
+        
       }
     },
   },
