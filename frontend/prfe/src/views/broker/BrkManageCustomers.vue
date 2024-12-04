@@ -137,18 +137,6 @@
                     <td>
                       <div class="broker-actions d-flex gap-2">
                         <button
-                          @click="openDocumentModal(customer)"
-                          style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          "
-                        >
-                          <i class="fas fa-file"></i>
-                        </button>
-                        <button
                           @click="openEditModal(customer)"
                           style="
                             border: none;
@@ -425,7 +413,7 @@
           centered
         >
           <p>
-            Are you sure you want to delete this unit affiliation for this
+            Are you sure you want to delete this this
             customer?
           </p>
 
@@ -496,7 +484,6 @@ export default {
   data() {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
-      showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
       showDeleteModal: false, // To toggle the delete modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
@@ -513,15 +500,12 @@ export default {
       notificationMessage: "", // Message for the notification modal
       sortBy: "name_asc", // Selected sorting option (default is "Name (A-Z)")
       filePreviews: {}, // Object to store file previews for each document type
-      document_status: "Pending",
-      documentFiles: {},
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
     };
   },
   mounted() {
     this.fetchCustomers();
-    this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
     filterCustomers() {
@@ -664,29 +648,7 @@ export default {
       }
     },
 
-    // Opens the document upload modal for the selected customer
-    openDocumentModal(customer) {
-      this.selectedCustomer = customer; // Set the selected customer
-      if (
-        this.selectedCustomer.site === "To be followed" ||
-        this.selectedCustomer.unit === "To be followed"
-      ) {
-        this.showSalesMessage = true; // Show the message to create sales first
-      } else {
-        this.showSalesMessage = false; // Show the document upload form
-      }
-      if (this.selectedCustomer.status === "Pending Reservation") {
-        this.showStatusMessage = true; // Show the message to create sales first
-      } else {
-        this.showStatusMessage = false; // Show the message to create sales first
-      }
-      this.fetchCustomerDocuments(
-        this.selectedCustomer.id,
-        this.selectedCustomer.sales_id
-      );
-
-      this.showDocumentModal = true; // Open the document upload modal
-    },
+    
     DeleteSaleModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       if (
@@ -829,101 +791,6 @@ export default {
           };
         }
       });
-    },
-
-    // Fetch document types from the API
-    async fetchDocumentTypes() {
-      try {
-        const response = await fetch("http://localhost:8000/document-types/");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            this.documentTypes = data.documentTypes;
-          } else {
-            this.error = data.message || "Failed to fetch document types.";
-          }
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching document types.";
-      }
-    },
-
-    // Handle file selection for multiple document types
-    handleFileUpload(event, docTypeId) {
-      const file = event.target.files[0];
-      if (file) {
-        if (this.filePreviews[docTypeId]) {
-          this.removeFile(docTypeId); // This will remove the old file
-        }
-        this.filePreviews[docTypeId] = file; // Store the file preview
-        this.documentFiles[docTypeId] = file; // Store the actual file
-      }
-    },
-
-    // Remove file preview and file data for a document type
-    removeFile(docTypeId) {
-      delete this.filePreviews[docTypeId];
-      delete this.documentFiles[docTypeId];
-    },
-
-    // Upload multiple documents
-    async uploadDocuments() {
-      const formData = new FormData();
-
-      // Loop through the documentFiles object to process each file and its document type
-      for (const docTypeId in this.documentFiles) {
-        const file = this.documentFiles[docTypeId];
-
-        // Append the file and the associated document type to formData
-        formData.append("files[]", file); // Append the file under "files[]"
-        formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
-        formData.append("sales_id", this.selectedCustomer.sales_id);
-      }
-
-      // Append customer and company information
-      formData.append("customer", this.selectedCustomer.id);
-      formData.append("company", this.companyId);
-      // Log the formData for debugging
-      try {
-        const response = await fetch("http://localhost:8000/upload-document/", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-CSRFToken": this.getCookie("csrftoken"),
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok && data.success) {
-          this.notificationTitle = "Success!";
-          this.notificationMessage = "Documents uploaded successfully!";
-          this.showNotification = true;
-          this.showDocumentModal = false;
-          this.resetForm();
-
-          this.fetchCustomers(); // Refresh customer list
-        } else {
-          this.notificationTitle = "Error!";
-          this.notificationMessage =
-            data.message || "Failed to upload documents.";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while uploading documents.";
-        this.showNotification = true;
-      }
-    },
-    // Reset the form when the modal is closed
-    resetForm() {
-      this.email = "";
-      this.contactNumber = "";
-      this.lastName = "";
-      this.firstName = "";
-      this.documentFiles = {}; // Clear the actual files
-      // Optionally, clear any other form-related fields
-      this.selectedCustomer = null; // Clear selected customer
     },
     getCookie(name) {
       let value = "; " + document.cookie;

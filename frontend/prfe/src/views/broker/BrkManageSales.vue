@@ -554,6 +554,39 @@
             </div>
           </div>
         </b-modal>
+        <!-- Delete -->
+         <b-modal
+          v-model="showDeleteModal"
+          title="Delete Confirmation"
+          hide-footer
+          centered
+        >
+          <p>
+            Are you sure you want to delete this unit affiliation for this
+            customer?
+          </p>
+
+          <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px">
+            <button
+              type="button"
+              @click="
+                deleteSaleFromBackend(
+                  selectedCustomer.sale_id
+                )
+              "
+              class="btn-add"
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              @click="showDeleteModal = false"
+              class="btn-cancel"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
         <b-modal
           v-model="showNotification"
           :title="notificationTitle"
@@ -641,9 +674,7 @@ export default {
       notificationMessage: "", // Message for the notification modal
       notificationTitle: "", // Title for the notification modal (Success/Failure)
       showNotification: false, // Controls the visibility of the notification modal
-
-
-
+      showDeleteModal: false, // To toggle the delete modal visibility
     };
   },
   mounted() {
@@ -1067,8 +1098,6 @@ export default {
           this.showNotification = true;
           this.showDocumentModal = false;
           this.resetForm();
-
-          this.fetchCustomers(); // Refresh customer list
         } else {
           this.notificationTitle = "Error!";
           this.notificationMessage =
@@ -1077,6 +1106,49 @@ export default {
         }
       } catch (error) {
         this.showNotification = true;
+      }
+    },
+
+    DeleteSaleModal(sale) {
+      this.selectedCustomer = sale; // Set the selected customer
+      this.showDeleteModal = true; // Show the modal
+    },
+
+    async deleteSaleFromBackend(salesId) {
+      try {
+        let url = "";
+          // Otherwise, delete the sale
+        url = `http://localhost:8000/delete_sale/${salesId}/`;
+        // Send a POST request with DELETE override if CSRF protection is enabled
+        const response = await fetch(url, {
+          method: "POST", // Use POST with _method override
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": this.getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ _method: "DELETE" }), // Overriding method to DELETE
+        });
+
+        if (response.ok) {
+          this.notificationTitle = "Success!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removed Successfully!"
+            : "Customer Sale Removed Successfully!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchSales();
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removal Failed!"
+            : "Customer Sale Removal Failed!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchSales();
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while deleting the sale or customer");
       }
     },
     // Reset the form when the modal is closed

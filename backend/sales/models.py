@@ -41,6 +41,6 @@ class Sale(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)  # Cash, card, transfer
     payment_reference = models.CharField(max_length=100, blank=True, null=True)  # Optional reference (e.g., transaction ID)
     reservation_file = models.FileField(upload_to=reservation_file_upload_path, blank=True, null=True)  # Optional file upload
-
+    is_archived = models.BooleanField(default=False)
     def __str__(self):
         return f"Sale of {self.unit.unit_title} to {self.customer.first_name} {self.customer.last_name}"

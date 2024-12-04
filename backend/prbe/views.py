@@ -721,7 +721,7 @@ def fetch_sales(request):
 
         # Fetch sales based on the broker_id, if provided
         if broker_id:
-            sales = Sale.objects.filter(broker__id=broker_id).select_related(
+            sales = Sale.objects.filter(broker__id=broker_id,is_archived=False).select_related(
                 'customer',  # Fetch related customer data
                 'site',      # Fetch related site data
                 'unit',      # Fetch related unit data
@@ -1243,7 +1243,8 @@ def delete_sale(request, sale_id):
         if data.get('_method') == 'DELETE':
             # Process the delete operation
             sale = get_object_or_404(Sale, id=sale_id)
-            sale.delete()
+            sale.is_archived = True
+            sale.save()
             # Update unit status
             unit = sale.unit
             unit.status = 'Available'
