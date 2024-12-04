@@ -23,7 +23,7 @@ class DashboardStatsView(APIView):
             # Available Units count (not sold, not archived, and active)
             available_units_count = Unit.objects.filter(
                 company=company, 
-                status__in=['available', 'pending reservation'],
+                status__in=['Available', 'pending reservation'],
             ).count()
 
             # Sales count (sold sales only)
