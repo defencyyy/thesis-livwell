@@ -15,6 +15,7 @@
         <div style = "margin-top: 50px;">
           <div class="outside-headers">
             <span class="header-item">Customer Name</span>
+            <span class="header-item">Customer Code</span>
             <span class="header-item">Site Name</span>
             <span class="header-item">Unit Title</span>
             <span class="header-item">Status</span>
@@ -33,7 +34,10 @@
               <tr v-for="sale in sales"
                 :key="sale.id">
                 <td>
-                  <span class = "customer-name">{{ sale.customer_name }} ({{ sale.customer_code }})</span>
+                  <span class = "customer-name">{{ sale.customer_name }}</span>
+                </td>
+                <td>
+                  {{ sale.customer_code }}
                 </td>
                 <td>
                   <span class = "customer-site">{{ sale.site_name }}</span>
@@ -45,18 +49,36 @@
                   <span class = "customer-status">{{ sale.status }}</span>
                 </td>
                 <td>
-  <div style="display: flex; gap: 10px;">
-    <button @click="openSalesAgreementModal(sale)">
-      <i class="fas fa-dollar-sign"></i>
-    </button>
-    <button @click="openDocumentModal(sale)">
-      <i class="fas fa-file"></i>
-    </button>
-    <button @click="DeleteSaleModal(sale)">
-      <i class="fas fa-trash"></i>
-    </button>
-  </div>
-</td>
+                <div style="display: flex; gap: 10px;">
+                  <button @click="openSalesAgreementModal(sale)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                    <i class="fas fa-dollar-sign"></i>
+                  </button>
+                  <button @click="openDocumentModal(sale)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                  <i class="fas fa-file-alt"></i>
+                  </button>
+                  <button @click="DeleteSaleModal(sale)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                    <i class="fas fa-archive"></i>
+                  </button>
+                </div>
+              </td>
               </tr>
             </tbody>
             </table>
@@ -1220,7 +1242,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 25% 25% 25%; /* Adjust column widths */
+  grid-template-columns: 16% 16% 16% 16% 16% 16%; /* Adjust column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1254,17 +1276,25 @@ body {
 
 .salesCustomer-table td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 25%;
+  width: 16%;
 }
 
 .salesCustomer-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 25%;
+  width: 16%;
 }
 
 .salesCustomer-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 25%;
+  width: 16%;
+}
+.salesCustomer-table td:nth-child(5),
+.outside-headers .header-item:nth-child(5) {
+  width: 16%;
+}
+.salesCustomer-table td:nth-child(6),
+.outside-headers .header-item:nth-child(6) {
+  width: 16%;
 }
 
 .card:hover {
