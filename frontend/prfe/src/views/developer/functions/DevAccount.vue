@@ -157,7 +157,6 @@ export default {
     }),
   },
   mounted() {
-    this.setupAxiosInterceptor();
     this.fetchAccountDetails();
   },
   methods: {
@@ -214,13 +213,6 @@ export default {
       this.currentPassword = "";
       this.newPassword = "";
       this.confirmNewPassword = "";
-    },
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use((config) => {
-        const token = this.authToken;
-        if (token) config.headers["Authorization"] = `Bearer ${token}`;
-        return config;
-      });
     },
   },
 };

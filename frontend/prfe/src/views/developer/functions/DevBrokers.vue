@@ -45,7 +45,11 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
-                  <select v-model="viewFilter" @change="toggleView" class="dropdown">
+                  <select
+                    v-model="viewFilter"
+                    @change="toggleView"
+                    class="dropdown"
+                  >
                     <option value="active">View: Active</option>
                     <option value="archived">View: Archived</option>
                   </select>
@@ -57,16 +61,6 @@
                   >
                     Add Broker
                   </button>
-                  <!-- <button
-                    class="btn-secondary toggle-button"
-                    @click="toggleView"
-                  >
-                    {{
-                      showArchived
-                        ? "Show Active Brokers"
-                        : "Show Archived Brokers"
-                    }}
-                  </button> -->
                 </div>
               </div>
             </div>
@@ -98,12 +92,15 @@
                 <tbody>
                   <tr>
                     <td>
-  <!-- User Icon as Profile Picture -->
-  <i class="fas fa-user broker-icon" style="font-size: 30px; color: #343a40;"></i>
-  <span class="broker-name">
-    {{ broker.first_name }} {{ broker.last_name }}
-  </span>
-</td>
+                      <!-- User Icon as Profile Picture -->
+                      <i
+                        class="fas fa-user broker-icon"
+                        style="font-size: 30px; color: #343a40"
+                      ></i>
+                      <span class="broker-name">
+                        {{ broker.first_name }} {{ broker.last_name }}
+                      </span>
+                    </td>
                     <td>
                       <span class="broker-username">{{ broker.username }}</span>
                     </td>
@@ -411,7 +408,7 @@ export default {
   data() {
     return {
       showModal: false,
-      viewFilter: 'active',
+      viewFilter: "active",
       email: "",
       contactNumber: "",
       lastName: "",
@@ -482,7 +479,6 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchBrokers();
-      this.setupAxiosInterceptor();
     }
   },
 
@@ -558,15 +554,8 @@ export default {
         console.log("Brokers fetched:", response.data); // Log the response
         this.brokers = response.data;
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchBrokers(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching brokers:", error.response || error);
-          this.error = "Failed to load brokers.";
-        }
+        console.error("Error fetching brokers:", error.response || error);
+        this.error = "Failed to load brokers.";
       }
     },
 
@@ -692,45 +681,17 @@ export default {
       );
     },
 
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          { refresh: refreshToken }
-        );
-        if (response.status === 200) {
-          const { access } = response.data;
-          localStorage.setItem("accessToken", access);
-          return access;
-        } else {
-          this.handleTokenRefreshFailure();
-        }
-      } catch (error) {
-        this.handleTokenRefreshFailure();
-      }
-    },
-
-    handleTokenRefreshFailure() {
-      alert("Session expired. Please log in again.");
-      this.$store.dispatch("logout");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      this.$router.push({ name: "DevLogin" });
-    },
-
     async addBroker() {
       if (this.validateForm()) {
         try {
           const response = await axios.post(
             "http://localhost:8000/developer/brokers/add/",
             {
-              company: this.vuexCompanyId,
-              email: this.email,
-              contact_number: this.contactNumber,
-              last_name: this.lastName,
               first_name: this.firstName,
+              last_name: this.lastName,
+              email: this.email,
               password: this.password,
+              contact_number: this.contactNumber,
             },
             {
               headers: {
@@ -738,67 +699,31 @@ export default {
               },
             }
           );
-          console.log("Broker added:", response.data); // Check response data
-          this.successMessage = "Broker added successfully!";
-          this.resetForm();
-          this.showModal = false;
-          this.fetchBrokers();
+          console.log("Broker added:", response.data);
+          alert("Broker added successfully!");
+          this.resetForm(); // Reset form after successful submission
         } catch (error) {
-          console.error("Error adding broker:", error.response || error); // Log full error
-          this.error =
-            error.response?.data?.error ||
-            "Failed to add broker. Please try again.";
+          console.error("Error adding broker:", error.response || error);
+          this.error = "Failed to add broker. Please try again.";
         }
       }
     },
+
     resetForm() {
+      this.firstName = "";
+      this.lastName = "";
       this.email = "";
       this.contactNumber = "";
-      this.lastName = "";
-      this.firstName = "";
       this.password = "";
       this.emailError = null;
       this.contactNumberError = null;
-      this.lastNameError = null;
       this.firstNameError = null;
+      this.lastNameError = null;
       this.passwordError = null;
-      this.error = null;
-      this.successMessage = null;
     },
 
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
-    },
-
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-          }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
-        }
-      );
-
-      axios.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          if (error.response?.status === 401) {
-            const refreshedToken = await this.refreshAccessToken();
-            if (refreshedToken) {
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${refreshedToken}`;
-              return axios(error.config);
-            }
-          }
-          return Promise.reject(error);
-        }
-      );
     },
   },
 };

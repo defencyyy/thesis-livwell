@@ -38,7 +38,7 @@
               type="text"
               v-model="searchQuery"
               @input="filterSales"
-              placeholder="Search by Names"
+              placeholder="Search by Names or Site"
               class="search-input"
             />
             <select
@@ -46,23 +46,9 @@
               @change="filterSales"
               class="filter-dropdown"
             >
-              <option value="">All Statuses</option>
+              <option value="">All Pending Status</option>
               <option value="Pending Reservation">Pending Reservation</option>
               <option value="Pending Sold">Pending Sold</option>
-            </select>
-            <select
-              v-model="selectedSite"
-              @change="filterSales"
-              class="filter-dropdown"
-            >
-              <option value="">All Sites</option>
-              <option
-                v-for="site in filteredSites"
-                :key="site.id"
-                :value="site.id"
-              >
-                {{ site.name }}
-              </option>
             </select>
           </div>
 
@@ -116,7 +102,6 @@ export default {
       filteredSales: [],
       searchQuery: "",
       selectedStatus: "",
-      selectedSite: "",
       sites: [],
       filteredSites: [],
       loading: true,
@@ -173,28 +158,9 @@ export default {
           }
         );
         this.sites = Array.isArray(response.data) ? response.data : [];
-        this.filterSitesWithPendingSales();
       } catch (error) {
         console.error("Error fetching sites:", error);
       }
-    },
-
-    filterSitesWithPendingSales() {
-      const siteIdsWithPendingSales = new Set(
-        this.pendingSales
-          .filter(
-            (sale) =>
-              sale.status === "Pending Reservation" ||
-              sale.status === "Pending Sold"
-          )
-          .map((sale) => sale.site.id)
-      );
-
-      const filteredSites = this.sites.filter((site) =>
-        siteIdsWithPendingSales.has(site.id)
-      );
-
-      this.filteredSites = [...filteredSites];
     },
 
     async fetchPendingSales() {
@@ -220,8 +186,8 @@ export default {
             brokerName: `${sale.broker.first_name} ${sale.broker.last_name}`,
             customerName: `${sale.customer.first_name} ${sale.customer.last_name}`,
           }));
+        console.log("Pending sales:", this.pendingSales);
         this.filteredSales = this.pendingSales;
-        this.filterSitesWithPendingSales();
       } catch (error) {
         console.error("Error fetching pending sales:", error);
       }
@@ -238,19 +204,17 @@ export default {
               .includes(this.searchQuery.toLowerCase()) ||
             `${sale.brokerName}`
               .toLowerCase()
-              .includes(this.searchQuery.toLowerCase())
+              .includes(this.searchQuery.toLowerCase()) ||
+            (sale.site &&
+              sale.site.name
+                .toLowerCase()
+                .includes(this.searchQuery.toLowerCase()))
         );
       }
 
       if (this.selectedStatus) {
         filtered = filtered.filter(
           (sale) => sale.status === this.selectedStatus
-        );
-      }
-
-      if (this.selectedSite) {
-        filtered = filtered.filter(
-          (sale) => sale.site.id === parseInt(this.selectedSite)
         );
       }
 
