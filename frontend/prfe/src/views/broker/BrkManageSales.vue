@@ -407,42 +407,26 @@
                 </div>
 
                 <!-- Required Documents Section (Always Displayed) -->
-                <div class="form-group">
-                  <br>
-                  <h3>Required Documents</h3>
-                  <ul>
-                    <li>
-                      <strong>Reservation Agreement:</strong>
-                      <br>
-                      <input
-                        type="file"
-                        @change="handleFileChange"
-                        id="reservationAgreement"
-                        required
-                      />
-                    </li>
-                    <li>
-                      <strong>Valid ID (Front and Back):</strong> A clear copy
-                      of a government-issued ID with a signature.
-                    </li>
-                    <li>
-                      <strong>Proof of Billing:</strong> A recent utility bill
-                      or bank statement showing the customer's name and address.
-                    </li>
-                    <li>
-                      <strong>Proof of Income:</strong> A recent payslip or
-                      income tax return (ITR).
-                    </li>
-                    <li>
-                      <strong>Sales Agreement:</strong> To be followed (after
-                      the contract is signed).
-                    </li>
-                    <li>
-                      <strong>TIN:</strong> A clear copy of the customer's
-                      Taxpayer Identification Number (TIN) certificate.
-                    </li>
-                  </ul>
-                </div>
+                <!-- Required Documents Section (Always Displayed) -->
+<div class="form-group">
+  <br>
+  <h3>Required Documents</h3>
+  <ul>
+    <li v-for="document in documentTypes" :key="document.id">
+      <strong>{{ document.name }}:</strong>
+      <br v-if="document.id === 'reservationAgreement'">
+      <input
+        v-if="document.id === 'reservationAgreement'"
+        type="file"
+        @change="handleFileChange"
+        :id="document.id"
+        required
+      />
+      <span v-else>{{ document.description }}</span>
+    </li>
+  </ul>
+</div>
+
                 
                 <div
                 class="d-flex justify-content-end gap-2 mt-30"
