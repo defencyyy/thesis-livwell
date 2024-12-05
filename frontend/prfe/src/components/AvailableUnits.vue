@@ -1,6 +1,8 @@
 <template>
-  <div class="available-units-page">
-    <!-- <SideNav /> -->
+  <div class="main-page">
+    <SideNav />
+    <div class="main-content">
+      <AppHeader />
     <div class="content">
       <router-link class="text-start" to="/broker/affiliated-units">
         <i class="fas fa-arrow-left"></i> Back to Units
@@ -10,8 +12,6 @@
         Available Units for Site: {{ siteName }}
       </h2>
       <!-- filter for units -->
-
-     
     <div class="filters">
       <label>View:</label>
       <select v-model="selectedView">
@@ -402,16 +402,20 @@
       </div>
     </div>
   </div>
+  </div>
+
 </template>
 
 <script>
-//import SideNav from "@/components/SideNav.vue";
+import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 
 export default {
   name: "AvailableUnits",
   components: {
-    // SideNav,
+    SideNav,
+    AppHeader,
   },
   data() {
     return {
@@ -728,13 +732,48 @@ export default {
 </script>
 
 <style scoped>
-.content {
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  margin: 20px 20px 20px 20px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
-  background-color: rgb(223, 255, 223);
+
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
 }
+.AppHeader {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
+}
+.main-page {
+  display: flex;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
+}
+.content {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+
 
 .popup-overlay {
   position: fixed;
@@ -767,10 +806,7 @@ export default {
 .ok-btn:hover {
   background: #0056b3;
 }
-.available-units-page {
-  display: flex;
-  height: 100vh;
-}
+
 .content {
   flex: 1;
   padding: 20px;
