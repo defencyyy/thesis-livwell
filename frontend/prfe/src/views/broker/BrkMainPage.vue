@@ -6,62 +6,53 @@
       <div class="content">
         <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">{{ brokerName }}</h1>
         <p class="text-start display-7 fw-bolder">@{{ brokerUsername }}</p>
-        <div class = "dashboard-boxes">
-          <div class = "box">
-            <p>Total Sales</p>
-            <h2>{{ totalSales }}</h2>
+        <div class="dashboard-and-pie">
+          <!-- Left side: Dashboard Boxes -->
+          <div class="dashboard-boxes">
+            <div class="box">
+              <p>Total Sales</p>
+              <h2>{{ totalSales }}</h2>
+            </div>
+            <div class="box">
+              <p>Total Commissions</p>
+              <h2>{{ totalCommissions }}</h2>
+            </div>
+            <div class="box">
+              <p>Total Customers</p>
+              <h2>{{ totalCustomers }}</h2>
+            </div>
           </div>
-          <div class = "box">
-            <p>Total Commissions</p>
-            <h2>{{ totalCommissions }}</h2>
-          </div>
-          <div class = "box">
-            <p>Total Customers</p>
-            <h2>{{ totalCustomers }}</h2>
-          </div>
-        </div>
-
-        <div class = "piechart-container">
-          <div
-          v-if="
-            salesStatus.sold === 0 &&
-            salesStatus.pending === 0 &&
-            salesStatus.reserved === 0
-          "
-          >
-            <p>No sales data available.</p>
-          </div>
-          <div v-else>
-            <canvas id="salesPieChart"></canvas>
+          
+          <!-- Right side: Pie Chart -->
+          <div class="piechart-container">
+            <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
+              <p>No sales data available.</p>
+            </div>
+            <div v-else>
+              <canvas id="salesPieChart"></canvas>
+            </div>
           </div>
         </div>
 
-            <!-- Bar Chart Section with Dropdown -->
+        <!-- Bottom: Bar Chart -->
         <div v-if="salesStatus.sold > 0">
           <div class="bar-chart-header">
-  <!-- Dropdown for selecting year (inside the bar chart section) -->
-  <label for="year-select">Select Year for Sales Data:</label>
-  <select 
-    id="year-select" 
-    v-model="selectedYear" 
-    @change="fetchSalesByMonth"
-    :disabled="loading"  
-  >
-    <option v-if="loading" value="" disabled>Loading years...</option> <!-- Show Loading when fetching -->
-    <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-  </select>
-</div>
-
+            <label for="year-select">Select Year for Sales Data:</label>
+            <select id="year-select" v-model="selectedYear" @change="fetchSalesByMonth" :disabled="loading">
+              <option v-if="loading" value="" disabled>Loading years...</option>
+              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+            </select>
+          </div>
           <canvas id="salesBarChart"></canvas>
         </div>
         <div v-else>
           <p>No sales data available for the selected year.</p>
         </div>
-
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import SideNav from "@/components/SideNav.vue";
@@ -382,16 +373,7 @@ body {
   /* Gray background */
 }
 
-.main-content {
-  display: flex;
-  flex-direction: column;
-  margin-top: 80px;
-  margin-left: 250px;
-  /* Offset for header height */
-  flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
-}
+
 
 .content {
   flex: 1;
@@ -419,30 +401,6 @@ canvas {
   margin: 20px auto;
 }
 
-.piechart-container {
-  display: grid;
-  justify-items: start; /* Aligns grid items to the left */
-}
-
-
-#salesPieChart
-{
-  padding: 20px;
-  text-align: center;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  /* margin: 20px 20px 20px 20px;   */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background: #fff;
-}
-
-.dashboard-boxes {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-top: 50px; /* Adds more space at the top */
-  margin-bottom: 20px; /* Keeps bottom margin as is */
-}
 
 
 .box {
@@ -471,10 +429,55 @@ canvas {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
 }
+
+.main-content {
+  display: flex;
+  flex-direction: column; /* Stacks content vertically */
+  margin-top: 80px;
+  margin-left: 250px;
+  flex: 1;
+  padding: 20px;
+}
+
+.dashboard-and-pie {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Space between the boxes and pie chart */
+  margin-bottom: 30px; /* Space between the pie chart and the bar chart */
+}
+
+.dashboard-boxes {
+  display: flex;
+  flex-direction: column; /* Stacks the boxes vertically */
+  gap: 20px; /* Space between the boxes */
+  flex: 1;
+  margin-top: 50px; /* Adds more space at the top */
+  margin-bottom: 20px; /* Keeps bottom margin as is */
+}
+
+.piechart-container {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* Centers the pie chart */
+  align-items: center;
+}
+
+#salesPieChart {
+  max-width: 500px;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
 .bar-chart-header {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  justify-content: center;
 }
 
 .bar-chart-header label {
@@ -483,11 +486,53 @@ canvas {
 }
 
 .bar-chart-header select {
-  padding: 5px;
+  padding: 10px;
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ddd;
-  margin-left: 10px;
+}
+
+#salesBarChart {
+  max-width: 100%;
+  width: 100%;
+  height: 500px;
+  margin-top: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.box p {
+  font-size: 14px;
+  color: #666;
+}
+
+.box h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
+}
+
+@media (max-width: 768px) {
+  .dashboard-and-pie {
+    flex-direction: column; /* Stacks everything vertically on small screens */
+    align-items: center;
+  }
+
+  .piechart-container {
+    width: 100%; /* Makes the pie chart responsive */
+  }
+
+  .dashboard-boxes {
+    width: 100%; /* Makes the boxes responsive */
+  }
 }
 
 </style>

@@ -511,6 +511,9 @@ def get_available_units(request):
                 images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
                 image_urls = [request.build_absolute_uri(image.image.url) for image in images]
 
+                # Get the unit type name (you can also include more fields as needed)
+                unit_type_name = unit.unit_type.name if unit.unit_type else None
+
                 unit_info = {
                     'id': unit.id,
                     'unit_title': unit.unit_title,
@@ -521,6 +524,7 @@ def get_available_units(request):
                     'floor_area': unit.floor_area,
                     'floor': unit.floor.floor_number,
                     'balcony': unit.balcony,
+                    'type': unit_type_name,  # Add the unit type here
                     'view': unit.view,
                     'company_id': unit.company.id,
                     'unit_number': unit.unit_number,
@@ -542,6 +546,7 @@ def get_available_units(request):
 
     logger.warning("Invalid request method: %s", request.method)
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 
 @csrf_exempt
 def get_customers_for_broker(request, broker_id):
@@ -1195,8 +1200,6 @@ def get_milestones(request):
         broker = Broker.objects.get(id=broker_id)  # Retrieve broker by id
         milestones = Milestone.objects.filter(company=broker.company)
 
-   
-        
         # Calculate total sales and commission
         total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
         sales = Sale.objects.filter(broker_id=broker_id, status='Sold')
@@ -1234,9 +1237,9 @@ def get_milestones(request):
                 'reward': m.reward,
                 'type': m.type,
             } for m in next_milestones],
+            'total_milestones': len(achieved_milestones),  # Total achieved milestones count
         }
-
-       
+        
         return JsonResponse(data, status=200)
 
     except Exception as e:
