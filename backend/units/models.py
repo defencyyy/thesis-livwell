@@ -1,4 +1,5 @@
 from django.db import models
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from companies.models import Company
@@ -36,6 +37,57 @@ def logo_upload_path(instance, filename):
     
     return os.path.join('photos', company_name, 'unknown', filename)
 
+def get_default_unit_type():
+    # Define all default unit types
+    default_unit_types = [
+        'Studio', 
+        'Studio Deluxe', 
+        '1 Bedroom', 
+        '2 Bedroom', 
+        '3 Bedroom', 
+        'Penthouse', 
+        'Loft', 
+    ]
+    
+    UnitType = apps.get_model('units', 'UnitType')
+    
+    # Create all default unit types if they don't exist
+    for unit_type in default_unit_types:
+        UnitType.objects.get_or_create(
+            name=unit_type, 
+            defaults={'is_custom': False}
+        )
+    
+    # Return the "Studio" type by default for units
+    default_unit_type, created = UnitType.objects.get_or_create(
+        name='Studio', defaults={'is_custom': False}
+    )
+    return default_unit_type.id
+    
+class UnitType(models.Model):
+    DEFAULT_CHOICES = [
+        'Studio', 
+        'Studio Deluxe', 
+        '1 Bedroom', 
+        '2 Bedroom', 
+        '3 Bedroom', 
+        'Penthouse', 
+        'Loft', 
+    ]
+
+    name = models.CharField(max_length=50, unique=True)
+    is_custom = models.BooleanField(default=True)
+    is_archived = models.BooleanField(default=False) 
+
+    def save(self, *args, **kwargs):
+        # Prevent modification of default unit types
+        if not self.is_custom and self.pk:
+            raise ValueError("Default unit types cannot be modified.")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
 class Unit(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
@@ -53,6 +105,14 @@ class Unit(models.Model):
         ('has balcony', 'Has Balcony'),
         ('no balcony', 'No Balcony'),
     ]
+    unit_type = models.ForeignKey(
+        'UnitType', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name="units", 
+        default=get_default_unit_type,
+        help_text="Type of the Unit (e.g., Studio, 1 Bedroom, etc.)",
+    )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     unit_template = models.ForeignKey('UnitTemplate', related_name='units', null=True, blank=True, on_delete=models.SET_NULL)
     site = models.ForeignKey(Site, on_delete=models.DO_NOTHING)
@@ -62,7 +122,7 @@ class Unit(models.Model):
         blank=True,
         help_text="Auto-generated Unit Number (e.g., 21001)"
     )
-    unit_title = models.CharField(max_length=100)
+    unit_title = models.CharField(max_length=100, blank=True)
     bedroom = models.PositiveIntegerField(default=1, null=True)
     bathroom = models.PositiveIntegerField(default=1, null=True)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -106,12 +166,24 @@ class Unit(models.Model):
             unit_count = Unit.objects.filter(floor=self.floor).count() + 1
             self.unit_number = f"{self.floor.floor_number:02d}{unit_count:03d}"
 
+        # Auto-generate unit title if not set
+        if not self.unit_title:
+            self.unit_title = f"{self.unit_type.name} - {self.unit_number}"
+
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.site.name} - {self.unit_title} (Unit {self.unit_number})"
+        return f"{self.site.name} - {self.unit_title}"
 
 class UnitTemplate(models.Model):
+    unit_type = models.ForeignKey(
+        'UnitType', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name="unit_templates", 
+        default=get_default_unit_type,
+        help_text="Type of the Unit (e.g., Studio, 1 Bedroom, etc.)",
+    )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=100, unique=True)
     bedroom = models.PositiveIntegerField(default=1)
@@ -123,6 +195,8 @@ class UnitTemplate(models.Model):
     balcony = models.CharField(max_length=20, choices=Unit.BALCONY_CHOICES)
     commission = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     description = models.TextField(blank=True, help_text="Description of the template")
+    last_updated = models.DateTimeField(auto_now=True)
+    primary_image = models.ForeignKey('UnitImage', null=True, blank=True, on_delete=models.SET_NULL, related_name='primary_for_templates', help_text="Primary image for the template")
 
     def __str__(self):
         return self.name
@@ -158,15 +232,14 @@ class UnitImage(models.Model):
         FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), 
         validate_image_size,  
     ])
-
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    primary = models.BooleanField(default=False, help_text="Indicates if this image is the primary image for the template")
 
     def __str__(self):
         if self.image_type == 'unit':
             return f"Image for {self.unit.unit_title}"
         else:
             return f"Image for {self.unit_template.name}"
-        
 
     def save(self, *args, **kwargs):
         # Ensure that either unit or unit_template is set, not both
@@ -174,5 +247,9 @@ class UnitImage(models.Model):
             raise ValueError("Unit must be set when the image type is 'unit'")
         if self.image_type == 'unit_template' and not self.unit_template:
             raise ValueError("Unit Template must be set when the image type is 'unit_template'")
+
+        # Ensure only one primary image per template
+        if self.image_type == 'unit_template' and self.primary:
+            UnitImage.objects.filter(unit_template=self.unit_template, primary=True).update(primary=False)
 
         super().save(*args, **kwargs)

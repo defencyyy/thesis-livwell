@@ -9,7 +9,7 @@ class UnitImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UnitImage
-        fields = ['id', 'unit', 'unit_template', 'image_type', 'image', 'uploaded_at']
+        fields = '__all__'
         extra_kwargs = {
             'uploaded_at': {'read_only': True},  # Read-only
         }
@@ -29,7 +29,7 @@ class UnitTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UnitTemplate
-        fields = ['id', 'company', 'name', 'bedroom', 'bathroom', 'floor_area', 'lot_area', 'price', 'view', 'balcony', 'commission', 'description', 'images']
+        fields = '__all__'
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -37,7 +37,7 @@ class UnitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Unit
-        fields = ['id', 'unit_number', 'unit_title', 'floor_area', 'lot_area', 'status', 'price', 'view', 'balcony', 'images']
+        fields = '__all__'
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])

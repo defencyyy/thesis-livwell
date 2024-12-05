@@ -61,6 +61,7 @@
             <span class="header-item">Email</span>
             <span class="header-item">Contact</span>
             <span class="header-item">Broker Name</span>
+            <!-- <span class="header-item">Units Connected</span> -->
             <span class="header-item">Actions</span>
           </div>
 
@@ -91,6 +92,7 @@
                         {{ customer.first_name + " " + customer.last_name }}
                       </span>
                     </td>
+
                     <td>
                       <span class="customer-email">
                         {{ customer.email }}
@@ -101,6 +103,19 @@
                         {{ customer.contact_number }}
                       </span>
                     </td>
+                    <!-- <td>
+                      <span class="customer-units">
+                        {{
+                          customer.broker_sales
+                            ? customer.broker_sales.reduce(
+                                (count, sale) =>
+                                  sale.site && sale.unit ? count + 1 : count,
+                                0
+                              )
+                            : 0
+                        }}
+                      </span>
+                    </td> -->
                     <td>
                       <span class="customer-broker">
                         {{
