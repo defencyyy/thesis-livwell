@@ -5,40 +5,113 @@
       <AppHeader />
     <div class="content">
       <router-link class="text-start" to="/broker/affiliated-units">
-        <i class="fas fa-arrow-left"></i> Back to Units
+        <div class = "back-container">
+          <i class="fas fa-arrow-left"></i> Back to Sites
+        </div>
       </router-link>
 
-      <h2 class="display-5 fw-bolder text-capitalize">
-        Available Units for Site: {{ siteName }}
-      </h2>
-      <!-- filter for units -->
-    <div class="filters">
-      <label>View:</label>
-      <select v-model="selectedView">
-        <option value="all">All</option>
-        <option value="north">North</option>
-        <option value="south">South</option>
-        <option value="east">East</option>
-        <option value="west">West</option>
-      </select>
+      <div class="title-wrapper">
+        <div class="title-left">
+          <div class="title-icon"></div>
+          <div class="edit-title">Available Units for Site {{ siteName }} </div>
+        </div>
+        <div class="view-switch">
+          <div
+            class="view-icon"
+            :class="{ active: viewMode === 'grid' }"
+            @click="viewMode = 'grid'"
+          >
+            <i class="fa fa-th"></i>
+            <!-- Grid Icon -->
+          </div>
+          <div class="separator"></div>
+          <div
+            class="view-icon"
+            :class="{ active: viewMode === 'table' }"
+            @click="viewMode = 'table'"
+          >
+            <i class="fa fa-list"></i>
+            <!-- Table Icon -->
+          </div>
+        </div>
+      </div>
 
-      <label>Balcony:</label>
-      <select v-model="selectedBalcony">
-        <option value="all">All</option>
-        <option value="has">Has Balcony</option>
-        <option value="no">No Balcony</option>
-      </select>
-
-       <label>Floor:</label>
-  <select v-model="selectedFloor">
-    <option value="all">All</option>
-    <option v-for="floor in availableFloors" :key="floor" :value="floor">{{ floor }}</option>
-  </select>
-
+      <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 15px;"
+      >
+    
+      <div class = "card-body">
+        <div class = "row">
+          <!-- Toolbar -->
+           <div class = "toolbar">
+            <div class = "left-section">
+              <label>View </label>
+              <select v-model="selectedView" class = "dropdown-select">
+              <option value="all">All</option>
+              <option value="north">North</option>
+              <option value="south">South</option>
+              <option value="east">East</option>
+              <option value="west">West</option>
+            </select>
+            <label>Balcony</label>
+            <select v-model="selectedBalcony" class = "dropdown-select">
+              <option value="all">All</option>
+              <option value="has">Has Balcony</option>
+              <option value="no">No Balcony</option>
+            </select>
+            <label>Floor</label>
+            <select v-model="selectedFloor" class = "dropdown-select">
+              <option value="all">All</option>
+              <option v-for="floor in availableFloors" :key="floor" :value="floor">{{ floor }}</option>
+            </select>
+           </div>
+        </div>
+      </div>
+      </div>
     </div>
 
+    <!-- Grid View -->
+    <div v-if="viewMode === 'grid'" class="site-grid">
+      <div v-if="filteredUnits.length">
+        <div
+        v-for="unit in filteredUnits"
+        :key="unit.id"
+        class="site-card"
+        @click="showUnitDetails(unit)"
+        >
+          <p>{{ unit.unit_title }}</p>
+        </div>
+      </div>
+      <div v-else>
+        <p>No units available for this site.</p>
+      </div>
+    </div>
 
- <div v-if="filteredUnits.length">
+    <!-- Table View -->
+    <div v-if="viewMode === 'table'">
+      <div v-if="filteredUnits.length">
+        <div
+        v-for="unit in filteredUnits"
+        :key="unit.id"
+        @click="showUnitDetails(unit)"
+        class="card border-0 rounded-1 mx-auto"
+        style="
+          max-width: 1100px;
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        "
+        >
+        <div class="card-body">
+          <p>{{ unit.unit_title }}</p>
+        </div>
+      </div>
+      </div>
+      <div v-else>
+        <p>No units available for this site.</p>
+      </div>
+    </div>
+
+ <!-- <div v-if="filteredUnits.length">
   <div class="units-container">
     <div
       v-for="unit in filteredUnits"
@@ -52,7 +125,7 @@
 </div>
 <div v-else>
   <p>No units available for this site.</p>
-</div>
+</div> -->
 
       <!-- Success Message Pop-up -->
       <div
@@ -400,10 +473,9 @@
           <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
         </div>
       </div>
-    </div>
   </div>
   </div>
-
+</div>
 </template>
 
 <script>
@@ -419,6 +491,7 @@ export default {
   },
   data() {
     return {
+      viewMode: "grid",
       siteId: this.$route.params.siteId,
       units: [],
       siteName: "",
@@ -546,6 +619,10 @@ export default {
       } catch (error) {
         this.errorMessage = "Failed to fetch customer data.";
       }
+    },
+
+    toggleView() {
+      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
 
     showUnitDetails(unit) {
@@ -774,6 +851,121 @@ export default {
   text-align: center;
 }
 
+.text-start{
+  color: black;
+  text-decoration: none !important;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.view-switch {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #f6f6f6;
+}
+
+.view-icon {
+  flex: 1;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 15px;
+  color: #343a40;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-icon.active {
+  background-color: #343a40;
+  color: #f6f6f6;
+}
+
+.separator {
+  width: 1px;
+  background-color: #f6f6f6;
+  height: 100%;
+}
+
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  /* Matches the max-width of the card */
+  margin: 0 auto;
+  /* Centers the grid within the parent */
+}
+
+.site-card {
+  background: #fff;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.site-card:hover {
+  transform: translateY(-2px);
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  /* Space between search bar and dropdown */
+}
+
+.dropdown-select {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
 
 .popup-overlay {
   position: fixed;
@@ -830,12 +1022,6 @@ export default {
   background-color: #e8e8e8;
   transition: ease 0.3s;
 }
-
-/* .unit-picture {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 10px;
-} */
 
 /* Modal Overlay */
 .modal-overlay {
