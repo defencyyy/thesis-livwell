@@ -1323,7 +1323,7 @@ def sales_by_month(request):
         .annotate(year=ExtractYear('date_sold')) \
         .values('year') \
         .distinct() \
-        .order_by('-year')
+        .order_by('-year') 
 
     available_years = [year['year'] for year in years]
 
