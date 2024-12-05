@@ -1,6 +1,6 @@
 <template>
   <div class="top-bar">
-    <div class="welcome-text">Welcome Back, {{ roleName }}!</div>
+    <div class="welcome-text">Welcome Back, <b>{{ roleName }}!</b></div>
     <div class="d-flex align-items-center">
       <button class="btn-bell">
         <i class="bi bi-bell"></i>
@@ -156,7 +156,7 @@ export default {
 
 <style scoped>
 .top-bar {
-  background-color: #ffffff;
+  background-color: #eff4fb;
   color: #343a40;
   padding: 12px 30px;
   display: flex;
@@ -166,12 +166,14 @@ export default {
   top: 0;
   left: 250px; /* Sidebar width */
   width: calc(100% - 250px);
-  z-index: 2;
+  z-index: 1;
   height: 68px;
+  margin-top: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow at the bottom */
 }
 
 .welcome-text {
-  font-size: 1.2rem;
+  font-size: 18px;
 }
 
 .d-flex {

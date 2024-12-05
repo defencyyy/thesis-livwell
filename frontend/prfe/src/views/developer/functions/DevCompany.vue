@@ -234,7 +234,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #eff4fb;
   /* Gray background */
 }
 
@@ -245,7 +245,6 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #343a40;
   z-index: 1;
 }
 
@@ -253,7 +252,6 @@ body {
   width: 100%;
   height: 60px;
   /* Adjust height as needed */
-  background-color: #343a40;
   display: flex;
   align-items: center;
   padding-left: 10px;
@@ -354,7 +352,7 @@ textarea:focus {
 }
 
 .btn-save {
-  background-color: #42b983; /* Button primary color */
+  background-color: #0560fd; /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px; /* Adjust the border radius */

@@ -16,6 +16,12 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.db.models import Sum
+from datetime import timedelta
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth, ExtractYear
+
+
+
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -336,6 +342,7 @@ def get_broker(request, broker_id):
                 "email": broker.email,
                 "f_name":broker.first_name,
                 "l_name":broker.last_name,
+                "username":broker.username,
                 # Add other fields you may need
             }
             return JsonResponse(broker_data, status=200)
@@ -451,8 +458,8 @@ def get_available_sites(request):
                         'description': site.description,
                         'location': site.location,
                         'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
+                        'status':site.status,
                     })
-
             logger.info(f"Returning {len(site_data)} sites with available units.")
             return JsonResponse({'sites': site_data}, status=200)
 
@@ -610,6 +617,7 @@ def get_customers_for_broker(request, broker_id):
             else:
                 customer_entry = {
                     'id': customer.id,
+                    'customer_name': customer_name,
                     'name': customer_name,
                     'customer_code': customer.customer_code,
                     'f_name': customer.first_name,
@@ -621,7 +629,6 @@ def get_customers_for_broker(request, broker_id):
                 }
                 customer_data.append(customer_entry)
 
-        # print(f"\nFinal Customer Data: {customer_data}")  # Final debug print before response
         return JsonResponse({
             'success': True,
             'total_customers': total_customers,
@@ -629,7 +636,6 @@ def get_customers_for_broker(request, broker_id):
         }, status=200)
 
     except Exception as e:
-       # print(f"Error: {str(e)}")  # Print the error for debugging
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 
@@ -723,7 +729,7 @@ def fetch_sales(request):
 
         # Fetch sales based on the broker_id, if provided
         if broker_id:
-            sales = Sale.objects.filter(broker__id=broker_id).select_related(
+            sales = Sale.objects.filter(broker__id=broker_id,is_archived=False).select_related(
                 'customer',  # Fetch related customer data
                 'site',      # Fetch related site data
                 'unit',      # Fetch related unit data
@@ -1042,7 +1048,6 @@ def upload_document(request):
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
 
-
         if not customer_id or not document_type_ids or not files or not sales_id:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
 
@@ -1246,7 +1251,8 @@ def delete_sale(request, sale_id):
         if data.get('_method') == 'DELETE':
             # Process the delete operation
             sale = get_object_or_404(Sale, id=sale_id)
-            sale.delete()
+            sale.is_archived = True
+            sale.save()
             # Update unit status
             unit = sale.unit
             unit.status = 'Available'
@@ -1269,6 +1275,63 @@ def delete_customer(request, customer_id):
     except Customer.DoesNotExist:
         return JsonResponse({"message": "Customer not found"}, status=404)
 
+
+
+def sales_by_month(request):
+    broker_id = request.GET.get('broker_id')
+    year = request.GET.get('year')  # Get the year from the query params
+
+    if not broker_id:
+        return JsonResponse({"success": False, "message": "Broker ID is required"}, status=400)
+
+    # If no year is provided, default to the current year
+    if not year:
+        year = timezone.now().year
+    else:
+        try:
+            year = int(year)  # Ensure the year is an integer
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid year"}, status=400)
+
+    # Get the count of sales grouped by month for a specific broker and year
+    sales_filter = Sale.objects.filter(broker_id=broker_id, status='Sold')
+    
+    # If a year is specified, filter by that year
+    if year:
+        sales_filter = sales_filter.filter(date_sold__year=year)
+
+    sales_data = sales_filter.annotate(month=ExtractMonth('date_sold')) \
+        .values('month') \
+        .annotate(sales_count=Count('id')) \
+        .order_by('month')
+
+    # Prepare the data for months and sales count
+    months = [sale['month'] for sale in sales_data]
+    sales_count = [sale['sales_count'] for sale in sales_data]
+
+    # Month names (1 = January, 2 = February, etc.)
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    # Prepare the response data mapping month numbers to their names and sales count
+    month_sales = {}
+    for month, count in zip(months, sales_count):
+        month_sales[month_names[month - 1]] = count  # Adjust month because month is 1-based
+
+
+    # Get distinct years the broker has made sales
+    years = Sale.objects.filter(broker_id=broker_id) \
+        .annotate(year=ExtractYear('date_sold')) \
+        .values('year') \
+        .distinct() \
+        .order_by('-year') 
+
+    available_years = [year['year'] for year in years]
+
+    return JsonResponse({
+        "success": True,
+        "month_sales": month_sales,  # Sales per month
+        "years": available_years,  # Available years for the dropdown
+    })
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

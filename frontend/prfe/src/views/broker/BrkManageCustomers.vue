@@ -1,6 +1,6 @@
 <template>
+  <div>
   <AppHeader />
-
   <div class="main-page">
     <SideNav />
     <div class="main-content">
@@ -40,14 +40,6 @@
                   >
                     <option value="name_asc">Name (A-Z)</option>
                     <option value="name_desc">Name (Z-A)</option>
-                    <option value="site_asc">Site (A-Z)</option>
-                    <option value="site_desc">Site (Z-A)</option>
-                    <option value="status_asc">
-                      Document Status (Complete)
-                    </option>
-                    <option value="status_desc">
-                      Document Status (Pending)
-                    </option>
                     <option value="customer_code_asc">
                       Customer Code (A-Z)
                     </option>
@@ -78,10 +70,7 @@
           <div class="outside-headers">
             <span class="header-item">Code</span>
             <span class="header-item">Customer Name</span>
-            <span class="header-item">Site</span>
-            <span class="header-item">Unit</span>
             <span class="header-item">Contact</span>
-            <span class="header-item">Document Status</span>
             <span class="header-item">Actions</span>
           </div>
 
@@ -115,39 +104,12 @@
                       </span>
                     </td>
                     <td>
-                      <span class="customer-site">
-                        {{ customer.site }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="customer-unit">
-                        {{ customer.unit }}
-                      </span>
-                    </td>
-                    <td>
                       <span class="customer-contact">
                         {{ customer.contact_number }}
                       </span>
                     </td>
                     <td>
-                      <span class="customer-document">
-                        {{ customer.document_status }}
-                      </span>
-                    </td>
-                    <td>
                       <div class="broker-actions d-flex gap-2">
-                        <button
-                          @click="openDocumentModal(customer)"
-                          style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          "
-                        >
-                          <i class="fas fa-file"></i>
-                        </button>
                         <button
                           @click="openEditModal(customer)"
                           style="
@@ -422,13 +384,14 @@
           v-model="showDeleteModal"
           title="Delete Confirmation"
           hide-footer
+          centered
         >
           <p>
-            Are you sure you want to delete this unit affiliation for this
+            Are you sure you want to delete this this
             customer?
           </p>
 
-          <div class="form-actions">
+          <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px">
             <button
               type="button"
               @click="
@@ -437,14 +400,14 @@
                   selectedCustomer.sales_id
                 )
               "
-              class="btn btn-danger"
+              class="btn-add"
             >
-              Yes, Delete
+              Yes
             </button>
             <button
               type="button"
               @click="showDeleteModal = false"
-              class="btn btn-secondary"
+              class="btn-cancel"
             >
               Cancel
             </button>
@@ -454,12 +417,16 @@
           v-model="showNotification"
           :title="notificationTitle"
           hide-footer
+          centered
         >
           <p>{{ notificationMessage }}</p>
-          <button type="button" @click="showNotification = false">Close</button>
+          <div class = "button-container">
+            <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
+          </div>
         </b-modal>
       </div>
     </div>
+  </div>
   </div>
 </template>
 <script>
@@ -491,7 +458,6 @@ export default {
   data() {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
-      showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
       showDeleteModal: false, // To toggle the delete modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
@@ -508,15 +474,12 @@ export default {
       notificationMessage: "", // Message for the notification modal
       sortBy: "name_asc", // Selected sorting option (default is "Name (A-Z)")
       filePreviews: {}, // Object to store file previews for each document type
-      document_status: "Pending",
-      documentFiles: {},
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
     };
   },
   mounted() {
     this.fetchCustomers();
-    this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
     filterCustomers() {
@@ -529,6 +492,7 @@ export default {
         // Filter customers by name or customer code
         this.filteredCustomers = this.customers.filter((customer) => {
           const customerName = customer.customer_name.toLowerCase();
+          console.log(customerName);
           const customerCode = customer.customer_code
             ? customer.customer_code.toLowerCase()
             : ""; // Assuming customer code is in customer_code field
@@ -545,7 +509,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=true`
+          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=false`
         );
         if (response.ok) {
           const data = await response.json();
@@ -578,22 +542,6 @@ export default {
         case "name_desc":
           this.customers.sort((a, b) =>
             b.customer_name.localeCompare(a.customer_name)
-          );
-          break;
-        case "site_asc":
-          this.customers.sort((a, b) => a.site.localeCompare(b.site));
-          break;
-        case "site_desc":
-          this.customers.sort((a, b) => b.site.localeCompare(a.site));
-          break;
-        case "status_asc": // New case for sorting by document status A-Z
-          this.customers.sort((a, b) =>
-            a.document_status.localeCompare(b.document_status)
-          );
-          break;
-        case "status_desc": // New case for sorting by document status Z-A
-          this.customers.sort((a, b) =>
-            b.document_status.localeCompare(a.document_status)
           );
           break;
         case "customer_code_asc":
@@ -659,29 +607,7 @@ export default {
       }
     },
 
-    // Opens the document upload modal for the selected customer
-    openDocumentModal(customer) {
-      this.selectedCustomer = customer; // Set the selected customer
-      if (
-        this.selectedCustomer.site === "To be followed" ||
-        this.selectedCustomer.unit === "To be followed"
-      ) {
-        this.showSalesMessage = true; // Show the message to create sales first
-      } else {
-        this.showSalesMessage = false; // Show the document upload form
-      }
-      if (this.selectedCustomer.status === "Pending Reservation") {
-        this.showStatusMessage = true; // Show the message to create sales first
-      } else {
-        this.showStatusMessage = false; // Show the message to create sales first
-      }
-      this.fetchCustomerDocuments(
-        this.selectedCustomer.id,
-        this.selectedCustomer.sales_id
-      );
-
-      this.showDocumentModal = true; // Open the document upload modal
-    },
+    
     DeleteSaleModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       if (
@@ -824,101 +750,6 @@ export default {
           };
         }
       });
-    },
-
-    // Fetch document types from the API
-    async fetchDocumentTypes() {
-      try {
-        const response = await fetch("http://localhost:8000/document-types/");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            this.documentTypes = data.documentTypes;
-          } else {
-            this.error = data.message || "Failed to fetch document types.";
-          }
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching document types.";
-      }
-    },
-
-    // Handle file selection for multiple document types
-    handleFileUpload(event, docTypeId) {
-      const file = event.target.files[0];
-      if (file) {
-        if (this.filePreviews[docTypeId]) {
-          this.removeFile(docTypeId); // This will remove the old file
-        }
-        this.filePreviews[docTypeId] = file; // Store the file preview
-        this.documentFiles[docTypeId] = file; // Store the actual file
-      }
-    },
-
-    // Remove file preview and file data for a document type
-    removeFile(docTypeId) {
-      delete this.filePreviews[docTypeId];
-      delete this.documentFiles[docTypeId];
-    },
-
-    // Upload multiple documents
-    async uploadDocuments() {
-      const formData = new FormData();
-
-      // Loop through the documentFiles object to process each file and its document type
-      for (const docTypeId in this.documentFiles) {
-        const file = this.documentFiles[docTypeId];
-
-        // Append the file and the associated document type to formData
-        formData.append("files[]", file); // Append the file under "files[]"
-        formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
-        formData.append("sales_id", this.selectedCustomer.sales_id);
-      }
-
-      // Append customer and company information
-      formData.append("customer", this.selectedCustomer.id);
-      formData.append("company", this.selectedCustomer.company_id);
-      // Log the formData for debugging
-      try {
-        const response = await fetch("http://localhost:8000/upload-document/", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-CSRFToken": this.getCookie("csrftoken"),
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok && data.success) {
-          this.notificationTitle = "Success!";
-          this.notificationMessage = "Documents uploaded successfully!";
-          this.showNotification = true;
-          this.showDocumentModal = false;
-          this.resetForm();
-
-          this.fetchCustomers(); // Refresh customer list
-        } else {
-          this.notificationTitle = "Error!";
-          this.notificationMessage =
-            data.message || "Failed to upload documents.";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while uploading documents.";
-        this.showNotification = true;
-      }
-    },
-    // Reset the form when the modal is closed
-    resetForm() {
-      this.email = "";
-      this.contactNumber = "";
-      this.lastName = "";
-      this.firstName = "";
-      this.documentFiles = {}; // Clear the actual files
-      // Optionally, clear any other form-related fields
-      this.selectedCustomer = null; // Clear selected customer
     },
     getCookie(name) {
       let value = "; " + document.cookie;
@@ -1119,7 +950,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 10% 15% 20% 20% 15% 10% 15%; /* Match column widths */
+  grid-template-columns: 25% 25% 25% 25%; /* Match column widths */
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1143,48 +974,40 @@ body {
 }
 
 .customer-table td {
-  padding: 10px 18px; /* Matches outside-headers padding */
+  padding: 10px 0; /* Matches outside-headers padding */
 }
 
 .customer-table td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 10%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 15%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 20%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 20%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(5),
 .outside-headers .header-item:nth-child(5) {
-  width: 15%;
+  width: 16%;
 }
 
 .customer-table td:nth-child(6),
 .outside-headers .header-item:nth-child(6) {
-  width: 10%;
+  width: 16%;
 }
 
-/* For the header */
-.outside-headers .header-item:nth-child(6) {
-  margin-left: -10px; /* Moves it slightly to the left */
-}
 
-.customer-table td:nth-child(7),
-.outside-headers .header-item:nth-child(7) {
-  width: 15%;
-}
 
 .btn-add {
   background-color: #42b983;

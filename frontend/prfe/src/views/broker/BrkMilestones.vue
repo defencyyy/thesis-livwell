@@ -4,114 +4,190 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h2>Milestones Summary</h2>
+
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Milestones Summary</div>
+          </div>
+        </div>
+
 
         <div v-if="loading" class="loading-message">Loading data...</div>
 
         <div v-if="error" class="error-message">{{ error }}</div>
 
-        <div class="milestones-summary" v-else>
-          <div class="milestone-item">
-            <strong>Total Sales:</strong> {{ totalSales }}
+        <div class = "dashboard-boxes" v-else>
+          <div class = "box">
+            <p>Total Sales</p>
+            <h2>{{ totalSales }}</h2>
           </div>
-          <div class="milestone-item">
-            <strong>Total Commissions:</strong> {{ totalCommissions }}
+          <div class = "box">
+            <p>Total Commissions</p>
+            <h2>{{ totalCommissions }}</h2>
           </div>
-          <div class="milestone-item">
-            <strong>Total Milestones:</strong> {{ totalMilestones }}
+          <div class = "box">
+            <p>Total Milestones</p>
+            <h2>{{ totalMilestones }}</h2>
           </div>
         </div>
 
-        <div v-if="siteSales.length > 0" class="site-sales">
-          <h3>Site Sales Information</h3>
-          <div class="site-container">
-            <div
-              v-for="site in siteSales"
-              :key="site.id"
-              class="site"
-              @click="openModal(site)"
-            >
+        <br><br>
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Site Sales Information</div>
+          </div>
+        </div>
+        <div v-if="siteSales.length === 0">
+            No progress yet.
+        </div>
+        <div v-else class = "site-grid">
+          <div
+                v-for="site in siteSales"
+                :key="site.id"
+                class="site-card"
+                @click="openModal(site)"
+              >
               <img
-                :src="site.picture || 'https://via.placeholder.com/100'"
-                alt="Site Image"
-              />
-              <h4>{{ site.name }}</h4>
-              <p>Total Sales: {{ site.total_sales }}</p>
+                  :src="site.picture || 'https://via.placeholder.com/100'"
+                  alt="Site Image"
+                  class = "site-image"
+                />
+              <h2 class="site-name">
+                {{ site.name }}
+              </h2>
+              <p class="site-totalsales">
+                <strong>Total Sales</strong><br>{{ site.total_sales }}
+              </p>
+            </div>
+        </div>
+
+        <div class="milestones-section">
+
+          <!-- Milestones Achieved Table -->
+          <br><br>
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title">Milestones Achieved</div>
+            </div>
+          </div>
+
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Reward</span>
+            <span class="header-item">Description</span>
+          </div>
+
+          <div v-if="achievedMilestones.length === 0">
+            No milestones achieved yet.
+          </div>
+          <div
+            v-else
+            v-for="milestone in achievedMilestones"
+            :key="milestone.id"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class = "card-body">
+              <table class = "next-milestone-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span>{{ milestone.name }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.reward }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.description }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+      
+          <!-- Next Milestones Table -->
+           <br><br>
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title">Next Milestones</div>
+            </div>
+          </div>
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Reward</span>
+            <span class="header-item">Description</span>
+          </div>
+
+          <div v-if="nextMilestones.length === 0">
+            No pending milestones.
+          </div>
+
+          <div
+            v-else
+            v-for="milestone in nextMilestones"
+            :key="milestone.id"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class = "card-body">
+              <table class = "next-milestone-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span>{{ milestone.name }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.reward }}</span>
+                    </td>
+                    <td>
+                      <span>{{ milestone.description }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        <div v-else-if="!loading" class="no-progress">
-          <p>No progress yet.</p>
-        </div>
-
-        <div class="milestones-section">
-          <!-- Milestones Achieved Table -->
-          <h3>Milestones Achieved</h3>
-          <table v-if="achievedMilestones.length > 0">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Reward</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="milestone in achievedMilestones" :key="milestone.id">
-      <td>{{ milestone.name }}</td>
-      <td>{{ milestone.reward }}</td>
-      <td>{{ milestone.description }}</td>
-    </tr>
-  </tbody>
-</table>
-
-          <p v-else>No milestones achieved yet.</p>
-
-          <!-- Next Milestones Table -->
-          <h3>Next Milestones</h3>
-          <table v-if="nextMilestones.length > 0">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Reward</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="milestone in nextMilestones" :key="milestone.id">
-      <td>{{ milestone.name }}</td>
-      <td>{{ milestone.reward }}</td>
-      <td>{{ milestone.description }}</td>
-    </tr>
-  </tbody>
-</table>
-
-          <p v-else>No Pending Milestones</p>
-        </div>
-
         <!-- Modal -->
-        <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-          <div class="modal-content">
-            <button class="close-button" @click="closeModal">X</button>
-
-            <p v-if="selectedSite">{{ selectedSite.name }}</p>
-
+        <b-modal v-model ="showModal" :title="`Site ${selectedSite ? selectedSite.name : ''}`" centered hide-footer>
+          <div>
             <div v-if="selectedSite && selectedSite.sales.length > 0">
-              <h4>Sales Details:</h4>
-              <ul>
-                <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
-                  <strong>Unit Name:</strong> {{ sale.unit_name }} <br />
-                  <strong>Customer Name:</strong> {{ sale.customer_name }} <br />
-                  <strong>Date Sold:</strong> {{ sale.date_sold }}
-                </li>
-              </ul>
+              <center><h5>Sales Details</h5><br></center>
+              <table class = "table">
+                <thead>
+                  <tr>
+                    <th>Unit Name</th>
+                    <th>Customer Name</th>
+                    <th>Date Sold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="sale in selectedSite.sales" :key="sale.date_sold">
+                    <td>{{ sale.unit_name }}</td>
+                    <td>{{ sale.customer_name }}</td>
+                    <td>{{ sale.date_sold }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <div v-else-if="selectedSite">
               <p>No sales found for this site.</p>
             </div>
-          </div>
-        </div>
+            </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -121,11 +197,13 @@
 import AppHeader from "@/components/Header.vue"
 import SideNav from "@/components/SideNav.vue";
 import { mapGetters } from "vuex";
+import { BModal } from "bootstrap-vue-3";
 
 export default {
   name: "BrkMilestones",
   components: {
     SideNav,
+    BModal,
     AppHeader,
   },
   data() {
@@ -271,13 +349,10 @@ body {
 
 .main-content {
   display: flex;
-  flex-direction: column;
-  margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
+  flex-direction: column;
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
+  margin-top: 60px;
 }
 
 .content {
@@ -286,16 +361,147 @@ body {
   text-align: center;
 }
 
-.milestones-summary {
+.title-wrapper {
   display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
-.milestone-item {
-  flex: 1;
-  text-align: center;
+.title-left {
+  display: flex;
+  align-items: center;
 }
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.dashboard-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px; /* Adds more space at the top */
+  margin-bottom: 20px; /* Keeps bottom margin as is */
+}
+
+.box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.box p {
+  font-size: 14px;
+  color: #666;
+}
+
+.box h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
+}
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 25% 25% 50%; /* Match column widths */
+  padding: 10px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+  font-weight: bold;
+  text-align: left; /* Left-align for consistency with table */
+}
+
+.outside-headers .header-item {
+  display: flex;
+  justify-content: flex-start; /* Align text horizontally to the left */
+  align-items: center; /* Center vertically */
+  padding: 5px 0; /* Consistent with table cell padding */
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
+.next-milestone-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left; /* Consistent with headers */
+}
+
+.next-milestone-table td {
+  padding: 10px 0; /* Matches outside-headers padding */
+}
+
+.next-milestone-table td:nth-child(1),
+.outside-headers .header-item:nth-child(1) {
+  width: 25%;
+}
+
+.next-milestone-table td:nth-child(2),
+.outside-headers .header-item:nth-child(2) {
+  width: 25%;
+}
+
+.next-milestone-table td:nth-child(3),
+.outside-headers .header-item:nth-child(3) {
+  width: 50%;
+}
+
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  /* Matches the max-width of the card */
+  margin: 0 auto;
+  /* Centers the grid within the parent */
+}
+
+.site-card {
+  background: #fff;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+}
+
+.site-card:hover {
+  transform: translateY(-2px);
+}
+
+.site-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  /* Ensures the image is cropped to fit the area */
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.site-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.site-totalsales {
+  font-size: 14px;
+  color: #777;
+}
+
+/* juju end */
 
 .site-sales {
   margin-top: 20px;

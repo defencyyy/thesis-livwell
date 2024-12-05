@@ -4,58 +4,106 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1 class="display-5 fw-bolder text-capitalize">
-          Welcome to the Manage Sales Page
-        </h1>
-        <p>
-          This is where you can manage sales data for brokers and developers.
-        </p>
-
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Manage Customer Sales</div>
+          </div>
+        </div>
+  
         <!-- Sales Table -->
-        <table v-if="sales.length > 0" class="sales-table">
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Site Name</th>
-              <th>Unit Title</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="sale in sales"
-              :key="sale.id"
-              @click="openSalesAgreementModal(sale)"
-              style="cursor: pointer"
-            >
-              <td class="text-uppercase">
-                {{ sale.customer_name }}({{ sale.customer_code }})
+        <div style = "margin-top: 50px;">
+          <div class="outside-headers">
+            <span class="header-item">Customer Name</span>
+            <span class="header-item">Customer Code</span>
+            <span class="header-item">Site Name</span>
+            <span class="header-item">Unit Title</span>
+            <span class="header-item">Status</span>
+            <span class="header-item">Action</span>
+
+          </div>
+        </div> 
+        <div class="card border-0 rounded-1 mx-auto my-2"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            ">
+          <div class = "card-body"> 
+            <table v-if="sales.length > 0" class = "salesCustomer-table">
+            <tbody>
+              <tr v-for="sale in sales"
+                :key="sale.id">
+                <td>
+                  <span class = "customer-name">{{ sale.customer_name }}</span>
+                </td>
+                <td>
+                  {{ sale.customer_code }}
+                </td>
+                <td>
+                  <span class = "customer-site">{{ sale.site_name }}</span>
+                </td>
+                <td>
+                  <span class = "customer-unit">{{ sale.unit_title }}</span>
+                </td>
+                <td>
+                  <span class = "customer-status">{{ sale.status }}</span>
+                </td>
+                <td>
+                <div style="display: flex; gap: 10px;">
+                  <button @click="openSalesAgreementModal(sale)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                    <i class="fas fa-dollar-sign"></i>
+                  </button>
+                  <button @click="openDocumentModal(sale)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                  <i class="fas fa-file-alt"></i>
+                  </button>
+                  <button @click="DeleteSaleModal(sale)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                    <i class="fas fa-archive"></i>
+                  </button>
+                </div>
               </td>
-              <td class="text-uppercase">{{ sale.site_name }}</td>
-              <td class="text-uppercase">{{ sale.unit_title }}</td>
-              <td class="text-uppercase">{{ sale.status }}</td>
-            </tr>
-          </tbody>
-        </table>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
 
         <!-- No customers found message -->
         <p v-if="!sales.length">No sales found.</p>
 
         <!-- Sales Agreement Modal -->
-        <div v-if="showModal" class="modal">
-          <div class="modal-content">
-            <div v-if="selectedSale.status === 'Pending Reservation'">
-              <p style="color: red; font-weight: bold; text-align: center">
-                Reservation not yet confirmed
-              </p>
-              <button @click="closeModal">Close</button>
+        <b-modal v-model="showModal" title = "Sales Agreement" size="lg" centered hide-footer >
+          <div v-if="selectedSale.status === 'Pending Reservation'">
+            <p style="text-align: center">
+              Reservation not yet confirmed
+            </p>
+            <div class = "button-container">
+              <button @click="closeModal" class = "btn-cancel-right">Close</button>
             </div>
-            <div v-else>
-              <h2>Sales Agreement</h2>
-              <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
-              <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
-              <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
-              <div v-if="salesDetailsExists">
+          </div>
+          
+          <div v-else>
+            <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
+            <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
+            <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
+            <div v-if="salesDetailsExists">
                 <p>
                   <strong>Payment Plan:</strong>
                   {{ salesDetails.payment_plan }}
@@ -131,27 +179,33 @@
                     balanceUponTurnover
                   }}
                 </p>
+
+                <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+                >
                 <button
                   v-if="
                     selectedSale.status !== 'Pending Sold' &&
                     selectedSale.status !== 'Sold'
                   "
                   @click="markUnitAsSold"
+                  class = "btn-add"
                 >
                   Mark Unit as Sold
                 </button>
-                <button @click="closeModal">Close</button>
-
-                <!-- Add other fields you want to display here -->
+                <button @click="closeModal" class = "btn-cancel">Close</button>
+                </div>
               </div>
-
-              <!-- Payment Plan Section -->
               <div v-if="!salesDetailsExists">
                 <div class="form-group">
-                  <label for="paymentPlan"><b>Payment Plan: </b></label>
+                  <br>
+                  <label for="paymentPlan"><b>Payment Plan </b></label>
+                  <br>
                   <select
                     v-model="selectedPaymentPlan"
                     id="paymentPlan"
+                    class = "dropdown"
                     required
                   >
                     <option value="Spot Cash">Spot Cash</option>
@@ -164,6 +218,7 @@
 
                 <!-- Spot Discount -->
                 <div class="form-group">
+                  <br>
                   <label for="spotDiscount">Spot Discount</label>
                   <input
                     type="number"
@@ -176,7 +231,6 @@
                   />
                 </div>
                 <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-
                 <p>
                   <strong>Unit Price after Spot Discount:</strong> ₱{{
                     unitPriceAfterSpotDiscount
@@ -185,6 +239,7 @@
 
                 <!-- TLP Discount -->
                 <div class="form-group">
+                  <br>
                   <label for="tlpDiscount">TLP Discount (Optional)</label>
                   <input
                     type="number"
@@ -203,6 +258,7 @@
 
                 <!-- Other Charges -->
                 <div class="form-group">
+                  <br>
                   <label for="otherChargesPercentage">Other Charges (%)</label>
                   <input
                     type="number"
@@ -227,6 +283,7 @@
                     totalAmountPayable
                   }}
                 </p>
+
                 <!-- Spot Downpayment -->
                 <div
                   v-if="selectedPaymentPlan === 'Deffered Payment'"
@@ -244,7 +301,7 @@
                     required
                   />
                 </div>
-
+                
                 <p v-if="selectedPaymentPlan === 'Deffered Payment'">
                   <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
                 </p>
@@ -264,17 +321,17 @@
                   <!-- Spread Downpayment -->
                   <div class="form-group">
                     <label for="spreadDownpayment">Spread Downpayment</label>
-                    <select
-                      v-model="spreadDownpaymentPercentage"
-                      id="spreadDownpayment"
-                      @change="updatePaymentDetails"
-                      required
-                    >
-                      <option value="0">0%</option>
-                      <option value="5">5%</option>
-                      <option value="10">10%</option>
-                      <option value="15">15%</option>
-                    </select>
+                    <input
+                    type="number"
+                    v-model="spreadDownpaymentPercentage"
+                    id="spreadDownpayment"
+                    @input="updatePaymentDetails"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                    placeholder="Enter percentage"
+                  />
                   </div>
                   <p>
                     <strong>Spread Downpayment:</strong> ₱{{
@@ -370,43 +427,37 @@
                     </table>
                   </div>
                 </div>
+
                 <!-- Required Documents Section (Always Displayed) -->
-                <div class="form-group">
-                  <h3>Required Documents</h3>
-                  <ul>
-                    <li>
-                      <strong>Reservation Agreement:</strong>
-                      <input
-                        type="file"
-                        @change="handleFileChange"
-                        id="reservationAgreement"
-                        required
-                      />
-                    </li>
-                    <li>
-                      <strong>Valid ID (Front and Back):</strong> A clear copy
-                      of a government-issued ID with a signature.
-                    </li>
-                    <li>
-                      <strong>Proof of Billing:</strong> A recent utility bill
-                      or bank statement showing the customer's name and address.
-                    </li>
-                    <li>
-                      <strong>Proof of Income:</strong> A recent payslip or
-                      income tax return (ITR).
-                    </li>
-                    <li>
-                      <strong>Sales Agreement:</strong> To be followed (after
-                      the contract is signed).
-                    </li>
-                    <li>
-                      <strong>TIN:</strong> A clear copy of the customer's
-                      Taxpayer Identification Number (TIN) certificate.
-                    </li>
-                  </ul>
+<div class="form-group">
+  <br>
+  <h3>Required Documents</h3>
+  <ul>
+    <li>
+    <strong>Reservation Agreement:</strong>
+    <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
+    </li>
+    <li v-for="document in documentTypes" :key="document.id">
+      <strong>{{ document.name }}:</strong>
+      <br v-if="document.id === 'reservationAgreement'">
+      <input
+        v-if="document.id === 'reservationAgreement'"
+        type="file"
+        @change="handleFileChange"
+        :id="document.id"
+        required
+      />
+      <span v-else>{{ document.description }}</span>
+    </li>
+  </ul>
+</div>                
+                <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+                >
+                  <button @click="submitToCustomer" class = "btn-add">Submit to Customer</button>
+                  <button @click="closeModal" class = "btn-cancel">Close</button>
                 </div>
-                <button @click="submitToCustomer">Submit to Customer</button>
-                <button @click="closeModal">Close</button>
 
                 <!-- Loading Indicator -->
                 <div v-if="loading" class="loading-overlay">
@@ -419,18 +470,153 @@
                 <p v-if="errorMessage" class="error-message">
                   {{ errorMessage }}
                 </p>
+
+              </div>
+          </div>
+        </b-modal>
+
+         <!-- Documents -->
+        <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Customer Documents</h5>
+          </div>
+
+          <div class="p-3">
+            <div v-if="showStatusMessage">
+              <p>Waiting for Developer to confirm Reservation</p>
+              <div class="button-container">
+                <button
+                  type="button"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel-right"
+                >
+                  Close
+                </button>
               </div>
             </div>
+            <div v-else>
+              <form @submit.prevent="uploadDocuments">
+                <div class="document-upload-form">
+                  <div
+                    v-for="(docType, index) in documentTypes"
+                    :key="index"
+                    class="document-upload-section mb-3"
+                  >
+                    <label
+                      :for="'documentType' + docType.id"
+                      class="form-label"
+                    >
+                      <b> Upload {{ docType.name }} </b>
+                    </label>
+
+                    <div
+                      class="file-input-wrapper d-flex align-items-center gap-2"
+                    >
+                      <!-- Show the file input if no file has been selected -->
+                      <input
+                        type="file"
+                        :id="'documentType' + docType.id"
+                        @change="handleFileUpload($event, docType.id)"
+                        class="form-control"
+                        v-if="!filePreviews[docType.id]"
+                      />
+
+                      <!-- Show the file name after file has been selected -->
+                      <div
+                        v-if="filePreviews[docType.id]"
+                        class="d-flex align-items-center gap-2"
+                      >
+                        <span class="file-name">
+                          {{ filePreviews[docType.id].name }}
+                        </span>
+
+                        <button
+                          type="button"
+                          @click="removeFile(docType.id)"
+                          class="btn btn-danger btn-sm"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <div
+                    class="d-flex justify-content-end gap-2 mt-30"
+                    style="padding-top: 15px"
+                  >
+                    <button type="submit" class="btn-add" style="width: 150px">
+                      Upload Document
+                    </button>
+                    <button
+                      type="button"
+                      @click="showDocumentModal = false"
+                      class="btn-cancel"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
+        </b-modal>
+        <!-- Delete -->
+         <b-modal
+          v-model="showDeleteModal"
+          title="Delete Confirmation"
+          hide-footer
+          centered
+        >
+          <p>
+            Are you sure you want to delete this unit affiliation for this
+            customer?
+          </p>
+
+          <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px">
+            <button
+              type="button"
+              @click="
+                deleteSaleFromBackend(
+                  selectedCustomer.sale_id
+                )
+              "
+              class="btn-add"
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              @click="showDeleteModal = false"
+              class="btn-cancel"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class = "button-container">
+            <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
+          </div>
+        </b-modal>
+
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 import axios from "axios";
 
@@ -438,6 +624,7 @@ export default {
   name: "ManageSales",
   components: {
     SideNav,
+    BModal,
     AppHeader,
   },
   computed: {
@@ -458,7 +645,10 @@ export default {
     return {
       sales: [], // List of sales data
       showModal: false,
-      selectedSale: null, // Currently selected sale row
+      showDocumentModal: false, // Controls the visibility of the document modal
+      selectedSale: {
+      status: '', // Initialize with a default value
+      },
       salesDetailsExists: false, // Flag to check if sales details already exist
       salesDetails: null, // S
       // Payment Scheme Data
@@ -486,14 +676,23 @@ export default {
       errorMessage: "", // Error message
       showDetailedSchedule: false, // To toggle detailed payment schedule
       loading: false, // Track loading state
+      showStatusMessage: false,
+      selectedCustomer: null, // To hold the currently selected customer
+      documentFiles: {},
+      filePreviews: {}, // Object to store file previews for each document type
+      notificationMessage: "", // Message for the notification modal
+      notificationTitle: "", // Title for the notification modal (Success/Failure)
+      showNotification: false, // Controls the visibility of the notification modal
+      showDeleteModal: false, // To toggle the delete modal visibility
     };
   },
   mounted() {
     this.fetchSales(); // Fetch sales when the component is mounted
-
+    this.fetchDocumentTypes(); // New function to fetch document types
     if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
       this.redirectToLogin();
     }
+
   },
   watch: {
     loggedIn(newVal) {
@@ -771,7 +970,6 @@ export default {
     redirectToLogin() {
       this.$router.push({ name: "BrkLogin" });
     },
-    // Close the modal
     closeModal() {
       this.showModal = false;
       this.salesAgreement = {
@@ -780,6 +978,203 @@ export default {
         installment_term: "",
         special_terms: "",
       };
+    },
+    // Opens the document upload modal for the selected customer
+    openDocumentModal(sale) {
+      this.selectedCustomer = sale; // Set the selected customer
+      if (this.selectedCustomer.status === "Pending Reservation") {
+        this.showStatusMessage = true; // Show the message to create sales first
+      } else {
+        this.showStatusMessage = false; // Show the message to create sales first
+      }
+      this.fetchCustomerDocuments(
+        this.selectedCustomer.customer_id,
+        this.selectedCustomer.sale_id
+      );
+
+      this.showDocumentModal = true; // Open the document upload modal
+    },
+    async fetchCustomerDocuments(customerId, salesId) {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // Store the documents in the component's data
+            this.customerDocuments = data.documents; // An array of the customer's documents
+            this.updateDocumentPreviews(); // Update the file previews based on existing documents
+          } else {
+            this.error = data.message || "Failed to fetch customer documents.";
+          }
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching customer documents.";
+      }
+    },
+     // Update file previews based on existing documents
+    updateDocumentPreviews() {
+      // Initialize filePreviews as an empty object
+      this.filePreviews = {};
+
+      // Loop through each document type and check if it's already uploaded
+      this.documentTypes.forEach((docType) => {
+        const existingDoc = this.customerDocuments.find(
+          (doc) => doc.document_type_id === docType.id
+        );
+
+        if (existingDoc) {
+          // If a document exists for this document type, set the preview
+          this.filePreviews[docType.id] = {
+            name: existingDoc.file_name, // Use the file name from the database
+            url: existingDoc.file_url, // Optionally, you could store the file URL for further use
+          };
+        }
+      });
+    },
+
+    // Fetch document types from the API
+    async fetchDocumentTypes() {
+      try {
+        const response = await fetch("http://localhost:8000/document-types/");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.documentTypes = data.documentTypes;
+          } else {
+            this.error = data.message || "Failed to fetch document types.";
+          }
+        }
+      } catch (error) {
+        this.error = "An error occurred while fetching document types.";
+      }
+    },
+
+    // Handle file selection for multiple document types
+    handleFileUpload(event, docTypeId) {
+      const file = event.target.files[0];
+      if (file) {
+        if (this.filePreviews[docTypeId]) {
+          this.removeFile(docTypeId); // This will remove the old file
+        }
+        this.filePreviews[docTypeId] = file; // Store the file preview
+        this.documentFiles[docTypeId] = file; // Store the actual file
+      }
+    },
+
+    // Remove file preview and file data for a document type
+    removeFile(docTypeId) {
+      delete this.filePreviews[docTypeId];
+      delete this.documentFiles[docTypeId];
+    },
+
+    // Upload multiple documents
+    async uploadDocuments() {
+      console.log("k");
+      const formData = new FormData();
+
+      // Loop through the documentFiles object to process each file and its document type
+      for (const docTypeId in this.documentFiles) {
+        const file = this.documentFiles[docTypeId];
+
+        // Append the file and the associated document type to formData
+        formData.append("files[]", file); // Append the file under "files[]"
+        formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
+        formData.append("sales_id", this.selectedCustomer.sale_id);
+      }
+
+      // Append customer and company information
+      formData.append("customer", this.selectedCustomer.customer_id);
+      formData.append("company", this.companyId);
+      // Log the formData for debugging
+
+  
+      try {
+        const response = await fetch("http://localhost:8000/upload-document/", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-CSRFToken": this.getCookie("csrftoken"),
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          console.log("ll");
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Documents uploaded successfully!";
+          this.showNotification = true;
+          this.showDocumentModal = false;
+          this.resetForm();
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage =
+            data.message || "Failed to upload documents.";
+          this.showNotification = true;
+        }
+      } catch (error) {
+        this.showNotification = true;
+      }
+    },
+
+    DeleteSaleModal(sale) {
+      this.selectedCustomer = sale; // Set the selected customer
+      this.showDeleteModal = true; // Show the modal
+    },
+
+    async deleteSaleFromBackend(salesId) {
+      try {
+        let url = "";
+          // Otherwise, delete the sale
+        url = `http://localhost:8000/delete_sale/${salesId}/`;
+        // Send a POST request with DELETE override if CSRF protection is enabled
+        const response = await fetch(url, {
+          method: "POST", // Use POST with _method override
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": this.getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ _method: "DELETE" }), // Overriding method to DELETE
+        });
+
+        if (response.ok) {
+          this.notificationTitle = "Success!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removed Successfully!"
+            : "Customer Sale Removed Successfully!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchSales();
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removal Failed!"
+            : "Customer Sale Removal Failed!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchSales();
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while deleting the sale or customer");
+      }
+    },
+    // Reset the form when the modal is closed
+    resetForm() {
+      this.email = "";
+      this.contactNumber = "";
+      this.lastName = "";
+      this.firstName = "";
+      this.documentFiles = {}; // Clear the actual files
+      // Optionally, clear any other form-related fields
+      this.selectedCustomer = null; // Clear selected customer
+    },
+    
+    getCookie(name) {
+      let value = "; " + document.cookie;
+      let parts = value.split("; " + name + "=");
+      if (parts.length === 2) return parts.pop().split(";").shift();
     },
   },
 };
@@ -800,19 +1195,16 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #f6f6f6;
   /* Gray background */
 }
 
 .main-content {
   display: flex;
-  flex-direction: column;
-  margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
+  flex-direction: column;
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
+  margin-top: 60px;
 }
 
 .content {
@@ -821,78 +1213,173 @@ body {
   text-align: center;
 }
 
-.sales-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: separate; /* Enables border radius */
-  border-spacing: 0; /* Ensures proper alignment for border radius */
-  text-align: left;
-  background-color: white; /* Ensure the table has a distinct background */
-
-  box-shadow: 0 15px 12px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
-}
-
-.sales-table th,
-.sales-table td {
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
-  text-align: start;
-}
-
-.sales-table th {
-  background-color: #c2ffd1;
-}
-
-.sales-table tr:hover {
-  background-color: #c2c2c2;
-  transition: ease 0.3s;
-}
-
-/* .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+.title-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  max-height: 90%; 
-  overflow-y: auto; 
-} */
+.title-left {
+  display: flex;
+  align-items: center;
+}
 
-/* Modal Background */
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 16% 16% 16% 16% 16% 16%; /* Adjust column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.salesCustomer-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left; /* Consistent with headers */
+  border: none; /* Removes the table border */
+}
+
+.salesCustomer-table td{
+  padding: 10px 18px; /* Matches outside-headers padding */
+  border: none; /* Removes borders between table cells */
+  text-align: left; /* Consistent alignment */
+}
+
+.salesCustomer-table tr{
+  border: none; /* Removes borders between table cells */
+}
+
+.salesCustomer-table td:nth-child(2),
+.outside-headers .header-item:nth-child(2) {
+  width: 16%;
+}
+
+.salesCustomer-table td:nth-child(3),
+.outside-headers .header-item:nth-child(3) {
+  width: 16%;
+}
+
+.salesCustomer-table td:nth-child(4),
+.outside-headers .header-item:nth-child(4) {
+  width: 16%;
+}
+.salesCustomer-table td:nth-child(5),
+.outside-headers .header-item:nth-child(5) {
+  width: 16%;
+}
+.salesCustomer-table td:nth-child(6),
+.outside-headers .header-item:nth-child(6) {
+  width: 16%;
+}
+
+.card:hover {
+  transform: scale(1.02); /* Slightly enlarges the card */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Adds a stronger shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
+}
+
+/* Flex container for button alignment */
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+}
+
+/* Button styling */
+.btn-cancel-right {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
+  cursor: pointer;
+}
+
+.btn-add {
+  background-color: #42b983;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+/* Dropdown Styling */
+.dropdown {
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
+
+/* juju end */
+
 /* Modal Background */
 .modal {
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 80%; 
+  max-width: 800px; /* Ensure a max-width to prevent excessive stretching */
+  height: 70%; 
+  max-height: 600px; /* Optional */
+  background-color: #fff; 
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+  border-radius: 10px; 
   display: flex;
   justify-content: center;
   align-items: center;
-  display: flex;
+  position: fixed;
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%);
 }
 
-/* Modal Content */
 .modal-content {
-  background: #fff;
+  width: 100%; /* Adjust to parent width */
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 500px;
-  max-height: 80%;
   overflow-y: auto;
-  text-align: left; /* Align all text to the left */
+  text-align: left;
+  height: 100%; /* Allow content to use the full height */
 }
 
 /* Headings */
@@ -976,23 +1463,6 @@ button:last-of-type:hover {
 button:last-of-type:active {
   background-color: #bd2130; /* Even darker red on click */
   transform: scale(0.98); /* Slight shrink effect on click */
-}
-
-/* Dropdown Styling */
-.dropdown {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #f9f9f9;
-  cursor: pointer;
-  text-align: left; /* Ensure dropdown text aligns to the left */
-}
-
-.dropdown:focus {
-  border-color: #007bff;
-  outline: none;
 }
 
 /* Scrollable Content */
@@ -1127,35 +1597,8 @@ td {
 
 /* Style for File Input Button */
 input[type="file"] {
-  display: inline-block;
-  padding: 8px 12px;
-  border: 1px solid #ccc; /* Optional: Add a border for better visibility */
-  border-radius: 8px; /* Apply border radius */
-  font-size: 14px;
-  background-color: #f9f9f9; /* Light background for better contrast */
-  color: #333; /* Text color */
-  cursor: pointer;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-input[type="file"]::file-selector-button {
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 6px 10px;
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text */
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-input[type="file"]::file-selector-button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-}
-
-input[type="file"]::file-selector-button:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.8); /* Add focus effect */
 }
 
 .form-group label {
@@ -1166,14 +1609,12 @@ input[type="file"]::file-selector-button:focus {
 }
 
 .form-group input[type="number"] {
-  width: 100%; /* Make the input take up full width */
+  width: 70%; /* Make the input take up full width */
   padding: 10px; /* Add padding for a better click area */
   font-size: 16px; /* Match font size with the label */
   border: 1px solid #ccc; /* Light border for input */
   border-radius: 8px; /* Add rounded corners */
-  background-color: #f9f9f9; /* Light background for input */
   color: #333; /* Text color */
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   transition: all 0.3s ease; /* Smooth transition for hover/focus */
 }
 
@@ -1191,4 +1632,5 @@ input[type="file"]::file-selector-button:focus {
   color: #888; /* Lighter text for placeholder */
   font-style: italic; /* Italicize placeholder text */
 }
+
 </style>
