@@ -453,7 +453,6 @@ export default {
   },
   data() {
     return {
-      viewMode: "grid",
       siteId: this.$route.params.siteId,
       units: [],
       siteName: "",
@@ -590,10 +589,6 @@ export default {
       } catch (error) {
         this.errorMessage = "Failed to fetch customer data.";
       }
-    },
-
-    toggleView() {
-      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
 
     showUnitDetails(unit) {
