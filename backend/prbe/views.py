@@ -536,7 +536,6 @@ def get_available_units(request):
                     'vat_percent': unit.vat_percentage,
                 }
                 logger.debug("Processed unit data: %s", unit_info)
-                print(unit_info)
                 unit_data.append(unit_info)
 
             return JsonResponse({'units': unit_data}, status=200)

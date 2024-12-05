@@ -470,7 +470,7 @@ export default {
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
-       selectedUnitType: 'all', // Default unit type filter
+      selectedUnitType: 'all', // Default unit type filter
     };
   },
 
