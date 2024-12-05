@@ -164,14 +164,23 @@
         <b-modal v-model ="showModal" :title="`Site ${selectedSite ? selectedSite.name : ''}`" centered hide-footer>
           <div>
             <div v-if="selectedSite && selectedSite.sales.length > 0">
-              <h5>Sales Details</h5><br>
-              <ul>
-                <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
-                  <strong>Unit Name:</strong> {{ sale.unit_name }} <br />
-                  <strong>Customer Name:</strong> {{ sale.customer_name }} <br />
-                  <strong>Date Sold:</strong> {{ sale.date_sold }} 
-                </li>
-              </ul>
+              <center><h5>Sales Details</h5><br></center>
+              <table class = "table">
+                <thead>
+                  <tr>
+                    <th>Unit Name</th>
+                    <th>Customer Name</th>
+                    <th>Date Sold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="sale in selectedSite.sales" :key="sale.date_sold">
+                    <td>{{ sale.unit_name }}</td>
+                    <td>{{ sale.customer_name }}</td>
+                    <td>{{ sale.date_sold }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <div v-else-if="selectedSite">
