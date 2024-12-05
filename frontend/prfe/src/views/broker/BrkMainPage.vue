@@ -101,9 +101,10 @@ export default {
     salefilter: {
       months: [],
       salesCount: [],
-      selectedYear: new Date().getFullYear(), // Default to current year
       availableYears: [],  
-    },
+      },
+      selectedYear: new Date().getFullYear(), // Default to current year
+
     };
   },
   mounted() {

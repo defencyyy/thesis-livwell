@@ -617,6 +617,7 @@ def get_customers_for_broker(request, broker_id):
             else:
                 customer_entry = {
                     'id': customer.id,
+                    'customer_name': customer_name,
                     'name': customer_name,
                     'customer_code': customer.customer_code,
                     'f_name': customer.first_name,
@@ -1293,8 +1294,13 @@ def sales_by_month(request):
             return JsonResponse({"success": False, "message": "Invalid year"}, status=400)
 
     # Get the count of sales grouped by month for a specific broker and year
-    sales_data = Sale.objects.filter(broker_id=broker_id, status='Sold', date_sold__year=year) \
-        .annotate(month=ExtractMonth('date_sold')) \
+    sales_filter = Sale.objects.filter(broker_id=broker_id, status='Sold')
+    
+    # If a year is specified, filter by that year
+    if year:
+        sales_filter = sales_filter.filter(date_sold__year=year)
+
+    sales_data = sales_filter.annotate(month=ExtractMonth('date_sold')) \
         .values('month') \
         .annotate(sales_count=Count('id')) \
         .order_by('month')
@@ -1311,14 +1317,16 @@ def sales_by_month(request):
     for month, count in zip(months, sales_count):
         month_sales[month_names[month - 1]] = count  # Adjust month because month is 1-based
 
+
     # Get distinct years the broker has made sales
     years = Sale.objects.filter(broker_id=broker_id) \
         .annotate(year=ExtractYear('date_sold')) \
         .values('year') \
         .distinct() \
-        .order_by('-year')
+        .order_by('-year') 
 
     available_years = [year['year'] for year in years]
+
     return JsonResponse({
         "success": True,
         "month_sales": month_sales,  # Sales per month
