@@ -57,47 +57,31 @@
       </div>
     </div>
 
-        <div v-if = "filteredUnits.length" class = "site-grid">
-          <div
-          v-for="unit in filteredUnits"
-          :key="unit.id"
-          class="site-card"
-          @click="showUnitDetails(unit)"
-          >
-            <p>{{ unit.unit_title }}</p>
-          </div>
-        </div>
-
-        <div v-else>
-          <p>No sites with available units.</p>
-        </div>
-
-    <!-- Grid View
-    <div class="site-grid">
-      <div v-if="filteredUnits.length">
-        <div
-        v-for="unit in filteredUnits"
-        :key="unit.id"
-        class="site-card"
-        @click="showUnitDetails(unit)"
-        >
-          <p>{{ unit.unit_title }}</p>
-        </div>
-      </div>
-      <div v-else>
-        <center><p>No units available for this site.</p></center>
-      </div>
-    </div> -->
-
-      <!-- Success Message Pop-up -->
+    <div v-if = "filteredUnits.length" class = "site-grid">
       <div
-        v-if="successMessage"
-        class="success-message"
-        :class="{ show: showSuccessMessage }"
+      v-for="unit in filteredUnits"
+      :key="unit.id"
+      class="site-card"
+      @click="showUnitDetails(unit)"
       >
-        <p>{{ successMessage }}</p>
-        <button @click="closePopup" class="ok-btn">OK</button>
+        <p>{{ unit.unit_title }}</p>
       </div>
+    </div>
+
+    <div v-else>
+      <p>No sites with available units.</p>
+    </div>
+
+
+    <!-- Success Message Pop-up -->
+    <div
+      v-if="successMessage"
+      class="success-message"
+      :class="{ show: showSuccessMessage }"
+    >
+      <p>{{ successMessage }}</p>
+      <button @click="closePopup" class="ok-btn">OK</button>
+    </div>
 
       <!-- Unit Details Modal -->
       <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
