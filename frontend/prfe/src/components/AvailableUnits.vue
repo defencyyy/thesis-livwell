@@ -541,7 +541,8 @@ export default {
       vat: 0,
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
-      selectedFloor:'all',
+      selectedFloor: 'all',
+      selectedUnitType: 'all', // Default unit type filter
     };
   },
 
@@ -558,6 +559,11 @@ export default {
     // Get unique floor values from available units
     const floors = this.units.map(unit => unit.floor);
     return [...new Set(floors)].sort(); // Remove duplicates and sort them
+    },
+  availableUnitTypes() {
+    // Get unique unit type values from available units
+    const unitTypes = this.units.map(unit => unit.type);
+    return [...new Set(unitTypes)].sort(); // Add 'all' option and remove duplicates
   },
   filteredUnits() {
     return this.units.filter((unit) => {
@@ -572,7 +578,10 @@ export default {
       const floorMatch =
         this.selectedFloor === 'all' || unit.floor === this.selectedFloor;
 
-      return viewMatch && balconyMatch && floorMatch;
+      const unitTypeMatch =
+        this.selectedUnitType === 'all' || unit.type === this.selectedUnitType;
+
+      return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
     });
   },
 },

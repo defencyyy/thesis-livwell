@@ -40,8 +40,6 @@
                   >
                     <option value="name_asc">Name (A-Z)</option>
                     <option value="name_desc">Name (Z-A)</option>
-                    <option value="site_asc">Site (A-Z)</option>
-                    <option value="site_desc">Site (Z-A)</option>
                     <option value="customer_code_asc">
                       Customer Code (A-Z)
                     </option>
@@ -72,8 +70,6 @@
           <div class="outside-headers">
             <span class="header-item">Code</span>
             <span class="header-item">Customer Name</span>
-            <span class="header-item">Site</span>
-            <span class="header-item">Unit</span>
             <span class="header-item">Contact</span>
             <span class="header-item">Actions</span>
           </div>
@@ -105,16 +101,6 @@
                     <td>
                       <span class="customer-name">
                         {{ customer.customer_name }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="customer-site">
-                        {{ customer.site }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="customer-unit">
-                        {{ customer.unit }}
                       </span>
                     </td>
                     <td>
@@ -506,6 +492,7 @@ export default {
         // Filter customers by name or customer code
         this.filteredCustomers = this.customers.filter((customer) => {
           const customerName = customer.customer_name.toLowerCase();
+          console.log(customerName);
           const customerCode = customer.customer_code
             ? customer.customer_code.toLowerCase()
             : ""; // Assuming customer code is in customer_code field
@@ -522,7 +509,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=true`
+          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=false`
         );
         if (response.ok) {
           const data = await response.json();
@@ -556,12 +543,6 @@ export default {
           this.customers.sort((a, b) =>
             b.customer_name.localeCompare(a.customer_name)
           );
-          break;
-        case "site_asc":
-          this.customers.sort((a, b) => a.site.localeCompare(b.site));
-          break;
-        case "site_desc":
-          this.customers.sort((a, b) => b.site.localeCompare(a.site));
           break;
         case "customer_code_asc":
           this.customers.sort((a, b) =>
@@ -969,7 +950,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 16% 16% 16% 16% 16% 16%; /* Match column widths */
+  grid-template-columns: 25% 25% 25% 25%; /* Match column widths */
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
