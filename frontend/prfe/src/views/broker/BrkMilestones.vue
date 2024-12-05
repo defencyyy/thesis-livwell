@@ -262,6 +262,8 @@ export default {
           const milestonesData = await milestonesResponse.json();
           this.achievedMilestones = milestonesData.achieved_milestones;
           this.nextMilestones = milestonesData.next_milestones;
+          this.totalMilestones = milestonesData.total_milestones;  // Get total milestones count
+
         } else {
           this.error = "Failed to fetch milestones.";
         }

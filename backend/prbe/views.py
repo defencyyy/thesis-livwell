@@ -1200,8 +1200,6 @@ def get_milestones(request):
         broker = Broker.objects.get(id=broker_id)  # Retrieve broker by id
         milestones = Milestone.objects.filter(company=broker.company)
 
-   
-        
         # Calculate total sales and commission
         total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
         sales = Sale.objects.filter(broker_id=broker_id, status='Sold')
@@ -1239,9 +1237,9 @@ def get_milestones(request):
                 'reward': m.reward,
                 'type': m.type,
             } for m in next_milestones],
+            'total_milestones': len(achieved_milestones),  # Total achieved milestones count
         }
-
-       
+        
         return JsonResponse(data, status=200)
 
     except Exception as e:
