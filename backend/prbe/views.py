@@ -617,6 +617,7 @@ def get_customers_for_broker(request, broker_id):
             else:
                 customer_entry = {
                     'id': customer.id,
+                    'customer_name': customer_name,
                     'name': customer_name,
                     'customer_code': customer.customer_code,
                     'f_name': customer.first_name,
