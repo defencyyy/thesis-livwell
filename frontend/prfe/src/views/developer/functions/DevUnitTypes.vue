@@ -5,7 +5,7 @@
       <AppHeader />
       <div class="content">
         <!-- Actions -->
-        <div class="actions" v-if="!isLoading && !errorMessage">
+        <div class="actions" v-if="!loading">
           <button @click="redirectToUnits">Manage Units</button>
           <button @click="redirectToUnitTemplates">
             Manage Unit Templates
@@ -109,7 +109,9 @@ export default {
   components: { SideNav, AppHeader },
   data() {
     return {
-      loading: true,
+      loading: true, // For the loading spinner
+      isLoading: false, // Ensure this is properly initialized
+      errorMessage: "", // Initialize error message
       unitTypes: [],
       newUnitType: {
         name: "",

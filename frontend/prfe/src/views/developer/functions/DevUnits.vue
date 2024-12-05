@@ -50,7 +50,7 @@
                 v-for="(site, index) in filteredSites"
                 :key="site.id || index"
                 class="site-card"
-                @click="openSiteModal(site)"
+                @click="openFloorManagement(site)"
               >
                 <img
                   :src="site.picture || require('@/assets/home.png')"
@@ -61,13 +61,11 @@
                 <p class="site-location">
                   {{ site.location || "Location unavailable" }}
                 </p>
-
                 <div class="site-stats">
                   <p>Total Floors: {{ site.floors.length }}</p>
                   <p>Total Units: {{ site.total_units }}</p>
                   <p>Available Units: {{ site.available_units }}</p>
                 </div>
-
                 <button @click.stop="openFloorManagement(site)">
                   Manage Floors
                 </button>
@@ -110,9 +108,6 @@
                           <p>{{ site.available_units }}</p>
                         </td>
                         <td>
-                          <button @click.stop="openEditSiteModal(site)">
-                            Edit
-                          </button>
                           <button @click.stop="openFloorManagement(site)">
                             Manage Floors
                           </button>

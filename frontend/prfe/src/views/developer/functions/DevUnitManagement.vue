@@ -1,161 +1,203 @@
 <template>
-  <div class="unit-types">
-    <!-- Actions -->
-    <div class="actions" v-if="!isLoading && !errorMessage">
-      <button @click="redirectToUnits">Manage Units</button>
-      <button @click="redirectToUnitTemplates">Manage Unit Templates</button>
-      <button @click="redirectToUnitTypes">Manage Unit Types</button>
-    </div>
-    <h1>Unit Types Management</h1>
+  <div class="main-page">
+    <!-- Side Navigation -->
+    <SideNav />
+    <div class="main-content">
+      <!-- App Header -->
+      <AppHeader />
+      <div class="content">
+        <!-- Back Button -->
+        <button class="back-button" @click="$router.back()">Back</button>
 
-    <div v-if="loading" class="loading">Loading...</div>
+        <!-- Site Details -->
+        <div v-if="site" class="site-details">
+          <h2>{{ site.name }}</h2>
+          <p>{{ site.location }}</p>
+          <p>Status: {{ site.status }}</p>
 
-    <div v-else>
-      <div class="unit-type-form">
-        <h2>Create New Unit Type</h2>
-        <form @submit.prevent="createUnitType">
-          <div>
-            <label for="unitTypeName">Unit Type Name:</label>
-            <input
-              v-model="newUnitType.name"
-              id="unitTypeName"
-              type="text"
-              placeholder="Enter Unit Type"
-              required
-            />
+          <!-- Floors List -->
+          <h3>Floors</h3>
+          <div v-if="site.floors.length > 0" class="floor-list">
+            <div
+              v-for="(floor, index) in site.floors"
+              :key="index"
+              class="floor-card"
+            >
+              <h4>Floor {{ floor.floor_number }}</h4>
+              <p>{{ floor.description || "No description available" }}</p>
+              <p v-if="floor.units !== undefined">
+                Units: {{ floor.units.length }}
+              </p>
+              <p v-else>Units: N/A</p>
+
+              <button @click="openUnitManagement(floor)">Manage Units</button>
+            </div>
           </div>
-          <button type="submit">Create Unit Type</button>
-        </form>
-      </div>
-
-      <div class="unit-types-list">
-        <h2>Existing Unit Types</h2>
-        <ul>
-          <li v-for="unitType in unitTypes" :key="unitType.id">
-            {{ unitType.name }}
-            <button @click="archiveUnitType(unitType.id)">Archive</button>
-          </li>
-        </ul>
+          <div v-else>
+            <p>No floors available for this site.</p>
+          </div>
+        </div>
+        <div v-else>
+          <p>Loading site details...</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 
 export default {
+  name: "DevUnitManagement",
+  components: { SideNav, AppHeader },
   data() {
     return {
-      loading: true,
-      unitTypes: [],
-      newUnitType: {
-        name: "",
-      },
+      site: null,
     };
   },
-  methods: {
-    redirectToUnits() {
-      this.$router.push({ name: "DevFuncUnits" });
-    },
-
-    redirectToUnitTemplates() {
-      this.$router.push({ name: "DevUnitTemplates" });
-    },
-
-    redirectToUnitTypes() {
-      this.$router.push({ name: "DevUnitTypes" });
-    },
-    // Fetch existing unit types
-    fetchUnitTypes() {
-      axios
-        .get("/api/unit-types/") // Assuming API URL to fetch unit types
-        .then((response) => {
-          this.unitTypes = response.data.data; // Adjust based on your API response format
-          this.loading = false;
-        })
-        .catch((error) => {
-          console.error("Error fetching unit types:", error);
-          this.loading = false;
-        });
-    },
-
-    // Create new unit type
-    createUnitType() {
-      const data = {
-        name: this.newUnitType.name,
-        is_custom: true, // Assuming this is for custom unit types
-      };
-
-      axios
-        .post("/api/unit-types/", data)
-        .then((response) => {
-          this.unitTypes.push(response.data.data); // Add the new unit type to the list
-          this.newUnitType.name = ""; // Clear input
-        })
-        .catch((error) => {
-          console.error("Error creating unit type:", error);
-        });
-    },
-
-    // Archive a unit type
-    archiveUnitType(unitTypeId) {
-      axios
-        .put(`/api/unit-types/${unitTypeId}/archive/`) // Adjust the API endpoint for archiving
-        .then(() => {
-          // Update the local list after archiving
-          const unitTypeIndex = this.unitTypes.findIndex(
-            (type) => type.id === unitTypeId
-          );
-          if (unitTypeIndex !== -1) {
-            this.unitTypes[unitTypeIndex].is_archived = true;
-          }
-        })
-        .catch((error) => {
-          console.error("Error archiving unit type:", error);
-        });
-    },
+  props: ["siteId"],
+  mounted() {
+    console.log("Site ID from prop:", this.siteId);
+    console.log("Site ID from route params:", this.$route.params.siteId);
+    this.fetchSiteDetails();
   },
-  created() {
-    this.fetchUnitTypes(); // Fetch the unit types when the component is created
+  methods: {
+    async fetchSiteDetails() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/sites/${this.$route.params.siteId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          this.site = response.data.data;
+
+          // Check and initialize floor.units if undefined
+          this.site.floors = this.site.floors.map((floor) => ({
+            ...floor,
+            units: floor.units || [], // Default to an empty array if units are not provided
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching site details:", error);
+      }
+    },
+    openUnitManagement(floor) {
+      console.log(
+        `Navigating to unit management for Floor ${floor.floor_number}`
+      );
+      // Navigate to a dedicated unit management page
+      this.$router.push({
+        name: "UnitManagementPage",
+        params: { floorId: floor.floor_number },
+      });
+    },
   },
 };
 </script>
 
 <style scoped>
-.unit-types {
+/* General Styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main Page Layout */
+.main-page {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ebebeb;
+}
+
+/* Side Navigation */
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+}
+
+/* Header */
+.AppHeader {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
+}
+
+/* Content Layout */
+.main-content {
+  display: flex;
+  margin-left: 250px;
+  flex-direction: column;
+  flex: 1;
+  margin-top: 60px;
+}
+
+.content {
+  flex: 1;
   padding: 20px;
+  text-align: center;
 }
 
-.unit-types-list {
-  margin-top: 20px;
-}
-
-.unit-type-form {
+/* Back Button */
+.back-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
   margin-bottom: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.loading {
-  font-size: 18px;
-  color: #888;
+.back-button:hover {
+  background-color: #45a049;
+}
+
+/* Site Details */
+.site-details {
+  text-align: center;
+}
+
+.floor-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.floor-card {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  width: 200px;
 }
 
 button {
-  margin-left: 10px;
-  padding: 5px 10px;
-  background-color: #4caf50;
+  background-color: #0560fd;
   color: white;
+  padding: 10px;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #45a049;
-}
-
-input {
-  padding: 8px;
-  font-size: 14px;
-  margin-right: 10px;
+  background-color: #0056b3;
 }
 </style>

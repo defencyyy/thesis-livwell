@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
+// import NotFoundComponent from "@/components/NotFoundComponent.vue"; // Adjust the path as necessary
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -95,23 +96,25 @@ const routes = [
     meta: { requiresAuth: true, role: "developer" },
   },
   {
-    path: "/developer/units",
+    path: "/developer/units/templates",
     name: "DevUnitTemplates",
     component: DevUnitTemplates,
     meta: { requiresAuth: true, role: "developer" },
   },
   {
-    path: "/developer/units",
+    path: "/developer/units/types",
     name: "DevUnitTypes",
     component: DevUnitTypes,
     meta: { requiresAuth: true, role: "developer" },
   },
   {
-    path: "/developer/units",
+    path: "/developer/units/management/:siteId",
     name: "DevUnitManagement",
     component: DevUnitManagement,
+    props: true,
     meta: { requiresAuth: true, role: "developer" },
   },
+
   {
     path: "/developer/customers",
     name: "DevFuncCustomers",
