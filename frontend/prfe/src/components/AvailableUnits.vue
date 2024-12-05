@@ -1,6 +1,8 @@
 <template>
-  <div class="available-units-page">
+  <div class="main-page">
     <SideNav />
+    <div class="main-content">
+      <AppHeader />
     <div class="content">
       <router-link class="text-start" to="/broker/affiliated-units">
         <i class="fas fa-arrow-left"></i> Back to Units
@@ -9,21 +11,48 @@
       <h2 class="display-5 fw-bolder text-capitalize">
         Available Units for Site: {{ siteName }}
       </h2>
-      <div v-if="units.length">
-        <div class="units-container">
-          <div
-            v-for="unit in units"
-            :key="unit.id"
-            class="unit-card"
-            @click="showUnitDetails(unit)"
-          >
-            <p>{{ unit.unit_title }}</p>
-          </div>
-        </div>
-      </div>
-      <div v-else>
-        <p>No units available for this site.</p>
-      </div>
+      <!-- filter for units -->
+    <div class="filters">
+      <label>View:</label>
+      <select v-model="selectedView">
+        <option value="all">All</option>
+        <option value="north">North</option>
+        <option value="south">South</option>
+        <option value="east">East</option>
+        <option value="west">West</option>
+      </select>
+
+      <label>Balcony:</label>
+      <select v-model="selectedBalcony">
+        <option value="all">All</option>
+        <option value="has">Has Balcony</option>
+        <option value="no">No Balcony</option>
+      </select>
+
+       <label>Floor:</label>
+  <select v-model="selectedFloor">
+    <option value="all">All</option>
+    <option v-for="floor in availableFloors" :key="floor" :value="floor">{{ floor }}</option>
+  </select>
+
+    </div>
+
+
+ <div v-if="filteredUnits.length">
+  <div class="units-container">
+    <div
+      v-for="unit in filteredUnits"
+      :key="unit.id"
+      class="unit-card"
+      @click="showUnitDetails(unit)"
+    >
+      <p>{{ unit.unit_title }}</p>
+    </div>
+  </div>
+</div>
+<div v-else>
+  <p>No units available for this site.</p>
+</div>
 
       <!-- Success Message Pop-up -->
       <div
@@ -373,16 +402,20 @@
       </div>
     </div>
   </div>
+  </div>
+
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 
 export default {
   name: "AvailableUnits",
   components: {
     SideNav,
+    AppHeader,
   },
   data() {
     return {
@@ -428,6 +461,9 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       vat: 0,
+      selectedView: 'all',      // Default to "all"
+      selectedBalcony: 'all',   // Default to "all"
+      selectedFloor:'all',
     };
   },
 
@@ -439,6 +475,29 @@ export default {
     // Call updatePaymentDetails to show the default payment details
     this.updatePaymentDetails();
   },
+  computed: {
+  availableFloors() {
+    // Get unique floor values from available units
+    const floors = this.units.map(unit => unit.floor);
+    return [...new Set(floors)].sort(); // Remove duplicates and sort them
+  },
+  filteredUnits() {
+    return this.units.filter((unit) => {
+      const viewMatch =
+        this.selectedView === 'all' ||
+        unit.view.toLowerCase() === this.selectedView;
+
+      const balconyMatch =
+        this.selectedBalcony === 'all' ||
+        (this.selectedBalcony === 'has' && unit.balcony.toLowerCase() !== 'no balcony') ||
+        (this.selectedBalcony === 'no' && unit.balcony.toLowerCase() === 'no balcony');
+      const floorMatch =
+        this.selectedFloor === 'all' || unit.floor === this.selectedFloor;
+
+      return viewMatch && balconyMatch && floorMatch;
+    });
+  },
+},
 
   methods: {
     async fetchAvailableUnits() {
@@ -673,13 +732,48 @@ export default {
 </script>
 
 <style scoped>
-.content {
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  margin: 20px 20px 20px 20px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
-  background-color: rgb(223, 255, 223);
+
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
 }
+.AppHeader {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
+}
+.main-page {
+  display: flex;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #ebebeb; /* Gray background */
+  /* Gray background */
+}
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  /* Offset for header height */
+  flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
+}
+.content {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+
 
 .popup-overlay {
   position: fixed;
@@ -712,10 +806,7 @@ export default {
 .ok-btn:hover {
   background: #0056b3;
 }
-.available-units-page {
-  display: flex;
-  height: 100vh;
-}
+
 .content {
   flex: 1;
   padding: 20px;
@@ -902,5 +993,32 @@ button:hover {
 
 .schedule-btn:hover {
   background-color: #0056b3;
+}
+
+.filters {
+  display: flex;
+  align-items: center;   /* Align vertically */
+  gap: 20px;             /* Add space between elements */
+}
+
+.filters label {
+  margin-right: 5px;     /* Small space between label and select */
+}
+
+.filters select {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Style the list for better appearance */
+.unit-list {
+  list-style: none;      /* Remove default bullets */
+  padding: 0;
+}
+
+.unit-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd; /* Add separator between units */
 }
 </style>

@@ -5,7 +5,7 @@
       <AppHeader />
       <div class="content">
         <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">{{ brokerName }}</h1>
-        <p class="text-start display-7 fw-bolder">@{{ brokerEmail }}</p>
+        <p class="text-start display-7 fw-bolder">@{{ brokerUsername }}</p>
         <div class = "dashboard-boxes">
           <div class = "box">
             <p>Total Sales</p>
@@ -89,7 +89,7 @@ export default {
     return {
       loading: true, // Initially set to true while fetching
     brokerName: "",
-    brokerEmail: "",
+    brokerUsername: "",
     totalSales: 0,
     totalCommissions: 0,
     totalCustomers: 0,
@@ -147,7 +147,7 @@ export default {
         const data = await response.json();
         if (data.success !== false) {
           this.brokerName = `${data.f_name} ${data.l_name}`;
-          this.brokerEmail = data.email;
+          this.brokerUsername = data.username;
         }
 
         const salesResponse = await fetch(

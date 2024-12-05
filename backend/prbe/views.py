@@ -342,6 +342,7 @@ def get_broker(request, broker_id):
                 "email": broker.email,
                 "f_name":broker.first_name,
                 "l_name":broker.last_name,
+                "username":broker.username,
                 # Add other fields you may need
             }
             return JsonResponse(broker_data, status=200)
