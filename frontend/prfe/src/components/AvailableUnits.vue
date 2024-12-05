@@ -15,25 +15,6 @@
           <div class="title-icon"></div>
           <div class="edit-title">Available Units for Site {{ siteName }} </div>
         </div>
-        <div class="view-switch">
-          <div
-            class="view-icon"
-            :class="{ active: viewMode === 'grid' }"
-            @click="viewMode = 'grid'"
-          >
-            <i class="fa fa-th"></i>
-            <!-- Grid Icon -->
-          </div>
-          <div class="separator"></div>
-          <div
-            class="view-icon"
-            :class="{ active: viewMode === 'table' }"
-            @click="viewMode = 'table'"
-          >
-            <i class="fa fa-list"></i>
-            <!-- Table Icon -->
-          </div>
-        </div>
       </div>
 
       <div
@@ -76,8 +57,23 @@
       </div>
     </div>
 
-    <!-- Grid View -->
-    <div v-if="viewMode === 'grid'" class="site-grid">
+        <div v-if = "filteredUnits.length" class = "site-grid">
+          <div
+          v-for="unit in filteredUnits"
+          :key="unit.id"
+          class="site-card"
+          @click="showUnitDetails(unit)"
+          >
+            <p>{{ unit.unit_title }}</p>
+          </div>
+        </div>
+
+        <div v-else>
+          <p>No sites with available units.</p>
+        </div>
+
+    <!-- Grid View
+    <div class="site-grid">
       <div v-if="filteredUnits.length">
         <div
         v-for="unit in filteredUnits"
@@ -89,48 +85,9 @@
         </div>
       </div>
       <div v-else>
-        <p>No units available for this site.</p>
+        <center><p>No units available for this site.</p></center>
       </div>
-    </div>
-
-    <!-- Table View -->
-    <div v-if="viewMode === 'table'">
-      <div v-if="filteredUnits.length">
-        <div
-        v-for="unit in filteredUnits"
-        :key="unit.id"
-        @click="showUnitDetails(unit)"
-        class="card border-0 rounded-1 mx-auto"
-        style="
-          max-width: 1100px;
-          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        "
-        >
-        <div class="card-body">
-          <p>{{ unit.unit_title }}</p>
-        </div>
-      </div>
-      </div>
-      <div v-else>
-        <p>No units available for this site.</p>
-      </div>
-    </div>
-
- <!-- <div v-if="filteredUnits.length">
-  <div class="units-container">
-    <div
-      v-for="unit in filteredUnits"
-      :key="unit.id"
-      class="unit-card"
-      @click="showUnitDetails(unit)"
-    >
-      <p>{{ unit.unit_title }}</p>
-    </div>
-  </div>
-</div>
-<div v-else>
-  <p>No units available for this site.</p>
-</div> -->
+    </div> -->
 
       <!-- Success Message Pop-up -->
       <div
@@ -824,6 +781,15 @@ export default {
 
 <style scoped>
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
+  padding: 0;
+  /* Removes default padding */
+}
+
 .SideNav {
   width: 250px;
   position: fixed;
@@ -898,36 +864,6 @@ export default {
   text-align: left;
 }
 
-.view-switch {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  overflow: hidden;
-  background-color: #f6f6f6;
-}
-
-.view-icon {
-  flex: 1;
-  padding: 6px;
-  text-align: center;
-  cursor: pointer;
-  font-size: 15px;
-  color: #343a40;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.view-icon.active {
-  background-color: #343a40;
-  color: #f6f6f6;
-}
-
-.separator {
-  width: 1px;
-  background-color: #f6f6f6;
-  height: 100%;
-}
-
 .site-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -943,7 +879,8 @@ export default {
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
 }
 
 .site-card:hover {
