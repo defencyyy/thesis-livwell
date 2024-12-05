@@ -65,6 +65,11 @@
               <option value="all">All</option>
               <option v-for="floor in availableFloors" :key="floor" :value="floor">{{ floor }}</option>
             </select>
+            <label>Unit Type</label>
+            <select v-model="selectedUnitType" class = "dropdown-select">
+              <option value="all">All</option>
+              <option v-for="unitType in availableUnitTypes" :key="unitType" :value="unitType">{{ unitType }}</option>
+            </select>
            </div>
         </div>
       </div>
