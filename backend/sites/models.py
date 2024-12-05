@@ -60,6 +60,18 @@ class Site(models.Model):
         ]
         return ', '.join(filter(None, address_parts))
 
+    @property
+    def total_units(self):
+        # Import Unit here to avoid circular import issues
+        from units.models import Unit
+        return Unit.objects.filter(site=self).count()
+
+    @property
+    def available_units(self):
+        # Import Unit here to avoid circular import issues
+        from units.models import Unit
+        return Unit.objects.filter(site=self, status='Available').count()
+
     def create_units(self, units_per_floor, template=None):
         from units.models import Unit
         if units_per_floor <= 0:
@@ -103,8 +115,6 @@ class Site(models.Model):
         Unit.objects.bulk_create(created_units)
         return len(created_units)
 
-
-    
 class Floor(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="floors")
     floor_number = models.PositiveIntegerField()

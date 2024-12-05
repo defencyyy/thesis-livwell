@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UnitListView, UnitDetailView, UnitTemplateListView, UnitTemplateDetailView
+from .views import UnitListView, UnitDetailView, UnitTemplateListView, UnitTemplateDetailView, UnitTypeListView, UnitTypeDetailView
 
 urlpatterns = [
     # Unit URLs
@@ -7,4 +7,7 @@ urlpatterns = [
     path('<int:pk>/', UnitDetailView.as_view(), name='unit-detail'),
     path('templates/', UnitTemplateListView.as_view(), name='unit-template-list'),
     path('templates/<int:pk>/', UnitTemplateDetailView.as_view(), name='unit-template-detail'),
+    path('types/', UnitTypeListView.as_view(), name='unit-type-list'), 
+    path('types/<int:pk>/', UnitTypeDetailView.as_view(), name='unit-type-detail'),  
+    
 ]

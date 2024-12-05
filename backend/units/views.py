@@ -5,9 +5,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
-from .models import Unit, UnitImage, UnitTemplate
-from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer
-from .serializers import UnitTemplateSerializer
+from .models import Unit, UnitImage, UnitTemplate, UnitType
+from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer, UnitTypeSerializer
 
 class UnitTemplateListView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -171,3 +170,56 @@ class UnitTemplateDetailView(APIView):
         template = UnitTemplate.objects.get(pk=pk, company=company)
         template.delete()
         return Response({"success": True}, status=status.HTTP_204_NO_CONTENT)
+
+class UnitTypeListView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        unit_types = UnitType.objects.all()
+        serializer = UnitTypeSerializer(unit_types, many=True)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = UnitTypeSerializer(data=request.data)
+        if serializer.is_valid():
+            unit_type = serializer.save()
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class UnitTypeDetailView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            unit_type = UnitType.objects.get(pk=pk)
+        except UnitType.DoesNotExist:
+            return Response({"error": "UnitType not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = UnitTypeSerializer(unit_type)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        try:
+            unit_type = UnitType.objects.get(pk=pk)
+        except UnitType.DoesNotExist:
+            return Response({"error": "UnitType not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = UnitTypeSerializer(unit_type, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            unit_type = UnitType.objects.get(pk=pk)
+        except UnitType.DoesNotExist:
+            return Response({"error": "UnitType not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Archive the unit type instead of deleting it
+        unit_type.is_archived = True
+        unit_type.save()
+
+        return Response({"success": True, "message": "Unit type archived successfully"}, status=status.HTTP_200_OK)

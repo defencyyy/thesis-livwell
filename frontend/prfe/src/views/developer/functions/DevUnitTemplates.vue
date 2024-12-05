@@ -18,6 +18,7 @@
             <button @click="redirectToUnitTemplates">
               Manage Unit Templates
             </button>
+            <button @click="redirectToUnitTypes">Manage Unit Types</button>
           </div>
 
           <!-- Unit Templates Section -->
@@ -99,6 +100,17 @@ export default {
     };
   },
   methods: {
+    redirectToUnits() {
+      this.$router.push({ name: "DevFuncUnits" });
+    },
+
+    redirectToUnitTemplates() {
+      this.$router.push({ name: "DevUnitTemplates" });
+    },
+
+    redirectToUnitTypes() {
+      this.$router.push({ name: "DevUnitTypes" });
+    },
     // Fetch Unit Templates
     async fetchTemplates() {
       try {
@@ -139,16 +151,6 @@ export default {
       this.view = "templates";
       this.fetchTemplates();
     },
-
-    redirectToUnits() {
-      this.$router.push({ name: "DevFuncUnits" });
-    },
-
-    // Redirect to Unit Management Page
-    redirectToUnitTemplates() {
-      this.$router.push({ name: "DevUnitTemplates" });
-    },
-
     // Create Template
     async createTemplate(templateData) {
       try {
