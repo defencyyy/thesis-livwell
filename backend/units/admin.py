@@ -23,13 +23,6 @@ class UnitAdmin(admin.ModelAdmin):
     list_filter = ('company', 'status', 'view', 'balcony')
     inlines = [UnitImageInline]
 
-    def image_preview(self, obj):
-        if obj.unitimage_set.exists():
-            return mark_safe(f'<img src="{obj.unitimage_set.first().image.url}" width="100" height="100" />')
-        return "No Image"
-    image_preview.short_description = 'Image Preview'
-
-
 custom_admin_site.register(Unit, UnitAdmin)
 
 # UnitTemplate admin with inline images
