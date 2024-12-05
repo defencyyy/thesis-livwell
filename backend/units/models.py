@@ -38,10 +38,10 @@ def logo_upload_path(instance, filename):
 
 class Unit(models.Model):
     STATUS_CHOICES = [
-        ('available', 'Available'),
-        ('sold', 'Sold'),
-        ('pending reservation', 'Pending Reservation'),
-        ('reserved', 'Reserved'),
+        ('Available', 'Available'),
+        ('Sold', 'Sold'),
+        ('Pending Reservation', 'Pending Reservation'),
+        ('Reserved', 'Reserved'),
     ]
     VIEW_CHOICES = [
         ('south', 'South'),
