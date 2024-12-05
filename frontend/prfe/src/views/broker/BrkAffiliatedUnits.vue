@@ -7,7 +7,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Available Units</div>
+            <div class="edit-title">Available Sites</div>
           </div>
         </div>
          <div
