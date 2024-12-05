@@ -63,29 +63,6 @@
             </div>
         </div>
 
-
-        <!-- <div v-if="siteSales.length > 0" class="site-sales">
-          <div class="site-container">
-            <div
-              v-for="site in siteSales"
-              :key="site.id"
-              class="site-card"
-              @click="openModal(site)"
-            >
-              <img
-                :src="site.picture || 'https://via.placeholder.com/100'"
-                alt="Site Image"
-              />
-              <h4>{{ site.name }}</h4>
-              <p>Total Sales: {{ site.total_sales }}</p>
-            </div>
-          </div>
-        </div> -->
-
-        <!-- <div v-else-if="!loading" class="no-progress">
-          <p>No progress yet.</p>
-        </div> -->
-
         <div class="milestones-section">
 
           <!-- Milestones Achieved Table -->
@@ -184,28 +161,33 @@
         </div>
 
         <!-- Modal -->
-        <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-          <div class="modal-content">
-            <button class="close-button" @click="closeModal">X</button>
-
-            <p v-if="selectedSite">{{ selectedSite.name }}</p>
-
+        <b-modal v-model ="showModal" :title="`Site ${selectedSite ? selectedSite.name : ''}`" centered hide-footer>
+          <div>
             <div v-if="selectedSite && selectedSite.sales.length > 0">
-              <h4>Sales Details:</h4>
-              <ul>
-                <li v-for="sale in selectedSite.sales" :key="sale.date_sold">
-                  <strong>Unit Name:</strong> {{ sale.unit_name }} <br />
-                  <strong>Customer Name:</strong> {{ sale.customer_name }} <br />
-                  <strong>Date Sold:</strong> {{ sale.date_sold }}
-                </li>
-              </ul>
+              <center><h5>Sales Details</h5><br></center>
+              <table class = "table">
+                <thead>
+                  <tr>
+                    <th>Unit Name</th>
+                    <th>Customer Name</th>
+                    <th>Date Sold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="sale in selectedSite.sales" :key="sale.date_sold">
+                    <td>{{ sale.unit_name }}</td>
+                    <td>{{ sale.customer_name }}</td>
+                    <td>{{ sale.date_sold }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <div v-else-if="selectedSite">
               <p>No sales found for this site.</p>
             </div>
-          </div>
-        </div>
+            </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -215,11 +197,13 @@
 import AppHeader from "@/components/Header.vue"
 import SideNav from "@/components/SideNav.vue";
 import { mapGetters } from "vuex";
+import { BModal } from "bootstrap-vue-3";
 
 export default {
   name: "BrkMilestones",
   components: {
     SideNav,
+    BModal,
     AppHeader,
   },
   data() {
