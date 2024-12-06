@@ -439,7 +439,7 @@
       hide-footer
       title="Reserve Unit"
     >
-      <form @submit.prevent="submitReservation">
+      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
         <!-- Customer Name Dropdown -->
         <div class="form-group">
           <label for="customerName">Customer Name</label>
