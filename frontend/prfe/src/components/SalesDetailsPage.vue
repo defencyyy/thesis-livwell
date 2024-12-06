@@ -508,14 +508,4 @@ button:hover {
   font-weight: bold;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 180px;
-  }
-
-  .content {
-    margin-left: 200px;
-  }
-}
 </style>
