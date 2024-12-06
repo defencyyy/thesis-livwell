@@ -3,19 +3,18 @@
     <div :class="['sidebar']">
       <div class="sidebar-header">
         <!-- Replace company logo with a Font Awesome icon or any other icon -->
-        <i class="fas fa-cogs sidebar-logo" style="color: #0560fd;"></i> <!-- Font Awesome Icon -->
+        <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
+        <!-- Font Awesome Icon -->
         <h4 id="sidebar-title">{{ company.name || "Company Name" }}</h4>
       </div>
       <nav class="sidebar-nav">
-        <b-nav vertical pills >
+        <b-nav vertical pills>
           <template v-for="(item, index) in menuItems" :key="index">
-            <b-nav-item v-if="!item.children" :to="item.link" exact custom >
+            <b-nav-item v-if="!item.children" :to="item.link" exact custom>
               <i
                 :class="['menu-icon', item.icon, { active: isActive(item) }]"
               ></i>
-              <span
-                :class="['item-name', { active: isActive(item) }]"
-              >
+              <span :class="['item-name', { active: isActive(item) }]">
                 {{ item.name }}
               </span>
             </b-nav-item>
@@ -38,7 +37,8 @@
             </div>
           </template>
         </b-nav>
-        <div class="right-line"></div> <!-- The vertical line -->
+        <div class="right-line"></div>
+        <!-- The vertical line -->
       </nav>
     </div>
   </div>
@@ -99,9 +99,21 @@ export default {
             icon: "fas fa-map-marker-alt",
           },
           { name: "Units", link: "/developer/units", icon: "fas fa-home" },
-          { name: "Documents", link: "/developer/documents", icon: "fas fa-folder-open", },
-          { name: "Milestones", link: "/developer/milestones", icon: "fas fa-trophy", },
-          { name: "Sales", link: "/developer/sales", icon: "fas fa-chart-line", },
+          {
+            name: "Documents",
+            link: "/developer/documents",
+            icon: "fas fa-folder-open",
+          },
+          {
+            name: "Milestones",
+            link: "/developer/milestones",
+            icon: "fas fa-trophy",
+          },
+          {
+            name: "Sales",
+            link: "/developer/sales",
+            icon: "fas fa-chart-line",
+          },
           {
             name: "Payment Schedules",
             link: "/developer/payment-schedule",
@@ -118,7 +130,7 @@ export default {
           {
             name: "Units",
             link: "/broker/affiliated-units",
-            icon: "fas fa-home"
+            icon: "fas fa-home",
           },
           {
             name: "Sales",
@@ -135,7 +147,6 @@ export default {
             link: "/broker/milestones",
             icon: "fas fa-trophy",
           },
-          
         ];
       } else {
         this.menuItems = [
@@ -149,7 +160,7 @@ export default {
     },
     isActive(item) {
       return this.$route.path === item.link;
-    }
+    },
   },
 };
 </script>
@@ -166,7 +177,6 @@ export default {
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1); /* Adds shadow on the right */
   z-index: 2;
 }
-
 
 .sidebar-header {
   display: flex;
@@ -207,7 +217,7 @@ export default {
 }
 
 .item-name {
-  color:#343a40; /* Set the text color */
+  color: #343a40; /* Set the text color */
   font-size: 14px; /* Customize the font size */
 }
 
@@ -223,5 +233,4 @@ export default {
 .active:hover {
   color: white; /* Ensure color stays white on hover */
 }
-
 </style>

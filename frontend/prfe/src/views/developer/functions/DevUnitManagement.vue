@@ -47,7 +47,6 @@
           <p>Loading site details...</p>
         </div>
 
-        <!-- Unit Management Modal -->
         <b-modal
           id="unit-management-modal"
           title="Manage Units"
@@ -55,49 +54,81 @@
           ok-title="Close"
           @ok="closeUnitManagementModal"
         >
-          <div v-if="filteredUnits.length > 0">
+        <div v-if="selectedFloor && selectedFloor.units && selectedFloor.units.length > 0">
+
             <h4>Units on Floor {{ selectedFloor?.floor_number }}</h4>
-            <input
+
+            <!-- Search Units -->
+            <b-form-input
               v-model="searchQuery"
               type="text"
               placeholder="Search units"
-              class="search-input"
+              class="mb-3"
               @input="onSearch"
             />
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Unit ID</th>
-                  <th>Unit Title</th>
-                  <th>Status</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="unit in filteredUnits" :key="unit.id">
-                  <td>{{ unit.id }}</td>
-                  <td>{{ unit.unit_title }}</td>
-                  <td>{{ unit.status }}</td>
-                  <td>{{ unit.price }}</td>
-                </tr>
-              </tbody>
-            </table>
+
+            <!-- Units Table -->
+            <b-table
+              :items="filteredUnits"
+              :fields="unitFields"
+              bordered
+              striped
+              responsive="sm"
+            >
+              <template #cell(actions)="data">
+                <b-button
+                  size="sm"
+                  variant="primary"
+                  @click="handleEditUnit(data.item)"
+                >
+                  Edit
+                </b-button>
+                <b-button
+                  size="sm"
+                  variant="danger"
+                  @click="handleDeleteUnit(data.item)"
+                >
+                  Delete
+                </b-button>
+              </template>
+            </b-table>
 
             <!-- Pagination Controls -->
-            <div class="pagination">
-              <button @click="previousPage" :disabled="currentPage === 1">
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <b-button
+                variant="secondary"
+                @click="previousPage"
+                :disabled="currentPage === 1"
+              >
                 Previous
-              </button>
+              </b-button>
               <span>Page {{ currentPage }} of {{ totalPages }}</span>
-              <button @click="nextPage" :disabled="currentPage === totalPages">
+              <b-button
+                variant="secondary"
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+              >
                 Next
-              </button>
+              </b-button>
             </div>
           </div>
           <div v-else>
-            <p>No units available on this floor.</p>
+            <!-- Add more debugging here -->
+            <p>
+  No units available for this floor.
+            </p>
+            <p>
+              <strong>Debug Info:</strong>
+              <br />
+              Units Data: <pre>{{ unitsData }}</pre>
+              <br />
+              Selected Floor: <pre>{{ selectedFloor }}</pre>
+              <br />
+              Search Query: <pre>{{ searchQuery }}</pre>
+            </p>
           </div>
         </b-modal>
+
 
         <!-- Add Units Modal -->
         <b-modal
@@ -168,7 +199,7 @@
               <b-form-input
                 type="number"
                 v-model.number="newUnitLotArea"
-                min="0"
+                min="1"
                 required
               ></b-form-input>
             </b-form-group>
@@ -178,7 +209,7 @@
               <b-form-input
                 type="number"
                 v-model.number="newUnitFloorArea"
-                min="0"
+                min="1"
                 required
               ></b-form-input>
             </b-form-group>
@@ -289,7 +320,14 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
-import { BModal, BFormGroup, BFormSelect, BFormInput } from "bootstrap-vue-3";
+import {
+  BButton,
+  BTable,
+  BModal,
+  BFormGroup,
+  BFormSelect,
+  BFormInput,
+} from "bootstrap-vue-3";
 import { mapState } from "vuex";
 
 export default {
@@ -301,6 +339,8 @@ export default {
     BFormGroup,
     BFormSelect,
     BFormInput,
+    BButton,
+    BTable,
   },
   data() {
     return {
@@ -351,6 +391,7 @@ export default {
       currentPage: 1, // Current page for pagination
       unitsPerPage: 25, // Units per page for pagination
       searchQuery: "", // Search query for filtering
+      unitFields: [],
     };
   },
   computed: {
@@ -374,23 +415,27 @@ export default {
       }));
     },
     filteredUnits() {
-      // Filter the units by search query (if applicable)
-      const filtered = this.unitsData.filter((unit) => {
-        return (
-          unit.unit_title
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          unit.status.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      });
-      return filtered.slice(
-        (this.currentPage - 1) * this.pageSize,
-        this.currentPage * this.pageSize
-      );
-    },
+  // Log the selectedFloor's units array before filtering
+  console.log("Selected Floor Units:", this.selectedFloor.units);
+
+  // Filter units based on the search query
+  const filtered = this.selectedFloor.units.filter((unit) =>
+    unit.unit_title.toLowerCase().includes(this.searchQuery.toLowerCase())
+  );
+
+  console.log("Filtered Units:", filtered); // Log filtered units
+  console.log("Search Query:", this.searchQuery); // Log search query
+  console.log("Current Page:", this.currentPage); // Log current page
+
+  // Return the filtered units based on pagination
+  return filtered.slice(
+    (this.currentPage - 1) * this.unitsPerPage,
+    this.currentPage * this.unitsPerPage
+  );
+}
+,
     totalPages() {
-      // Calculate total pages for pagination
-      return Math.ceil(this.unitsData.length / this.pageSize);
+      return Math.ceil(this.unitsData.length / this.unitsPerPage);
     },
   },
   mounted() {
@@ -503,8 +548,9 @@ export default {
             quantity: this.newUnitQuantity,
             unit_type_id: this.newUnitType,
             unit_title: this.newUnitTitle,
-            bedrooms: this.newUnitBedroom,
-            bathrooms: this.newUnitBathroom,
+            bedroom: this.newUnitBedroom,
+            bathroom: this.newUnitBathroom,
+            lot_area: this.newUnitLotArea,
             floor_area: this.newUnitFloorArea,
             price: this.newUnitPrice,
             status: this.newUnitStatus,
@@ -536,40 +582,53 @@ export default {
     async openUnitManagement(floor) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/${floor.id}/floors/`,
+          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/floors/${floor.id}/units/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        this.selectedFloor = floor;
-        this.unitsData = response.data.data || [];
-        this.showUnitManagementModal = true;
+        console.log(response.data.data); // Log the data
+
+        if (response.data.success) {
+          this.selectedFloor = floor;
+          this.unitsData = response.data.data || []; // Ensure fallback to an empty array
+          this.currentPage = 1; // Reset pagination
+          this.showUnitManagementModal = true;
+        } else {
+          console.error("Error fetching units:", response.data.error);
+        }
       } catch (error) {
-        console.error("Error fetching units for the floor:", error);
+        console.error("Error fetching units:", error);
       }
     },
     closeUnitManagementModal() {
       this.showUnitManagementModal = false;
       this.unitsData = [];
-      this.searchQuery = ""; // Reset search query when modal is closed
-      this.currentPage = 1; // Reset to first page when modal is closed
+      this.searchQuery = "";
+      this.currentPage = 1;
+    },
+    handleEditUnit(unit) {
+      alert(`Edit unit: ${unit.unit_title}`);
+      // Logic for editing a unit goes here
+    },
+    handleDeleteUnit(unit) {
+      if (
+        confirm(`Are you sure you want to delete unit: ${unit.unit_title}?`)
+      ) {
+        // Logic for deleting a unit goes here
+      }
     },
     nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
+      if (this.currentPage < this.totalPages) this.currentPage++;
     },
     previousPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
+      if (this.currentPage > 1) this.currentPage--;
     },
-    // Function to handle the change in page size or search query
-    onSearch(query) {
-      this.searchQuery = query;
-      this.currentPage = 1; // Reset to the first page when the search query changes
+
+    onSearch() {
+      this.currentPage = 1; // Reset pagination on new search
     },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
