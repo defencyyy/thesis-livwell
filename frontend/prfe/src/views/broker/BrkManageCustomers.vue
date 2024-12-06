@@ -69,7 +69,7 @@
           <!-- Headers outside the card -->
           <div class="outside-headers">
             <span class="header-item">Code</span>
-            <span class="header-item">Customer Name</span>
+            <span class="header-item">Name</span>
             <span class="header-item">Contact</span>
             <span class="header-item">Actions</span>
           </div>
@@ -950,7 +950,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 25% 25% 25%; /* Match column widths */
+  grid-template-columns: 25% 35% 30% 10%; /* Match column widths */
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -979,35 +979,23 @@ body {
 
 .customer-table td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 16%;
+  width: 25%;
 }
 
 .customer-table td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 16%;
+  width: 35%;
 }
 
 .customer-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 16%;
+  width: 30%;
 }
 
 .customer-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 16%;
+  width: 10%;
 }
-
-.customer-table td:nth-child(5),
-.outside-headers .header-item:nth-child(5) {
-  width: 16%;
-}
-
-.customer-table td:nth-child(6),
-.outside-headers .header-item:nth-child(6) {
-  width: 16%;
-}
-
-
 
 .btn-add {
   background-color: #42b983;
