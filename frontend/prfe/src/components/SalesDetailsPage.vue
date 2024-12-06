@@ -283,7 +283,108 @@ export default {
   },
 };
 </script>
-<style>
+
+<style scoped>
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+button.toggle-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button.toggle-button:hover {
+  background-color: #45a049;
+}
+.detailed-schedule {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+th {
+  background-color: #f2f2f2;
+}.container {
+  display: flex;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  position: fixed; /* Keeps sidebar fixed on the left */
+  height: 100vh; /* Full screen height */
+  top: 0;
+  left: 0;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 10px;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #e9ecef;
+}
+
+.sidebar nav ul li.active a {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.content {
+  margin-left: 220px; /* Add space for sidebar */
+  padding: 20px;
+  width: calc(100% - 220px); /* Ensure content takes up remaining space */
+}
+
+.tab-content {
+  margin-bottom: 20px;
+}
+
+.details-group {
+  margin-bottom: 15px;
+}
+
+/* Style for the content elements */
+h2, h3 {
+  margin-bottom: 20px;
+}
 * {
   margin: 0;
   padding: 0;
