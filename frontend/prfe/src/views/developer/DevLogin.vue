@@ -1,119 +1,84 @@
 <template>
-  <section class="hero overlay">
-    <div class="container py-5 h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-xl-10">
-          <div class="card rounded-3 text-black">
-            <div class="row g-0">
-              <div class="col-lg-6">
-                <div class="card-body p-md-5 mx-md-4">
-                  <form @submit.prevent="login">
-                    <br />
-                    <h2 class="text-start">Hello, Developer!</h2>
-                    <p class="text-start underline">
-                      Welcome back! Please enter your details.
-                    </p>
-                    <br />
+ <section class="hero overlay">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-md-8 col-lg-6 col-xl-5"> <!-- Adjusted column width to center the form -->
+        <div class="card rounded-3 text-black">
+          <div class="card-body p-md-5 mx-md-4">
+            <form @submit.prevent="login">
+              <br />
+              <h2 class="text-start">Hello, Developer!</h2>
+              <p class="text-start underline">
+                Welcome back! Please enter your details.
+              </p>
+              <br />
 
-                    <div class="form-outline mb-4">
-                      <label class="form-label" for="username">Username</label>
-                      <input
-                        type="text"
-                        id="username"
-                        v-model="username"
-                        @input="error = null"
-                        class="form-control"
-                        required
-                      />
-                    </div>
-
-                    <div class="form-outline mb-4">
-                      <label class="form-label" for="password">Password</label>
-                      <input
-                        type="password"
-                        id="password"
-                        v-model="password"
-                        @input="error = null"
-                        class="form-control"
-                        required
-                      />
-                    </div>
-
-                    <div
-                      class="d-flex justify-content-between align-items-center mb-4"
-                    >
-                      <div class="d-flex-grow-1"></div>
-                      <router-link
-                        class="text-muted"
-                        to="/developer/forgot-password"
-                      >Forgot Password
-                      </router-link>
-
-                      <div class="flex-grow-1"></div>
-                      <router-link class="text-muted" to="/home"
-                        >Back to home</router-link
-                      >
-                    </div>
-
-                    <div class="text-center pt-1 mb-5 pb-1">
-                      <button
-                       class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
-                        :disabled="loading"
-                        type="submit"
-                      >
-                        Log In
-                      </button>
-                    </div>
-
-                    <p v-if="error" class="text-danger">{{ error }}</p>
-                  </form>
-
-                  <!-- Add the Return and Switch to Broker buttons -->
-                  <div class="text-center mt-4">
-                    <!-- <router-link to="/home" class="btn btn-outline-secondary">
-                      Return
-                    </router-link> -->
-                    <router-link
-                      to="/broker/login"
-                      class="btn btn-outline-primary"
-                    >
-                      Switch to Broker
-                    </router-link>
-                  </div>
-                </div>
+              <div class="form-outline mb-4">
+                <label class="form-label" for="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  v-model="username"
+                  @input="error = null"
+                  class="form-control"
+                  required
+                />
               </div>
-              <div class="col-lg-6 d-flex align-items-center gradient-custom-2 custom-bg-color"
-              style="border-radius: 8px"
+
+              <div class="form-outline mb-4">
+                <label class="form-label" for="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  v-model="password"
+                  @input="error = null"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
               >
-                <div  class="text-black px-3 py-4 p-md-5 mx-md-4">
-                  <div
-                    style="
-                      width: 250px;
-                      height: 200px;
-
-                      background-image: url(https://sid.dmcihomes.com/images/OnlineCRF/DMCI2019.png);
-                      background-size: contain; /* Ensures the image scales to fit the div without cropping */
-                      background-position: center; /* Centers the image within the div */
-                      background-repeat: no-repeat;
-
-                      border-radius: 50%;
-                      margin: 0 auto 0px;
-                    "
-                  ></div>
-                  <h4 class="mb-4 text-white">Company Name</h4>
-                  <p class="small mb-0 text-white">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua.
-                  </p>
-                </div>
+                <router-link
+                  class="text-muted"
+                  to="/developer/forgot-password"
+                  >Forgot Password</router-link
+                >
+                <router-link class="text-muted" to="/home"
+                  >Back to home</router-link
+                >
               </div>
+
+              <div class="text-center pt-1 mb-5 pb-1">
+                <button
+                  class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
+                  :disabled="loading"
+                  type="submit"
+                >
+                  Log In
+                </button>
+              </div>
+
+              <p v-if="error" class="text-danger">{{ error }}</p>
+            </form>
+
+            <!-- Add the Switch to Broker button -->
+            <div class="text-center mt-4">
+              <router-link
+                to="/broker/login"
+                class="btn btn-outline-primary"
+              >
+                Switch to Broker
+              </router-link>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
 </template>
 
 <script>
@@ -193,27 +158,28 @@ export default {
 
 <style>
 .overlay {
-  border-image:  linear-gradient(to bottom, rgba(25, 128, 255, 0.4), rgba(44, 171, 255, 0.7)) 
+  background-color:  linear-gradient(to bottom, rgba(55, 55, 55, 0.4), rgba(44, 171, 255, 0.7)) 
     fill 1;
 }
 
 /* bg of the main page */
 .hero {
-  background-image: url("https://wp-assets.dotproperty-kh.com/wp-content/uploads/sites/2/2021/03/24111936/The-Seasons-Residences-Metro-Manila.jpg");
+  
   background-size: cover;
   background-repeat: no-repeat;
-  min-block-size: 100vh;
-  place-content: center;
-  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.custom-bg-color {
-  background-color:rgb(53, 118, 202) !important;
+.card {
+  width: 100%; /* Makes card fit the container */
+  max-width: 500px; /* Limits the maximum width */
 }
 
-/* underline after the welcome back */
-.underline {
-  border-bottom: 1px solid #5e5e5e;
+.form-control {
+  font-size: 1rem; /* Adjust font size for inputs */
 }
 
 @layer general-styling {

@@ -88,7 +88,7 @@ export default {
 /* HOME SECTION */
 
     .home-container {
-        background:  linear-gradient(to bottom, rgba(25, 128, 255, 0.4), rgba(146, 146, 146, 0.7)) ;
+        background:  linear-gradient(to bottom, #a7cfff66, rgba(59, 155, 234, 0.7)) ;
         /* url('https://i.pinimg.com/originals/fc/ac/19/fcac194ad03f8af8dfaf702db8db5b0f.jpg'); */
         background-size: cover;
         background-position: center;
