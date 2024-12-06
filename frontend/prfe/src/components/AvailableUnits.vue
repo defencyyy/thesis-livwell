@@ -534,9 +534,6 @@
         <p>{{ errorMessage }}</p>
         <b-button @click="closeModal" variant="secondary">Close</b-button>
       </div>
-      
-      <!-- Cancel Button -->
-      <!-- <b-button @click="closeReserveModal" variant="danger">Cancel</b-button> -->
     </b-modal>
 
       </b-modal>
