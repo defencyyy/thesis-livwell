@@ -370,6 +370,45 @@
           }}
         </p>
       </div>
+      <!-- Expandable Detailed Schedule Section -->
+      <button @click="toggleDetailedSchedule" class="toggle-button">
+        {{
+          showDetailedSchedule
+            ? "Hide Detailed Schedule"
+            : "Show Detailed Schedule"
+        }}
+      </button>
+
+      <!-- Detailed Monthly Schedule (Visible when expanded) -->
+      <div v-if="showDetailedSchedule" class="detailed-schedule">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment Type</th>
+              <th>Amount (₱)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Spot Downpayment</td>
+              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td>Spread Downpayment</td>
+              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+            </tr>
+            <!-- Loop through the months to display monthly payments -->
+            <tr v-for="month in payableMonths" :key="month">
+              <td>Month {{ month }} Payment</td>
+              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td>Balance Upon Turnover</td>
+              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
@@ -510,6 +549,7 @@ export default {
       selectedUnit: {
         images: null, // Initially null
       },
+      showDetailedSchedule: false, // To toggle detailed payment schedule
       isReserveModalVisible: false,
       reservationForm: {
         customerName: "",
@@ -597,6 +637,10 @@ export default {
   },
 
   methods: {
+    toggleDetailedSchedule() {
+      // Toggle the visibility of the detailed payment schedule
+      this.showDetailedSchedule = !this.showDetailedSchedule;
+    },
     async fetchAvailableUnits() {
       try {
         const response = await axios.get(
@@ -1038,8 +1082,53 @@ body {
   align-items: flex-start; /* Align the content to the left */
 }
 
+.payment-summary {
+  margin-bottom: 20px;
+}
 
+.detailed-schedule {
+  color: #0056b3;
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+.toggle-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
 
+.toggle-button:hover {
+  background-color: #0056b3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid #ddd;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+td {
+  text-align: right;
+}
 
 /* juju */
 
