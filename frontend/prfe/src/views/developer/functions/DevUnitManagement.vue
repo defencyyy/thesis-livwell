@@ -47,6 +47,100 @@
           <p>Loading site details...</p>
         </div>
 
+        <!-- Unit Management Modal -->
+        <b-modal
+          v-model="showUnitManagementModal"
+          title="Manage Units"
+          @hide="closeUnitManagementModal"
+        >
+          <div class="unit-management-content">
+            <div class="search-bar">
+              <b-form-input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search units"
+                @input="onSearch"
+              />
+            </div>
+
+            <!-- Filter Options -->
+            <b-form-group label="Status:">
+              <b-form-select
+                v-model="selectedStatus"
+                :options="statusOptions"
+              />
+            </b-form-group>
+            <b-form-group label="Price Range:">
+              <b-form-select
+                v-model="selectedPriceRange"
+                :options="priceRangeOptions"
+              />
+            </b-form-group>
+            <b-form-group label="Unit Type:">
+              <b-form-select
+                v-model="selectedUnitType"
+                :options="unitTypeOptions"
+              />
+            </b-form-group>
+            <b-form-group label="Sort by:">
+              <b-form-select
+                v-model="selectedSort"
+                :options="sortOptions"
+              ></b-form-select>
+            </b-form-group>
+
+            <!-- Unit Table -->
+            <table v-if="filteredUnits.length" class="unit-table">
+              <thead>
+                <tr>
+                  <th>Unit Number</th>
+                  <th>Unit Type</th>
+                  <th>Status</th>
+                  <th>Price</th>
+                  <th>Lot Area</th>
+                  <th>Floor Area</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="unit in filteredUnits" :key="unit.id">
+                  <td>{{ unit.unit_number }}</td>
+                  <td>
+                    {{
+                      unitTypes.find((type) => type.id === unit.unit_type_id)
+                        ?.name || "Unknown"
+                    }}
+                  </td>
+
+                  <td>{{ unit.status }}</td>
+                  <td>{{ formatCurrency(unit.price) }}</td>
+                  <td>{{ unit.lot_area }}</td>
+                  <td>{{ unit.floor_area }}</td>
+                  <td>
+                    <button @click="handleEditUnit(unit)">Edit</button>
+                    <button @click="handleDeleteUnit(unit)">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div v-else>
+              <p>No units available for this floor.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-controls">
+              <button @click="previousPage" :disabled="currentPage === 1">
+                Previous
+              </button>
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+              <button @click="nextPage" :disabled="currentPage === totalPages">
+                Next
+              </button>
+            </div>
+          </div>
+        </b-modal>
+
         <!-- Add Units Modal -->
         <b-modal
           id="add-units-modal"
@@ -227,26 +321,6 @@
             </b-form-group>
           </form>
         </b-modal>
-
-        <!-- Unit Management Modal -->
-        <b-modal
-          v-model="showUnitManagementModal"
-          title="Manage Units"
-          @hide="closeUnitManagementModal"
-        >
-          <div v-if="unitsData.length > 0">
-            <div v-for="unit in unitsData" :key="unit.id" class="unit-card">
-              <h5>{{ unit.unit_title }}</h5>
-              <p><strong>Type:</strong> {{ unit.unit_type.name }}</p>
-              <p><strong>Status:</strong> {{ unit.status }}</p>
-              <button @click="handleEditUnit(unit)">Edit</button>
-              <button @click="handleDeleteUnit(unit)">Delete</button>
-            </div>
-          </div>
-          <div v-else>
-            <p>No units available for this floor.</p>
-          </div>
-        </b-modal>
       </div>
     </div>
   </div>
@@ -294,11 +368,27 @@ export default {
       newUnitReservationFee: null,
       newUnitOtherCharges: null,
       newUnitVatPercentage: null,
+      sortOptions: [
+        { value: null, text: "Default" },
+        { value: "unit_number_asc", text: "Unit Number (Asc)" },
+        { value: "unit_number_desc", text: "Unit Number (Desc)" },
+        { value: "price_asc", text: "Price (Asc)" },
+        { value: "price_desc", text: "Price (Desc)" },
+      ],
+      selectedSort: null,
+      // Updated options with "All"
       statusOptions: [
-        { value: "available", text: "Available" },
-        { value: "sold", text: "Sold" },
-        { value: "pending reservation", text: "Pending Reservation" },
-        { value: "reserved", text: "Reserved" },
+        { value: null, text: "All" },
+        { value: "Available", text: "Available" },
+        { value: "Sold", text: "Sold" },
+        { value: "Pending Reservation", text: "Pending Reservation" },
+        { value: "Reserved", text: "Reserved" },
+      ],
+      priceRangeOptions: [
+        { value: null, text: "All" },
+        { value: "1-5", text: "1M - 5M" },
+        { value: "5-10", text: "5M - 10M" },
+        { value: "10+", text: "10M+" },
       ],
       viewOptions: [
         { value: "south", text: "South" },
@@ -310,19 +400,18 @@ export default {
         { value: "has balcony", text: "Has Balcony" },
         { value: "no balcony", text: "No Balcony" },
       ],
+      selectedStatus: null,
+      selectedPriceRange: null,
+      selectedUnitType: null,
       totalUnits: 0,
       totalAvailableUnits: 0,
       showUnitManagementModal: false,
-      unitsData: [], // Store all the unit data for the selected floor
-      selectedFloor: {
-        floor_number: null,
-        id: null,
-        units: [],
-      },
-      currentPage: 1, // Current page for pagination
-      unitsPerPage: 25, // Units per page for pagination
-      searchQuery: "", // Search query for filtering
       unitFields: [],
+      selectedFloor: {},
+      unitsData: [],
+      currentPage: 1,
+      unitsPerPage: 25,
+      searchQuery: "",
     };
   },
   computed: {
@@ -340,32 +429,66 @@ export default {
         : []; // Return an empty array if no site is available
     },
     unitTypeOptions() {
-      return this.unitTypes.map((type) => ({
-        value: type.id,
-        text: type.name,
-      }));
+      return [
+        { value: null, text: "All" }, // This adds the "All" option to the dropdown
+        ...this.unitTypes.map((type) => ({
+          value: type.id,
+          text: type.name,
+        })),
+      ];
     },
     filteredUnits() {
-      // Log the selectedFloor's units array before filtering
-      console.log("Selected Floor Units:", this.selectedFloor.units);
+      let units = this.unitsData;
 
-      // Filter units based on the search query
-      const filtered = this.selectedFloor.units.filter((unit) =>
-        unit.unit_title.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      // Filter by search query
+      if (this.searchQuery) {
+        units = units.filter((unit) =>
+          unit.unit_title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
 
-      console.log("Filtered Units:", filtered); // Log filtered units
-      console.log("Search Query:", this.searchQuery); // Log search query
-      console.log("Current Page:", this.currentPage); // Log current page
+      // Filter by status
+      if (this.selectedStatus) {
+        units = units.filter((unit) => unit.status === this.selectedStatus);
+      }
 
-      // Return the filtered units based on pagination
-      return filtered.slice(
-        (this.currentPage - 1) * this.unitsPerPage,
-        this.currentPage * this.unitsPerPage
-      );
-    },
-    totalPages() {
-      return Math.ceil(this.unitsData.length / this.unitsPerPage);
+      // Filter by unit type
+      if (this.selectedUnitType) {
+        units = units.filter(
+          (unit) => unit.unit_type_id === this.selectedUnitType
+        );
+      }
+
+      // Filter by price range
+      if (this.selectedPriceRange) {
+        let priceRange = this.selectedPriceRange;
+        units = units.filter((unit) => {
+          const price = unit.price;
+          if (priceRange === "1-5") return price >= 1000000 && price <= 5000000;
+          if (priceRange === "5-10")
+            return price >= 5000001 && price <= 10000000;
+          if (priceRange === "10+") return price > 10000000;
+          return true;
+        });
+      }
+
+      // Sort units
+      if (this.selectedSort) {
+        units = [...units].sort((a, b) => {
+          switch (this.selectedSort) {
+            case "unit_number_asc":
+              return a.unit_number - b.unit_number;
+            case "unit_number_desc":
+              return b.unit_number - a.unit_number;
+            case "price_asc":
+              return a.price - b.price;
+            case "price_desc":
+              return b.price - a.price;
+          }
+        });
+      }
+
+      return units;
     },
   },
   mounted() {
@@ -511,7 +634,6 @@ export default {
     },
     async openUnitManagement(floor) {
       try {
-        this.isLoading = true; // Set loading state
         const response = await axios.get(
           `http://localhost:8000/developer/units/${this.$route.params.siteId}/floors/${floor.id}/`,
           {
@@ -520,22 +642,11 @@ export default {
             },
           }
         );
-
-        if (response.data.success) {
-          this.selectedFloor = floor;
-          this.unitsData = response.data.data || []; // Ensure fallback to an empty array
-          this.currentPage = 1; // Reset pagination
-          this.showUnitManagementModal = true;
-          console.log(response.data.data); // Log the data
-        } else {
-          console.error("Error fetching units:", response.data.error);
-          this.errorMessage = "Failed to load unit management data."; // Set an error message
-        }
+        this.selectedFloor = floor;
+        this.unitsData = response.data.data;
+        this.showUnitManagementModal = true;
       } catch (error) {
         console.error("Error fetching units:", error);
-        this.errorMessage = "Failed to load unit management data."; // Set an error message
-      } finally {
-        this.isLoading = false; // Reset loading state
       }
     },
     closeUnitManagementModal() {
@@ -546,7 +657,6 @@ export default {
     },
     handleEditUnit(unit) {
       alert(`Edit unit: ${unit.unit_title}`);
-      // Logic for editing a unit goes here
     },
     handleDeleteUnit(unit) {
       if (
@@ -561,7 +671,12 @@ export default {
     previousPage() {
       if (this.currentPage > 1) this.currentPage--;
     },
-
+    formatCurrency(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(value);
+    },
     onSearch() {
       this.currentPage = 1; // Reset pagination on new search
     },
@@ -708,5 +823,39 @@ button:hover {
   top: 10px;
   right: 20px;
   cursor: pointer;
+}
+
+.unit-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+.unit-table th,
+.unit-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+.unit-table th {
+  background-color: #f2f2f2;
+}
+.search-bar {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.pagination-controls {
+  text-align: center;
+  margin-top: 20px;
+}
+button {
+  background-color: #0560fd;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0056b3;
 }
 </style>
