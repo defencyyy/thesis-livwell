@@ -1,129 +1,136 @@
 <template>
-  <div v-if="salesDetail">
-    <h2>Sales Agreement Details</h2>
-
-    <p><strong>Customer ID:</strong> {{ salesDetail.customer_name }}</p>
-    <p><strong>Site ID:</strong> {{ salesDetail.site_name }}</p>
-    <p><strong>Unit ID:</strong> {{ salesDetail.unit_name }}</p>
-    <p><strong>Broker ID:</strong> {{ salesDetail.broker_name }}</p>
-    <p><strong>Payment Plan:</strong> {{ salesDetail.payment_plan }}</p>
-    <p><strong>Unit Price:</strong> ₱{{ salesDetail.unit_price }}</p>
-    <p>
-      <strong>Spot Discount Percentage:</strong>
-      {{ salesDetail.spot_discount_percent }}%
-    </p>
-    <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    <p>
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
-    <p>
-      <strong>TLP Discount Percentage:</strong>
-      {{ salesDetail.tlp_discount_percent }}%
-    </p>
-    <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-    <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-    <p>
-      <strong>Other Charges Percentage:</strong>
-      {{ salesDetail.other_charges_percent }}%
-    </p>
-    <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-    <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spot Downpayment Percentage:</strong>
-      {{ salesDetail.spot_downpayment_percent }}%
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-    <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
-    <p v-if="salesDetail.payment_plan === 'Spot Cash'">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spread Downpayment Percentage:</strong>
-      {{ salesDetail.spread_downpayment_percent }}%
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Payable Months:</strong> {{ salesDetail.payable_months }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-    </p>
-    <div v-if="salesDetail.reservation_agreement_url">
-      <a
-        :href="
-          'http://localhost:8000/download_reservation_agreement/' +
-          salesDetail.id
-        "
-        download
-      >
-        <button>Download Reservation Agreement</button>
-      </a>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <nav>
+        <ul>
+          <li :class="{ active: activeTab === 'document-status' }">
+            <a href="#" @click.prevent="setActiveTab('document-status')">
+              Document Status
+            </a>
+          </li>
+          <li :class="{ active: activeTab === 'payment-schedule' }">
+            <a href="#" @click.prevent="setActiveTab('payment-schedule')">
+              Payment Schedule
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
 
-    <!-- Collapsible Table Section - Only for Deferred Payment -->
-    <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table>
-          <thead>
-            <tr>
-              <th>Payment Type</th>
-              <th>Amount (₱)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in salesDetail.payable_months" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Main Content -->
+    <div class="content">
+      <!-- Document Status Content -->
+      <div v-if="activeTab === 'document-status'" class="tab-content">
+        <div v-if="salesDetail" class="details-card">
+          <h2>Sales Agreement Details</h2>
+          <div class="details-group">
+            <p><strong>Customer Name:</strong> {{ salesDetail.customer_name }}</p>
+            <p><strong>Site Name:</strong> {{ salesDetail.site_name }}</p>
+            <p><strong>Unit Name:</strong> {{ salesDetail.unit_name }}</p>
+            <p><strong>Broker Name:</strong> {{ salesDetail.broker_name }}</p>
+            <p><strong>Payment Plan:</strong> {{ salesDetail.payment_plan }}</p>
+            <p><strong>Unit Price:</strong> ₱{{ salesDetail.unit_price }}</p>
+          </div>
+          <div class="details-group">
+            <p>
+              <strong>Spot Discount Percentage:</strong>
+              {{ salesDetail.spot_discount_percent }}%
+            </p>
+            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+            <p>
+              <strong>Unit Price after Spot Discount:</strong> ₱{{
+                unitPriceAfterSpotDiscount
+              }}
+            </p>
+            <p>
+              <strong>TLP Discount Percentage:</strong>
+              {{ salesDetail.tlp_discount_percent }}%
+            </p>
+            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+          </div>
+          <div class="details-group">
+            <p>
+              <strong>Other Charges Percentage:</strong>
+              {{ salesDetail.other_charges_percent }}%
+            </p>
+            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+            <p v-if="netUnitPrice > 3600000">
+              <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+            </p>
+            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+          </div>
+          <div class="details-group">
+            <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+              <strong>Spot Downpayment Percentage:</strong>
+              {{ salesDetail.spot_downpayment_percent }}%
+            </p>
+            <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+              <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+            </p>
+            <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
+            <p v-if="salesDetail.payment_plan === 'Spot Cash'">
+              <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+            </p>
+            <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+              <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+            </p>
+          </div>
+          <div class="download-button" v-if="salesDetail.reservation_agreement_url">
+            <a
+              :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
+              download
+            >
+              <button>Download Reservation Agreement</button>
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
-    <div>
-      <h3>Required Documents</h3>
-      <ul v-if="documentTypes.length">
-        <li v-for="doc in documentTypes" :key="doc.id">
-          <strong>{{ doc.name }}</strong>
-        </li>
-      </ul>
-      <p v-else>No document types available.</p>
+
+      <!-- Payment Schedule Content -->
+      <div v-if="activeTab === 'payment-schedule'" class="tab-content">
+        <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
+          <div class="detailed-schedule">
+            <h3>Payment Schedule</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Payment Type</th>
+                  <th>Amount (₱)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Spot Downpayment</td>
+                  <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+                </tr>
+                <tr>
+                  <td>Spread Downpayment</td>
+                  <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+                </tr>
+                <tr v-for="month in salesDetail.payable_months" :key="month">
+                  <td>Month {{ month }} Payment</td>
+                  <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+                </tr>
+                <tr>
+                  <td>Balance Upon Turnover</td>
+                  <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Required Documents</h3>
+          <ul v-if="documentTypes.length" class="documents-list">
+            <li v-for="doc in documentTypes" :key="doc.id">
+              <strong>{{ doc.name }}</strong>
+            </li>
+          </ul>
+          <p v-else>No document types available.</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -133,6 +140,7 @@ export default {
   name: "SalesDetails",
   data() {
     return {
+      activeTab: "document-status", // Default active tab
       salesDetail: null, // Store the sales details
       spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
@@ -156,6 +164,9 @@ export default {
     this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
   methods: {
+    setActiveTab(tab) {
+      this.activeTab = tab;
+    },
     async fetchSalesDetail(salesDetailUuid) {
       try {
         const response = await fetch(
@@ -321,5 +332,63 @@ td {
 }
 th {
   background-color: #f2f2f2;
+}.container {
+  display: flex;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  position: fixed; /* Keeps sidebar fixed on the left */
+  height: 100vh; /* Full screen height */
+  top: 0;
+  left: 0;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 10px;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #e9ecef;
+}
+
+.sidebar nav ul li.active a {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.content {
+  margin-left: 220px; /* Add space for sidebar */
+  padding: 20px;
+  width: calc(100% - 220px); /* Ensure content takes up remaining space */
+}
+
+.tab-content {
+  margin-bottom: 20px;
+}
+
+.details-group {
+  margin-bottom: 15px;
+}
+
+/* Style for the content elements */
+h2, h3 {
+  margin-bottom: 20px;
 }
 </style>
