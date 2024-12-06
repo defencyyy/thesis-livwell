@@ -84,242 +84,115 @@
     </div>
 
       <!-- Unit Details Modal -->
-      <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
-          <!-- Image Section -->
-          <div v-if="selectedUnit.images.length" class="image-gallery">
-            <img
-              v-for="(image, index) in selectedUnit.images"
-              :key="index"
-              :src="image"
-              alt="Unit Picture"
-              class="unit-picture"
-            />
-          </div>
-          <p>
-            P{{ selectedUnit.price }} Bedroom:
-            {{ selectedUnit.bedroom }} Bathroom:
-            {{ selectedUnit.bathroom }} Floor Area:
-            {{ selectedUnit.floor_area }}
-          </p>
-          <hr />
-          <center>Details</center>
-          <p>
-            Unit/Floor Number: {{ selectedUnit.floor }} Balcony:
-            {{ selectedUnit.balcony }} Built(Year):{{ siteYear }}
-          </p>
-          <p>
-            Baths:{{ selectedUnit.bathroom }} Bedrooms:
-            {{ selectedUnit.bedroom }} Floor area(m<sup>2</sup>):{{
-              selectedUnit.floor_area
-            }}
-          </p>
-          <p>View: {{ selectedUnit.view }}</p>
-          <hr />
+      <b-modal
+      id="unitDetailsModal"
+      v-model="isModalVisible"
+      title="Unit Details"
+      hide-footer
+      size="lg"
+      @hide="closeModal"
+    >
 
-          <!-- Unit Details -->
-          <div class="unit-details">
-            <p>
-              <strong>Price:</strong> ₱{{ selectedUnit.price }} |
-              <strong>Bedrooms:</strong> {{ selectedUnit.bedroom }} |
-              <strong>Bathrooms:</strong> {{ selectedUnit.bathroom }} |
-              <strong>Floor Area:</strong> {{ selectedUnit.floor_area }}m<sup
-                >2</sup
-              >
-            </p>
-            <hr />
-            <h3 class="details-heading">Details</h3>
-            <p>
-              <strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }} |
-              <strong>Balcony:</strong> {{ selectedUnit.balcony }} |
-              <strong>Built (Year):</strong> {{ siteYear }}
-            </p>
-            <p><strong>View:</strong> {{ selectedUnit.view }}</p>
-            <hr />
-          </div>
+      <div v-if="selectedUnit.images && selectedUnit.images.length" id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+      <!-- Indicators -->
+      <div class="carousel-indicators">
+        <button
+          v-for="(image, index) in selectedUnit.images"
+          :key="index"
+          :data-bs-target="'#carouselExampleIndicators'"
+          :data-bs-slide-to="index"
+          :class="{ active: index === 0 }"
+          :aria-current="index === 0 ? 'true' : null"
+          :aria-label="'Slide ' + (index + 1)"
+        ></button>
+      </div>
 
-          <!-- Payment Plan Section -->
-          <div class="form-group">
-            <label for="paymentPlan"><b>Payment Plan: </b></label>
-            <select v-model="selectedPaymentPlan" id="paymentPlan" required>
-              <option value="Spot Cash">Spot Cash</option>
-              <option value="Deffered Payment">Deffered Payment</option>
-            </select>
-          </div>
-
-          <!-- In-House Financing Plan -->
-          <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-
-          <!-- Spot Discount -->
-          <div class="form-group">
-            <label for="spotDiscount">Spot Discount</label>
-            <input
-              type="number"
-              id="spotDiscount"
-              v-model="spotCashDiscount"
-              @input="updatePaymentDetails"
-              class="form-control"
-              min="0"
-              max="100"
-            />
-          </div>
-          <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-
-          <p>
-            <strong>Unit Price after Spot Discount:</strong> ₱{{
-              unitPriceAfterSpotDiscount
-            }}
-          </p>
-
-          <!-- TLP Discount -->
-          <div class="form-group">
-            <label for="tlpDiscount">TLP Discount (Optional)</label>
-            <input
-              type="number"
-              id="tlpDiscount"
-              v-model="tlpDiscount"
-              @input="updatePaymentDetails"
-              class="form-control"
-              min="0"
-              max="100"
-            />
-          </div>
-          <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-          <!-- Net Unit Price -->
-          <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-          <!-- Other Charges -->
-          <div class="form-group">
-            <label for="otherChargesPercentage">Other Charges (%)</label>
-            <input
-              type="number"
-              id="otherChargesPercentage"
-              v-model="otherChargesPercentage"
-              @input="updatePaymentDetails"
-              class="form-control"
-              min="0"
-              step="0.1"
-            />
-          </div>
-          <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-          <!-- VAT Calculation -->
-          <p v-if="netUnitPrice > 3600000">
-            <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-          </p>
-
-          <!-- Total Amount Payable -->
-          <p>
-            <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-          </p>
-          <!-- Spot Downpayment -->
-          <div
-            v-if="selectedPaymentPlan === 'Deffered Payment'"
-            class="form-group"
-          >
-            <label for="spotDownpayment">Spot Downpayment</label>
-            <input
-              type="number"
-              id="spotDownpayment"
-              v-model="spotDownpaymentPercentage"
-              @input="updatePaymentDetails"
-              min="0"
-              step="5"
-              placeholder="Enter downpayment percentage"
-              required
-            />
-          </div>
-
-          <p v-if="selectedPaymentPlan === 'Deffered Payment'">
-            <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-          </p>
-
-          <!-- Reservation Fee -->
-          <p><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
-          <p v-if="selectedPaymentPlan === 'Spot Cash'">
-            <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-          </p>
-
-          <!-- Net Downpayment -->
-          <p v-if="selectedPaymentPlan === 'Deffered Payment'">
-            <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-          </p>
-
-          <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-            <!-- Spread Downpayment -->
-            <div class="form-group">
-              <label for="spreadDownpayment">Spread Downpayment</label>
-              <select
-                v-model="spreadDownpaymentPercentage"
-                id="spreadDownpayment"
-                @change="updatePaymentDetails"
-                required
-              >
-                <option value="0">0%</option>
-                <option value="5">5%</option>
-                <option value="10">10%</option>
-                <option value="15">15%</option>
-              </select>
-            </div>
-            <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-
-            <!-- Payable in Months -->
-            <div class="form-group">
-              <label for="months">Months to Pay</label>
-              <input
-                type="number"
-                v-model="payableMonths"
-                id="months"
-                @input="updatePaymentDetails"
-                min="1"
-                step="1"
-                required
-              />
-            </div>
-            <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-            <!-- Balance Upon Turnover -->
-            <p>
-              <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-            </p>
-            <h3>Payment Schedule Summary</h3>
-
-            <!-- Payment Summary -->
-            <div class="payment-summary">
-              <p>
-                <strong>Spot Downpayment:</strong> ₱{{
-                  spotDownpayment.toFixed(2)
-                }}
-              </p>
-              <p>
-                <strong>Spread Downpayment:</strong> ₱{{
-                  spreadDownpayment.toFixed(2)
-                }}
-              </p>
-              <p>
-                <strong>Monthly Payment:</strong> ₱{{
-                  payablePerMonth.toFixed(2)
-                }}
-                / month for {{ payableMonths }} months
-              </p>
-              <p>
-                <strong>Balance Upon Turnover:</strong> ₱{{
-                  balanceUponTurnover.toFixed(2)
-                }}
-              </p>
-            </div>
-          </div>
-          <!-- Button Container -->
-          <div class="button-container">
-            <button class="reserve-btn" @click="openReserveModal">
-              Reserve Unit
-            </button>
-            <button class="schedule-btn" @click="scheduleVisit">
-              Schedule Visit
-            </button>
-          </div>
+      <!-- Carousel Items -->
+      <div class="carousel-inner">
+        <div
+          v-for="(image, index) in selectedUnit.images"
+          :key="index"
+          :class="['carousel-item', { active: index === 0 }]"
+        >
+          <img :src="image" class="d-block w-100" alt="Unit Picture" style="width: 100%; height: 500px; object-fit: cover;" />
         </div>
       </div>
+
+      <!-- Navigation Controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div v-else class="text-center">
+      <p>No unit images.</p>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-12 d-flex justify-content-between align-items-center">
+          <!-- Left Section: Price and Installment Badge -->
+          <div class="d-flex align-items-center gap-2">
+              <span class="property-price">₱ {{ selectedUnit.price }}</span>
+          </div>
+          <!-- Right Section: Icons and Details -->
+          <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-center gap-1">
+                  <i class="fa-solid fa-bed"></i>
+                  <span>{{ selectedUnit.bedroom }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-1">
+                <i class="fa-solid fa-bath"></i>
+                  <span>{{ selectedUnit.bathroom }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-1">
+                  <i class="bi bi-arrows-fullscreen"></i>
+                  <span>{{ selectedUnit.floor_area }}m<sup>2</sup></span>
+              </div>
+              <span class="text-muted">Studio Type</span>
+          </div>
+      </div>
+    </div>
+    <div class="line mb-4"></div>
+    <div class="col-12 text-center mb-3 text-center">
+          <h5 class="property-header">Details</h5>
+    </div>
+    <div class="row ps-5">
+      <!-- Column 1 -->
+      <div class="col-md-4">
+          <ul class="list-unstyled mb-0">
+              <li><strong>Unit/Floor Number:</strong> 01/1F</li>
+              <li><strong>Build (Year):</strong> 2024</li>
+              <li><strong>Classification:</strong> Brand New</li>
+          </ul>
+      </div>
+      <!-- Column 2 -->
+      <div class="col-md-4">
+          <ul class="list-unstyled mb-0">
+              <li><strong>Fully Furnished:</strong> Yes</li>
+              <li><strong>Baths:</strong> 1</li>
+              <li><strong>Bedrooms:</strong> 1</li>
+          </ul>
+      </div>
+      <!-- Column 3 -->
+      <div class="col-md-4">
+          <ul class="list-unstyled mb-0">
+              <li><strong>Balcony:</strong> No</li>
+              <li><strong>Floor Area (m²):</strong> 23m²</li>
+              <li><strong>View:</strong> City View</li>
+          </ul>
+      </div>
+    </div>
+
+
+
+    
+    </b-modal>
 
       <!-- Reserve Unit Modal -->
       <div
@@ -427,12 +300,14 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3"; 
 import axios from "axios";
 
 export default {
   name: "AvailableUnits",
   components: {
     SideNav,
+    BModal,
     AppHeader,
   },
   data() {
@@ -442,7 +317,9 @@ export default {
       siteName: "",
       siteYear: "",
       isModalVisible: false,
-      selectedUnit: null,
+      selectedUnit: {
+        images: null, // Initially null
+      },
       isReserveModalVisible: false,
       reservationForm: {
         customerName: "",
@@ -525,6 +402,9 @@ export default {
     });
   },
 },
+  created() {
+      this.fetchImages(); // Fetch images when the component is created
+  },
 
   methods: {
     async fetchAvailableUnits() {
@@ -572,6 +452,22 @@ export default {
         }
       } catch (error) {
         this.errorMessage = "Failed to fetch customer data.";
+      }
+    },
+
+    async fetchImages() {
+      try {
+        // Replace with your actual API endpoint
+        const response = await fetch("https://api.example.com/units/123/images");
+
+        // Assuming the API returns an array of image URLs
+        const data = await response.json();
+
+        // Update the images array
+        this.selectedUnit.images = data.images; // Use the correct field from your API response
+      } catch (error) {
+        console.error("Error fetching images:", error);
+        this.selectedUnit.images = []; // Fallback to an empty array on error
       }
     },
 
@@ -896,6 +792,38 @@ body {
   background-color: white;
   color: #333;
 }
+
+.carousel-inner img {
+  max-height: 400px; /* Adjust as needed */
+  object-fit: cover;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background-color: transparent; /* Remove the background color */
+  color: inherit; /* Remove the default text color change */
+  border: none; /* Remove any border if present */
+}
+
+.property-price {
+  font-size: 2rem;
+  color: black;
+}
+
+.property-header {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.line {
+    border-top: 2px solid #000; /* Adjust thickness and color */
+    width: 100%; /* Full-width */
+    margin: 0 auto; /* Center it */
+}
+
+
+
+/* juju */
 
 .popup-overlay {
   position: fixed;
