@@ -137,7 +137,8 @@ export default {
           },
           
         ];
-      } else {
+      }
+      else {
         this.menuItems = [
           { name: "Home", link: "/home" },
           { name: "About", link: "/about" },
