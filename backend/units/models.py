@@ -161,6 +161,20 @@ class Unit(models.Model):
         if self.lot_area is not None and self.lot_area <= 0:
             raise ValueError("Lot area must be a positive value.")
 
+        # Pull default values from the Site if not set
+        if not self.commission:
+            self.commission = self.site.commission
+        if not self.spot_discount_percentage:
+            self.spot_discount_percentage = self.site.spot_discount_percentage
+        if not self.spot_discount_flat:
+            self.spot_discount_flat = self.site.spot_discount_flat
+        if not self.reservation_fee:
+            self.reservation_fee = self.site.reservation_fee
+        if not self.other_charges:
+            self.other_charges = self.site.other_charges
+        if not self.vat_percentage:
+            self.vat_percentage = self.site.vat_percentage
+
         # Auto-generate unit number if not set
         if not self.unit_number:
             unit_count = Unit.objects.filter(floor=self.floor).count() + 1

@@ -16,18 +16,32 @@
         <div v-if="loading" class="loading-message">Loading data...</div>
 
         <div v-if="error" class="error-message">{{ error }}</div>
-
         <div class = "dashboard-boxes" v-else>
           <div class = "box">
-            <p>Total Sales</p>
+            <div class = "box-header">
+              <div class = "icon-container">
+                <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
+              </div>
+              <p>Total Sales</p>
+            </div>
             <h2>{{ totalSales }}</h2>
           </div>
           <div class = "box">
-            <p>Total Commissions</p>
+            <div class = "box-header">
+              <div class = "icon-container">
+                <i class="fa fa-money-bill" style="font-size: 13px"></i>
+              </div>
+              <p>Total Commissions</p>
+            </div>
             <h2>{{ totalCommissions }}</h2>
           </div>
           <div class = "box">
-            <p>Total Milestones</p>
+            <div class = "box-header">
+              <div class = "icon-container">
+                <i class="fas fa-flag" style="font-size: 13px"></i>
+              </div>
+              <p>Total Milestones</p>
+            </div>
             <h2>{{ totalMilestones }}</h2>
           </div>
         </div>
@@ -50,7 +64,7 @@
                 @click="openModal(site)"
               >
               <img
-                  :src="site.picture || 'https://via.placeholder.com/100'"
+                  :src="site.picture ||  require('@/assets/home.png')"
                   alt="Site Image"
                   class = "site-image"
                 />
@@ -345,7 +359,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 
@@ -393,13 +407,37 @@ body {
 
 .dashboard-boxes {
   display: grid;
+  /* Use grid for responsive layout */
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* Responsive grid */
   gap: 20px;
-  margin-top: 20px; /* Adds more space at the top */
-  margin-bottom: 20px; /* Keeps bottom margin as is */
+  /* Add spacing between boxes */
+  max-width: 1100px;
+  width: 100%;
+  /* Set a max width */
+  margin: 0 auto;
+  /* Center the container horizontally */
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  /* Space between icon and title */
+}
+
+.box h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
 }
 
 .box {
+  position: relative;
+  /* Make the box a positioning context */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -408,14 +446,31 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.box p {
-  font-size: 14px;
-  color: #666;
+.box-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 15px;
+  margin: 0;
 }
 
-.box h2 {
-  font-size: 24px;
-  margin: 10px 0 0;
+.icon-container {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* Make the icon circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.box-header p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #000000;
 }
 
 .outside-headers {

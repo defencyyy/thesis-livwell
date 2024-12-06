@@ -105,6 +105,10 @@
             <p class="site-location">
               {{ site.location || "Location unavailable" }}
             </p>
+
+            <p class="site-location">
+              {{ site.status || "Status unavailable" }}
+            </p>
           </div>
         </div>
 
@@ -944,13 +948,7 @@ export default {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     constructLocation(site) {
-      const addressParts = [
-        site.region,
-        site.province,
-        site.municipality,
-        site.barangay,
-        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
-      ];
+      const addressParts = [site.province, site.municipality, site.barangay];
       return addressParts.filter(Boolean).join(", "); // Join non-empty parts
     },
     async loadRegionData() {

@@ -40,11 +40,18 @@ class Site(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Pricing Defaults
+    commission = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True,
+        help_text="Commission earned when the unit is sold"
+    )
     spot_discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     spot_discount_flat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
     reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    
+    # Maximum months (e.g., for loan term)
+    maximum_months = models.PositiveIntegerField(default=360, help_text="Maximum months for payment term (e.g., 360 for 30 years)")
 
     def __str__(self):
         return self.name
@@ -59,6 +66,18 @@ class Site(models.Model):
             f"Postal Code: {self.postal_code}" if self.postal_code else None, 
         ]
         return ', '.join(filter(None, address_parts))
+
+    @property
+    def total_units(self):
+        # Import Unit here to avoid circular import issues
+        from units.models import Unit
+        return Unit.objects.filter(site=self).count()
+
+    @property
+    def available_units(self):
+        # Import Unit here to avoid circular import issues
+        from units.models import Unit
+        return Unit.objects.filter(site=self, status='Available').count()
 
     def create_units(self, units_per_floor, template=None):
         from units.models import Unit
@@ -103,11 +122,10 @@ class Site(models.Model):
         Unit.objects.bulk_create(created_units)
         return len(created_units)
 
-
-    
 class Floor(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="floors")
     floor_number = models.PositiveIntegerField()
 
     def __str__(self):
         return f"Floor {self.floor_number} - {self.site.name}"
+        

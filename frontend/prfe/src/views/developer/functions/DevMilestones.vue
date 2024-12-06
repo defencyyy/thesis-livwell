@@ -676,13 +676,13 @@ body {
   margin-left: 250px;
   flex-direction: column;
   flex: 1;
-  margin-top: 60px;
   padding: 20px;
 }
 
 .content {
   flex: 1;
   text-align: center;
+  margin-top: 60px;
 }
 
 .title-wrapper {

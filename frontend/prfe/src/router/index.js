@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
+// import NotFoundComponent from "@/components/NotFoundComponent.vue"; // Adjust the path as necessary
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -16,6 +17,8 @@ import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
 import DevFuncSites from "@/views/developer/functions/DevSites.vue";
 import DevFuncUnits from "@/views/developer/functions/DevUnits.vue";
 import DevUnitTemplates from "@/views/developer/functions/DevUnitTemplates.vue";
+import DevUnitManagement from "@/views/developer/functions/DevUnitManagement.vue";
+import DevUnitTypes from "@/views/developer/functions/DevUnitTypes.vue";
 import DevFuncCustomers from "@/views/developer/functions/DevCustomers.vue";
 import DevFuncDocuments from "@/views/developer/functions/DevDocuments.vue";
 import DevFuncMilestones from "@/views/developer/functions/DevMilestones.vue";
@@ -93,11 +96,25 @@ const routes = [
     meta: { requiresAuth: true, role: "developer" },
   },
   {
-    path: "/developer/units",
+    path: "/developer/units/templates",
     name: "DevUnitTemplates",
     component: DevUnitTemplates,
     meta: { requiresAuth: true, role: "developer" },
   },
+  {
+    path: "/developer/units/types",
+    name: "DevUnitTypes",
+    component: DevUnitTypes,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+  {
+    path: "/developer/units/management/:siteId",
+    name: "DevUnitManagement",
+    component: DevUnitManagement,
+    props: true,
+    meta: { requiresAuth: true, role: "developer" },
+  },
+
   {
     path: "/developer/customers",
     name: "DevFuncCustomers",
