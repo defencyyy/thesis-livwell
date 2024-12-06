@@ -492,7 +492,6 @@ export default {
         // Filter customers by name or customer code
         this.filteredCustomers = this.customers.filter((customer) => {
           const customerName = customer.customer_name.toLowerCase();
-          console.log(customerName);
           const customerCode = customer.customer_code
             ? customer.customer_code.toLowerCase()
             : ""; // Assuming customer code is in customer_code field
