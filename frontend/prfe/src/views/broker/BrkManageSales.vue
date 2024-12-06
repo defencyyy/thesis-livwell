@@ -139,103 +139,97 @@
           </div>
           
           <div v-else>
-            <p><strong>Customer:</strong> {{ selectedSale.customer_name }}</p>
-            <p><strong>Site:</strong> {{ selectedSale.site_name }}</p>
-            <p><strong>Unit:</strong> {{ selectedSale.unit_title }}</p>
-            <div v-if="salesDetailsExists">
-                <p>
-                  <strong>Payment Plan:</strong>
-                  {{ salesDetails.payment_plan }}
-                </p>
-                <p>
-                  <strong>Unit Price:</strong> ₱{{ salesDetails.unit_price }}
-                </p>
-                <p>
-                  <strong>Spot Discount Percentage:</strong>
-                  {{ salesDetails.spot_discount }}%
-                </p>
-                <p><strong>Spot Discount:</strong> ₱{{ this.spotDiscount }}</p>
-                <p>
-                  <strong>Unit Price after Spot Discount:</strong> ₱{{
-                    this.unitPriceAfterSpotDiscount
-                  }}
-                </p>
-                <p>
-                  <strong>TLP Discount Percentage:</strong>
-                  {{ salesDetails.tlp_discount }}%
-                </p>
-                <p>
-                  <strong>TLP Discount:</strong> ₱{{ this.tlpDiscountAmount }}
-                </p>
-                <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-                <p>
-                  <strong>Other Charges Percentage:</strong>
-                  {{ salesDetails.other_charges_percent }}%
-                </p>
-                <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-                <p v-if="netUnitPrice > 3600000">
-                  <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-                </p>
-                <p>
-                  <strong>Total Amount Payable:</strong> ₱{{
-                    totalAmountPayable
-                  }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Spot Downpayment Percentage:</strong>
-                  {{ salesDetails.spot_downpayment_percent }}%
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-                </p>
-                <p>
-                  <strong>Reservation Fee:</strong> ₱{{
-                    salesDetails.reservation_fee
-                  }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Spot Cash'">
-                  <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Spread Downpayment Percentage:</strong>
-                  {{ salesDetails.spread_downpayment_percent }}%
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Payable Months:</strong>
-                  {{ salesDetails.payable_months }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
-                </p>
-                <p v-if="salesDetails.payment_plan === 'Deffered Payment'">
-                  <strong>Balance Upon Turnover:</strong> ₱{{
-                    balanceUponTurnover
-                  }}
-                </p>
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class = "customer-title">Customer</h6>
+                <h4> {{ selectedSale.customer_name }} </h4>
+              </div>
+              <div class="col-md-6">
+                <h6 class = "customer-title">Site</h6>
+                <h4> {{ selectedSale.site_name }} </h4>
+                <h6 class = "customer-title">Unit</h6>
+                <h4> {{ selectedSale.unit_title }} </h4>
+              </div>
+            </div>
 
-                <div
-                class="d-flex justify-content-end gap-2 mt-30"
-                style="padding-top: 15px"
-                >
-                <button
-                  v-if="
-                    selectedSale.status !== 'Pending Sold' &&
-                    selectedSale.status !== 'Sold'
-                  "
-                  @click="markUnitAsSold"
-                  class = "btn-add"
-                >
-                  Mark Unit as Sold
-                </button>
-                <button @click="closeModal" class = "btn-cancel">Close</button>
+            <div v-if="salesDetailsExists">
+              <br>
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class = "customer-title">Unit Price</h6>
+                  <h5> ₱{{ salesDetails.unit_price }} </h5>
+                </div>
+                <div class="col-md-6">
+                  <h6 class = "customer-title">Payment Plan</h6>
+                  <h5> {{ salesDetails.payment_plan }} </h5>
                 </div>
               </div>
+              <br>
+              <div class="info-box">
+                <h6 class="fw-bold">Spot Discount</h6>
+                <ul class="list-unstyled mb-0">
+                  <li><strong>Spot Discount Percentage:</strong> {{ salesDetails.spot_discount }}%</li>
+                  <li><strong>Spot Discount:</strong> ₱{{ this.spotDiscount }}</li>
+                  <li><strong>Unit Price after Spot Discount:</strong> ₱{{
+                    this.unitPriceAfterSpotDiscount
+                  }}</li>
+                </ul>
+              </div>
+
+              <div class="info-box">
+                <h6 class="fw-bold">TLP Discount</h6>
+                <ul class="list-unstyled mb-0">
+                  <li><strong>TLP Discount Percentage:</strong> {{ salesDetails.tlp_discount }}%</li>
+                  <li><strong>TLP Discount:</strong> ₱{{ this.tlpDiscountAmount }}</li>
+                  <li><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }} </li>
+                </ul>
+              </div>
+
+              <div class="info-box">
+                <h6 class="fw-bold">Other Charges</h6>
+                <ul class="list-unstyled mb-0">
+                  <li><strong>Other Charges Percentage:</strong> {{ salesDetails.other_charges_percent }}%</li>
+                  <li><strong>Other Charges:</strong> ₱{{ otherCharges }}</li>
+                  <li><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }} </li>
+                </ul>
+              </div>
+
+              <div class="info-box">
+                <!-- <h6 class="fw-bold">Other Charges</h6> -->
+                <ul class="list-unstyled mb-0">
+                  <li v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</li>
+                  <li><strong>Total Amount Payable:</strong> ₱{{totalAmountPayable}}</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetails.spot_downpayment_percent }}% </li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</li>
+                  <li><strong>Reservation Fee:</strong> ₱{{salesDetails.reservation_fee}}</li>
+                  <li v-if="salesDetails.payment_plan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetails.spread_downpayment_percent }}%</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetails.payable_months }}</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</li>
+                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{balanceUponTurnover}}</li>
+                </ul>
+              </div>
+
+              <div
+              class="d-flex justify-content-end gap-2 mt-30"
+              style="padding-top: 15px"
+              >
+              <button
+                v-if="
+                  selectedSale.status !== 'Pending Sold' &&
+                  selectedSale.status !== 'Sold'
+                "
+                @click="markUnitAsSold"
+                class = "btn-add"
+              >
+                Mark Unit as Sold
+              </button>
+              <button @click="closeModal" class = "btn-cancel">Close</button>
+              </div>
+              </div>
+              
               <div v-if="!salesDetailsExists">
                 <div class="form-group">
                   <br>
@@ -1459,6 +1453,17 @@ body {
   color: #333;
 }
 
+.customer-title{
+  color: #6c757d;
+  margin-bottom: 1px;
+}
+
+.info-box {
+  background-color: #f8f9fa; /* Light gray background */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Padding for spacing */
+  margin-bottom: 15px; /* Spacing between boxes */
+}
 
 /* juju end */
 
