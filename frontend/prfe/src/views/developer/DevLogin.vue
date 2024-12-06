@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="hero overlay">
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-xl-10">
@@ -10,7 +10,7 @@
                   <form @submit.prevent="login">
                     <br />
                     <h2 class="text-start">Hello, Developer!</h2>
-                    <p class="text-start">
+                    <p class="text-start underline">
                       Welcome back! Please enter your details.
                     </p>
                     <br />
@@ -42,22 +42,26 @@
                     <div
                       class="d-flex justify-content-between align-items-center mb-4"
                     >
-                      <div class="flex-grow-1"></div>
+                      <div class="d-flex-grow-1"></div>
                       <router-link
                         class="text-muted"
                         to="/developer/forgot-password"
-                      >
-                        Forgot Password
+                      >Forgot Password
                       </router-link>
+
+                      <div class="flex-grow-1"></div>
+                      <router-link class="text-muted" to="/home"
+                        >Back to home</router-link
+                      >
                     </div>
 
                     <div class="text-center pt-1 mb-5 pb-1">
                       <button
-                        class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3"
+                       class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
                         :disabled="loading"
                         type="submit"
                       >
-                        Sign in
+                        Log In
                       </button>
                     </div>
 
@@ -65,10 +69,10 @@
                   </form>
 
                   <!-- Add the Return and Switch to Broker buttons -->
-                  <div class="d-flex justify-content-between mt-4">
-                    <router-link to="/home" class="btn btn-outline-secondary">
+                  <div class="text-center mt-4">
+                    <!-- <router-link to="/home" class="btn btn-outline-secondary">
                       Return
-                    </router-link>
+                    </router-link> -->
                     <router-link
                       to="/broker/login"
                       class="btn btn-outline-primary"
@@ -78,19 +82,26 @@
                   </div>
                 </div>
               </div>
-              <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
-                <div class="text-white px-3 py-4 p-md-5 mx-md-4">
+              <div class="col-lg-6 d-flex align-items-center gradient-custom-2 custom-bg-color"
+              style="border-radius: 8px"
+              >
+                <div  class="text-black px-3 py-4 p-md-5 mx-md-4">
                   <div
                     style="
-                      width: 120px;
-                      height: 120px;
-                      background-color: white;
+                      width: 250px;
+                      height: 200px;
+
+                      background-image: url(https://sid.dmcihomes.com/images/OnlineCRF/DMCI2019.png);
+                      background-size: contain; /* Ensures the image scales to fit the div without cropping */
+                      background-position: center; /* Centers the image within the div */
+                      background-repeat: no-repeat;
+
                       border-radius: 50%;
-                      margin: 0 auto 20px;
+                      margin: 0 auto 0px;
                     "
                   ></div>
-                  <h4 class="mb-4">Company Name</h4>
-                  <p class="small mb-0">
+                  <h4 class="mb-4 text-white">Company Name</h4>
+                  <p class="small mb-0 text-white">
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit,
                     sed do eiusmod tempor incididunt ut labore et dolore magna
                     aliqua.
@@ -181,12 +192,44 @@ export default {
 </script>
 
 <style>
-.gradient-custom-2 {
-  background: red;
+.overlay {
+  border-image:  linear-gradient(to bottom, rgba(25, 128, 255, 0.4), rgba(44, 171, 255, 0.7)) 
+    fill 1;
 }
 
-.form-label {
-  text-align: left !important;
-  display: block;
+/* bg of the main page */
+.hero {
+  background-image: url("https://wp-assets.dotproperty-kh.com/wp-content/uploads/sites/2/2021/03/24111936/The-Seasons-Residences-Metro-Manila.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-block-size: 100vh;
+  place-content: center;
+  text-align: center;
+}
+
+.custom-bg-color {
+  background-color:rgb(53, 118, 202) !important;
+}
+
+/* underline after the welcome back */
+.underline {
+  border-bottom: 1px solid #5e5e5e;
+}
+
+@layer general-styling {
+  html {
+    color-scheme: dark light;
+    font-family: system-ui;
+    line-height: 1.6;
+  }
+
+  body {
+    font-size: 2rem;
+    margin: 1rem;
+  }
+
+  h1 {
+    line-height: 1;
+  }
 }
 </style>

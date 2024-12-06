@@ -51,14 +51,14 @@
                         >Forgot Password</router-link
                       >
                       <div class="flex-grow-1"></div>
-                      <router-link class="text-muted" to="/broker/dashboard"
+                      <router-link class="text-muted" to="/home"
                         >Back to home</router-link
                       >
                     </div>
 
                     <div class="text-center pt-1 mb-5 pb-1">
                       <button
-                        class="btn btn-warning w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
+                        class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
                         :disabled="loading"
                         type="submit"
                       >
@@ -99,8 +99,8 @@
                       margin: 0 auto 0px;
                     "
                   ></div>
-                  <h4 class="mb-4">DMCI HOMES INC.</h4>
-                  <p class="small mb-0">
+                  <h4 class="mb-4 text-white">Company Name</h4>
+                  <p class="small mb-0 text-white">
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit,
                     sed do eiusmod tempor incididunt ut labore et dolore magna
                     aliqua.
@@ -190,23 +190,22 @@ export default {
 <style>
 /* Add a background image to the body or container */
 .overlay {
-  border-image: linear-gradient(hsla(110, 100%, 81%, 0.6), hsla(0, 0%, 61%, 0.6))
+  border-image:  linear-gradient(to bottom, rgba(25, 128, 255, 0.4), rgba(44, 171, 255, 0.7)) 
     fill 1;
 }
 
 /* bg of the main page */
 .hero {
-  background-image: url("https://images.unsplash.com/photo-1697229299093-c920ab53bfb1?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTU2OTIzNzZ8&ixlib=rb-4.0.3&q=85");
+  background-image: url("https://assets.entrepreneur.com/content/3x2/2000/20150622231001-for-sale-real-estate-home-house.jpeg");
   background-size: cover;
   background-repeat: no-repeat;
-
   min-block-size: 100vh;
   place-content: center;
   text-align: center;
 }
 
 .custom-bg-color {
-  background-color: #d4d6cd !important;
+  background-color:rgb(53, 118, 202) !important;
 }
 
 /* underline after the welcome back */
