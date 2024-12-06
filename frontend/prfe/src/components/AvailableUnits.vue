@@ -73,16 +73,6 @@
     </div>
 
 
-    <!-- Success Message Pop-up -->
-    <div
-      v-if="successMessage"
-      class="success-message"
-      :class="{ show: showSuccessMessage }"
-    >
-      <p>{{ successMessage }}</p>
-      <button @click="closePopup" class="ok-btn">OK</button>
-    </div>
-
       <!-- Unit Details Modal -->
       <b-modal
       id="unitDetailsModal"
@@ -425,6 +415,22 @@
         Reserve Unit
       </button>
     </div>
+
+    <!-- Success Message Pop-up -->
+
+    <b-modal
+      v-model="showSuccessMessage"
+      title="Reservation Submitted"
+      @hide="closePopup"
+      centered
+      hide-footer
+      :visible="successMessage"
+      >
+        <p>{{ successMessage }}</p>
+        <div class = "buttons-container">
+          <button @click="closePopup" class="btn btn-primary">OK</button>
+        </div>
+    </b-modal>
 
     <!-- Reserve Unit Modal -->
     <b-modal
@@ -1150,6 +1156,10 @@ body {
   background-color: #495057;  /* Slightly lighter gray */
   color: #fff;
   border: none;
+}
+
+.buttons-container {
+  text-align: right;
 }
 
 /* juju */
