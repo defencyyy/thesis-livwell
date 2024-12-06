@@ -2,11 +2,14 @@
   <div class="main-page">
     <SideNav />
     <div class="main-content">
-      <AppHeader />
+      <AppHeader />  
       <div class="content">
-        <h1 class="display-5 fw-bolder text-capitalize">
-        Available units
-        </h1>
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Available Sites</div>
+          </div>
+        </div>
          <div
           class="card border-0 rounded-1 mx-auto"
           style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -41,25 +44,38 @@
         </div>
         </div>
         </div>
-        
-        <div v-if="filteredSites.length" class="site-sales">
-  <div class="site-card-container">
-    <div
-      v-for="site in filteredSites"
-      :key="site.id"
-      class="site-card"
-      @click="() => redirectToUnits(site.id)"
-    >
-      <img :src="site.picture" alt="Site Picture" />
-      <h2 class="display-6 fw-bolder text-capitalize">{{ site.name }}</h2>
-      <p class="text-start">{{ site.description }}</p>
-      <p class="text-start"><b>Location: </b>{{ site.location }}</p>
-    </div>
-  </div>
-</div>
-<div v-else>
-  <p>No sites with available units.</p>
-</div>
+
+        <div v-if = "filteredSites.length" class = "site-grid">
+          <div
+            v-for="site in filteredSites"
+            :key="site.id || index"
+            class="site-card"
+            @click="() => redirectToUnits(site.id)"
+          >
+
+            <!-- Site Image -->
+            <img
+              :src="site.picture || require('@/assets/home.png')"
+              alt="Site Image"
+              class="site-image"
+            />
+
+            <!-- Site Name -->
+            <h2 class="site-name">
+              {{ site.name || "Unknown" }}
+            </h2>
+
+            <!-- Site Location -->
+            <p class="site-location">
+              {{ site.location || "Location unavailable" }}
+            </p>
+          </div>
+        </div>
+
+        <div v-else>
+          <p>No sites with available units.</p>
+        </div>
+
 
       </div>
     </div>
@@ -228,7 +244,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 
@@ -249,38 +265,79 @@ body {
   text-align: center;
 }
 
-.site-sales {
-  margin-top: 20px;
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
-.site-card-container {
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.site-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  /* Matches the max-width of the card */
   margin: 0 auto;
+  /* Centers the grid within the parent */
 }
 
 .site-card {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px;
+  background: #fff;
+  padding: 16px;
   text-align: center;
   cursor: pointer;
-  transition: box-shadow 0.3s;
-  background-color: rgb(253, 253, 253);
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
 }
 
 .site-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background: rgb(230, 230, 230);
+  transform: translateY(-2px);
 }
 
-.site-card img {
+.site-image {
   width: 100%;
   height: 150px;
   object-fit: cover;
-  border-radius: 4px;
+  /* Ensures the image is cropped to fit the area */
+  border-radius: 12px;
+  margin-bottom: 10px;
 }
+
+.site-info {
+  flex-direction: row;
+}
+
+.site-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.site-location {
+  font-size: 14px;
+  color: #777;
+}
+
 .toolbar {
   display: flex;
   gap: 10px;
