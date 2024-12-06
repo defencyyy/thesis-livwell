@@ -426,104 +426,106 @@
       </button>
     </div>
 
-      <!-- Reserve Unit Modal -->
-      <div
-        v-if="isReserveModalVisible"
-        class="modal-overlay"
-        @click="closeReserveModal"
-      >
-        <div class="modal-content" @click.stop>
-          <h3>Reserve Unit</h3>
-          <!-- Success Message Pop-up -->
-          <form @submit.prevent="submitReservation">
-            <!-- Customer Name Dropdown -->
-            <div class="form-group">
-              <label for="customerName">Customer Name</label>
-              <select
-                v-model="reservationForm.customerName"
-                id="customerName"
-                required
-              >
-                <option value="" disabled selected>Select Customer</option>
-                <option
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  :value="customer.id"
-                >
-                  {{ customer.name }} ({{ customer.customer_code }})
-                </option>
-              </select>
-            </div>
-            <!-- File Upload -->
-            <div class="form-group">
-              <label for="fileUpload">Upload File (Required)</label>
-              <input
-                type="file"
-                @change="handleFileUpload"
-                id="fileUpload"
-                required
-              />
-            </div>
-            <!-- Payment Amount -->
-            <div class="form-group">
-              <label for="paymentAmount">Payment Amount</label>
-              <input
-                type="number"
-                v-model="reservationForm.paymentAmount"
-                id="paymentAmount"
-                required
-              />
-            </div>
-            <!-- Payment Method -->
-            <div class="form-group">
-              <label for="paymentMethod">Payment Method</label>
-              <select
-                v-model="reservationForm.paymentMethod"
-                id="paymentMethod"
-                required
-              >
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="cash">Cash</option>
-                <option value="online_payment">Online Payment</option>
-              </select>
-            </div>
-            <!-- Payment Date -->
-            <div class="form-group">
-              <label for="paymentDate">Date of Payment</label>
-              <input
-                type="date"
-                v-model="reservationForm.paymentDate"
-                id="paymentDate"
-                required
-              />
-            </div>
-            <!-- Payment Reference (only if payment method is not cash) -->
-            <div
-              class="form-group"
-              v-if="reservationForm.paymentMethod !== 'cash'"
+    <!-- Reserve Unit Modal -->
+    <b-modal
+      v-model="isReserveModalVisible"
+      @hide="closeReserveModal"
+      hide-footer
+      title="Reserve Unit"
+    >
+      <form @submit.prevent="submitReservation">
+        <!-- Customer Name Dropdown -->
+        <div class="form-group">
+          <label for="customerName">Customer Name</label>
+          <select
+            v-model="reservationForm.customerName"
+            id="customerName"
+            required
+          >
+            <option value="" disabled selected>Select Customer</option>
+            <option
+              v-for="customer in customers"
+              :key="customer.id"
+              :value="customer.id"
             >
-              <label for="paymentReference">Payment Reference Number</label>
-              <input
-                type="text"
-                v-model="reservationForm.paymentReference"
-                id="paymentReference"
-                required
-              />
-            </div>
-            <!-- Submit Button -->
-            <div class="form-group">
-              <button type="submit" class="submit-btn">
-                Submit Reservation
-              </button>
-            </div>
-          </form>
-          <div v-if="errorMessage" class="modal-overlay">
-            <p>{{ errorMessage }}</p>
-            <button @click="closeModal">Close</button>
-          </div>
-          <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
+              {{ customer.name }} ({{ customer.customer_code }})
+            </option>
+          </select>
         </div>
+        <!-- File Upload -->
+        <div class="form-group">
+          <label for="fileUpload">Upload File (Required)</label>
+          <input
+            type="file"
+            @change="handleFileUpload"
+            id="fileUpload"
+            required
+          />
+        </div>
+        <!-- Payment Amount -->
+        <div class="form-group">
+          <label for="paymentAmount">Payment Amount</label>
+          <input
+            type="number"
+            v-model="reservationForm.paymentAmount"
+            id="paymentAmount"
+            required
+          />
+        </div>
+        <!-- Payment Method -->
+        <div class="form-group">
+          <label for="paymentMethod">Payment Method</label>
+          <select
+            v-model="reservationForm.paymentMethod"
+            id="paymentMethod"
+            required
+          >
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="online_payment">Online Payment</option>
+          </select>
+        </div>
+        <!-- Payment Date -->
+        <div class="form-group">
+          <label for="paymentDate">Date of Payment</label>
+          <input
+            type="date"
+            v-model="reservationForm.paymentDate"
+            id="paymentDate"
+            required
+          />
+        </div>
+        <!-- Payment Reference (only if payment method is not cash) -->
+        <div
+          class="form-group"
+          v-if="reservationForm.paymentMethod !== 'cash'"
+        >
+          <label for="paymentReference">Payment Reference Number</label>
+          <input
+            type="text"
+            v-model="reservationForm.paymentReference"
+            id="paymentReference"
+            required
+          />
+        </div>
+        <!-- Submit Button -->
+        <div class="form-group">
+          <button type="submit" class="submit-btn">
+            Submit Reservation
+          </button>
+        </div>
+      </form>
+      
+      <!-- Error Message -->
+      <div v-if="errorMessage">
+        <p>{{ errorMessage }}</p>
+        <b-button @click="closeModal" variant="secondary">Close</b-button>
       </div>
+      
+      <!-- Cancel Button -->
+      <b-button @click="closeReserveModal" variant="danger">Cancel</b-button>
+    </b-modal>
+
       </b-modal>
   </div>
   </div>
