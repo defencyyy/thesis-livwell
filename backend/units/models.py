@@ -186,6 +186,11 @@ class Unit(models.Model):
 
         super().save(*args, **kwargs)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['site', 'status']),
+        ]
+
     def __str__(self):
         return f"{self.site.name} - {self.unit_title}"
 

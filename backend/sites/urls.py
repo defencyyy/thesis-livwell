@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SiteListView, SiteDetailView, StatusOptionsView, ArchivedSiteView
+from .views import SiteListView, SiteDetailView, StatusOptionsView, ArchivedSiteView, SiteWithFloorCountsView
 from .location import get_location_data
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     path('status-options/', StatusOptionsView.as_view(), name='status-options'),
     path('archived/', ArchivedSiteView.as_view(), name='archived-sites-list'),
     path('archived/<int:pk>/', ArchivedSiteView.as_view(), name='archive-site'),
+    path('<int:site_id>/floors/', SiteWithFloorCountsView.as_view(), name='site-floor-counts'),
 ]

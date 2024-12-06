@@ -33,10 +33,10 @@
               <h4>Floor {{ floor.floor_number }}</h4>
               <!-- Total Units and Available Units -->
               <div class="site-summary">
-                <p><strong>Total Units:</strong> {{ totalUnits }}</p>
+                <p><strong>Total Units:</strong> {{ floor.total_units }}</p>
                 <p>
                   <strong>Total Available Units:</strong>
-                  {{ totalAvailableUnits }}
+                  {{ floor.available_units }}
                 </p>
               </div>
               <button @click="openUnitManagement(floor)">Manage Units</button>
@@ -46,6 +46,29 @@
         <div v-else>
           <p>Loading site details...</p>
         </div>
+
+        <!-- Unit Management Modal -->
+        <b-modal
+          id="unit-management-modal"
+          title="Manage Units"
+          v-model="showUnitManagementModal"
+          ok-title="Close"
+          @ok="closeUnitManagementModal"
+        >
+          <div v-if="unitsData.length > 0">
+            <h4>Units on Floor {{ selectedFloor?.floor_number }}</h4>
+            <ul>
+              <li v-for="unit in unitsData" :key="unit.id">
+                <p><strong>Unit Title:</strong> {{ unit.unit_title }}</p>
+                <p><strong>Status:</strong> {{ unit.status }}</p>
+                <!-- Add other unit details as necessary -->
+              </li>
+            </ul>
+          </div>
+          <div v-else>
+            <p>No units available on this floor.</p>
+          </div>
+        </b-modal>
 
         <!-- Add Units Modal -->
         <b-modal
@@ -255,6 +278,7 @@ export default {
       showAddUnitsModal: false,
       unitTypes: [],
       site: null,
+      floors: [],
       selectedFloors: [],
       newUnitFloor: null,
       newUnitFloors: [],
@@ -291,6 +315,10 @@ export default {
         { value: "has balcony", text: "Has Balcony" },
         { value: "no balcony", text: "No Balcony" },
       ],
+      showUnitManagementModal: false, // Controls the visibility of the unit management modal
+      unitsData: [], // Store the units data for the floor
+      totalUnits: 0,
+      totalAvailableUnits: 0,
     };
   },
   computed: {
@@ -313,24 +341,6 @@ export default {
         text: type.name,
       }));
     },
-    // totalUnits() {
-    //   return this.site
-    //     ? this.site.floors.reduce(
-    //         (total, floor) => total + floor.units.length,
-    //         0
-    //       )
-    //     : 0;
-    // },
-    // totalAvailableUnits() {
-    //   return this.site
-    //     ? this.site.floors.reduce(
-    //         (total, floor) =>
-    //           total +
-    //           floor.units.filter((unit) => unit.status === "Available").length,
-    //         0
-    //       )
-    //     : 0;
-    // },
   },
   mounted() {
     if (!this.loggedIn || !this.companyId) {
@@ -351,10 +361,35 @@ export default {
             },
           }
         );
-        console.log(response.data); // Log the full response to check the structure
         this.site = response.data.data;
+
+        if (this.site && this.site.floors) {
+          this.fetchFloorsData();
+        } else {
+          console.error("No floors data available");
+        }
       } catch (error) {
         console.error("Error fetching site details:", error);
+      }
+    },
+    async fetchFloorsData() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/floors/`, // Correct endpoint for floor data
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          this.floors = response.data.data; // This will be an array of floors with total and available unit counts
+        } else {
+          console.error("Error fetching floor data:", response.data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching floors:", error);
       }
     },
     async fetchUnitTypes() {
@@ -409,27 +444,6 @@ export default {
         return;
       }
 
-      console.log("Adding units with the following data:", {
-        floor_ids: this.newUnitFloors, // Ensure this contains valid floor ids
-        quantity: this.newUnitQuantity,
-        unit_type_id: this.newUnitType,
-        unit_title: this.newUnitTitle,
-        bedroom: this.newUnitBedroom,
-        bathroom: this.newUnitBathroom,
-        lot_area: this.newUnitLotArea,
-        floor_area: this.newUnitFloorArea,
-        price: this.newUnitPrice,
-        status: this.newUnitStatus,
-        view: this.newUnitView,
-        balcony: this.newUnitBalcony,
-        commission: this.newUnitCommission,
-        spot_discount_percentage: this.newUnitSpotDiscountPercentage,
-        spot_discount_flat: this.newUnitSpotDiscountFlat,
-        reservation_fee: this.newUnitReservationFee,
-        other_charges: this.newUnitOtherCharges,
-        vat_percentage: this.newUnitVatPercentage,
-      });
-
       try {
         const response = await axios.post(
           "http://localhost:8000/developer/units/bulk-add/",
@@ -468,11 +482,35 @@ export default {
         alert("Failed to add the unit. Please try again.");
       }
     },
-    openUnitManagement(floor) {
-      this.$router.push({
-        name: "UnitManagementPage",
-        params: { floorId: floor.id },
-      });
+    async openUnitManagement(floor) {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/units/floors/${floor.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        console.log(response.data); // Check the structure of the response
+
+        this.selectedFloor = floor;
+        this.unitsData = response.data.data || []; // Ensure data is populated
+
+        // Calculate the total and available units
+        this.totalUnits = this.unitsData.length;
+        this.totalAvailableUnits = this.unitsData.filter(
+          (unit) => unit.status === "Available"
+        ).length;
+
+        this.showUnitManagementModal = true;
+      } catch (error) {
+        console.error("Error fetching units for the floor:", error);
+      }
+    },
+    closeUnitManagementModal() {
+      this.showUnitManagementModal = false; // Close the modal
+      this.unitsData = []; // Reset units data (optional)
     },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });

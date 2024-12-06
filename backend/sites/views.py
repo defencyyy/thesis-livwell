@@ -13,9 +13,6 @@ from .serializers import SiteSerializer
 logger = logging.getLogger(__name__)
 
 def get_developer_company(request):
-    """
-    Helper function to get the company of the logged-in developer.
-    """
     developer = request.user
     if not hasattr(developer, 'company'):
         return None
@@ -198,3 +195,12 @@ class ArchivedSiteView(APIView):
                 {"error": "Site not found or not archived."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+class SiteWithFloorCountsView(APIView):
+    def get(self, request, site_id):
+        try:
+            site = Site.objects.get(id=site_id)  # Get the site by ID
+            floor_data = site.floors_with_unit_counts()  # Call the method to get the floor data
+            return Response({"success": True, "data": floor_data}, status=status.HTTP_200_OK)
+        except Site.DoesNotExist:
+            return Response({"error": "Site not found"}, status=status.HTTP_404_NOT_FOUND)
