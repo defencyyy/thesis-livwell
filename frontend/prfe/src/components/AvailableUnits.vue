@@ -536,13 +536,12 @@
       </form>
       
       <!-- Error Message -->
-      <div v-if="errorMessage">
-        <p>{{ errorMessage }}</p>
-        <b-button @click="closeModal" variant="secondary">Close</b-button>
-      </div>
-    </b-modal>
-
+       <div v-if="errorMessage" class="modal-overlay">
+            <p>{{ errorMessage }}</p>
+            <button @click="closeModal">Close</button>
+          </div>
       </b-modal>
+     </b-modal>
   </div>
   </div>
 </div>
