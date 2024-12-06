@@ -1,109 +1,60 @@
 <template>
-  <div class="container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <nav>
-        <ul>
-          <li :class="{ active: activeTab === 'document-status' }">
-            <a href="#" @click.prevent="setActiveTab('document-status')">
-              Document Status
-            </a>
-          </li>
-          <li :class="{ active: activeTab === 'payment-schedule' }">
-            <a href="#" @click.prevent="setActiveTab('payment-schedule')">
-              Payment Schedule
-            </a>
-          </li>
-        </ul>
-      </nav>
+  <div>
+    <!-- Header -->
+    <div class = "header">
+      <div class="top-bar">
+        <div class="welcome-text">Welcome Back, <b>Customer!</b></div>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="content">
-      <!-- Document Status Content -->
-      <div v-if="activeTab === 'document-status'" class="tab-content">
-        <div v-if="salesDetail" class="details-card">
-            <p>{{ salesDetail.customer_name }}</p>
-            <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
-            <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>
-            <p>Documents Needed: Please Submit The Following Documents To Complete The Process</p>
-          <div v-if="documentTypes.length">
-        <table class="documents-table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Document Status</th>
-              <th>Date Submitted</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="doc in documents" :key="doc.id">
-                  <td><strong>{{ doc.document_type_name }}</strong></td>
-                  <td>{{ doc.status }}</td>
-                  <td>{{ doc.uploaded_at || 'Pending' }}</td>
-                </tr>
-          </tbody>
-        </table>
-      </div>
-      <p v-else>No document types available.</p>
-          <div class="download-button" v-if="salesDetail.reservation_agreement_url">
-            <a
-              :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
-              download
+    <div class = "main-page">
+      <!-- Side Bar -->
+      <div class = "sidebar">
+        <div class = "sidebar-header">
+          <i class="fas fa-cogs sidebar-logo" style="color: #0560fd;"></i> <!-- Font Awesome Icon -->
+          <h4 id="sidebar-title">{{ "Company Name" }}</h4>
+        </div>
+        <nav class = "sidebar-nav">
+          <b-nav vertical pills>
+            <!-- Document Status Tab -->
+            <b-nav-item
+              href="#"
+              @click.prevent="setActiveTab('document-status')"
+              :class="{ active: activeTab === 'document-status' }"
+              exact
+              custom
             >
-              <button>Download Reservation Agreement</button>
-            </a>
-          </div>
-          <p>Ensure that all documents are up-to-date and complete.</p>
-          <p>If you need assitance or have further queries, please contact {{ salesDetail.broker_name }}</p>
-        </div>
-      </div>
-      <!-- Payment Schedule Content -->
-      <div v-if="activeTab === 'payment-schedule'" class="tab-content">
-        
-          <div class="detailed-schedule">
-            <p>{{ salesDetail.customer_name }}</p>
-            <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
-            <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>    
-            <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>  
-            <div v-if="salesDetail.payment_plan === 'Deffered Payment'">    
-            <p>Installment Terms: {{salesDetail.payable_months}} months</p> 
-             <table>
-              <thead>
-                <tr>
-                  <th>Payment Type</th>
-                  <th>Amount (₱)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Spot Downpayment</td>
-                  <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-                </tr>
-                <tr>
-                  <td>Spread Downpayment</td>
-                  <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-                </tr>
-                <tr v-for="month in salesDetail.payable_months" :key="month">
-                  <td>Month {{ month }} Payment</td>
-                  <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-                </tr>
-                <tr>
-                  <td>Balance Upon Turnover</td>
-                  <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          
+              <i class = " menu-icon fas fa-file-alt"></i>
+              <span class = "item-name">Document Status</span>
+            </b-nav-item>
+
+            <!-- Payment Schedule Tab -->
+            <b-nav-item
+              href="#"
+              @click.prevent="setActiveTab('payment-schedule')"
+              :class="{ active: activeTab === 'payment-schedule' }"
+              exact
+              custom
+            >
+              <i class = " menu-icon fas fa-calendar-alt"></i>
+              <span class = "item-name">Payment Schedule</span>
+            </b-nav-item>
+          </b-nav>
+
+        </nav>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
+import { BNav, BNavItem } from "bootstrap-vue-3";
+
 export default {
   name: "SalesDetails",
+  components: { BNav, BNavItem },
   data() {
     return {
       activeTab: "document-status", // Default active tab
@@ -285,227 +236,114 @@ export default {
 </script>
 
 <style scoped>
-h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-button.toggle-button {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-button.toggle-button:hover {
-  background-color: #45a049;
-}
-.detailed-schedule {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th,
-td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-th {
-  background-color: #f2f2f2;
-}.container {
-  display: flex;
-}
-
-.sidebar {
-  width: 200px;
-  background-color: #f8f9fa;
-  padding: 20px;
-  position: fixed; /* Keeps sidebar fixed on the left */
-  height: 100vh; /* Full screen height */
-  top: 0;
-  left: 0;
-}
-
-.sidebar nav ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar nav ul li {
-  margin-bottom: 10px;
-}
-
-.sidebar nav ul li a {
-  text-decoration: none;
-  color: #333;
-  display: block;
-  padding: 10px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.sidebar nav ul li a:hover {
-  background-color: #e9ecef;
-}
-
-.sidebar nav ul li.active a {
-  background-color: #007bff;
-  color: #fff;
-}
-
-.content {
-  margin-left: 220px; /* Add space for sidebar */
-  padding: 20px;
-  width: calc(100% - 220px); /* Ensure content takes up remaining space */
-}
-
-.tab-content {
-  margin-bottom: 20px;
-}
-
-.details-group {
-  margin-bottom: 15px;
-}
-
-/* Style for the content elements */
-h2, h3 {
-  margin-bottom: 20px;
-}
-* {
+html,
+body {
+  height: 100%;
   margin: 0;
+  /* Removes default margin */
   padding: 0;
-  box-sizing: border-box;
+  /* Removes default padding */
 }
 
-h2, h3 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 220px;
-  background-color: #f4f4f4;
-  padding: 20px;
+.top-bar {
+  background-color: #eff4fb;
+  color: #343a40;
+  padding: 12px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: fixed;
   top: 0;
-  left: 0;
-  height: 100vh;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  left: 250px; /* Sidebar width */
+  width: calc(100% - 250px);
+  z-index: 1;
+  height: 68px;
+  margin-top: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow at the bottom */
 }
 
-.sidebar nav ul {
-  list-style: none;
-  padding: 0;
+.welcome-text {
+  font-size: 18px;
 }
 
-.sidebar nav ul li {
-  margin-bottom: 15px;
-}
-
-.sidebar nav ul li a {
-  display: block;
-  padding: 12px;
-  font-size: 16px;
-  color: #333;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.sidebar nav ul li a:hover,
-.sidebar nav ul li.active a {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Content */
-.content {
-  margin-left: 240px;
-  padding: 20px;
-  background-color: #f9f9f9;
+.main-page {
+  display: flex;
   min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #e8f0fa;
+  /* Gray background */
 }
 
-.tab-content {
-  margin-bottom: 30px;
+.sidebar {
+  background-color: white;
+  width: 250px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  z-index: 2;
 }
 
-/* Tables */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  padding: 12px;
-  text-align: left;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
   border-bottom: 1px solid #ddd;
 }
 
-th {
-  background-color: #f8f8f8;
+.sidebar-logo {
+  font-size: 24px;
+  margin-right: 10px;
 }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9;
+#sidebar-title {
+  color: #343a40;
+  font-size: 18px;
+  margin: 0;
 }
 
-tr:hover {
-  background-color: #f1f1f1;
+.sidebar-nav {
+  text-align: left;
+  margin-top: 50px;
+  padding-left: 13px !important;
 }
 
-/* Button */
-button {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.sidebar-nav .nav-item {
+  border-radius: 4px;
 }
 
-button:hover {
-  background-color: #45a049;
+.sidebar-nav .nav-item.active {
+  background-color: #0056b3;
+  color: white !important;
 }
 
-.download-button {
-  margin-top: 20px;
+.sidebar-nav .nav-item.hover {
+  background-color: #f0f0f0;
 }
 
-/* Document List */
-.details-card {
-  background-color: white;
-  padding: 20px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+.menu-icon {
+  width: 20px;
+  text-align: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+  color: #343a40;
 }
 
-.details-card p {
-  margin-bottom: 15px;
-  font-size: 16px;
-  line-height: 1.5;
+.item-name {
+  font-size: 14px;
+  color:#343a40;
 }
 
-.details-card strong {
-  font-weight: bold;
+.active {
+  color: white !important; /* Make both icon and text white when active */
 }
+
+/* Optional: Active hover effect */
+.active:hover {
+  color: white; /* Ensure color stays white on hover */
+}
+/* juju */
+
 
 </style>
