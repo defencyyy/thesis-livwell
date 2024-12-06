@@ -37,11 +37,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="doc in documentTypes" :key="doc.id">
-              <td><strong>{{ doc.name }}</strong></td>
-              <td>1</td> <!-- Example document status, will be replaced later -->
-              <td>1</td> <!-- Example date submitted, will be replaced later -->
-            </tr>
+            <tr v-for="doc in documents" :key="doc.id">
+                  <td><strong>{{ doc.document_type_name }}</strong></td>
+                  <td>{{ doc.status }}</td>
+                  <td>{{ doc.uploaded_at || 'Pending' }}</td>
+                </tr>
           </tbody>
         </table>
       </div>
@@ -121,17 +121,44 @@ export default {
       balanceUponTurnover: 0,
       showDetailedSchedule: false, // To toggle the detailed schedule
       documentTypes: [], // Store the document types fetched from the API
+      documents: [], // Store the documents fetched from the API
     };
   },
   created() {
     const salesDetailUuid = this.$route.params.id; // Get the UUID from the URL
     this.fetchSalesDetail(salesDetailUuid);
     this.fetchDocumentTypes(); // Fetch the document types on component creation
+
   },
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
     },
+    async fetchDocuments() {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
+    );
+    const data = await response.json();
+    if (data.success) {
+      // Update document status based on submission
+      this.documents = this.documentTypes.map((docType) => {
+        const submittedDoc = data.documents.find(
+          (doc) => doc.document_type_name === docType.name
+        );
+        return {
+          document_type_name: docType.name,
+          status: submittedDoc ? "Submitted" : "Pending",
+          uploaded_at: submittedDoc ? new Date(submittedDoc.uploaded_at).toLocaleDateString() : "Pending",
+        };
+      });
+    } else {
+      console.error("Failed to fetch documents:", data.message);
+    }
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+  }
+},
     async fetchSalesDetail(salesDetailUuid) {
       try {
         const response = await fetch(
@@ -148,6 +175,7 @@ export default {
           this.applyOtherCharges();
           this.calculateVAT();
           this.calculateFinancingDetails();
+          this.fetchDocuments(); 
         }
       } catch (error) {
         console.error("Error fetching sales details:", error);

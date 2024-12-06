@@ -845,7 +845,6 @@ def submit_sales(request):
             site_id = request.POST.get('site_id')
             unit_id = request.POST.get('unit_id')
             sales_id=request.POST.get('sales_id')
-            print(sales_id)
             broker_id = request.POST.get('broker_id')
             payment_plan = request.POST.get('payment_plan')
             spot_discount_percent = request.POST.get('spot_discount_percent')
@@ -870,10 +869,7 @@ def submit_sales(request):
                 file_path = default_storage.save(f'reservations/{reservation_agreement.name}', reservation_agreement)
             else:
                 file_path = None
-            
-            sales_instance = get_object_or_404(Sale, id=sales_id)  # This retrieves the Sale instance
-
-            
+                        
 
             # Create a new SalesDetails entry
             sales_detail = SalesDetails.objects.create(
@@ -881,7 +877,7 @@ def submit_sales(request):
                 site_id=site_id,
                 unit_id=unit_id,
                 broker_id=broker_id,
-                sales_id=sales_instance,  # Assign the Sales instance to the foreign key
+                sales_id=sales_id,
                 payment_plan=payment_plan,
                 spot_discount_percent=spot_discount_percent,
                 tlp_discount_percent=tlp_discount_percent,
@@ -924,6 +920,7 @@ def get_sales_detail(request, sales_detail_id):
         'uuid': sales_detail_id,  # Use uuid here instead of id
         'id':sales_detail.id,
         'customer_id': sales_detail.customer_id,
+        'sales_id':sales_detail.sales_id,
         'site_id': sales_detail.site_id,
         'unit_id': sales_detail.unit_id,
         'broker_id': sales_detail.broker_id,
@@ -1111,6 +1108,7 @@ def upload_document(request):
 # Fetch documents for a given customer and sale
 @csrf_exempt
 def fetch_customer_documents(request, customer_id, sales_id):
+    print("l")
     try:
         # Get the customer by ID
         customer = Customer.objects.get(id=customer_id)
