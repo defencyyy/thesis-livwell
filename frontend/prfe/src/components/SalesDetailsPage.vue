@@ -60,12 +60,13 @@
       </div>
       <!-- Payment Schedule Content -->
       <div v-if="activeTab === 'payment-schedule'" class="tab-content">
-        <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
+        
           <div class="detailed-schedule">
             <p>{{ salesDetail.customer_name }}</p>
             <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
             <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>    
-            <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>      
+            <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>  
+            <div v-if="salesDetail.payment_plan === 'Deffered Payment'">    
             <p>Installment Terms: {{salesDetail.payable_months}} months</p> 
              <table>
               <thead>
