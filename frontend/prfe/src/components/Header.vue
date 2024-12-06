@@ -2,9 +2,6 @@
   <div class="top-bar">
     <div class="welcome-text">Welcome Back, <b>{{ roleName }}!</b></div>
     <div class="d-flex align-items-center">
-      <button class="btn-bell">
-        <i class="bi bi-bell"></i>
-      </button>
       <div class="dropdown">
         <a
           href="#"

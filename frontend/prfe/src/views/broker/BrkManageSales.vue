@@ -10,6 +10,31 @@
             <div class="edit-title">Manage Customer Sales</div>
           </div>
         </div>
+         <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
+          <div class="card-body">
+            <div class="row">
+              <!-- Toolbar -->
+              <div class="toolbar">
+                <div class="left-section">
+                  <!-- Search Bar -->
+                  <div class="search-bar-container">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search by Name or Customer Code"
+                      class="search-bar"
+                      @input="filterCustomers"
+                    />
+                    <i class="fa fa-search search-icon"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
   
         <!-- Sales Table -->
         <div style = "margin-top: 50px;">
@@ -29,10 +54,9 @@
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             ">
           <div class = "card-body"> 
-            <table v-if="sales.length > 0" class = "salesCustomer-table">
+            <table v-if="filteredCustomers.length > 0" class="salesCustomer-table">
             <tbody>
-              <tr v-for="sale in sales"
-                :key="sale.id">
+              <tr v-for="sale in filteredCustomers" :key="sale.id">
                 <td>
                   <span class = "customer-name">{{ sale.customer_name }}</span>
                 </td>
@@ -684,6 +708,10 @@ export default {
       notificationTitle: "", // Title for the notification modal (Success/Failure)
       showNotification: false, // Controls the visibility of the notification modal
       showDeleteModal: false, // To toggle the delete modal visibility
+      searchQuery: "", // New property for search input
+      filteredCustomers: [], // Holds the filtered list based on search query
+
+
     };
   },
   mounted() {
@@ -712,6 +740,24 @@ export default {
     },
   },
   methods: {
+    filterCustomers() {
+      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
+
+      if (!query) {
+        // If there's no search query, show all customers
+        this.filteredCustomers = this.sales;
+      } else {
+        // Filter customers by name or customer code
+        this.filteredCustomers = this.sales.filter((customer) => {
+          const customerName = customer.customer_name.toLowerCase();
+          console.log(customerName);
+          const customerCode = customer.customer_code
+            ? customer.customer_code.toLowerCase()
+            : ""; // Assuming customer code is in customer_code field
+          return customerName.includes(query) || customerCode.includes(query);
+        });
+      }
+    },
     toggleDetailedSchedule() {
       // Toggle the visibility of the detailed payment schedule
       this.showDetailedSchedule = !this.showDetailedSchedule;
@@ -749,6 +795,7 @@ export default {
           const data = await response.json();
           if (data.success) {
             this.sales = data.sales; // This should now have customer name, site name, and unit title
+            this.filteredCustomers = this.sales; // Initialize filteredCustomers with all customers
           } else {
             console.error(data.message || "Failed to fetch sales data.");
           }
@@ -880,14 +927,17 @@ export default {
         this.loading = false;
         return; // Stop further processing if validation fails
       }
-      if (
-        this.selectedPaymentPlan === "Deffered Payment" &&
-        this.netDownpayment < 0
-      ) {
+      if (this.selectedPaymentPlan === "Deffered Payment" && this.netDownpayment < 0) {
         this.errorMessage = "Select Down Payment Percent";
         this.loading = false;
         return; // Stop further processing if validation fails
       }
+      if (this.selectedPaymentPlan === "Deferred Payment" && (this.spreadDownpaymentPercentage <= 0)) {
+        this.errorMessage = "Please specify a valid spread downpayment percentage for deferred payment.";
+        this.loading = false;
+        return; // Stop further processing
+      }
+
       const formData = new FormData();
       // Add sales details
       formData.append("customer_id", this.selectedSale.customer_id);
@@ -1298,11 +1348,7 @@ body {
   width: 16%;
 }
 
-.card:hover {
-  transform: scale(1.02); /* Slightly enlarges the card */
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Adds a stronger shadow */
-  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
-}
+
 
 /* Flex container for button alignment */
 .button-container {
@@ -1632,5 +1678,31 @@ input[type="file"] {
   color: #888; /* Lighter text for placeholder */
   font-style: italic; /* Italicize placeholder text */
 }
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
 
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
 </style>
