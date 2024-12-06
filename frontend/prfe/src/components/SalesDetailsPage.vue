@@ -23,60 +23,29 @@
       <!-- Document Status Content -->
       <div v-if="activeTab === 'document-status'" class="tab-content">
         <div v-if="salesDetail" class="details-card">
-          <h2>Sales Agreement Details</h2>
-          <div class="details-group">
-            <p><strong>Customer Name:</strong> {{ salesDetail.customer_name }}</p>
-            <p><strong>Site Name:</strong> {{ salesDetail.site_name }}</p>
-            <p><strong>Unit Name:</strong> {{ salesDetail.unit_name }}</p>
-            <p><strong>Broker Name:</strong> {{ salesDetail.broker_name }}</p>
-            <p><strong>Payment Plan:</strong> {{ salesDetail.payment_plan }}</p>
-            <p><strong>Unit Price:</strong> ₱{{ salesDetail.unit_price }}</p>
-          </div>
-          <div class="details-group">
-            <p>
-              <strong>Spot Discount Percentage:</strong>
-              {{ salesDetail.spot_discount_percent }}%
-            </p>
-            <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-            <p>
-              <strong>Unit Price after Spot Discount:</strong> ₱{{
-                unitPriceAfterSpotDiscount
-              }}
-            </p>
-            <p>
-              <strong>TLP Discount Percentage:</strong>
-              {{ salesDetail.tlp_discount_percent }}%
-            </p>
-            <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-            <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-          </div>
-          <div class="details-group">
-            <p>
-              <strong>Other Charges Percentage:</strong>
-              {{ salesDetail.other_charges_percent }}%
-            </p>
-            <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-            <p v-if="netUnitPrice > 3600000">
-              <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-            </p>
-            <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-          </div>
-          <div class="details-group">
-            <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-              <strong>Spot Downpayment Percentage:</strong>
-              {{ salesDetail.spot_downpayment_percent }}%
-            </p>
-            <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-              <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-            </p>
-            <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
-            <p v-if="salesDetail.payment_plan === 'Spot Cash'">
-              <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-            </p>
-            <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-              <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-            </p>
-          </div>
+            <p>{{ salesDetail.customer_name }}</p>
+            <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
+            <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>
+            <p>Documents Needed: Please Submit The Following Documents To Complete The Process</p>
+          <div v-if="documentTypes.length">
+        <table class="documents-table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>Document Status</th>
+              <th>Date Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="doc in documentTypes" :key="doc.id">
+              <td><strong>{{ doc.name }}</strong></td>
+              <td>1</td> <!-- Example document status, will be replaced later -->
+              <td>1</td> <!-- Example date submitted, will be replaced later -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p v-else>No document types available.</p>
           <div class="download-button" v-if="salesDetail.reservation_agreement_url">
             <a
               :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
@@ -85,15 +54,20 @@
               <button>Download Reservation Agreement</button>
             </a>
           </div>
+          <p>Ensure that all documents are up-to-date and complete.</p>
+          <p>If you need assitance or have further queries, please contact {{ salesDetail.broker_name }}</p>
         </div>
       </div>
-
       <!-- Payment Schedule Content -->
       <div v-if="activeTab === 'payment-schedule'" class="tab-content">
         <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
           <div class="detailed-schedule">
-            <h3>Payment Schedule</h3>
-            <table>
+            <p>{{ salesDetail.customer_name }}</p>
+            <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
+            <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>    
+            <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>      
+            <p>Installment Terms: {{salesDetail.payable_months}} months</p> 
+             <table>
               <thead>
                 <tr>
                   <th>Payment Type</th>
@@ -120,15 +94,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-        <div>
-          <h3>Required Documents</h3>
-          <ul v-if="documentTypes.length" class="documents-list">
-            <li v-for="doc in documentTypes" :key="doc.id">
-              <strong>{{ doc.name }}</strong>
-            </li>
-          </ul>
-          <p v-else>No document types available.</p>
         </div>
       </div>
     </div>

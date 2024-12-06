@@ -844,6 +844,8 @@ def submit_sales(request):
             customer_id = request.POST.get('customer_id')
             site_id = request.POST.get('site_id')
             unit_id = request.POST.get('unit_id')
+            sales_id=request.POST.get('sales_id')
+            print(sales_id)
             broker_id = request.POST.get('broker_id')
             payment_plan = request.POST.get('payment_plan')
             spot_discount_percent = request.POST.get('spot_discount_percent')
@@ -868,6 +870,12 @@ def submit_sales(request):
                 file_path = default_storage.save(f'reservations/{reservation_agreement.name}', reservation_agreement)
             else:
                 file_path = None
+            
+            try:
+                sales_instance = Sale.objects.get(id=sales_id)  # Fetch the Sales instance
+            except Sale.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Sales record not found.'}, status=404)
+
 
             # Create a new SalesDetails entry
             sales_detail = SalesDetails.objects.create(
@@ -875,6 +883,7 @@ def submit_sales(request):
                 site_id=site_id,
                 unit_id=unit_id,
                 broker_id=broker_id,
+                sales_id=sales_instance,  # Assign the Sales instance to the foreign key
                 payment_plan=payment_plan,
                 spot_discount_percent=spot_discount_percent,
                 tlp_discount_percent=tlp_discount_percent,
