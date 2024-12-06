@@ -65,11 +65,6 @@
               {{ site.name || "Unknown" }}
             </h2>
 
-            <!-- Site Description -->
-            <p class="site-description">
-              {{ site.description }}
-            </p>
-
             <!-- Site Location -->
             <p class="site-location">
               {{ site.location || "Location unavailable" }}
