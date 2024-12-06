@@ -509,10 +509,14 @@
           />
         </div>
         <!-- Submit Button -->
-        <div class="form-group">
-          <button type="submit" class="submit-btn">
+        <div
+          class="d-flex justify-content-end gap-2 mt-30"
+          style="padding-top: 15px"
+        >
+        <button type="submit" class="btn-add">
             Submit Reservation
-          </button>
+        </button>
+        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
         </div>
       </form>
       
@@ -523,7 +527,7 @@
       </div>
       
       <!-- Cancel Button -->
-      <b-button @click="closeReserveModal" variant="danger">Cancel</b-button>
+      <!-- <b-button @click="closeReserveModal" variant="danger">Cancel</b-button> -->
     </b-modal>
 
       </b-modal>
@@ -1098,6 +1102,7 @@ body {
   border-top: 1px solid #ccc;
   padding-top: 10px;
 }
+
 .toggle-button {
   background-color: #007bff;
   color: white;
@@ -1107,9 +1112,41 @@ body {
   margin-bottom: 20px;
   margin-left: 30px;
 }
+
 .toggle-button:hover {
   background-color: #0056b3;
 }
+
+.btn-add {
+  background-color: #42b983;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.btn-add:hover {
+  background-color: #3e9c73;  /* Slightly darker green */
+  color: #fff;
+  border: none;
+}
+
+
+.btn-cancel {
+  background-color: #343a40;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.btn-cancel:hover {
+  background-color: #495057;  /* Slightly lighter gray */
+  color: #fff;
+  border: none;
+}
+
+
 
 
 /* juju */
