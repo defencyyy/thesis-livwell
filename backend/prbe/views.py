@@ -822,7 +822,6 @@ def reserve_unit(request):
                 payment_reference=payment_reference,
                 reservation_file=reservation_file if reservation_file else None
             )
-
             # Update the unit status to pending_reservation
             unit.status = 'Pending Reservation'
             unit.save()
