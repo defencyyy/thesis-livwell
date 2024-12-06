@@ -13,7 +13,7 @@ class SalesDetails(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
     broker = models.ForeignKey(Broker, on_delete=models.CASCADE, null=True)
     site = models.ForeignKey(Site, on_delete=models.CASCADE, null=True)
-    sales_id = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True)  # Reference to the Sales model
+    sales = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True)  # Use db_column to specify the column name
 
 
     

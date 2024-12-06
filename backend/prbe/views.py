@@ -871,11 +871,9 @@ def submit_sales(request):
             else:
                 file_path = None
             
-            try:
-                sales_instance = Sale.objects.get(id=sales_id)  # Fetch the Sales instance
-            except Sale.DoesNotExist:
-                return JsonResponse({'success': False, 'message': 'Sales record not found.'}, status=404)
+            sales_instance = get_object_or_404(Sale, id=sales_id)  # This retrieves the Sale instance
 
+            
 
             # Create a new SalesDetails entry
             sales_detail = SalesDetails.objects.create(
