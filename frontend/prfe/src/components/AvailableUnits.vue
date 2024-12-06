@@ -133,7 +133,6 @@
     <div v-else class="text-center">
       <p>No unit images.</p>
     </div>
-
     <div class="row mb-3">
       <div class="col-12 d-flex justify-content-between align-items-center">
           <!-- Left Section: Price and Installment Badge -->
@@ -166,32 +165,223 @@
       <!-- Column 1 -->
       <div class="col-md-4">
           <ul class="list-unstyled mb-0">
-              <li><strong>Unit/Floor Number:</strong> 01/1F</li>
-              <li><strong>Build (Year):</strong> 2024</li>
-              <li><strong>Classification:</strong> Brand New</li>
+            <li><strong>Balcony:</strong> {{ selectedUnit.balcony }} </li>
+            <li><strong>Floor Area (m²):</strong> {{ selectedUnit.floor_area }}m<sup>2</sup></li>
+            <li><strong>View:</strong> {{ selectedUnit.view }}</li>
           </ul>
       </div>
       <!-- Column 2 -->
       <div class="col-md-4">
           <ul class="list-unstyled mb-0">
-              <li><strong>Fully Furnished:</strong> Yes</li>
-              <li><strong>Baths:</strong> 1</li>
-              <li><strong>Bedrooms:</strong> 1</li>
+              <li><strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}</li>
+              <li><strong>Build (Year):</strong> {{ siteYear }}</li>
           </ul>
       </div>
       <!-- Column 3 -->
       <div class="col-md-4">
           <ul class="list-unstyled mb-0">
-              <li><strong>Balcony:</strong> No</li>
-              <li><strong>Floor Area (m²):</strong> 23m²</li>
-              <li><strong>View:</strong> City View</li>
+            <li><strong>Baths:</strong> {{ selectedUnit.bathroom }}</li>
+            <li><strong>Bedrooms:</strong> {{ selectedUnit.bedroom }}</li>
           </ul>
       </div>
     </div>
+    <br>
+    <div class="line mb-4"></div>
+    <div class="col-12 text-center mb-3 text-center">
+      <h5 class="property-header">Payment Plan</h5><br>
+    </div>
+    <div class="row mb-3 ps-5">
+      <div class="col-12 d-flex justify-content-around align-items-center">
+        <!-- Left Section: Property Price -->
+        <div class="text-center">
+          <h5 class="muted price-header">Property Price</h5>
+          <p class="property-price1">₱ {{ selectedUnit.price }}</p>
+        </div>
+        <!-- Right Section: Payment Plan -->
+        <div class="text-center1">
+          <h5 class="price-header">Payment Plan</h5>
+          <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
+            <option value="Spot Cash">Spot Cash</option>
+            <option value="Deffered Payment">Deffered Payment</option>
+          </select>
+        </div>
 
+      </div>
+    </div>
 
-
+    <!-- Spot Discount -->
+    <div class="form-group">
+      <label for="spotDiscount">Spot Discount</label>
+      <input
+        type="number"
+        id="spotDiscount"
+        v-model="spotCashDiscount"
+        @input="updatePaymentDetails"
+        class="form-control"
+        min="0"
+        max="100"
+      />
+    </div>
     
+    <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+    
+    <p class = "description-align">
+      <strong>Unit Price after Spot Discount:</strong> ₱{{
+        unitPriceAfterSpotDiscount
+      }}
+    </p>
+
+    <!-- TLP Discount -->
+    <div class="form-group">
+      <label for="tlpDiscount">TLP Discount (Optional)</label>
+      <input
+        type="number"
+        id="tlpDiscount"
+        v-model="tlpDiscount"
+        @input="updatePaymentDetails"
+        class="form-control"
+        min="0"
+        max="100"
+      />
+    </div>
+
+    <p class = "description-align"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+
+    <!-- Net Unit Price -->
+    <p class = "description-align"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+
+    <!-- Other Charges -->
+    <div class="form-group">
+      <label for="otherChargesPercentage">Other Charges (%)</label>
+      <input
+        type="number"
+        id="otherChargesPercentage"
+        v-model="otherChargesPercentage"
+        @input="updatePaymentDetails"
+        class="form-control"
+        min="0"
+        step="0.1"
+      />
+    </div>
+    
+    <p class = "description-align"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+
+    <!-- VAT Calculation -->
+    <p v-if="netUnitPrice > 3600000">
+      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+    </p>
+
+    <!-- Total Amount Payable -->
+    <p p class = "description-align">
+      <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
+    </p>
+
+    <div
+    v-if="selectedPaymentPlan === 'Deffered Payment'"
+    class="form-group"
+    >
+      <label for="spotDownpayment">Spot Downpayment</label>
+      <input
+        type="number"
+        id="spotDownpayment"
+        v-model="spotDownpaymentPercentage"
+        @input="updatePaymentDetails"
+        min="0"
+        step="5"
+        placeholder="Enter downpayment percentage"
+        required
+      />
+    </div>
+
+    <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+    </p>
+
+    <!-- Reservation Fee -->
+    <p class = "description-align"><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
+    <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "description-align">
+      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+    </p>
+
+    <!-- Net Downpayment -->
+    <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+    </p>
+
+    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
+      <!-- Spread Downpayment -->
+      <div class="form-group">
+        <label for="spreadDownpayment">Spread Downpayment</label>
+        <select
+          v-model="spreadDownpaymentPercentage"
+          id="spreadDownpayment"
+          @change="updatePaymentDetails"
+          required
+        >
+          <option value="0">0%</option>
+          <option value="5">5%</option>
+          <option value="10">10%</option>
+          <option value="15">15%</option>
+        </select>
+      </div>
+      <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+
+      <!-- Payable in Months -->
+      <div class="form-group">
+        <label for="months">Months to Pay</label>
+        <input
+          type="number"
+          v-model="payableMonths"
+          id="months"
+          @input="updatePaymentDetails"
+          min="1"
+          step="1"
+          required
+        />
+      </div>
+      <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+      <!-- Balance Upon Turnover -->
+      <p>
+        <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
+      </p>
+      <h3>Payment Schedule Summary</h3>
+
+      <!-- Payment Summary -->
+      <div class="payment-summary">
+        <p>
+          <strong>Spot Downpayment:</strong> ₱{{
+            spotDownpayment.toFixed(2)
+          }}
+        </p>
+        <p>
+          <strong>Spread Downpayment:</strong> ₱{{
+            spreadDownpayment.toFixed(2)
+          }}
+        </p>
+        <p>
+          <strong>Monthly Payment:</strong> ₱{{
+            payablePerMonth.toFixed(2)
+          }}
+          / month for {{ payableMonths }} months
+        </p>
+        <p>
+          <strong>Balance Upon Turnover:</strong> ₱{{
+            balanceUponTurnover.toFixed(2)
+          }}
+        </p>
+      </div>
+    </div>
+    <div
+      class="d-flex justify-content-end gap-2 mt-30"
+      style="padding-top: 15px"
+    >
+      <button class="reserve-btn" @click="openReserveModal">
+        Reserve Unit
+      </button>
+      <button class="schedule-btn" @click="scheduleVisit">
+        Schedule Visit
+      </button>
+    </div>
     </b-modal>
 
       <!-- Reserve Unit Modal -->
@@ -810,16 +1000,44 @@ body {
   color: black;
 }
 
+.property-price1 {
+  margin-top: 5px; /* Adjust spacing as needed */
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: left;
+}
+
+.price-header {
+  font-weight: bold;
+  color: #6c757d; /* Example muted color */
+}
+
 .property-header {
   font-weight: bold;
   font-size: 1.5rem;
 }
+
+.row.mb-3.ps-5 .d-flex {
+  gap: 30px; /* Adjust as needed for closer spacing */
+}
+
+.form-select {
+  margin-left: 5px;
+}
+
 
 .line {
     border-top: 2px solid #000; /* Adjust thickness and color */
     width: 100%; /* Full-width */
     margin: 0 auto; /* Center it */
 }
+
+.text-center1 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align the content to the left */
+}
+
 
 
 
@@ -959,6 +1177,48 @@ body {
 /* Form Group */
 .form-group {
   margin-bottom: 15px;
+  margin-left: 30px;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff; /* Highlight border on focus */
+}
+
+/* Dropdown Hover Text */
+.form-group select:hover {
+  color: black; /* Change text color to black on hover for better visibility */
+}
+
+.form-group input[type="number"] {
+  width: 70%; /* Make the input take up full width */
+  padding: 10px; /* Add padding for a better click area */
+  font-size: 16px; /* Match font size with the label */
+  border: 1px solid #ccc; /* Light border for input */
+  border-radius: 8px; /* Add rounded corners */
+  color: #333; /* Text color */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+}
+
+.form-group input[type="number"]:hover {
+  border-color: #007bff; /* Change border color on hover */
+}
+
+.form-group input[type="number"]:focus {
+  border-color: #0056b3; /* Darker border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+}
+
+.form-group input[type="number"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+/* Style for File Input Button */
+input[type="file"] {
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 label {
@@ -967,29 +1227,11 @@ label {
   margin-bottom: 5px;
 }
 
+.description-align {
+  margin-left: 30px;
+}
+
 /* Dropdown Styling */
-.select-field {
-  width: 100%;
-  padding: 8px;
-  background-color: #dadada; /* White background */
-  color: #000000; /* Black text */
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-
-  cursor: pointer;
-}
-
-.select-field:focus {
-  outline: none;
-  border-color: #007bff; /* Optional: blue border on focus */
-  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
-}
-
-.select-field option {
-  background-color: #fff; /* White background for options */
-  color: #000; /* Black text for options */
-}
 
 /* Payment Plan Section */
 .payment-plan {
