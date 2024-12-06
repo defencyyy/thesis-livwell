@@ -704,9 +704,6 @@ export default {
           this.showNotification = true; // Show the notification modal
         }
       } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while adding the customer.";
         this.showNotification = true; // Show the notification modal
       }
     },

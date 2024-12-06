@@ -976,12 +976,12 @@ export default {
         this.loading = false;
         return; // Stop further processing
       }
-
       const formData = new FormData();
       // Add sales details
       formData.append("customer_id", this.selectedSale.customer_id);
       formData.append("site_id", this.selectedSale.site_id);
       formData.append("unit_id", this.selectedSale.unit_id);
+      formData.append("sales_id", this.selectedSale.sale_id);
       formData.append("broker_id", this.selectedSale.broker_id);
       formData.append("payment_plan", this.selectedPaymentPlan);
       formData.append("spot_discount_percent", this.spotCashDiscount);
