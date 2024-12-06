@@ -382,7 +382,6 @@
         Schedule Visit
       </button>
     </div>
-    </b-modal>
 
       <!-- Reserve Unit Modal -->
       <div
@@ -482,6 +481,7 @@
           <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
         </div>
       </div>
+      </b-modal>
   </div>
   </div>
 </div>
