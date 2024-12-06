@@ -312,17 +312,17 @@
       <!-- Spread Downpayment -->
       <div class="form-group">
         <label for="spreadDownpayment">Spread Downpayment</label>
-        <select
+        <input
+          type="number"
           v-model="spreadDownpaymentPercentage"
           id="spreadDownpayment"
-          @change="updatePaymentDetails"
+          @input="updatePaymentDetails"
+          min="0"
+          max="100"
+          step="1"
           required
-        >
-          <option value="0">0%</option>
-          <option value="5">5%</option>
-          <option value="10">10%</option>
-          <option value="15">15%</option>
-        </select>
+          placeholder="Enter percentage"
+          />
       </div>
       <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
 
@@ -416,9 +416,6 @@
     >
       <button class="reserve-btn" @click="openReserveModal">
         Reserve Unit
-      </button>
-      <button class="schedule-btn" @click="scheduleVisit">
-        Schedule Visit
       </button>
     </div>
 
