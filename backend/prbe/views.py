@@ -1108,7 +1108,6 @@ def upload_document(request):
 # Fetch documents for a given customer and sale
 @csrf_exempt
 def fetch_customer_documents(request, customer_id, sales_id):
-    print("l")
     try:
         # Get the customer by ID
         customer = Customer.objects.get(id=customer_id)
