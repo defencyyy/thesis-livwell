@@ -440,6 +440,8 @@
           <select
             v-model="reservationForm.customerName"
             id="customerName"
+            class = "form-select"
+            style="margin-left: 1px;"
             required
           >
             <option value="" disabled selected>Select Customer</option>
@@ -459,6 +461,7 @@
             type="file"
             @change="handleFileUpload"
             id="fileUpload"
+            class = "form-control"
             required
           />
         </div>
@@ -478,6 +481,8 @@
           <select
             v-model="reservationForm.paymentMethod"
             id="paymentMethod"
+            class = "form-select"
+            style="width: 250px; margin-left: 1px;"
             required
           >
             <option value="bank_transfer">Bank Transfer</option>
@@ -492,6 +497,8 @@
             type="date"
             v-model="reservationForm.paymentDate"
             id="paymentDate"
+            class = "form-select"
+            style="width: 250px; margin-left: 1px;"
             required
           />
         </div>
@@ -505,6 +512,8 @@
             type="text"
             v-model="reservationForm.paymentReference"
             id="paymentReference"
+            class = "form-control"
+            style="width: 250px; margin-left: 1px;"
             required
           />
         </div>
@@ -1145,9 +1154,6 @@ body {
   color: #fff;
   border: none;
 }
-
-
-
 
 /* juju */
 
