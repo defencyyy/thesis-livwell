@@ -49,7 +49,9 @@ class Site(models.Model):
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
     reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    # maximum_months
+    
+    # Maximum months (e.g., for loan term)
+    maximum_months = models.PositiveIntegerField(default=360, help_text="Maximum months for payment term (e.g., 360 for 30 years)")
 
     def __str__(self):
         return self.name
