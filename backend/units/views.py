@@ -291,3 +291,24 @@ class BulkAddUnitsView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UnitsByFloorView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, site_id, floor_id):
+        # Get the company from the authenticated user
+        company = request.user.company
+        if not company:
+            return Response({"error": "Company not found for this developer."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Retrieve the floor object, ensuring the company matches the site's company
+        floor = get_object_or_404(Floor, id=floor_id, site_id=site_id, site__company=company)
+
+        # Get all units for this floor
+        units = Unit.objects.filter(floor=floor)
+
+        # Serialize the unit data
+        serializer = UnitSerializer(units, many=True)
+
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)

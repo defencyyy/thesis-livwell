@@ -47,89 +47,6 @@
           <p>Loading site details...</p>
         </div>
 
-        <b-modal
-          id="unit-management-modal"
-          title="Manage Units"
-          v-model="showUnitManagementModal"
-          ok-title="Close"
-          @ok="closeUnitManagementModal"
-        >
-        <div v-if="selectedFloor && selectedFloor.units && selectedFloor.units.length > 0">
-
-            <h4>Units on Floor {{ selectedFloor?.floor_number }}</h4>
-
-            <!-- Search Units -->
-            <b-form-input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search units"
-              class="mb-3"
-              @input="onSearch"
-            />
-
-            <!-- Units Table -->
-            <b-table
-              :items="filteredUnits"
-              :fields="unitFields"
-              bordered
-              striped
-              responsive="sm"
-            >
-              <template #cell(actions)="data">
-                <b-button
-                  size="sm"
-                  variant="primary"
-                  @click="handleEditUnit(data.item)"
-                >
-                  Edit
-                </b-button>
-                <b-button
-                  size="sm"
-                  variant="danger"
-                  @click="handleDeleteUnit(data.item)"
-                >
-                  Delete
-                </b-button>
-              </template>
-            </b-table>
-
-            <!-- Pagination Controls -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <b-button
-                variant="secondary"
-                @click="previousPage"
-                :disabled="currentPage === 1"
-              >
-                Previous
-              </b-button>
-              <span>Page {{ currentPage }} of {{ totalPages }}</span>
-              <b-button
-                variant="secondary"
-                @click="nextPage"
-                :disabled="currentPage === totalPages"
-              >
-                Next
-              </b-button>
-            </div>
-          </div>
-          <div v-else>
-            <!-- Add more debugging here -->
-            <p>
-  No units available for this floor.
-            </p>
-            <p>
-              <strong>Debug Info:</strong>
-              <br />
-              Units Data: <pre>{{ unitsData }}</pre>
-              <br />
-              Selected Floor: <pre>{{ selectedFloor }}</pre>
-              <br />
-              Search Query: <pre>{{ searchQuery }}</pre>
-            </p>
-          </div>
-        </b-modal>
-
-
         <!-- Add Units Modal -->
         <b-modal
           id="add-units-modal"
@@ -152,7 +69,7 @@
               ></b-form-select>
             </b-form-group>
 
-            <!-- Unit Type (From fetched data) -->
+            <!-- Unit Type -->
             <b-form-group
               label="Unit Type:"
               description="Select the type of unit"
@@ -194,7 +111,7 @@
               ></b-form-input>
             </b-form-group>
 
-            <!-- Loot Area -->
+            <!-- Lot Area -->
             <b-form-group label="Lot Area (sq.m):">
               <b-form-input
                 type="number"
@@ -254,7 +171,6 @@
               ></b-form-select>
             </b-form-group>
 
-            <!-- Payment -->
             <!-- Commission -->
             <b-form-group label="Commission:">
               <b-form-input
@@ -311,6 +227,26 @@
             </b-form-group>
           </form>
         </b-modal>
+
+        <!-- Unit Management Modal -->
+        <b-modal
+          v-model="showUnitManagementModal"
+          title="Manage Units"
+          @hide="closeUnitManagementModal"
+        >
+          <div v-if="unitsData.length > 0">
+            <div v-for="unit in unitsData" :key="unit.id" class="unit-card">
+              <h5>{{ unit.unit_title }}</h5>
+              <p><strong>Type:</strong> {{ unit.unit_type.name }}</p>
+              <p><strong>Status:</strong> {{ unit.status }}</p>
+              <button @click="handleEditUnit(unit)">Edit</button>
+              <button @click="handleDeleteUnit(unit)">Delete</button>
+            </div>
+          </div>
+          <div v-else>
+            <p>No units available for this floor.</p>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -320,14 +256,7 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
-import {
-  BButton,
-  BTable,
-  BModal,
-  BFormGroup,
-  BFormSelect,
-  BFormInput,
-} from "bootstrap-vue-3";
+import { BModal, BFormGroup, BFormSelect, BFormInput } from "bootstrap-vue-3";
 import { mapState } from "vuex";
 
 export default {
@@ -339,8 +268,6 @@ export default {
     BFormGroup,
     BFormSelect,
     BFormInput,
-    BButton,
-    BTable,
   },
   data() {
     return {
@@ -387,7 +314,11 @@ export default {
       totalAvailableUnits: 0,
       showUnitManagementModal: false,
       unitsData: [], // Store all the unit data for the selected floor
-      selectedFloor: null,
+      selectedFloor: {
+        floor_number: null,
+        id: null,
+        units: [],
+      },
       currentPage: 1, // Current page for pagination
       unitsPerPage: 25, // Units per page for pagination
       searchQuery: "", // Search query for filtering
@@ -415,25 +346,24 @@ export default {
       }));
     },
     filteredUnits() {
-  // Log the selectedFloor's units array before filtering
-  console.log("Selected Floor Units:", this.selectedFloor.units);
+      // Log the selectedFloor's units array before filtering
+      console.log("Selected Floor Units:", this.selectedFloor.units);
 
-  // Filter units based on the search query
-  const filtered = this.selectedFloor.units.filter((unit) =>
-    unit.unit_title.toLowerCase().includes(this.searchQuery.toLowerCase())
-  );
+      // Filter units based on the search query
+      const filtered = this.selectedFloor.units.filter((unit) =>
+        unit.unit_title.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
 
-  console.log("Filtered Units:", filtered); // Log filtered units
-  console.log("Search Query:", this.searchQuery); // Log search query
-  console.log("Current Page:", this.currentPage); // Log current page
+      console.log("Filtered Units:", filtered); // Log filtered units
+      console.log("Search Query:", this.searchQuery); // Log search query
+      console.log("Current Page:", this.currentPage); // Log current page
 
-  // Return the filtered units based on pagination
-  return filtered.slice(
-    (this.currentPage - 1) * this.unitsPerPage,
-    this.currentPage * this.unitsPerPage
-  );
-}
-,
+      // Return the filtered units based on pagination
+      return filtered.slice(
+        (this.currentPage - 1) * this.unitsPerPage,
+        this.currentPage * this.unitsPerPage
+      );
+    },
     totalPages() {
       return Math.ceil(this.unitsData.length / this.unitsPerPage);
     },
@@ -581,26 +511,31 @@ export default {
     },
     async openUnitManagement(floor) {
       try {
+        this.isLoading = true; // Set loading state
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/floors/${floor.id}/units/`,
+          `http://localhost:8000/developer/units/${this.$route.params.siteId}/floors/${floor.id}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        console.log(response.data.data); // Log the data
 
         if (response.data.success) {
           this.selectedFloor = floor;
           this.unitsData = response.data.data || []; // Ensure fallback to an empty array
           this.currentPage = 1; // Reset pagination
           this.showUnitManagementModal = true;
+          console.log(response.data.data); // Log the data
         } else {
           console.error("Error fetching units:", response.data.error);
+          this.errorMessage = "Failed to load unit management data."; // Set an error message
         }
       } catch (error) {
         console.error("Error fetching units:", error);
+        this.errorMessage = "Failed to load unit management data."; // Set an error message
+      } finally {
+        this.isLoading = false; // Reset loading state
       }
     },
     closeUnitManagementModal() {
