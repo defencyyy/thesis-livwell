@@ -37,15 +37,17 @@
         </div>
   
         <!-- Sales Table -->
-        <div class="outside-headers">
-          <span class="header-item">Customer Name</span>
-          <span class="header-item">Customer Code</span>
-          <span class="header-item">Site Name</span>
-          <span class="header-item">Unit Title</span>
-          <span class="header-item">Status</span>
-          <span class="header-item">Action</span>
+        <div style = "margin-top: 50px;">
+          <div class="outside-headers">
+            <span class="header-item">Customer Name</span>
+            <span class="header-item">Customer Code</span>
+            <span class="header-item">Site Name</span>
+            <span class="header-item">Unit Title</span>
+            <span class="header-item">Status</span>
+            <span class="header-item">Action</span>
 
-        </div>
+          </div>
+        </div> 
         <div v-if="sales.length === 0">
             No sales found.
         </div>
@@ -64,27 +66,27 @@
               <tbody>
                 <tr>
                   <td>
-                    <span class = "sale-name">
+                    <span>
                       {{ sale.customer_name }}
                     </span>
                   </td>
                   <td>
-                    <span class = "sale-code">
+                    <span>
                       {{ sale.customer_code }}
                     </span>
                   </td>
                   <td>
-                    <span class = "sale-site">
+                    <span>
                       {{ sale.site_name }}
                     </span>
                   </td>
                   <td>
-                    <span class = "sale-unit">
+                    <span>
                       {{ sale.unit_title }}
                     </span>
                   </td>
                   <td>
-                    <span class = "sale-status">
+                    <span>
                       {{ sale.status }}
                     </span>
                   </td>
@@ -1336,7 +1338,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 20% 15% 15% 15% 20% 15%; /* Adjust column widths */
+  grid-template-columns: 16% 16% 16% 16% 16% 16%; /* Adjust column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1368,54 +1370,44 @@ body {
   width: 100%;
   border-collapse: collapse;
   text-align: left; /* Consistent with headers */
-  border: none; /* Removes the table border */
-}
-
-.sales-table td{
-  padding: 10px 18px; /* Matches outside-headers padding */
-  border: none; /* Removes borders between table cells */
-  text-align: left; /* Consistent alignment */
 }
 
 .sales-table td {
   padding: 10px 0; /* Matches outside-headers padding */
 }
 
-.sales-table td:nth-child(1),
+.sales-table  td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 20%;
+  width: 16%;
 }
 
-.sales-table td:nth-child(2),
+.sales-table  td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 15%;
+  width: 16%;
 }
 
-.sales-table td:nth-child(3),
+.sales-table  td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 15%;
+  width: 16%;
 }
 
 .sales-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 15%;
+  width: 16%;
 }
 
 .sales-table td:nth-child(5),
 .outside-headers .header-item:nth-child(5) {
-  width: 20%;
+  width: 16%;
 }
 
 .sales-table td:nth-child(6),
 .outside-headers .header-item:nth-child(6) {
-  width: 15%;
+  width: 16%;
 }
 
-.sale-name{
-  font-size: 15px;
-  font-weight: bold;
-  margin-top: 10px;
-}
+
+
 
 /* Flex container for button alignment */
 .button-container {
