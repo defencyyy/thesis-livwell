@@ -48,69 +48,84 @@
 
           </div>
         </div> 
-        <div class="card border-0 rounded-1 mx-auto my-2"
-            style="
-              max-width: 1100px;
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            ">
-          <div class = "card-body"> 
-            <table v-if="filteredCustomers.length > 0" class="salesCustomer-table">
-            <tbody>
-              <tr v-for="sale in filteredCustomers" :key="sale.id">
-                <td>
-                  <span class = "customer-name">{{ sale.customer_name }}</span>
-                </td>
-                <td>
-                  {{ sale.customer_code }}
-                </td>
-                <td>
-                  <span class = "customer-site">{{ sale.site_name }}</span>
-                </td>
-                <td>
-                  <span class = "customer-unit">{{ sale.unit_title }}</span>
-                </td>
-                <td>
-                  <span class = "customer-status">{{ sale.status }}</span>
-                </td>
-                <td>
-                <div style="display: flex; gap: 10px;">
-                  <button @click="openSalesAgreementModal(sale)" style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          ">
-                    <i class="fas fa-dollar-sign"></i>
-                  </button>
-                  <button @click="openDocumentModal(sale)" style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          ">
-                  <i class="fas fa-file-alt"></i>
-                  </button>
-                  <button @click="DeleteSaleModal(sale)" style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          ">
-                    <i class="fas fa-archive"></i>
-                  </button>
-                </div>
-              </td>
-              </tr>
-            </tbody>
+        <div v-if="sales.length === 0">
+            No sales found.
+        </div>
+
+        <div
+        v-else
+        v-for="sale in filteredCustomers"
+        :key="sale.id"
+        class="card border-0 rounded-1 mx-auto my-2"
+        style="
+          max-width: 1100px;
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        ">
+          <div class = "card-body">
+            <table class = "sales-table">
+              <tbody>
+                <tr>
+                  <td>
+                    <span>
+                      {{ sale.customer_name }}
+                    </span>
+                  </td>
+                  <td>
+                    <span>
+                      {{ sale.customer_code }}
+                    </span>
+                  </td>
+                  <td>
+                    <span>
+                      {{ sale.site_name }}
+                    </span>
+                  </td>
+                  <td>
+                    <span>
+                      {{ sale.unit_title }}
+                    </span>
+                  </td>
+                  <td>
+                    <span>
+                      {{ sale.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="broker-actions d-flex gap-2">
+                      <button @click="openSalesAgreementModal(sale)" style="
+                      border: none;
+                      background-color: transparent;
+                      color: #343a40;
+                      cursor: pointer;
+                      font-size: 18px;
+                      ">
+                        <i class="fas fa-dollar-sign"></i>
+                      </button>
+                      <button @click="openDocumentModal(sale)" style="
+                      border: none;
+                      background-color: transparent;
+                      color: #343a40;
+                      cursor: pointer;
+                      font-size: 18px;
+                      ">
+                        <i class="fas fa-file-alt"></i>
+                      </button>
+                      <button @click="DeleteSaleModal(sale)" style="
+                      border: none;
+                      background-color: transparent;
+                      color: #343a40;
+                      cursor: pointer;
+                      font-size: 18px;
+                      ">
+                        <i class="fas fa-archive"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
-
-        <!-- No customers found message -->
-        <p v-if="!sales.length">No sales found.</p>
 
         <!-- Sales Agreement Modal -->
         <b-modal v-model="showModal" title = "Sales Agreement" size="lg" centered hide-footer >
@@ -241,7 +256,7 @@
                 <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
                 <!-- Spot Discount -->
-               <div class="form-group">
+              <div class="form-group">
               <br>
               <label for="spotDiscount">Spot Discount</label>
               <input
@@ -253,7 +268,7 @@
                 :min="0"
                 :max="maxSpotCashDiscount" 
               />
-            </div>
+              </div>
                 <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
                 <p>
                   <strong>Unit Price after Spot Discount:</strong> ₱{{
@@ -423,7 +438,7 @@
 
                   <!-- Detailed Monthly Schedule (Visible when expanded) -->
                   <div v-if="showDetailedSchedule" class="detailed-schedule">
-                    <table>
+                    <table class = "sched-table">
                       <thead>
                         <tr>
                           <th>Payment Type</th>
@@ -454,28 +469,29 @@
                 </div>
 
                 <!-- Required Documents Section (Always Displayed) -->
-<div class="form-group">
-  <br>
-  <h3>Required Documents</h3>
-  <ul>
-    <li>
-    <strong>Reservation Agreement:</strong>
-    <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
-    </li>
-    <li v-for="document in documentTypes" :key="document.id">
-      <strong>{{ document.name }}:</strong>
-      <br v-if="document.id === 'reservationAgreement'">
-      <input
-        v-if="document.id === 'reservationAgreement'"
-        type="file"
-        @change="handleFileChange"
-        :id="document.id"
-        required
-      />
-      <span v-else>{{ document.description }}</span>
-    </li>
-  </ul>
-</div>                
+                <div class="form-group">
+                  <br>
+                  <h3>Required Documents</h3>
+                  <ul>
+                    <li>
+                    <strong>Reservation Agreement:</strong>
+                    <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
+                    </li>
+                    <li v-for="document in documentTypes" :key="document.id">
+                      <strong>{{ document.name }}:</strong>
+                      <br v-if="document.id === 'reservationAgreement'">
+                      <input
+                        v-if="document.id === 'reservationAgreement'"
+                        type="file"
+                        @change="handleFileChange"
+                        :id="document.id"
+                        required
+                      />
+                      <span v-else>{{ document.description }}</span>
+                    </li>
+                  </ul>
+                </div>  
+
                 <div
                 class="d-flex justify-content-end gap-2 mt-30"
                 style="padding-top: 15px"
@@ -1337,45 +1353,59 @@ body {
   white-space: nowrap;
 }
 
-.salesCustomer-table {
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  max-width: 1100px;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+}
+
+.sales-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left; /* Consistent with headers */
-  border: none; /* Removes the table border */
 }
 
-.salesCustomer-table td{
-  padding: 10px 18px; /* Matches outside-headers padding */
-  border: none; /* Removes borders between table cells */
-  text-align: left; /* Consistent alignment */
+.sales-table td {
+  padding: 10px 0; /* Matches outside-headers padding */
 }
 
-.salesCustomer-table tr{
-  border: none; /* Removes borders between table cells */
+.sales-table  td:nth-child(1),
+.outside-headers .header-item:nth-child(1) {
+  width: 16%;
 }
 
-.salesCustomer-table td:nth-child(2),
+.sales-table  td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
   width: 16%;
 }
 
-.salesCustomer-table td:nth-child(3),
+.sales-table  td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
   width: 16%;
 }
 
-.salesCustomer-table td:nth-child(4),
+.sales-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
   width: 16%;
 }
-.salesCustomer-table td:nth-child(5),
+
+.sales-table td:nth-child(5),
 .outside-headers .header-item:nth-child(5) {
   width: 16%;
 }
-.salesCustomer-table td:nth-child(6),
+
+.sales-table td:nth-child(6),
 .outside-headers .header-item:nth-child(6) {
   width: 16%;
 }
+
 
 
 
@@ -1428,6 +1458,7 @@ body {
   background-color: white;
   color: #333;
 }
+
 
 /* juju end */
 
@@ -1483,63 +1514,6 @@ body {
   text-align: center; /* Center-align button text */
 }
 
-.button:hover {
-  background: #ccc;
-}
-
-.button.primary {
-  background: #007bff;
-  color: #fff;
-}
-
-.button.primary:hover {
-  background: #0056b3;
-}
-
-/* BUTTON FOR ADD CUSTOMER AND CLOSE */
-
-button {
-  padding: 10px 20px; /* Add padding for a comfortable size */
-  border: none; /* Remove default border */
-  border-radius: 8px; /* Rounded corners */
-  font-size: 16px; /* Increase text size for better readability */
-  cursor: pointer; /* Change cursor to pointer for interactivity */
-  transition: all 0.3s ease; /* Smooth transition for hover effects */
-}
-
-/* Submit to Customer Button */
-button:first-of-type {
-  background-color: #28a745; /* Green background */
-  color: white; /* White text */
-}
-
-button:first-of-type:hover {
-  background-color: #218838; /* Darker green on hover */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
-}
-
-button:first-of-type:active {
-  background-color: #1e7e34; /* Even darker green on click */
-  transform: scale(0.98); /* Slight shrink effect on click */
-}
-
-/* Close Button */
-button:last-of-type {
-  background-color: #dc3545; /* Red background */
-  color: white; /* White text */
-  margin-left: 10px; /* Add spacing between buttons */
-}
-
-button:last-of-type:hover {
-  background-color: #c82333; /* Darker red on hover */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
-}
-
-button:last-of-type:active {
-  background-color: #bd2130; /* Even darker red on click */
-  transform: scale(0.98); /* Slight shrink effect on click */
-}
-
 /* Scrollable Content */
 .modal-content::-webkit-scrollbar {
   width: 6px;
@@ -1583,23 +1557,23 @@ table {
   border-collapse: collapse;
 }
 
-table,
-th,
-td {
+.sched-table, 
+.sched-table th,
+.sched-table td {
   border: 1px solid #ddd;
 }
 
-th,
-td {
+.sched-table th,
+.sched-table td {
   padding: 10px;
   text-align: left;
 }
 
-th {
+.sched-table th {
   background-color: #f4f4f4;
 }
 
-td {
+.sched-table td {
   text-align: right;
 }
 .loading-overlay {
