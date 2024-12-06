@@ -55,15 +55,44 @@
           ok-title="Close"
           @ok="closeUnitManagementModal"
         >
-          <div v-if="unitsData.length > 0">
+          <div v-if="filteredUnits.length > 0">
             <h4>Units on Floor {{ selectedFloor?.floor_number }}</h4>
-            <ul>
-              <li v-for="unit in unitsData" :key="unit.id">
-                <p><strong>Unit Title:</strong> {{ unit.unit_title }}</p>
-                <p><strong>Status:</strong> {{ unit.status }}</p>
-                <!-- Add other unit details as necessary -->
-              </li>
-            </ul>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search units"
+              class="search-input"
+              @input="onSearch"
+            />
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Unit ID</th>
+                  <th>Unit Title</th>
+                  <th>Status</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="unit in filteredUnits" :key="unit.id">
+                  <td>{{ unit.id }}</td>
+                  <td>{{ unit.unit_title }}</td>
+                  <td>{{ unit.status }}</td>
+                  <td>{{ unit.price }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Pagination Controls -->
+            <div class="pagination">
+              <button @click="previousPage" :disabled="currentPage === 1">
+                Previous
+              </button>
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+              <button @click="nextPage" :disabled="currentPage === totalPages">
+                Next
+              </button>
+            </div>
           </div>
           <div v-else>
             <p>No units available on this floor.</p>
@@ -279,7 +308,6 @@ export default {
       unitTypes: [],
       site: null,
       floors: [],
-      selectedFloors: [],
       newUnitFloor: null,
       newUnitFloors: [],
       newUnitQuantity: 1,
@@ -315,10 +343,14 @@ export default {
         { value: "has balcony", text: "Has Balcony" },
         { value: "no balcony", text: "No Balcony" },
       ],
-      showUnitManagementModal: false, // Controls the visibility of the unit management modal
-      unitsData: [], // Store the units data for the floor
       totalUnits: 0,
       totalAvailableUnits: 0,
+      showUnitManagementModal: false,
+      unitsData: [], // Store all the unit data for the selected floor
+      selectedFloor: null,
+      currentPage: 1, // Current page for pagination
+      unitsPerPage: 25, // Units per page for pagination
+      searchQuery: "", // Search query for filtering
     };
   },
   computed: {
@@ -340,6 +372,25 @@ export default {
         value: type.id,
         text: type.name,
       }));
+    },
+    filteredUnits() {
+      // Filter the units by search query (if applicable)
+      const filtered = this.unitsData.filter((unit) => {
+        return (
+          unit.unit_title
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase()) ||
+          unit.status.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      });
+      return filtered.slice(
+        (this.currentPage - 1) * this.pageSize,
+        this.currentPage * this.pageSize
+      );
+    },
+    totalPages() {
+      // Calculate total pages for pagination
+      return Math.ceil(this.unitsData.length / this.pageSize);
     },
   },
   mounted() {
@@ -485,32 +536,40 @@ export default {
     async openUnitManagement(floor) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/units/floors/${floor.id}/`,
+          `http://localhost:8000/developer/sites/${floor.id}/floors/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        console.log(response.data); // Check the structure of the response
-
         this.selectedFloor = floor;
-        this.unitsData = response.data.data || []; // Ensure data is populated
-
-        // Calculate the total and available units
-        this.totalUnits = this.unitsData.length;
-        this.totalAvailableUnits = this.unitsData.filter(
-          (unit) => unit.status === "Available"
-        ).length;
-
+        this.unitsData = response.data.data || [];
         this.showUnitManagementModal = true;
       } catch (error) {
         console.error("Error fetching units for the floor:", error);
       }
     },
     closeUnitManagementModal() {
-      this.showUnitManagementModal = false; // Close the modal
-      this.unitsData = []; // Reset units data (optional)
+      this.showUnitManagementModal = false;
+      this.unitsData = [];
+      this.searchQuery = ""; // Reset search query when modal is closed
+      this.currentPage = 1; // Reset to first page when modal is closed
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    previousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
+    // Function to handle the change in page size or search query
+    onSearch(query) {
+      this.searchQuery = query;
+      this.currentPage = 1; // Reset to the first page when the search query changes
     },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
