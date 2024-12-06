@@ -272,7 +272,7 @@
     </p>
 
     <!-- Total Amount Payable -->
-    <p p class = "description-align">
+    <p class = "description-align">
       <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
     </p>
 
@@ -293,7 +293,7 @@
       />
     </div>
 
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
       <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
     </p>
 
@@ -304,7 +304,7 @@
     </p>
 
     <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
       <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
     </p>
 
@@ -316,6 +316,8 @@
           v-model="spreadDownpaymentPercentage"
           id="spreadDownpayment"
           @change="updatePaymentDetails"
+          class="form-select mt-2"
+          style="width: 100px;"
           required
         >
           <option value="0">0%</option>
@@ -324,7 +326,8 @@
           <option value="15">15%</option>
         </select>
       </div>
-      <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+      
+      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
 
       <!-- Payable in Months -->
       <div class="form-group">
@@ -339,32 +342,36 @@
           required
         />
       </div>
-      <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
       <!-- Balance Upon Turnover -->
-      <p>
+      <p class = "description-align">
         <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
       </p>
-      <h3>Payment Schedule Summary</h3>
+      <br>    
+      <div class="line mb-4"></div>
+      <div class="col-12 text-center mb-3 text-center">
+            <h5 class="property-header">Payment Schedule Summary</h5>
+      </div>
 
       <!-- Payment Summary -->
       <div class="payment-summary">
-        <p>
+        <p class = "description-align">
           <strong>Spot Downpayment:</strong> ₱{{
             spotDownpayment.toFixed(2)
           }}
         </p>
-        <p>
+        <p class = "description-align">
           <strong>Spread Downpayment:</strong> ₱{{
             spreadDownpayment.toFixed(2)
           }}
         </p>
-        <p>
+        <p class = "description-align">
           <strong>Monthly Payment:</strong> ₱{{
             payablePerMonth.toFixed(2)
           }}
           / month for {{ payableMonths }} months
         </p>
-        <p>
+        <p class = "description-align">
           <strong>Balance Upon Turnover:</strong> ₱{{
             balanceUponTurnover.toFixed(2)
           }}
@@ -381,11 +388,11 @@
 
       <!-- Detailed Monthly Schedule (Visible when expanded) -->
       <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table>
+        <table class = "table">
           <thead>
             <tr>
-              <th>Payment Type</th>
-              <th>Amount (₱)</th>
+              <th><center>Payment Type</center></th>
+              <th><center>Amount (₱)</center></th>
             </tr>
           </thead>
           <tbody>
@@ -416,9 +423,6 @@
     >
       <button class="reserve-btn" @click="openReserveModal">
         Reserve Unit
-      </button>
-      <button class="schedule-btn" @click="scheduleVisit">
-        Schedule Visit
       </button>
     </div>
 
@@ -1099,36 +1103,18 @@ body {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  margin-left: 30px;
 }
-
 .toggle-button:hover {
   background-color: #0056b3;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+/* Apply a fixed width to all columns */
+.table th, 
+.table td {
+  width: 50px; /* Set the desired width for all columns */
 }
 
-table,
-th,
-td {
-  border: 1px solid #ddd;
-}
-
-th,
-td {
-  padding: 10px;
-  text-align: left;
-}
-
-th {
-  background-color: #f4f4f4;
-}
-
-td {
-  text-align: right;
-}
 
 /* juju */
 
