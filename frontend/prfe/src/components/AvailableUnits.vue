@@ -536,10 +536,12 @@
       </form>
       
       <!-- Error Message -->
-       <div v-if="errorMessage" class="modal-overlay">
-            <p>{{ errorMessage }}</p>
-            <button @click="closeModal">Close</button>
+        <b-modal v-if="errorMessage">
+          <p>{{ errorMessage }}</p>
+          <div class = "button-container">
+            <button @click="closeModal" class = "btn-cancel-right">Close</button>
           </div>
+        </b-modal>
       </b-modal>
      </b-modal>
   </div>
@@ -1130,6 +1132,20 @@ body {
   background-color: #0056b3;
 }
 
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+}
+
+.btn-cancel-right {
+  background-color: #343a40; /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px; /* Adjust the border radius */
+  padding: 10px;
+  cursor: pointer;
+}
+
 .btn-add {
   background-color: #42b983;
   color: #fff;
@@ -1219,20 +1235,6 @@ body {
 .unit-card:hover {
   background-color: #e8e8e8;
   transition: ease 0.3s;
-}
-
-/* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
 }
 
 /* Modal Content */
@@ -1366,12 +1368,6 @@ label {
   margin-bottom: 10px;
 }
 
-/* Button Container */
-.button-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
 
 button {
   padding: 10px 15px;
