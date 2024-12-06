@@ -40,11 +40,16 @@ class Site(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Pricing Defaults
+    commission = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True,
+        help_text="Commission earned when the unit is sold"
+    )
     spot_discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     spot_discount_flat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
     reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # maximum_months
 
     def __str__(self):
         return self.name
@@ -121,3 +126,4 @@ class Floor(models.Model):
 
     def __str__(self):
         return f"Floor {self.floor_number} - {self.site.name}"
+        

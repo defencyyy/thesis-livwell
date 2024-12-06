@@ -219,6 +219,7 @@ export default {
           this.sites = response.data.data.map((site) => ({
             ...site,
             isArchived: site.isArchived ?? false,
+            location: this.constructLocation(site),
             floors: site.floors || [], // Ensure floors is always an array
             units: site.units || [], // Ensure units is always an array
           }));
@@ -229,6 +230,10 @@ export default {
       } finally {
         this.isLoading = false;
       }
+    },
+    constructLocation(site) {
+      const addressParts = [site.province, site.municipality, site.barangay];
+      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
     },
     async fetchUnits() {
       try {

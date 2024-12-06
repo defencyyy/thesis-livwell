@@ -9,6 +9,7 @@ class FloorSerializer(serializers.ModelSerializer):
 
 class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
+    floors = FloorSerializer(many=True, read_only=True)  # Add this line
     number_of_floors = serializers.IntegerField(write_only=True, required=False)  # New field to add floors
 
     class Meta:
@@ -31,6 +32,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'floors',
             'number_of_floors',  # Include new field
             'total_units', 
+            'location',
             'available_units',
         ]
         read_only_fields = ['id', 'created_at']
@@ -84,8 +86,6 @@ class SiteSerializer(serializers.ModelSerializer):
                 floor.delete()
 
         return instance
-
-
 
     def validate_status(self, value):
         """Ensure the status is within the allowed choices."""
