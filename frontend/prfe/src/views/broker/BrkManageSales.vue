@@ -231,38 +231,42 @@
               </div>
               
               <div v-if="!salesDetailsExists">
-                <div class="form-group">
-                  <br>
-                  <label for="paymentPlan"><b>Payment Plan </b></label>
-                  <br>
-                  <select
-                    v-model="selectedPaymentPlan"
-                    id="paymentPlan"
-                    class = "dropdown"
-                    required
-                  >
-                    <option value="Spot Cash">Spot Cash</option>
-                    <option value="Deffered Payment">Deffered Payment</option>
-                  </select>
+                <br>
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class = "customer-title">Unit Price</h6>
+                    <h5> ₱{{ unitPrice }} </h5>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class = "customer-title">Payment Plan</h6>
+                    <div class = "form-group">
+                      <select
+                      v-model="selectedPaymentPlan"
+                      id="paymentPlan"
+                      class = "dropdown"
+                      required
+                      >
+                        <option value="Spot Cash">Spot Cash</option>
+                        <option value="Deffered Payment">Deffered Payment</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- In-House Financing Plan -->
-                <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
-
+                <div class="line mb-4"></div>
                 <!-- Spot Discount -->
-              <div class="form-group">
-              <br>
-              <label for="spotDiscount">Spot Discount</label>
-              <input
-                type="number"
-                id="spotDiscount"
-                v-model="spotCashDiscount"
-                @input="updatePaymentDetails"
-                class="form-control"
-                :min="0"
-                :max="maxSpotCashDiscount" 
-              />
-              </div>
+                <div class="form-group">
+                  <label for="spotDiscount"><strong>Spot Discount</strong></label>
+                  <input
+                    type="number"
+                    id="spotDiscount"
+                    v-model="spotCashDiscount"
+                    @input="updatePaymentDetails"
+                    class="form-control"
+                    :min="0"
+                    :max="maxSpotCashDiscount" 
+                  />
+                </div>
                 <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
                 <p>
                   <strong>Unit Price after Spot Discount:</strong> ₱{{
@@ -273,7 +277,7 @@
                 <!-- TLP Discount -->
                 <div class="form-group">
                   <br>
-                  <label for="tlpDiscount">TLP Discount (Optional)</label>
+                  <label for="tlpDiscount"><strong>LP Discount (Optional)</strong></label>
                   <input
                     type="number"
                     id="tlpDiscount"
@@ -292,7 +296,7 @@
                 <!-- Other Charges -->
                 <div class="form-group">
                   <br>
-                  <label for="otherChargesPercentage">Other Charges (%)</label>
+                  <label for="otherChargesPercentage"><strong>Other Charges (%)</strong></label>
                   <input
                     type="number"
                     id="otherChargesPercentage"
@@ -319,16 +323,18 @@
                 </p>
 
                 <!-- Spot Downpayment -->
+                <br>
                 <div
                   v-if="selectedPaymentPlan === 'Deffered Payment'"
                   class="form-group"
                 >
-                  <label for="spotDownpayment">Spot Downpayment</label>
+                  <label for="spotDownpayment"><strong>Spot Downpayment</strong></label>
                   <input
                     type="number"
                     id="spotDownpayment"
                     v-model="spotDownpaymentPercentage"
                     @input="updatePaymentDetails"
+                    class="form-control"
                     min="0"
                     step="5"
                     placeholder="Enter downpayment percentage"
@@ -352,9 +358,10 @@
                 </p>
 
                 <div v-if="selectedPaymentPlan === 'Deffered Payment'">
+                  <br>
                   <!-- Spread Downpayment -->
                   <div class="form-group">
-                    <label for="spreadDownpayment">Spread Downpayment</label>
+                    <label for="spreadDownpayment"><strong>Spread Downpayment</strong></label>
                     <input
                     type="number"
                     v-model="spreadDownpaymentPercentage"
@@ -363,6 +370,7 @@
                     min="0"
                     max="100"
                     step="1"
+                    class="form-control"
                     required
                     placeholder="Enter percentage"
                   />
@@ -374,8 +382,9 @@
                   </p>
 
                   <!-- Payable in Months -->
+                  <br>
                   <div class="form-group">
-                    <label for="months">Months to Pay</label>
+                    <label for="months"><strong>Months to Pay</strong></label>
                     <input
                       type="number"
                       v-model="payableMonths"
@@ -383,6 +392,7 @@
                       @input="updatePaymentDetails"
                       min="1"
                       step="1"
+                      class="form-control"
                       required
                     />
                   </div>
@@ -395,7 +405,11 @@
                       balanceUponTurnover
                     }}
                   </p>
-                  <h3>Payment Schedule Summary</h3>
+                  <br>
+                  <div class="line mb-4"></div>
+                  <div class="col-12 text-center mb-3 text-center">
+                    <h5 class="property-header">Payment Schedule Summary</h5>
+                  </div>
 
                   <!-- Payment Summary -->
                   <div class="payment-summary">
@@ -432,7 +446,7 @@
 
                   <!-- Detailed Monthly Schedule (Visible when expanded) -->
                   <div v-if="showDetailedSchedule" class="detailed-schedule">
-                    <table class = "sched-table">
+                    <table class = "table">
                       <thead>
                         <tr>
                           <th>Payment Type</th>
@@ -461,24 +475,27 @@
                     </table>
                   </div>
                 </div>
-
+                <br>
+                <div class="line mb-4"></div>
                 <!-- Required Documents Section (Always Displayed) -->
                 <div class="form-group">
-                  <br>
-                  <h3>Required Documents</h3>
+                  <div class="col-12 text-center mb-3 text-center">
+                    <h5 class="property-header">Required Documents</h5>
+                  </div>
                   <ul>
                     <li>
-                    <strong>Reservation Agreement:</strong>
+                    <strong>Reservation Agreement</strong><br>
                     <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
                     </li>
                     <li v-for="document in documentTypes" :key="document.id">
-                      <strong>{{ document.name }}:</strong>
+                      <strong>{{ document.name }}</strong>
                       <br v-if="document.id === 'reservationAgreement'">
                       <input
                         v-if="document.id === 'reservationAgreement'"
                         type="file"
                         @change="handleFileChange"
                         :id="document.id"
+                        class = "form-control"
                         required
                       />
                       <span v-else>{{ document.description }}</span>
@@ -1465,6 +1482,12 @@ body {
   margin-bottom: 15px; /* Spacing between boxes */
 }
 
+.line {
+    border-top: 2px solid  #6c757d;; /* Adjust thickness and color */
+    width: 100%; /* Full-width */
+    margin: 0 auto; /* Center it */
+}
+
 /* juju end */
 
 /* Modal Background */
@@ -1551,6 +1574,7 @@ body {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  border-radius: 5px;
 }
 
 .toggle-button:hover {
@@ -1653,13 +1677,6 @@ table {
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
-}
-
-.form-group label {
-  font-size: 16px; /* Increase label size */
-  font-weight: bold; /* Make label bold */
-  color: #0056b3; /* Use a professional blue tone */
-  margin-bottom: 8px; /* Add spacing below the label */
 }
 
 .form-group input[type="number"] {
