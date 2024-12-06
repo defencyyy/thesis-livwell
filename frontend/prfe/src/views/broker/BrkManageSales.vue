@@ -1349,7 +1349,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 16% 16% 16% 16% 16% 16%; /* Adjust column widths */
+  grid-template-columns: 20% 15% 15% 15% 20% 15%; /* Adjust column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1389,32 +1389,32 @@ body {
 
 .sales-table  td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 16%;
+  width: 20%;
 }
 
 .sales-table  td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 16%;
+  width: 15%;
 }
 
 .sales-table  td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 16%;
+  width: 15%;
 }
 
 .sales-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 16%;
+  width: 15%;
 }
 
 .sales-table td:nth-child(5),
 .outside-headers .header-item:nth-child(5) {
-  width: 16%;
+  width: 20%;
 }
 
 .sales-table td:nth-child(6),
 .outside-headers .header-item:nth-child(6) {
-  width: 16%;
+  width: 15%;
 }
 
 
