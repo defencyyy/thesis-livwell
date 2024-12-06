@@ -241,19 +241,19 @@
                 <p><strong>Unit Price:</strong> ₱{{ unitPrice }}</p>
 
                 <!-- Spot Discount -->
-                <div class="form-group">
-                  <br>
-                  <label for="spotDiscount">Spot Discount</label>
-                  <input
-                    type="number"
-                    id="spotDiscount"
-                    v-model="spotCashDiscount"
-                    @input="updatePaymentDetails"
-                    class="form-control"
-                    min="0"
-                    max="100"
-                  />
-                </div>
+               <div class="form-group">
+              <br>
+              <label for="spotDiscount">Spot Discount</label>
+              <input
+                type="number"
+                id="spotDiscount"
+                v-model="spotCashDiscount"
+                @input="updatePaymentDetails"
+                class="form-control"
+                :min="0"
+                :max="maxSpotCashDiscount" 
+              />
+            </div>
                 <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
                 <p>
                   <strong>Unit Price after Spot Discount:</strong> ₱{{
@@ -272,7 +272,7 @@
                     @input="updatePaymentDetails"
                     class="form-control"
                     min="0"
-                    max="100"
+                    max="maxtlpDiscount"
                   />
                 </div>
                 <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
@@ -291,6 +291,7 @@
                     @input="updatePaymentDetails"
                     class="form-control"
                     min="0"
+                    max="maxotherChargesPercentage"
                     step="0.1"
                   />
                 </div>
@@ -679,7 +680,10 @@ export default {
       selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
       spotCashDiscount: 0,
+      maxSpotCashDiscount: 0, // Default value fetched from DB
       tlpDiscount: 0,
+      maxotherChargesPercentage: 0,
+      maxtlpDiscount:0,
       spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
       tlpDiscountAmount: 0,
@@ -740,6 +744,13 @@ export default {
     },
   },
   methods: {
+     validateSpotCashDiscount() {
+      if (this.spotCashDiscount < 0) {
+        this.spotCashDiscount = 0;
+      } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
+        this.spotCashDiscount = this.maxSpotCashDiscount;
+      }
+    },
     filterCustomers() {
       const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
 
@@ -813,8 +824,11 @@ export default {
       this.unitPrice = sale.price; // Set unitPrice to the selected sale's unit price
       this.showModal = true;
       this.spotCashDiscount = this.selectedSale.spot_discount;
+      this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
       this.tlpDiscount = this.selectedSale.TLP_Discount;
+      this.maxtlpDiscount = this.tlpDiscount;
       this.otherChargesPercentage = this.selectedSale.other_charges;
+      this.maxotherChargesPercentage = this.otherChargesPercentage;
       this.reservationFee = this.selectedSale.reservation_fee;
       this.vat = this.selectedSale.vat_percent;
 
@@ -823,6 +837,21 @@ export default {
       this.updatePaymentDetails();
     },
     updatePaymentDetails() {
+      if (this.spotCashDiscount < 0) {
+        this.spotCashDiscount = 0;
+      } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
+        this.spotCashDiscount = this.maxSpotCashDiscount;
+      }
+      if (this.tlpDiscount < 0) {
+        this.tlpDiscount = 0;
+      } else if (this.tlpDiscount > this.maxtlpDiscount) {
+        this.tlpDiscount = this.maxtlpDiscount;
+      }
+      if (this.otherChargesPercentage < 0) {
+        this.otherChargesPercentage = 0;
+      } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
+        this.otherChargesPercentage = this.maxotherChargesPercentage;
+      }
       if (this.salesDetailsExists) {
         // Use salesDetails to update payment details
         this.updateSalesDetailsPaymentDetails();
