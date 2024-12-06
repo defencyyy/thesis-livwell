@@ -862,6 +862,8 @@ export default {
           : null, // Ensure file is present
       };
 
+      console.log("Data being sent to the API:", data);
+
       try {
         const response = await axios.post(
           "http://localhost:8000/reserve-unit/",
