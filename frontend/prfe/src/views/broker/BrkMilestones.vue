@@ -64,7 +64,7 @@
                 @click="openModal(site)"
               >
               <img
-                  :src="site.picture || 'https://via.placeholder.com/100'"
+                  :src="site.picture ||  require('@/assets/home.png')"
                   alt="Site Image"
                   class = "site-image"
                 />
