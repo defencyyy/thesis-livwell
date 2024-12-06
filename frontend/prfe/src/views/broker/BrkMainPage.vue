@@ -10,16 +10,31 @@
           <!-- Left side: Dashboard Boxes -->
           <div class="dashboard-boxes">
             <div class="box">
-              <p>Total Sales</p>
+              <div class = "box-header">
+                <div class = "icon-container">
+                  <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
+                </div>
+                <p>Total Sales</p>
+              </div>
               <h2>{{ totalSales }}</h2>
             </div>
             <div class="box">
-              <p>Total Commissions</p>
+              <div class = "box-header">
+                <div class = "icon-container">
+                  <i class="fa fa-money-bill" style="font-size: 13px"></i>
+                </div>
+                <p>Total Commissions</p>
+              </div>
               <h2>{{ totalCommissions }}</h2>
             </div>
             <div class="box">
-              <p>Total Customers</p>
-              <h2>{{ totalCustomers }}</h2>
+              <div class = "box-header">
+                <div class = "icon-container">
+                  <i class="fa fa-users" style="font-size: 13px"></i>
+                </div>
+                <p>Total Customers</p>
+              </div>
+              <h2>{{ totalCustomers }} </h2>
             </div>
           </div>
           
@@ -37,7 +52,8 @@
         <!-- Bottom: Bar Chart -->
         <div v-if="salesStatus.sold > 0">
           <div class="bar-chart-header">
-            <label for="year-select">Select Year for Sales Data:</label>
+            <label for="year-select">Select Year for Sales Data</label>
+
             <select id="year-select" v-model="selectedYear" @change="fetchSalesByMonth" :disabled="loading">
               <option v-if="loading" value="" disabled>Loading years...</option>
               <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
@@ -455,11 +471,67 @@ canvas {
   margin-bottom: 20px; /* Keeps bottom margin as is */
 }
 
+.box {
+  position: relative;
+  /* Make the box a positioning context */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 15px;
+  margin: 0;
+}
+
+.icon-container {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* Make the icon circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  /* Space between icon and title */
+}
+
+.box h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
+}
+
+.box-header p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #000000;
+}
+
+
 .piechart-container {
   flex: 1;
   display: flex;
   justify-content: center; /* Centers the pie chart */
   align-items: center;
+  margin-top: 30px;
 }
 
 #salesPieChart {
