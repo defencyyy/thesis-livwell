@@ -925,7 +925,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 .main-content {
@@ -1107,12 +1107,6 @@ body {
 }
 .toggle-button:hover {
   background-color: #0056b3;
-}
-
-/* Apply a fixed width to all columns */
-.table th, 
-.table td {
-  width: 50px; /* Set the desired width for all columns */
 }
 
 
