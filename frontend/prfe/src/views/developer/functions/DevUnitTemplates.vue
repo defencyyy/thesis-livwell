@@ -18,12 +18,12 @@
             <button @click="redirectToUnitTemplates">
               Manage Unit Templates
             </button>
+            <button @click="redirectToUnitTypes">Manage Unit Types</button>
           </div>
 
           <!-- Unit Templates Section -->
           <div v-if="view === 'templates'">
             <h2>Unit Templates</h2>
-            <!-- Total Unit Templates -->
             <div>
               <p>Total Unit Templates: {{ templates.length }}</p>
             </div>
@@ -56,7 +56,6 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Display templates based on search/filter -->
                 <tr v-for="template in filteredTemplates" :key="template.id">
                   <td>{{ template.relativeId }}</td>
                   <td>{{ template.name }}</td>
@@ -66,7 +65,9 @@
                   <td>{{ template.floor_area }}</td>
                   <td>{{ template.lot_area }}</td>
                   <td>
-                    <button @click="editTemplate(template)">Edit</button>
+                    <button @click="openEditTemplateModal(template)">
+                      Edit
+                    </button>
                     <button @click="deleteTemplate(template.id)">Delete</button>
                   </td>
                 </tr>
@@ -76,6 +77,84 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Template Modal -->
+    <b-modal
+      v-model="isCreateModalOpen"
+      title="Create Unit Template"
+      hide-footer
+      centered
+    >
+      <form @submit.prevent="createTemplate">
+        <div>
+          <label for="name">Name</label>
+          <input type="text" v-model="newTemplate.name" required />
+        </div>
+        <div>
+          <label for="bedroom">Bedrooms</label>
+          <input type="number" v-model="newTemplate.bedroom" required />
+        </div>
+        <div>
+          <label for="bathroom">Bathrooms</label>
+          <input type="number" v-model="newTemplate.bathroom" required />
+        </div>
+        <div>
+          <label for="price">Price</label>
+          <input type="number" v-model="newTemplate.price" required />
+        </div>
+        <div>
+          <label for="floor_area">Floor Area</label>
+          <input type="number" v-model="newTemplate.floor_area" />
+        </div>
+        <div>
+          <label for="lot_area">Lot Area</label>
+          <input type="number" v-model="newTemplate.lot_area" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Create</button>
+          <button @click="closeCreateModal">Cancel</button>
+        </div>
+      </form>
+    </b-modal>
+
+    <!-- Edit Template Modal -->
+    <b-modal
+      v-model="isEditModalOpen"
+      title="Edit Unit Template"
+      hide-footer
+      centered
+    >
+      <form @submit.prevent="saveTemplateChanges">
+        <div v-if="selectedTemplate">
+          <label for="name">Name</label>
+          <input type="text" v-model="selectedTemplate.name" required />
+        </div>
+        <div v-if="selectedTemplate">
+          <label for="bedroom">Bedrooms</label>
+          <input type="number" v-model="selectedTemplate.bedroom" required />
+        </div>
+        <div v-if="selectedTemplate">
+          <label for="bathroom">Bathrooms</label>
+          <input type="number" v-model="selectedTemplate.bathroom" required />
+        </div>
+        <div v-if="selectedTemplate">
+          <label for="price">Price</label>
+          <input type="number" v-model="selectedTemplate.price" required />
+        </div>
+        <div v-if="selectedTemplate">
+          <label for="floor_area">Floor Area</label>
+          <input type="number" v-model="selectedTemplate.floor_area" />
+        </div>
+        <div v-if="selectedTemplate">
+          <label for="lot_area">Lot Area</label>
+          <input type="number" v-model="selectedTemplate.lot_area" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Save Changes</button>
+          <button @click="closeEditModal">Cancel</button>
+        </div>
+      </form>
+    </b-modal>
   </div>
 </template>
 
@@ -83,22 +162,163 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
+import { BModal } from "bootstrap-vue-3";
 
 export default {
   name: "DevUnitTemplates",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
   data() {
     return {
-      view: "templates", // Default view: templates
-      templates: [], // Template data
+      view: "templates",
+      templates: [],
       isLoading: false,
       errorMessage: null,
-      searchQuery: "", // Search input for templates
-      filteredTemplates: [], // Filtered templates based on search
-      selectedTemplate: null, // Selected template for editing
+      searchQuery: "",
+      filteredTemplates: [],
+      selectedTemplate: null,
+      newTemplate: {
+        name: "",
+        bedroom: 1,
+        bathroom: 1,
+        price: 0,
+        floor_area: 0,
+        lot_area: 0,
+      },
+      isCreateModalOpen: false,
+      isEditModalOpen: false,
     };
   },
   methods: {
+    redirectToUnits() {
+      this.$router.push({ name: "DevFuncUnits" });
+    },
+
+    redirectToUnitTemplates() {
+      this.$router.push({ name: "DevUnitTemplates" });
+    },
+
+    redirectToUnitTypes() {
+      this.$router.push({ name: "DevUnitTypes" });
+    },
+    // Open the modal for creating a new template
+    openCreateTemplateModal() {
+      this.isCreateModalOpen = true;
+    },
+    closeCreateModal() {
+      this.isCreateModalOpen = false;
+      this.newTemplate = {
+        name: "",
+        bedroom: 1,
+        bathroom: 1,
+        price: 0,
+        floor_area: 0,
+        lot_area: 0,
+      };
+    },
+    openEditTemplateModal(template) {
+      if (template) {
+        this.selectedTemplate = { ...template };
+        this.isEditModalOpen = true;
+      } else {
+        this.selectedTemplate = null;
+        this.isEditModalOpen = false;
+        console.error("Invalid template data passed to the modal");
+      }
+    },
+    closeEditModal() {
+      this.isEditModalOpen = false;
+      this.selectedTemplate = null;
+    },
+
+    // Create Template
+    async createTemplate() {
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/templates/",
+          this.newTemplate,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        this.templates.push(response.data.data); // Add new template
+        this.closeCreateModal();
+        alert("Template created successfully!");
+      } catch (error) {
+        this.errorMessage = "Failed to create template.";
+        console.error(error);
+      }
+    },
+    // Save changes to an edited template
+    async saveTemplateChanges() {
+      if (!this.selectedTemplate) {
+        this.errorMessage = "No template selected for editing.";
+        console.error("No template selected for editing.");
+        return;
+      }
+
+      // Validate template fields
+      if (
+        !this.selectedTemplate.name ||
+        !this.selectedTemplate.bedroom ||
+        !this.selectedTemplate.bathroom ||
+        !this.selectedTemplate.price
+      ) {
+        this.errorMessage = "Please fill in all required fields.";
+        console.error("Missing required fields");
+        return; // Prevent sending invalid data
+      }
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
+          this.selectedTemplate,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const index = this.templates.findIndex(
+          (template) => template.id === this.selectedTemplate.id
+        );
+        if (index !== -1) {
+          this.templates[index] = response.data.data; // Update the template in the list
+        }
+        this.closeEditModal();
+        alert("Template updated successfully!");
+      } catch (error) {
+        this.errorMessage = "Failed to update template.";
+        console.error(error);
+      }
+    },
+    // Delete Template
+    async deleteTemplate(templateId) {
+      if (confirm("Are you sure you want to delete this template?")) {
+        try {
+          await axios.delete(
+            `http://localhost:8000/developer/units/templates/${templateId}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          this.templates = this.templates.filter(
+            (template) => template.id !== templateId
+          );
+          alert("Template deleted successfully!");
+        } catch (error) {
+          this.errorMessage = "Failed to delete template.";
+          console.error(error);
+        }
+      }
+    },
+
     // Fetch Unit Templates
     async fetchTemplates() {
       try {
@@ -138,46 +358,8 @@ export default {
     showUnitTemplates() {
       this.view = "templates";
       this.fetchTemplates();
-    },
-
-    redirectToUnits() {
-      this.$router.push({ name: "DevFuncUnits" });
-    },
-
-    // Redirect to Unit Management Page
-    redirectToUnitTemplates() {
-      this.$router.push({ name: "DevUnitTemplates" });
-    },
-
-    // Create Template
-    async createTemplate(templateData) {
-      try {
-        const response = await axios.post("/units/templates/", templateData);
-        this.templates.push(response.data.data); // Add new template
-        this.showUnitTemplates(); // Show templates view
-      } catch (error) {
-        this.errorMessage = "Failed to create template.";
-      }
-    },
-
-    // Delete Template
-    async deleteTemplate(templateId) {
-      if (confirm("Are you sure you want to delete this template?")) {
-        try {
-          await axios.delete(`/units/templates/${templateId}/`);
-          this.templates = this.templates.filter(
-            (template) => template.id !== templateId
-          );
-        } catch (error) {
-          this.errorMessage = "Failed to delete template.";
-        }
-      }
-    },
-
-    // Open Modals (Template)
-    openTemplateModal() {
-      console.log("Open template modal for", this.selectedTemplate);
-      // Open modal for adding/editing template
+      this.closeCreateModal(); // Close the create modal when navigating
+      this.closeEditModal(); // Close the edit modal when navigating
     },
   },
   mounted() {
@@ -225,6 +407,7 @@ body {
   flex-direction: column;
   flex: 1;
   margin-top: 60px;
+  z-index: 10; /* Ensure main content is below the modal */
 }
 
 .content {
@@ -281,5 +464,45 @@ td {
   text-align: center;
   color: red;
   font-weight: bold;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the modal is on top */
+}
+
+.modal {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+  color: #fff;
 }
 </style>

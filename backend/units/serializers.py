@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Unit, UnitImage, UnitTemplate
+from .models import Unit, UnitImage, UnitTemplate, UnitType
 from companies.models import Company
 
 class UnitImageSerializer(serializers.ModelSerializer):
@@ -22,10 +22,15 @@ class UnitImageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Unit Template must be set when the image type is 'unit_template'")
         return data
 
+class UnitTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitType
+        fields = '__all__'
 
 class UnitTemplateSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Add company field
     images = UnitImageSerializer(many=True, read_only=True)
+    unit_type = UnitTypeSerializer()
 
     class Meta:
         model = UnitTemplate
