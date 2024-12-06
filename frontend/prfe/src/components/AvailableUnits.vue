@@ -73,16 +73,6 @@
     </div>
 
 
-    <!-- Success Message Pop-up -->
-    <div
-      v-if="successMessage"
-      class="success-message"
-      :class="{ show: showSuccessMessage }"
-    >
-      <p>{{ successMessage }}</p>
-      <button @click="closePopup" class="ok-btn">OK</button>
-    </div>
-
       <!-- Unit Details Modal -->
       <b-modal
       id="unitDetailsModal"
@@ -272,7 +262,7 @@
     </p>
 
     <!-- Total Amount Payable -->
-    <p p class = "description-align">
+    <p class = "description-align">
       <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
     </p>
 
@@ -293,7 +283,7 @@
       />
     </div>
 
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
       <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
     </p>
 
@@ -304,7 +294,7 @@
     </p>
 
     <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'">
+    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
       <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
     </p>
 
@@ -312,19 +302,22 @@
       <!-- Spread Downpayment -->
       <div class="form-group">
         <label for="spreadDownpayment">Spread Downpayment</label>
-        <input
-          type="number"
+        <select
           v-model="spreadDownpaymentPercentage"
           id="spreadDownpayment"
-          @input="updatePaymentDetails"
-          min="0"
-          max="100"
-          step="1"
+          @change="updatePaymentDetails"
+          class="form-select mt-2"
+          style="width: 100px;"
           required
-          placeholder="Enter percentage"
-          />
+        >
+          <option value="0">0%</option>
+          <option value="5">5%</option>
+          <option value="10">10%</option>
+          <option value="15">15%</option>
+        </select>
       </div>
-      <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+      
+      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
 
       <!-- Payable in Months -->
       <div class="form-group">
@@ -339,32 +332,36 @@
           required
         />
       </div>
-      <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
       <!-- Balance Upon Turnover -->
-      <p>
+      <p class = "description-align">
         <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
       </p>
-      <h3>Payment Schedule Summary</h3>
+      <br>    
+      <div class="line mb-4"></div>
+      <div class="col-12 text-center mb-3 text-center">
+            <h5 class="property-header">Payment Schedule Summary</h5>
+      </div>
 
       <!-- Payment Summary -->
       <div class="payment-summary">
-        <p>
+        <p class = "description-align">
           <strong>Spot Downpayment:</strong> ₱{{
             spotDownpayment.toFixed(2)
           }}
         </p>
-        <p>
+        <p class = "description-align">
           <strong>Spread Downpayment:</strong> ₱{{
             spreadDownpayment.toFixed(2)
           }}
         </p>
-        <p>
+        <p class = "description-align">
           <strong>Monthly Payment:</strong> ₱{{
             payablePerMonth.toFixed(2)
           }}
           / month for {{ payableMonths }} months
         </p>
-        <p>
+        <p class = "description-align">
           <strong>Balance Upon Turnover:</strong> ₱{{
             balanceUponTurnover.toFixed(2)
           }}
@@ -381,11 +378,11 @@
 
       <!-- Detailed Monthly Schedule (Visible when expanded) -->
       <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table>
+        <table class = "table">
           <thead>
             <tr>
-              <th>Payment Type</th>
-              <th>Amount (₱)</th>
+              <th><center>Payment Type</center></th>
+              <th><center>Amount (₱)</center></th>
             </tr>
           </thead>
           <tbody>
@@ -419,105 +416,132 @@
       </button>
     </div>
 
-      <!-- Reserve Unit Modal -->
-      <div
-        v-if="isReserveModalVisible"
-        class="modal-overlay"
-        @click="closeReserveModal"
+    <!-- Success Message Pop-up -->
+
+    <b-modal
+      v-model="showSuccessMessage"
+      title="Reservation Submitted"
+      @hide="closePopup"
+      centered
+      hide-footer
+      :visible="successMessage"
       >
-        <div class="modal-content" @click.stop>
-          <h3>Reserve Unit</h3>
-          <!-- Success Message Pop-up -->
-          <form @submit.prevent="submitReservation">
-            <!-- Customer Name Dropdown -->
-            <div class="form-group">
-              <label for="customerName">Customer Name</label>
-              <select
-                v-model="reservationForm.customerName"
-                id="customerName"
-                required
-              >
-                <option value="" disabled selected>Select Customer</option>
-                <option
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  :value="customer.id"
-                >
-                  {{ customer.name }} ({{ customer.customer_code }})
-                </option>
-              </select>
-            </div>
-            <!-- File Upload -->
-            <div class="form-group">
-              <label for="fileUpload">Upload File (Required)</label>
-              <input
-                type="file"
-                @change="handleFileUpload"
-                id="fileUpload"
-                required
-              />
-            </div>
-            <!-- Payment Amount -->
-            <div class="form-group">
-              <label for="paymentAmount">Payment Amount</label>
-              <input
-                type="number"
-                v-model="reservationForm.paymentAmount"
-                id="paymentAmount"
-                required
-              />
-            </div>
-            <!-- Payment Method -->
-            <div class="form-group">
-              <label for="paymentMethod">Payment Method</label>
-              <select
-                v-model="reservationForm.paymentMethod"
-                id="paymentMethod"
-                required
-              >
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="cash">Cash</option>
-                <option value="online_payment">Online Payment</option>
-              </select>
-            </div>
-            <!-- Payment Date -->
-            <div class="form-group">
-              <label for="paymentDate">Date of Payment</label>
-              <input
-                type="date"
-                v-model="reservationForm.paymentDate"
-                id="paymentDate"
-                required
-              />
-            </div>
-            <!-- Payment Reference (only if payment method is not cash) -->
-            <div
-              class="form-group"
-              v-if="reservationForm.paymentMethod !== 'cash'"
+        <p>{{ successMessage }}</p>
+        <div class = "buttons-container">
+          <button @click="closePopup" class="btn btn-primary">OK</button>
+        </div>
+    </b-modal>
+
+    <!-- Reserve Unit Modal -->
+    <b-modal
+      v-model="isReserveModalVisible"
+      @hide="closeReserveModal"
+      hide-footer
+      title="Reserve Unit"
+    >
+      <form @submit.prevent="submitReservation">
+        <!-- Customer Name Dropdown -->
+        <div class="form-group">
+          <label for="customerName">Customer Name</label>
+          <select
+            v-model="reservationForm.customerName"
+            id="customerName"
+            class = "form-select"
+            style="margin-left: 1px;"
+            required
+          >
+            <option value="" disabled selected>Select Customer</option>
+            <option
+              v-for="customer in customers"
+              :key="customer.id"
+              :value="customer.id"
             >
-              <label for="paymentReference">Payment Reference Number</label>
-              <input
-                type="text"
-                v-model="reservationForm.paymentReference"
-                id="paymentReference"
-                required
-              />
-            </div>
-            <!-- Submit Button -->
-            <div class="form-group">
-              <button type="submit" class="submit-btn">
-                Submit Reservation
-              </button>
-            </div>
-          </form>
-          <div v-if="errorMessage" class="modal-overlay">
+              {{ customer.name }} ({{ customer.customer_code }})
+            </option>
+          </select>
+        </div>
+        <!-- File Upload -->
+        <div class="form-group">
+          <label for="fileUpload">Upload File (Required)</label>
+          <input
+            type="file"
+            @change="handleFileUpload"
+            id="fileUpload"
+            class = "form-control"
+            required
+          />
+        </div>
+        <!-- Payment Amount -->
+        <div class="form-group">
+          <label for="paymentAmount">Payment Amount</label>
+          <input
+            type="number"
+            v-model="reservationForm.paymentAmount"
+            id="paymentAmount"
+            required
+          />
+        </div>
+        <!-- Payment Method -->
+        <div class="form-group">
+          <label for="paymentMethod">Payment Method</label>
+          <select
+            v-model="reservationForm.paymentMethod"
+            id="paymentMethod"
+            class = "form-select"
+            style="width: 250px; margin-left: 1px;"
+            required
+          >
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="online_payment">Online Payment</option>
+          </select>
+        </div>
+        <!-- Payment Date -->
+        <div class="form-group">
+          <label for="paymentDate">Date of Payment</label>
+          <input
+            type="date"
+            v-model="reservationForm.paymentDate"
+            id="paymentDate"
+            class = "form-select"
+            style="width: 250px; margin-left: 1px;"
+            required
+          />
+        </div>
+        <!-- Payment Reference (only if payment method is not cash) -->
+        <div
+          class="form-group"
+          v-if="reservationForm.paymentMethod !== 'cash'"
+        >
+          <label for="paymentReference">Payment Reference Number</label>
+          <input
+            type="text"
+            v-model="reservationForm.paymentReference"
+            id="paymentReference"
+            class = "form-control"
+            style="width: 250px; margin-left: 1px;"
+            required
+          />
+        </div>
+        <!-- Submit Button -->
+        <div
+          class="d-flex justify-content-end gap-2 mt-30"
+          style="padding-top: 15px"
+        >
+        <button type="submit" class="btn-add">
+            Submit Reservation
+        </button>
+        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
+        </div>
+      </form>
+      
+      <!-- Error Message -->
+       <div v-if="errorMessage" class="modal-overlay">
             <p>{{ errorMessage }}</p>
             <button @click="closeModal">Close</button>
           </div>
-          <button @click="closeReserveModal" class="cancel-btn">Cancel</button>
-        </div>
-      </div>
       </b-modal>
+     </b-modal>
   </div>
   </div>
 </div>
@@ -838,6 +862,8 @@ export default {
           : null, // Ensure file is present
       };
 
+      console.log("Data being sent to the API:", data);
+
       try {
         const response = await axios.post(
           "http://localhost:8000/reserve-unit/",
@@ -918,7 +944,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 .main-content {
@@ -1089,6 +1115,7 @@ body {
   border-top: 1px solid #ccc;
   padding-top: 10px;
 }
+
 .toggle-button {
   background-color: #007bff;
   color: white;
@@ -1096,34 +1123,43 @@ body {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  margin-left: 30px;
 }
 
 .toggle-button:hover {
   background-color: #0056b3;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-table,
-th,
-td {
-  border: 1px solid #ddd;
-}
-
-th,
-td {
+.btn-add {
+  background-color: #42b983;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
   padding: 10px;
-  text-align: left;
 }
 
-th {
-  background-color: #f4f4f4;
+.btn-add:hover {
+  background-color: #3e9c73;  /* Slightly darker green */
+  color: #fff;
+  border: none;
 }
 
-td {
+
+.btn-cancel {
+  background-color: #343a40;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.btn-cancel:hover {
+  background-color: #495057;  /* Slightly lighter gray */
+  color: #fff;
+  border: none;
+}
+
+.buttons-container {
   text-align: right;
 }
 
