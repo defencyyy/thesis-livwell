@@ -880,14 +880,17 @@ export default {
         this.loading = false;
         return; // Stop further processing if validation fails
       }
-      if (
-        this.selectedPaymentPlan === "Deffered Payment" &&
-        this.netDownpayment < 0
-      ) {
+      if (this.selectedPaymentPlan === "Deffered Payment" && this.netDownpayment < 0) {
         this.errorMessage = "Select Down Payment Percent";
         this.loading = false;
         return; // Stop further processing if validation fails
       }
+      if (this.selectedPaymentPlan === "Deferred Payment" && (this.spreadDownpaymentPercentage <= 0)) {
+        this.errorMessage = "Please specify a valid spread downpayment percentage for deferred payment.";
+        this.loading = false;
+        return; // Stop further processing
+      }
+
       const formData = new FormData();
       // Add sales details
       formData.append("customer_id", this.selectedSale.customer_id);
