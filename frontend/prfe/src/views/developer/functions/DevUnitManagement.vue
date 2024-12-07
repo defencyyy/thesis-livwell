@@ -9,7 +9,13 @@
           <div class="site-overview">
             <!-- Site Image (50%) -->
             <div class="site-picture">
-              <img :src="site.picture" alt="Site Image" class="site-image" />
+              <img
+                :src="
+                  getPictureUrl(site.picture) || require('@/assets/home.png')
+                "
+                alt="Site Image"
+                class="site-image"
+              />
             </div>
             <!-- Site Info (50%) -->
             <div class="site-info">
@@ -1160,6 +1166,9 @@ export default {
         console.error("Error saving unit changes:", error.response || error);
       }
     },
+    getPictureUrl(picture) {
+      return `http://localhost:8000${picture}`;
+    },
     // This is the method that opens the modal for editing a unit
     openEditUnitModal(unit) {
       // Ensure the selected unit is properly set before opening the modal
@@ -1295,6 +1304,7 @@ body {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+  height: 300px;
 }
 .site-info {
   flex: 1;

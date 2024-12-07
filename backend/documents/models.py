@@ -11,14 +11,21 @@ def document_file_upload_path(instance, filename):
     customer_id = instance.customer.id if instance.customer else 'unknown_customer'
     customer_name = instance.customer.name if instance.customer else 'unknown_customer'
     
-    # Replace spaces with underscores and strip special characters
-    customer_name = re.sub(r'\s+', '_', customer_name)  
-    customer_name = re.sub(r'[^\w\s-]', '', customer_name)  
+    # Replace spaces with underscores and strip special characters from the customer name
+    customer_name = re.sub(r'\s+', '_', customer_name)
+    customer_name = re.sub(r'[^\w\s-]', '', customer_name)
+    
+    # Ensure filename has a default value if None
+    filename = filename or 'default.pdf'
+    
+    # Extract file extension from the original filename
+    file_extension = os.path.splitext(filename)[1]
     
     document_type_name = instance.document_type.name if instance.document_type else 'unknown_type'
-    filename = filename or 'document.pdf'
     
-    return os.path.join('files', str(company_name), f"{customer_id}_{customer_name}", document_type_name, filename)
+    filename = f"{document_type_name}{file_extension}"
+    
+    return os.path.join('files', str(company_name), f"{customer_id}_{customer_name}", filename)
 
 # DocumentType model for dynamically adding document types
 class DocumentType(models.Model):

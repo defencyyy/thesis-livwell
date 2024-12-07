@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
-// import NotFoundComponent from "@/components/NotFoundComponent.vue"; // Adjust the path as necessary
+import NotFoundComponent from "@/components/NotFoundComponent.vue";
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
@@ -213,6 +213,7 @@ const routes = [
     meta: { requiresAuth: true, role: "broker" },
   },
   { path: "/", redirect: "/home" },
+  { path: "/:catchAll(.*)", component: NotFoundComponent },
 ];
 
 const router = createRouter({

@@ -381,19 +381,32 @@
                   </div>
                 </div>
               </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="numberOfFloors">Number of Floors</label>
+                  <input
+                    type="number"
+                    v-model="newSite.number_of_floors"
+                    id="numberOfFloors"
+                    class="form-control"
+                    placeholder="Enter the number of floors"
+                    min="1"
+                    required
+                  />
+                </div>
 
-              <!-- Add Floors -->
-              <div class="form-group mb-3">
-                <label for="numberOfFloors">Number of Floors</label>
-                <input
-                  type="number"
-                  v-model="newSite.number_of_floors"
-                  id="numberOfFloors"
-                  class="form-control"
-                  placeholder="Enter the number of floors"
-                  min="1"
-                  required
-                />
+                <div class="col-md-6">
+                  <label for="maximumMonths">Maximum Months to Pay</label>
+                  <input
+                    type="number"
+                    v-model="newSite.maximum_months"
+                    id="maximumMonths"
+                    class="form-control"
+                    placeholder="Enter the maximum months to pay"
+                    min="1"
+                    required
+                  />
+                </div>
               </div>
 
               <!-- Buttons -->
@@ -539,6 +552,19 @@
                         </option>
                       </select>
                     </div>
+                  </div>
+                  <!-- Maximum Months Field -->
+                  <div class="form-group mb-3">
+                    <label for="editMaximumMonths" class="form-label"
+                      >Maximum Months to Pay</label
+                    >
+                    <input
+                      type="number"
+                      v-model="editSite.maximum_months"
+                      id="editMaximumMonths"
+                      class="form-control"
+                      readonly
+                    />
                   </div>
                 </div>
 
@@ -712,6 +738,7 @@ export default {
         barangay: "",
         description: "",
         picture: "",
+        maximum_months: 0,
         number_of_floors: 0,
       },
       editSite: {
@@ -725,6 +752,7 @@ export default {
         description: "",
         picture: "",
         floors: [],
+        maximum_months: 0,
         number_of_floors: 0,
       },
       showFloorModal: false,
@@ -884,6 +912,7 @@ export default {
               postal_code: site.postal_code,
               picture: site.picture, // If you want to keep the picture
               status: site.status,
+              maximum_months: site.maximum_months,
               archived: true, // If you need to update the archive status
             },
             {
@@ -922,6 +951,7 @@ export default {
               postal_code: site.postal_code,
               picture: site.picture, // If you want to keep the picture
               status: site.status,
+              maximum_months: site.maximum_months,
               archived: false, // Update the archived status to false (unarchive)
             },
             {
@@ -1151,6 +1181,7 @@ export default {
       formData.append("municipality", this.currentSite.municipality);
       formData.append("barangay", this.currentSite.barangay);
       formData.append("status", this.currentSite.status);
+      formData.append("maximum_months", this.currentSite.maximum_months || 0);
 
       // Debugging - log the company and floor data
       console.log("Company ID being sent:", this.vuexCompanyId);
@@ -1202,6 +1233,7 @@ export default {
       formData.append("barangay", this.newSite.barangay);
       formData.append("status", this.newSite.status);
       formData.append("number_of_floors", this.newSite.number_of_floors);
+      formData.append("maximum_months", this.newSite.maximum_months);
 
       // Append the floors to the formData
       if (this.newSite.floors && this.newSite.floors.length > 0) {
@@ -1241,6 +1273,7 @@ export default {
             description: "",
             picture: null,
             number_of_floors: 0,
+            maximum_months: 0,
             floors: [], // Ensure floors are cleared
           };
           this.imagePreview = null;
@@ -1263,6 +1296,7 @@ export default {
       formData.append("barangay", this.editSite.barangay);
       formData.append("status", this.editSite.status);
       formData.append("description", this.editSite.description || "");
+      formData.append("maximum_months", this.editSite.maximum_months);
 
       if (this.newPictureFile) {
         formData.append("picture", this.newPictureFile);

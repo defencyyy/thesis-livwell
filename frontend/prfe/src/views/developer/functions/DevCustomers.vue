@@ -178,17 +178,52 @@
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
 
-      <!-- Document Requirements -->
+      <!-- Submitted Documents -->
       <h5>Submitted Documents</h5>
       <div v-if="currentCustomer.documents && currentCustomer.documents.length">
         <ul>
           <li v-for="document in currentCustomer.documents" :key="document.url">
             <span class="document-type">{{ document.type }}:</span>
-            <a :href="document.url" target="_blank">{{ document.name }}</a>
+              class="btn btn-sm btn-outline-success"
+              aria-label="Open document in a new tab"
+            >
+              Open in New Tab
+            </a>
+
+            <!-- Download the document -->
+            <a
+              :href="document.url"
+              :download="document.name"
+              class="btn btn-sm btn-outline-success"
+              aria-label="Download
+              document"
+            >
+              Download
+            </a>
           </li>
         </ul>
       </div>
       <div v-else>No documents available.</div>
+
+      <b-modal
+        v-model="showDocumentModal"
+        title="View Document"
+        hide-footer
+        centered
+        size="lg"
+      >
+        <div v-if="selectedDocument">
+          <iframe
+            :src="selectedDocument.url"
+            width="100%"
+            height="500px"
+            frameborder="0"
+          ></iframe>
+        </div>
+        <div v-else>
+          <p>No document to display.</p>
+        </div>
+      </b-modal>
 
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
@@ -274,6 +309,8 @@ export default {
         broker_sales: [], // Ensure this exists
       },
       error: null,
+      showDocumentModal: false,
+      selectedDocument: {}, // Initialize as an empty object
     };
   },
   computed: {
@@ -411,6 +448,14 @@ export default {
       } catch (error) {
         console.error("Error updating customer:", error);
         this.error = "Failed to update customer.";
+      }
+    },
+    openDocumentModal(document) {
+      if (document && document.url) {
+        this.selectedDocument = document;
+        this.showDocumentModal = true;
+      } else {
+        console.error("Invalid document or missing URL:", document);
       }
     },
     redirectToLogin() {
