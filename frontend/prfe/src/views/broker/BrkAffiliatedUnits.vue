@@ -9,6 +9,7 @@
             <div class="title-icon"></div>
             <div class="edit-title">Available Sites</div>
           </div>
+
           <div class="view-switch">
             <div
               class="view-icon"
@@ -29,7 +30,8 @@
             </div>
           </div>
         </div>
-         <div
+
+        <div
           class="card border-0 rounded-1 mx-auto"
           style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
@@ -94,6 +96,47 @@
           </div>
           <div v-else>
             <p>No sites with available units.</p>
+          </div>
+        </div>
+        <div v-if="viewMode === 'table'">
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Location</span>
+          </div>
+          <div v-if = "filteredSites.length">
+            <div
+              v-for="site in paginatedSites"
+              :key="site.id || index"
+              class="card border-0 rounded-1 mx-auto card-hover"
+              style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              cursor: 'pointer';
+            "
+              @click="() => redirectToUnits(site.id)"
+            >
+              <div class = "card-body">
+                <table class = "site-table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="site-info">
+                          <img
+                            :src="site.picture || require('@/assets/home.png')"
+                            alt="Site Image"
+                            class="table-image"
+                          />
+                          <span class="site-name">
+                            {{ site.name || "Unknown" }}
+                          </span>
+                        </div>
+                      </td>
+                      <td>{{ site.location || "Location unavailable" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -378,9 +421,8 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   max-width: 1100px;
-  /* Matches the max-width of the card */
   margin: 0 auto;
-  /* Centers the grid within the parent */
+  /* Ensures grid behaves properly */
 }
 
 .site-card {
@@ -388,7 +430,9 @@ body {
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+  /* Ensure the card width is sufficiently large */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .site-card:hover {
@@ -417,6 +461,78 @@ body {
   font-size: 14px;
   color: #777;
 }
+
+.table-image {
+  width: 30px;
+  /* Small size for the table */
+  height: 30px;
+  /* Make the image smaller */
+  object-fit: cover;
+  /* Crop the image if necessary */
+  margin-right: 10px;
+  /* Adds some spacing between the image and the name */
+}
+
+.site-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.site-table th,
+.site-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.site-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.site-table th:nth-child(1),
+.site-table td:nth-child(1) {
+  /* Status column */
+  width: 50%;
+}
+
+.site-table th:nth-child(2),
+.site-table td:nth-child(2) {
+  /* Actions column */
+  width: 50%;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 50% 50%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px); /* Slight lift effect */
+  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+}
+
 
 .toolbar {
   display: flex;
@@ -494,6 +610,7 @@ body {
   color: #333;
 }
 
+
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
@@ -520,6 +637,7 @@ body {
   /* Centers the card */
   margin-right: auto;
 }
+
 .pagination-controls {
   display: flex;
   justify-content: center;
