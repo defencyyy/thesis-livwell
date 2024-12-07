@@ -9,6 +9,25 @@
             <div class="title-icon"></div>
             <div class="edit-title">Available Sites</div>
           </div>
+          <div class="view-switch">
+            <div
+              class="view-icon"
+              :class="{ active: viewMode === 'grid' }"
+              @click="viewMode = 'grid'"
+            >
+              <i class="fa fa-th"></i>
+              <!-- Grid Icon -->
+            </div>
+            <div class="separator"></div>
+            <div
+              class="view-icon"
+              :class="{ active: viewMode === 'table' }"
+              @click="viewMode = 'table'"
+            >
+              <i class="fa fa-list"></i>
+              <!-- Table Icon -->
+            </div>
+          </div>
         </div>
          <div
           class="card border-0 rounded-1 mx-auto"
@@ -44,37 +63,40 @@
         </div>
         </div>
         </div>
+        
+        <!-- Grid View -->
+        <div v-if="viewMode === 'grid'" class="site-grid">
+          <div v-if = "filteredSites.length">
+            <div
+              v-for="site in paginatedSites"
+              :key="site.id || index"
+              class="site-card"
+              @click="() => redirectToUnits(site.id)"
+            >
 
-        <div v-if = "filteredSites.length" class = "site-grid">
-          <div
-            v-for="site in paginatedSites"
-            :key="site.id || index"
-            class="site-card"
-            @click="() => redirectToUnits(site.id)"
-          >
+              <!-- Site Image -->
+              <img
+                :src="site.picture || require('@/assets/home.png')"
+                alt="Site Image"
+                class="site-image"
+              />
 
-            <!-- Site Image -->
-            <img
-              :src="site.picture || require('@/assets/home.png')"
-              alt="Site Image"
-              class="site-image"
-            />
+              <!-- Site Name -->
+              <h2 class="site-name">
+                {{ site.name || "Unknown" }}
+              </h2>
 
-            <!-- Site Name -->
-            <h2 class="site-name">
-              {{ site.name || "Unknown" }}
-            </h2>
-
-            <!-- Site Location -->
-            <p class="site-location">
-              {{ site.location || "Location unavailable" }}
-            </p>
+              <!-- Site Location -->
+              <p class="site-location">
+                {{ site.location || "Location unavailable" }}
+              </p>
+            </div>
+          </div>
+          <div v-else>
+            <p>No sites with available units.</p>
           </div>
         </div>
 
-        <div v-else>
-          <p>No sites with available units.</p>
-        </div>
     <!-- Pagination Controls -->
     <div class="pagination-controls">
       <button
@@ -130,6 +152,7 @@ export default {
   },
   data() {
     return {
+      viewMode: "table",
       sites: [],
       loading: true,
       sortBy: "site_asc",
@@ -200,6 +223,10 @@ export default {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
+    },
+
+    toggleView() {
+      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     
     async fetchAvailableSites() {
@@ -314,6 +341,36 @@ body {
 .edit-title {
   color: #000000;
   text-align: left;
+}
+
+.view-switch {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #f6f6f6;
+}
+
+.view-icon {
+  flex: 1;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 15px;
+  color: #343a40;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-icon.active {
+  background-color: #343a40;
+  color: #f6f6f6;
+}
+
+.separator {
+  width: 1px;
+  background-color: #f6f6f6;
+  height: 100%;
 }
 
 .site-grid {
