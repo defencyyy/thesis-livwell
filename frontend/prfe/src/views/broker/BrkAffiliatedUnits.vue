@@ -463,5 +463,29 @@ body {
   /* Centers the card */
   margin-right: auto;
 }
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
 
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
 </style>
