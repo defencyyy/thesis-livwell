@@ -566,6 +566,18 @@
                       readonly
                     />
                   </div>
+                  <div class="form-group mb-3">
+                    <label for="editNumberOfFloors" class="form-label"
+                      >Number Of Floors</label
+                    >
+                    <input
+                      type="number"
+                      v-model="editSite.floors.length"
+                      id="editMaximumMonths"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
                 </div>
 
                 <!-- Right Side (Image Upload with Preview) -->
@@ -1171,41 +1183,29 @@ export default {
       const totalFloors = currentFloorCount + parseInt(this.newFloorCount) || 0;
       this.totalFloors = totalFloors;
     },
+
     async saveSite() {
-      const formData = new FormData();
-      formData.append("companyId", this.vuexCompanyId);
-      formData.append("name", this.currentSite.name);
-      formData.append("description", this.currentSite.description || "");
-      formData.append("region", this.currentSite.region);
-      formData.append("province", this.currentSite.province);
-      formData.append("municipality", this.currentSite.municipality);
-      formData.append("barangay", this.currentSite.barangay);
-      formData.append("status", this.currentSite.status);
-      formData.append("maximum_months", this.currentSite.maximum_months || 0);
-
-      // Debugging - log the company and floor data
-      console.log("Company ID being sent:", this.vuexCompanyId);
-      console.log("Floor data being sent:", this.currentSite.floors);
-
-      // Append the floors to the formData
-      if (this.currentSite.floors && this.currentSite.floors.length > 0) {
-        this.currentSite.floors.forEach((floor, index) => {
-          formData.append(
-            `floors[${index}][floorNumber]`,
-            floor.floorNumber || ""
-          );
-          // You can add other fields here for each floor, e.g., floor type, area, etc.
-        });
-      }
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.currentSite.name,
+        description: this.currentSite.description || "",
+        region: this.currentSite.region,
+        province: this.currentSite.province,
+        municipality: this.currentSite.municipality,
+        barangay: this.currentSite.barangay,
+        status: this.currentSite.status,
+        maximum_months: this.currentSite.maximum_months || 0,
+        floors: this.currentSite.floors, // Send floors as an array
+      };
 
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
-          formData,
+          payload,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json", // Send as JSON
             },
           }
         );
@@ -1289,6 +1289,9 @@ export default {
     // Save edited site including floor details
     async manageSite() {
       const formData = new FormData();
+
+      formData.append("companyId", this.vuexCompanyId);
+
       formData.append("name", this.editSite.name);
       formData.append("region", this.editSite.region);
       formData.append("province", this.editSite.province);
@@ -1297,6 +1300,18 @@ export default {
       formData.append("status", this.editSite.status);
       formData.append("description", this.editSite.description || "");
       formData.append("maximum_months", this.editSite.maximum_months);
+
+      if (this.editSite.floors && this.editSite.floors.length > 0) {
+        this.editSite.floors.forEach((floor, index) => {
+          formData.append(
+            `floors[${index}][floor_number]`,
+            floor.floorNumber || "" // Ensure consistent field names
+          );
+        });
+      }
+
+      console.log("Company ID being sent:", this.vuexCompanyId);
+      console.log("Floor data being sent:", this.editSite.floors);
 
       if (this.newPictureFile) {
         formData.append("picture", this.newPictureFile);

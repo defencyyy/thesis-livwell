@@ -54,7 +54,7 @@ class SiteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Extract floors data from validated_data
         floors_data = validated_data.pop('floors', [])
-        
+
         # Update fields of the site instance
         for key, value in validated_data.items():
             setattr(instance, key, value)
