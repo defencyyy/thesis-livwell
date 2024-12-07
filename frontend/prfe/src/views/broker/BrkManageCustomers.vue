@@ -81,7 +81,7 @@
 
           <div
             v-else
-            v-for="(customer, index) in filteredCustomers"
+            v-for="(customer, index) in paginatedCustomers"
             :key="index"
             class="card border-0 rounded-1 mx-auto my-2"
             style="
@@ -142,6 +142,32 @@
             </div>
           </div>
         </div>
+          <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
         <!-- Modal for Adding Customer -->
         <b-modal v-model="showModal" hide-header hide-footer centered>
           <div class="modal-title p-3">
@@ -448,6 +474,14 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
+   paginatedCustomers() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.customers.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      return Math.ceil(this.customers.length / this.itemsPerPage);
+    },
   },
   vuexUserId() {
     return this.userId;
@@ -476,12 +510,19 @@ export default {
       filePreviews: {}, // Object to store file previews for each document type
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
+      currentPage: 1, // Current page number
+      itemsPerPage: 15, // Number of customers per page
     };
   },
   mounted() {
     this.fetchCustomers();
   },
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     filterCustomers() {
       const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
 
