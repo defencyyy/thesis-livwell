@@ -899,6 +899,7 @@ export default {
         customer_name: this.reservationForm.customerName,
         site_id: parseInt(this.siteId, 10), // Convert to integer
         unit_id: this.selectedUnit.id,
+        commission:this.selectedUnit.commission,
         broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
         company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
         payment_amount: this.reservationForm.paymentAmount,
@@ -908,6 +909,7 @@ export default {
           ? this.reservationForm.file.name
           : null, // Ensure file is present
       };
+      console.log(this.selectedUnit.commission);
 
       console.log("Data being sent to the API:", data);
 

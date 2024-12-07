@@ -534,6 +534,7 @@ def get_available_units(request):
                     'TLP_Discount': unit.spot_discount_flat,
                     'spot_discount': unit.spot_discount_percentage,
                     'vat_percent': unit.vat_percentage,
+                    'commission':unit.commission,
                 }
                 logger.debug("Processed unit data: %s", unit_info)
                 unit_data.append(unit_info)
@@ -787,6 +788,7 @@ def fetch_sales(request):
 
 @csrf_exempt
 def reserve_unit(request):
+    print("submitting reservation")
     if request.method == 'POST':
         try:
             # Parse the incoming JSON request data
@@ -802,6 +804,7 @@ def reserve_unit(request):
             payment_method = data.get('payment_method')
             payment_reference = data.get('payment_reference')
             reservation_file = data.get('reservation_file')  # Just the filename in this case
+            commission=data.get('commission')
 
             # Fetch the related objects from the database
             customer = Customer.objects.get(id=customer_id)
@@ -820,7 +823,8 @@ def reserve_unit(request):
                 reservation_fee=payment_amount,
                 payment_method=payment_method,
                 payment_reference=payment_reference,
-                reservation_file=reservation_file if reservation_file else None
+                reservation_file=reservation_file if reservation_file else None,
+                commission=commission
             )
             # Update the unit status to pending_reservation
             unit.status = 'Pending Reservation'
