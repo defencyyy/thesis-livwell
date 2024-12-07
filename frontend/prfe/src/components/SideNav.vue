@@ -143,7 +143,8 @@ export default {
             icon: "fas fa-trophy",
           },
         ];
-      } else {
+      }
+      else {
         this.menuItems = [
           { name: "Home", link: "/home" },
           { name: "About", link: "/about" },

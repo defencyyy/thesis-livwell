@@ -271,4 +271,13 @@ class UnitImage(models.Model):
         if self.image_type == 'unit_template' and self.primary:
             UnitImage.objects.filter(unit_template=self.unit_template, primary=True).update(primary=False)
 
+        # Check if the number of images exceeds the limit of 5 for either unit or unit_template
+        if self.image_type == 'unit':
+            image_count = UnitImage.objects.filter(unit=self.unit).count()
+        else:
+            image_count = UnitImage.objects.filter(unit_template=self.unit_template).count()
+
+        if image_count >= 5:
+            raise ValidationError("A unit or unit template can have a maximum of 5 images.")
+
         super().save(*args, **kwargs)

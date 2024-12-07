@@ -534,6 +534,7 @@ def get_available_units(request):
                     'TLP_Discount': unit.spot_discount_flat,
                     'spot_discount': unit.spot_discount_percentage,
                     'vat_percent': unit.vat_percentage,
+                    'commission':unit.commission,
                 }
                 logger.debug("Processed unit data: %s", unit_info)
                 unit_data.append(unit_info)
@@ -787,6 +788,7 @@ def fetch_sales(request):
 
 @csrf_exempt
 def reserve_unit(request):
+    print("submitting reservation")
     if request.method == 'POST':
         try:
             # Parse the incoming JSON request data
@@ -802,6 +804,7 @@ def reserve_unit(request):
             payment_method = data.get('payment_method')
             payment_reference = data.get('payment_reference')
             reservation_file = data.get('reservation_file')  # Just the filename in this case
+            commission=data.get('commission')
 
             # Fetch the related objects from the database
             customer = Customer.objects.get(id=customer_id)
@@ -820,7 +823,8 @@ def reserve_unit(request):
                 reservation_fee=payment_amount,
                 payment_method=payment_method,
                 payment_reference=payment_reference,
-                reservation_file=reservation_file if reservation_file else None
+                reservation_file=reservation_file if reservation_file else None,
+                commission=commission
             )
             # Update the unit status to pending_reservation
             unit.status = 'Pending Reservation'
@@ -844,6 +848,7 @@ def submit_sales(request):
             customer_id = request.POST.get('customer_id')
             site_id = request.POST.get('site_id')
             unit_id = request.POST.get('unit_id')
+            sales_id=request.POST.get('sales_id')
             broker_id = request.POST.get('broker_id')
             payment_plan = request.POST.get('payment_plan')
             spot_discount_percent = request.POST.get('spot_discount_percent')
@@ -868,6 +873,7 @@ def submit_sales(request):
                 file_path = default_storage.save(f'reservations/{reservation_agreement.name}', reservation_agreement)
             else:
                 file_path = None
+                        
 
             # Create a new SalesDetails entry
             sales_detail = SalesDetails.objects.create(
@@ -875,6 +881,7 @@ def submit_sales(request):
                 site_id=site_id,
                 unit_id=unit_id,
                 broker_id=broker_id,
+                sales_id=sales_id,
                 payment_plan=payment_plan,
                 spot_discount_percent=spot_discount_percent,
                 tlp_discount_percent=tlp_discount_percent,
@@ -917,6 +924,7 @@ def get_sales_detail(request, sales_detail_id):
         'uuid': sales_detail_id,  # Use uuid here instead of id
         'id':sales_detail.id,
         'customer_id': sales_detail.customer_id,
+        'sales_id':sales_detail.sales_id,
         'site_id': sales_detail.site_id,
         'unit_id': sales_detail.unit_id,
         'broker_id': sales_detail.broker_id,
