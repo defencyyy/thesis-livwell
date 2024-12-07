@@ -5,6 +5,7 @@ from django.core.validators import FileExtensionValidator
 from companies.models import Company
 from sites.models import Site, Floor
 import os, re
+from decimal import Decimal
 
 def logo_upload_path(instance, filename):
     company_name = instance.unit.company.name if instance.unit and instance.unit.company else 'new_company'
@@ -148,18 +149,32 @@ class Unit(models.Model):
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
 
     def save(self, *args, **kwargs):
-        if self.status:
-            self.status = self.status.capitalize()
+        # Helper function to handle 'null' or empty values
+        def convert_to_decimal(value):
+            if value in ['null', None, '']:
+                return None  # For null values in DB
+            return Decimal(value)  # Convert to Decimal
 
-        # Validate that the floor belongs to the same site
-        if self.floor.site != self.site:
-            raise ValueError("The selected floor does not belong to the specified site.")
-        
-        # Validate positive areas
+        # Convert fields if they are 'null' or missing
+        self.commission = convert_to_decimal(self.commission)
+        self.spot_discount_percentage = convert_to_decimal(self.spot_discount_percentage)
+        self.spot_discount_flat = convert_to_decimal(self.spot_discount_flat)
+        self.reservation_fee = convert_to_decimal(self.reservation_fee)
+        self.other_charges = convert_to_decimal(self.other_charges)
+        self.vat_percentage = convert_to_decimal(self.vat_percentage)
+
+        # Handle the main numeric fields
+        self.floor_area = convert_to_decimal(self.floor_area)
+        self.lot_area = convert_to_decimal(self.lot_area)
+        self.price = convert_to_decimal(self.price)
+
+        # Additional validation for positive values
         if self.floor_area is not None and self.floor_area <= 0:
-            raise ValueError("Floor area must be a positive value.")
+            raise ValueError("Floor area must be greater than 0.")
         if self.lot_area is not None and self.lot_area <= 0:
-            raise ValueError("Lot area must be a positive value.")
+            raise ValueError("Lot area must be greater than 0.")
+        if self.price is not None and self.price <= 0:
+            raise ValueError("Price must be greater than 0.")
 
         # Pull default values from the Site if not set
         if not self.commission:
@@ -217,6 +232,21 @@ class UnitTemplate(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     primary_image = models.ForeignKey('UnitImage', null=True, blank=True, on_delete=models.SET_NULL, related_name='primary_for_templates', help_text="Primary image for the template")
 
+    def save(self, *args, **kwargs):
+        # Helper function to handle 'null' or empty values
+        def convert_to_decimal(value):
+            if value in ['null', None, '']:
+                return None  # For null values in DB
+            return Decimal(value)  # Convert to Decimal
+
+        # Convert fields if they are 'null' or missing
+        self.commission = convert_to_decimal(self.commission)
+        self.price = convert_to_decimal(self.price)
+        self.floor_area = convert_to_decimal(self.floor_area)
+        self.lot_area = convert_to_decimal(self.lot_area)
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -252,7 +282,7 @@ class UnitImage(models.Model):
         validate_image_size,  
     ])
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    primary = models.BooleanField(default=False, help_text="Indicates if this image is the primary image for the template")
+    primary = models.BooleanField(default=False, help_text="Indicates if this image is the primary image for the template", null=True, blank=True)
 
     def __str__(self):
         if self.image_type == 'unit':

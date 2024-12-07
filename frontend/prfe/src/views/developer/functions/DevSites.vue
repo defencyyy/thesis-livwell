@@ -380,32 +380,130 @@
                     />
                   </div>
                 </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="numberOfFloors">Number of Floors</label>
-                  <input
-                    type="number"
-                    v-model="newSite.number_of_floors"
-                    id="numberOfFloors"
-                    class="form-control"
-                    placeholder="Enter the number of floors"
-                    min="1"
-                    required
-                  />
+
+                <!-- New Fields for Commission, Discounts, and Charges -->
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="commission" class="form-label"
+                      >Commission (Total)</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.commission"
+                      id="commission"
+                      class="form-control"
+                      placeholder="Enter commission percentage"
+                      min="0"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="spotDiscountPercentage" class="form-label"
+                      >Spot Discount Percentage</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.spot_discount_percentage"
+                      id="spotDiscountPercentage"
+                      class="form-control"
+                      placeholder="Enter spot discount percentage"
+                      min="0"
+                    />
+                  </div>
                 </div>
 
-                <div class="col-md-6">
-                  <label for="maximumMonths">Maximum Months to Pay</label>
-                  <input
-                    type="number"
-                    v-model="newSite.maximum_months"
-                    id="maximumMonths"
-                    class="form-control"
-                    placeholder="Enter the maximum months to pay"
-                    min="1"
-                    required
-                  />
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="spotDiscountFlat" class="form-label"
+                      >Spot Discount Flat</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.spot_discount_flat"
+                      id="spotDiscountFlat"
+                      class="form-control"
+                      placeholder="Enter flat discount amount"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="vatPercentage" class="form-label"
+                      >VAT Percentage</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.vat_percentage"
+                      id="vatPercentage"
+                      class="form-control"
+                      placeholder="Enter VAT percentage"
+                      min="0"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="reservationFee" class="form-label"
+                      >Reservation Fee</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.reservation_fee"
+                      id="reservationFee"
+                      class="form-control"
+                      placeholder="Enter reservation fee"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="otherCharges" class="form-label"
+                      >Other Charges</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.other_charges"
+                      id="otherCharges"
+                      class="form-control"
+                      placeholder="Enter other charges"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="numberOfFloors" class="form-label"
+                      >Number of Floors</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.number_of_floors"
+                      id="numberOfFloors"
+                      class="form-control"
+                      placeholder="Enter the number of floors"
+                      min="1"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="maximumMonths" class="form-label"
+                      >Maximum Months to Pay</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.maximum_months"
+                      id="maximumMonths"
+                      class="form-control"
+                      placeholder="Enter the maximum months to pay"
+                      min="1"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -553,6 +651,7 @@
                       </select>
                     </div>
                   </div>
+
                   <!-- Maximum Months Field -->
                   <div class="form-group mb-3">
                     <label for="editMaximumMonths" class="form-label"
@@ -566,14 +665,16 @@
                       readonly
                     />
                   </div>
+
+                  <!-- Number of Floors (Read-Only) -->
                   <div class="form-group mb-3">
                     <label for="editNumberOfFloors" class="form-label"
-                      >Number Of Floors</label
+                      >Number of Floors</label
                     >
                     <input
                       type="number"
                       v-model="editSite.floors.length"
-                      id="editMaximumMonths"
+                      id="editNumberOfFloors"
                       class="form-control"
                       readonly
                     />
@@ -630,6 +731,93 @@
                 </div>
               </div>
 
+              <!-- Commission and Charges -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="editCommission" class="form-label"
+                    >Commission (%)</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.commission"
+                    id="editCommission"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="editSpotDiscountPercentage" class="form-label"
+                    >Spot Discount (%)</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.spot_discount_percentage"
+                    id="editSpotDiscountPercentage"
+                    class="form-control"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="editSpotDiscountFlat" class="form-label"
+                    >Spot Discount (Flat)</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.spot_discount_flat"
+                    id="editSpotDiscountFlat"
+                    class="form-control"
+                    min="0"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="editVatPercentage" class="form-label"
+                    >VAT Percentage</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.vat_percentage"
+                    id="editVatPercentage"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="editReservationFee" class="form-label"
+                    >Reservation Fee</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.reservation_fee"
+                    id="editReservationFee"
+                    class="form-control"
+                    min="0"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="editOtherCharges" class="form-label"
+                    >Other Charges</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.other_charges"
+                    id="editOtherCharges"
+                    class="form-control"
+                    min="0"
+                  />
+                </div>
+              </div>
+
               <!-- Buttons -->
               <div
                 class="d-flex justify-content-end gap-2 mt-3"
@@ -642,7 +830,11 @@
                 >
                   Save Changes
                 </button>
-                <button type="button" @click="cancelEdit" class="btn-cancel">
+                <button
+                  type="button"
+                  @click="cancelEdit"
+                  class="btn btn-secondary"
+                >
                   Cancel
                 </button>
               </div>
@@ -666,7 +858,7 @@
 
           <div class="p-3">
             <!-- Floor Information -->
-            <div class="mb-3">
+            <div class="mb-4">
               <strong>Floor Information</strong>
               <p>
                 <strong>Current Floors:</strong> {{ currentSite.floors.length }}
@@ -674,7 +866,7 @@
             </div>
 
             <!-- Add Floors -->
-            <div class="mb-3">
+            <div class="mb-4">
               <h6>Add Floors</h6>
               <div class="d-flex gap-2">
                 <input
@@ -696,7 +888,7 @@
             </div>
 
             <!-- Total Floors After Adding -->
-            <div class="mb-3">
+            <div class="mb-4">
               <h6>Total Floors: {{ totalFloors }}</h6>
             </div>
 
@@ -750,8 +942,14 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        maximum_months: 0,
-        number_of_floors: 0,
+        maximum_months: 240,
+        number_of_floors: 15,
+        commission: 200000, // New field for commission
+        spot_discount_percentage: 0, // New field for spot discount percentage
+        spot_discount_flat: 0, // New field for flat spot discount
+        vat_percentage: 12.0, // Default VAT percentage (can be customized)
+        reservation_fee: 50000, // New field for reservation fee
+        other_charges: 0, // New field for other charges
       },
       editSite: {
         id: "",
@@ -766,6 +964,12 @@ export default {
         floors: [],
         maximum_months: 0,
         number_of_floors: 0,
+        commission: 0, // New field for commission
+        spot_discount_percentage: 0, // New field for spot discount percentage
+        spot_discount_flat: 0, // New field for flat spot discount
+        vat_percentage: 12.0, // Default VAT percentage (can be customized)
+        reservation_fee: 0, // New field for reservation fee
+        other_charges: 0, // New field for other charges
       },
       showFloorModal: false,
       currentSite: {
@@ -780,6 +984,12 @@ export default {
         picture: "",
         floors: [],
         number_of_floors: 0,
+        commission: 0, // New field for commission
+        spot_discount_percentage: 0, // New field for spot discount percentage
+        spot_discount_flat: 0, // New field for flat spot discount
+        vat_percentage: 12.0, // Default VAT percentage (can be customized)
+        reservation_fee: 0, // New field for reservation fee
+        other_charges: 0, // New field for other charges
       },
       totalFloors: 0,
       newFloorNumber: null,
@@ -1127,15 +1337,20 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+    // Open the floor modal
     openFloorModal(site) {
-      this.currentSite = site; // Set the current site to the selected site
-      this.totalFloors = this.currentSite.floors.length; // Set the total floors based on current site floors
+      this.currentSite = site;
+      this.originalFloorCount = this.currentSite.floors.length; // Save the original floor count
+      this.totalFloors = this.originalFloorCount; // Initialize totalFloors with the original count
       this.showFloorModal = true;
     },
 
-    // Close the modal
+    // Close the floor modal
     closeFloorModal() {
       this.showFloorModal = false;
+      // Reset totalFloors to the original floor count
+      this.totalFloors = this.originalFloorCount;
+      this.newFloorCount = 1; // Reset newFloorCount input field
     },
 
     // Add floors based on the input
@@ -1161,6 +1376,7 @@ export default {
             )
           : 0;
 
+      // Add new floors
       for (let i = 1; i <= this.newFloorCount; i++) {
         newFloors.push({
           floor_number: currentMaxFloor + i,
@@ -1170,20 +1386,22 @@ export default {
       // Push the new floors into the current site
       this.currentSite.floors.push(...newFloors);
 
-      // Update the totalFloors
+      // Update totalFloors dynamically
       this.totalFloors = this.currentSite.floors.length;
 
-      // Reset the input value for number of floors to add
+      // Reset the input field for number of floors to add
       this.newFloorCount = 1;
     },
 
-    // Update the total floors dynamically as the user enters a number
+    // Update totalFloors dynamically as the user types a number
     updateTotalFloors() {
       const currentFloorCount = this.currentSite.floors.length;
-      const totalFloors = currentFloorCount + parseInt(this.newFloorCount) || 0;
+      const totalFloors =
+        currentFloorCount + (parseInt(this.newFloorCount) || 0);
       this.totalFloors = totalFloors;
     },
 
+    // Save the updated site details, including floors
     async saveSite() {
       const payload = {
         companyId: this.vuexCompanyId,
@@ -1221,7 +1439,7 @@ export default {
       }
     },
 
-    // Save the new site including floor details
+    // Save new site, including floors
     async addSite() {
       const formData = new FormData();
       formData.append("companyId", this.vuexCompanyId);
@@ -1235,7 +1453,21 @@ export default {
       formData.append("number_of_floors", this.newSite.number_of_floors);
       formData.append("maximum_months", this.newSite.maximum_months);
 
-      // Append the floors to the formData
+      // Add Payment Fields
+      formData.append("commission", this.newSite.commission || "");
+      formData.append(
+        "spot_discount_percentage",
+        this.newSite.spot_discount_percentage || ""
+      );
+      formData.append(
+        "spot_discount_flat",
+        this.newSite.spot_discount_flat || ""
+      );
+      formData.append("vat_percentage", this.newSite.vat_percentage || "");
+      formData.append("reservation_fee", this.newSite.reservation_fee || "");
+      formData.append("other_charges", this.newSite.other_charges || "");
+
+      // Add Floors
       if (this.newSite.floors && this.newSite.floors.length > 0) {
         this.newSite.floors.forEach((floor, index) => {
           formData.append(
@@ -1262,36 +1494,44 @@ export default {
         );
 
         if (response.status === 201) {
-          // Reset form data after adding the site
-          this.newSite = {
-            name: "",
-            status: "",
-            region: "",
-            province: "",
-            municipality: "",
-            barangay: "",
-            description: "",
-            picture: null,
-            number_of_floors: 0,
-            maximum_months: 0,
-            floors: [], // Ensure floors are cleared
-          };
+          this.newSite = this.resetNewSite(); // Reset the new site form
           this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
         }
       } catch (error) {
         console.error("Error adding site:", error.response || error);
-        // Provide user feedback
         this.$toast.error("Failed to add site. Please try again.");
       }
     },
-    // Save edited site including floor details
+
+    // Helper function to reset the new site form
+    resetNewSite() {
+      return {
+        name: "",
+        status: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        description: "",
+        picture: null,
+        number_of_floors: 0,
+        maximum_months: 0,
+        floors: [], // Ensure floors are cleared
+        commission: null,
+        spot_discount_percentage: null,
+        spot_discount_flat: null,
+        vat_percentage: null,
+        reservation_fee: null,
+        other_charges: null,
+      };
+    },
+
+    // Save edited site, including floors
     async manageSite() {
       const formData = new FormData();
-
       formData.append("companyId", this.vuexCompanyId);
-
       formData.append("name", this.editSite.name);
       formData.append("region", this.editSite.region);
       formData.append("province", this.editSite.province);
@@ -1301,17 +1541,28 @@ export default {
       formData.append("description", this.editSite.description || "");
       formData.append("maximum_months", this.editSite.maximum_months);
 
+      // Add Payment Fields
+      formData.append("commission", this.editSite.commission || "");
+      formData.append(
+        "spot_discount_percentage",
+        this.editSite.spot_discount_percentage || ""
+      );
+      formData.append(
+        "spot_discount_flat",
+        this.editSite.spot_discount_flat || ""
+      );
+      formData.append("vat_percentage", this.editSite.vat_percentage || "");
+      formData.append("reservation_fee", this.editSite.reservation_fee || "");
+      formData.append("other_charges", this.editSite.other_charges || "");
+
       if (this.editSite.floors && this.editSite.floors.length > 0) {
         this.editSite.floors.forEach((floor, index) => {
           formData.append(
             `floors[${index}][floor_number]`,
-            floor.floorNumber || "" // Ensure consistent field names
+            floor.floor_number || ""
           );
         });
       }
-
-      console.log("Company ID being sent:", this.vuexCompanyId);
-      console.log("Floor data being sent:", this.editSite.floors);
 
       if (this.newPictureFile) {
         formData.append("picture", this.newPictureFile);
@@ -1343,18 +1594,25 @@ export default {
         console.error("Error updating site:", error.response || error);
       }
     },
+
+    // Open the edit modal and prepare the data
     openEditModal(site) {
-      this.editSite = { ...site, floors: site.floors || [] }; // Ensure floors is initialized
+      this.editSite = { ...site, floors: site.floors || [] };
       this.showEditModal = true;
     },
+
+    // Cancel editing and reset preview
     cancelEdit() {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
+
+    // Reset the picture preview
     resetPicturePreview() {
       this.newPictureFile = null;
       this.imagePreview = null;
     },
+
     async fetchStatusOptions() {
       try {
         const response = await axios.get(
