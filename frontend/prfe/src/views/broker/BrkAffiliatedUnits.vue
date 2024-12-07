@@ -9,8 +9,29 @@
             <div class="title-icon"></div>
             <div class="edit-title">Available Sites</div>
           </div>
+
+          <div class="view-switch">
+            <div
+              class="view-icon"
+              :class="{ active: viewMode === 'grid' }"
+              @click="viewMode = 'grid'"
+            >
+              <i class="fa fa-th"></i>
+              <!-- Grid Icon -->
+            </div>
+            <div class="separator"></div>
+            <div
+              class="view-icon"
+              :class="{ active: viewMode === 'table' }"
+              @click="viewMode = 'table'"
+            >
+              <i class="fa fa-list"></i>
+              <!-- Table Icon -->
+            </div>
+          </div>
         </div>
-         <div
+
+        <div
           class="card border-0 rounded-1 mx-auto"
           style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
@@ -44,37 +65,85 @@
         </div>
         </div>
         </div>
+        
+        <!-- Grid View -->
+        <div v-if="viewMode === 'grid'">
+          <div v-if="filteredSites.length" class="site-grid">
+            <div
+              v-for="site in paginatedSites"
+              :key="site.id || index"
+              class="site-card"
+              @click="() => redirectToUnits(site.id)"
+            >
+              <!-- Site Image -->
+              <img
+                :src="site.picture || require('@/assets/home.png')"
+                alt="Site Image"
+                class="site-image"
+              />
 
-        <div v-if = "filteredSites.length" class = "site-grid">
-          <div
-            v-for="site in paginatedSites"
-            :key="site.id || index"
-            class="site-card"
-            @click="() => redirectToUnits(site.id)"
-          >
+              <!-- Site Name -->
+              <h2 class="site-name">
+                {{ site.name || "Unknown" }}
+              </h2>
 
-            <!-- Site Image -->
-            <img
-              :src="site.picture || require('@/assets/home.png')"
-              alt="Site Image"
-              class="site-image"
-            />
-
-            <!-- Site Name -->
-            <h2 class="site-name">
-              {{ site.name || "Unknown" }}
-            </h2>
-
-            <!-- Site Location -->
-            <p class="site-location">
-              {{ site.location || "Location unavailable" }}
-            </p>
+              <!-- Site Location -->
+              <p class="site-location">
+                {{ site.location || "Location unavailable" }}
+              </p>
+            </div>
+          </div>
+          <div v-else>
+            <p>No sites with available units.</p>
           </div>
         </div>
 
-        <div v-else>
-          <p>No sites with available units.</p>
+
+        <div v-if="viewMode === 'table'">
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Location</span>
+          </div>
+          <div v-if = "filteredSites.length">
+            <div
+              v-for="site in paginatedSites"
+              :key="site.id || index"
+              class="card border-0 rounded-1 mx-auto card-hover"
+              style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              cursor: 'pointer';
+            "
+              @click="() => redirectToUnits(site.id)"
+            >
+              <div class = "card-body">
+                <table class = "site-table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="site-info">
+                          <img
+                            :src="site.picture || require('@/assets/home.png')"
+                            alt="Site Image"
+                            class="table-image"
+                          />
+                          <span class="site-name">
+                            {{ site.name || "Unknown" }}
+                          </span>
+                        </div>
+                      </td>
+                      <td>{{ site.location || "Location unavailable" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <p>No sites with available units.</p>
+          </div>
         </div>
+
     <!-- Pagination Controls -->
     <div class="pagination-controls">
       <button
@@ -130,6 +199,7 @@ export default {
   },
   data() {
     return {
+      viewMode: "table",
       sites: [],
       loading: true,
       sortBy: "site_asc",
@@ -200,6 +270,10 @@ export default {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
+    },
+
+    toggleView() {
+      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     
     async fetchAvailableSites() {
@@ -316,50 +390,164 @@ body {
   text-align: left;
 }
 
-.site-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  max-width: 1100px;
-  /* Matches the max-width of the card */
-  margin: 0 auto;
-  /* Centers the grid within the parent */
+.view-switch {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #f6f6f6;
 }
 
+.view-icon {
+  flex: 1;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 15px;
+  color: #343a40;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-icon.active {
+  background-color: #343a40;
+  color: #f6f6f6;
+}
+
+.separator {
+  width: 1px;
+  background-color: #f6f6f6;
+  height: 100%;
+}
+
+/* Ensure the container takes the full width available */
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Automatically adjust based on screen size */
+  gap: 16px; /* Spacing between grid items */
+  max-width: 1100px; /* Limiting max width if necessary */
+  width: 100%; /* Ensure it takes up the full width */
+  margin: 0 auto; /* Centering the grid */
+}
+
+/* Site card settings */
 .site-card {
   background: #fff;
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+  transition: transform 0.2s ease; /* Smooth hover effect */
 }
 
+/* Hover effect */
 .site-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px); /* Lift effect on hover */
 }
 
+/* Image within the card */
 .site-image {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  /* Ensures the image is cropped to fit the area */
+  width: 100%; /* Fill the width of the card */
+  height: 150px; /* Fixed height for consistency */
+  object-fit: cover; /* Crop and maintain aspect ratio */
   border-radius: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 10px; /* Space between image and text */
 }
 
-.site-info {
-  flex-direction: row;
-}
-
+/* Site name styling */
 .site-name {
   font-size: 15px;
   font-weight: bold;
+  margin-bottom: 5px; /* Space below the site name */
 }
 
+/* Site location styling */
 .site-location {
   font-size: 14px;
   color: #777;
 }
+
+/* Optional: Add a max-height to the cards if the image/content is too large */
+.site-card {
+  height: 300px; /* Optional: Fix card height to prevent overflow */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space out the content */
+}
+
+
+.table-image {
+  width: 30px;
+  /* Small size for the table */
+  height: 30px;
+  /* Make the image smaller */
+  object-fit: cover;
+  /* Crop the image if necessary */
+  margin-right: 10px;
+  /* Adds some spacing between the image and the name */
+}
+
+.site-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.site-table th,
+.site-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.site-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.site-table th:nth-child(1),
+.site-table td:nth-child(1) {
+  /* Status column */
+  width: 50%;
+}
+
+.site-table th:nth-child(2),
+.site-table td:nth-child(2) {
+  /* Actions column */
+  width: 50%;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 50% 50%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px); /* Slight lift effect */
+  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+}
+
 
 .toolbar {
   display: flex;
@@ -437,6 +625,7 @@ body {
   color: #333;
 }
 
+
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
@@ -463,20 +652,24 @@ body {
   /* Centers the card */
   margin-right: auto;
 }
+
+/* Custom pagination styles */
 .pagination-controls {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  gap: 10px;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
 }
 
 .page-button {
   padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
   border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 .page-button.active {
@@ -488,4 +681,10 @@ body {
   cursor: not-allowed;
   background-color: #f5f5f5;
 }
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
+
 </style>

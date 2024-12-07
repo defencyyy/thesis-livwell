@@ -11,31 +11,48 @@
           </div>
 
           <div class="actions" v-if="!isLoading && !errorMessage">
-            <button @click="redirectToUnits">Manage Units</button>
-            <button @click="redirectToUnitTemplates">
-              Manage Unit Templates
-            </button>
-            <button @click="redirectToUnitTypes">Manage Unit Types</button>
+            <div class="nav nav-tabs">
+              <!-- Manage Units Tab -->
+              <button class="nav-link active" id="units-tab" type="button" role="tab" aria-selected="true" @click="redirectToUnits">
+                Manage Units
+              </button>
+              
+              <!-- Manage Unit Templates Tab -->
+              <button class="nav-link" id="unit-templates-tab" type="button" role="tab" aria-selected="false" @click="redirectToUnitTemplates">
+                Manage Unit Templates
+              </button>
+              
+              <!-- Manage Unit Types Tab -->
+              <button class="nav-link" id="unit-types-tab" type="button" role="tab" aria-selected="false" @click="redirectToUnitTypes">
+                Manage Unit Types
+              </button>
+            </div>
+
           </div>
 
           <div>
-            <h2>Sites</h2>
-            <div class="view-switch">
-              <div
-                class="view-icon"
-                :class="{ active: viewMode === 'grid' }"
-                @click="viewMode = 'grid'"
-              >
-                <i class="fa fa-th"></i>
+            <div class="title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">Sites</div>
               </div>
-              <div class="separator"></div>
-              <div
-                class="view-icon"
-                :class="{ active: viewMode === 'table' }"
-                @click="viewMode = 'table'"
-              >
-                <i class="fa fa-list"></i>
-              </div>
+              <div class="view-switch">
+                <div
+                  class="view-icon"
+                  :class="{ active: viewMode === 'grid' }"
+                  @click="viewMode = 'grid'"
+                >
+                  <i class="fa fa-th"></i>
+                </div>
+                <div class="separator"></div>
+                <div
+                  class="view-icon"
+                  :class="{ active: viewMode === 'table' }"
+                  @click="viewMode = 'table'"
+                >
+                  <i class="fa fa-list"></i>
+                </div>
+            </div>
             </div>
 
             <div v-if="viewMode === 'grid'" class="site-grid">
@@ -197,6 +214,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import SideNav from "@/components/SideNav.vue";
@@ -400,6 +418,19 @@ body {
   flex: 1;
   margin-top: 60px;
 }
+
+.nav-tabs .nav-link {
+  background: none;  /* Removes background if you want tabs without a button-like appearance */
+  border: none;  /* Removes the default button border */
+  color: inherit;  /* Inherits the text color */
+  font-weight: bold;  /* Makes text bold */
+}
+
+.nav-tabs .nav-link.active {
+  color: #000;  /* Active tab color */
+  border-bottom: 2px solid #0d6efd; 
+}
+
 
 .content {
   flex: 1;

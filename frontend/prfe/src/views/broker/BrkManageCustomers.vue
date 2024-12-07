@@ -1065,20 +1065,23 @@ input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
+
 .pagination-controls {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  gap: 10px;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
 }
 
 .page-button {
   padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
   border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 .page-button.active {
@@ -1090,4 +1093,9 @@ input[type="file"] {
   cursor: not-allowed;
   background-color: #f5f5f5;
 }
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
 </style>
