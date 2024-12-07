@@ -194,7 +194,7 @@
               <!-- Show full name -->
               <td>{{ broker.total_sales }}</td>
               <td>{{ broker.salesMilestoneCount }}</td>
-              <td>P {{ broker.total_commissions }}</td>
+              <td>{{ formatCurrency(broker.total_commissions) }}</td>
               <td>{{ broker.commissionMilestoneCount }}</td>
               <td>
                 <button
@@ -615,6 +615,12 @@ export default {
       } else if (this.newMilestone.type === "commission") {
         this.newMilestone.commission_threshold = null;
       }
+    },
+    formatCurrency(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "PHP",
+      }).format(value);
     },
 
     // Close the form modal

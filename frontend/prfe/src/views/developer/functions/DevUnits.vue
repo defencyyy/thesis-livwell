@@ -47,8 +47,8 @@
 
             <div v-if="viewMode === 'grid'" class="site-grid">
               <div
-                v-for="(site, index) in filteredSites"
-                :key="site.id || index"
+                v-for="site in filteredSites"
+                :key="site.id"
                 class="site-card"
                 @click="openFloorManagement(site)"
               >
@@ -83,18 +83,11 @@
                 <span class="header-item">Available Units</span>
                 <span class="header-item">Actions</span>
               </div>
-              <div
-                v-for="(site, index) in filteredSites"
-                :key="site.id || index"
-                class="card"
-              >
+              <div v-for="site in filteredSites" :key="site.id" class="card">
                 <div class="card-body">
                   <table>
                     <tbody>
-                      <tr
-                        v-for="(site, index) in filteredSites"
-                        :key="site.id || index"
-                      >
+                      <tr v-for="unit in units" :key="unit.id">
                         <td>{{ site.name || "Unknown" }}</td>
                         <td>{{ site.location || "Location unavailable" }}</td>
                         <td>{{ site.status || "Status unavailable" }}</td>
@@ -120,32 +113,58 @@
             </div>
           </div>
 
-          <!-- Units Section -->
-          <div>
-            <h2>Units</h2>
-            <button @click="addUnit">Add Unit</button>
-            <table>
-              <thead>
-                <tr>
-                  <th>Unit Number</th>
-                  <th>Title</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="unit in units" :key="unit.id">
-                  <td>{{ unit.unit_number }}</td>
-                  <td>{{ unit.unit_title }}</td>
-                  <td>{{ unit.status }}</td>
-                  <td>
-                    <button @click="editUnit(unit)">Edit</button>
-                    <button @click="deleteUnit(unit.id)">Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <hr />
+        </div>
+        <!-- Site and Unit Filters -->
+        <div class="filters">
+          <b-form-group label="Select Site:">
+            <b-form-select
+              v-model="selectedSite"
+              :options="siteOptions"
+              required
+            />
+          </b-form-group>
+          <b-form-group label="Unit Number (optional):">
+            <b-form-input
+              v-model="unitNumberFilter"
+              placeholder="Search by Unit Number"
+            />
+          </b-form-group>
+          <b-form-group label="Unit Type (optional):">
+            <b-form-input
+              v-model="unitTypeFilter"
+              placeholder="Search by Unit Type"
+            />
+          </b-form-group>
+          <b-button @click="searchUnits" :disabled="!selectedSite"
+            >Search</b-button
+          >
+        </div>
+
+        <!-- Units Section -->
+        <div v-if="units.length > 0">
+          <h2>Units</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Unit Number</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="unit in units" :key="unit.id">
+                <td>{{ unit.unit_number }}</td>
+                <td>{{ unit.unit_title }}</td>
+                <td>{{ unit.status }}</td>
+                <td>
+                  <button @click="editUnit(unit)">Edit</button>
+                  <button @click="deleteUnit(unit.id)">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -156,23 +175,35 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
+import { BFormGroup, BFormSelect, BFormInput, BButton } from "bootstrap-vue-3";
 
 export default {
   name: "DevFuncUnits",
-  components: { SideNav, AppHeader },
+  components: {
+    SideNav,
+    AppHeader,
+    BFormGroup,
+    BFormSelect,
+    BFormInput,
+    BButton,
+  },
   data() {
     return {
       units: [],
       sites: [],
-      availableUnits: 0, // Holds the count of available units
-      totalFloors: 0, // Holds the total number of floors
-      totalUnits: 0, // Holds the total number of units
+      availableUnits: 0,
+      totalFloors: 0,
+      totalUnits: 0,
       isLoading: false,
       errorMessage: null,
       viewMode: "grid",
       searchQuery: "",
       sortBy: "name",
       viewFilter: "active",
+      selectedSite: null, // Define selectedSite here
+      unitNumberFilter: "", // Define unitNumberFilter
+      unitTypeFilter: "", // Define unitTypeFilter
+      siteFloorFilter: "",
     };
   },
   computed: {
@@ -190,6 +221,12 @@ export default {
             ? a.name.localeCompare(b.name)
             : a.status.localeCompare(b.status)
         );
+    },
+    siteOptions() {
+      return this.sites.map((site) => ({
+        value: site.id,
+        text: site.name,
+      }));
     },
   },
   methods: {
@@ -235,30 +272,6 @@ export default {
       const addressParts = [site.province, site.municipality, site.barangay];
       return addressParts.filter(Boolean).join(", "); // Join non-empty parts
     },
-    async fetchUnits() {
-      try {
-        this.isLoading = true;
-        const response = await axios.get(
-          "http://localhost:8000/developer/units/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        const units = response.data.data || [];
-        this.totalUnits = units.length; // Set the total number of units
-        this.availableUnits = units.filter(
-          (unit) => unit.status === "Available"
-        ).length; // Count available units
-        this.units = units; // Store all units in the units array
-      } catch (error) {
-        console.error("Error fetching units data:", error);
-        this.errorMessage = "Failed to load units.";
-      } finally {
-        this.isLoading = false;
-      }
-    },
 
     openSiteModal(site) {
       console.log("Site clicked:", site);
@@ -283,23 +296,47 @@ export default {
         0
       );
     },
-
-    addUnit() {
-      console.log("Add unit logic.");
-    },
-
-    editUnit(unit) {
-      console.log("Edit unit:", unit);
-    },
-
-    deleteUnit(unitId) {
-      if (confirm("Are you sure you want to delete this unit?")) {
-        this.units = this.units.filter((unit) => unit.id !== unitId);
+    async fetchUnits() {
+      if (!this.selectedSite) {
+        this.errorMessage = "Please select a site before searching.";
+        return;
       }
+
+      try {
+        this.isLoading = true;
+        const params = {
+          siteId: this.selectedSite, // Only fetch units for the selected site
+          unitNumber: this.unitNumberFilter,
+          unitType: this.unitTypeFilter,
+        };
+        const response = await axios.get(
+          "http://localhost:8000/developer/units/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            params,
+          }
+        );
+        this.units = response.data.data || [];
+      } catch (error) {
+        console.error("Error fetching units data:", error);
+        this.errorMessage = "Failed to load units.";
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    // Method that gets called when the search button is clicked
+    searchUnits() {
+      if (!this.selectedSite) {
+        this.errorMessage = "Please select a site before searching.";
+        return;
+      }
+
+      this.fetchUnits(); // Only fetch when the search button is clicked
     },
   },
   mounted() {
-    this.fetchUnits();
     this.fetchSites();
   },
 };
@@ -665,5 +702,16 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+}
+.filters {
+  margin-bottom: 20px;
+}
+
+.filters b-form-group {
+  margin-bottom: 10px;
+}
+
+.filters b-button {
+  margin-top: 10px;
 }
 </style>

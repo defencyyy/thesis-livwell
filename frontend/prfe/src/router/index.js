@@ -13,7 +13,6 @@ import DevMainPage from "@/views/developer/DevMainPage.vue";
 import DevFuncAccount from "@/views/developer/functions/DevAccount.vue";
 import DevFuncBroker from "@/views/developer/functions/DevBrokers.vue";
 import DevFuncCompany from "@/views/developer/functions/DevCompany.vue";
-import DevFuncPaySched from "@/views/developer/functions/DevPaySched.vue";
 import DevFuncSites from "@/views/developer/functions/DevSites.vue";
 import DevFuncUnits from "@/views/developer/functions/DevUnits.vue";
 import DevUnitTemplates from "@/views/developer/functions/DevUnitTemplates.vue";
@@ -131,12 +130,6 @@ const routes = [
     path: "/developer/milestones",
     name: "DevFuncMilestones",
     component: DevFuncMilestones,
-    meta: { requiresAuth: true, role: "developer" },
-  },
-  {
-    path: "/developer/payment-schedule",
-    name: "DevFuncPaySched",
-    component: DevFuncPaySched,
     meta: { requiresAuth: true, role: "developer" },
   },
   {
