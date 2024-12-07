@@ -311,15 +311,21 @@ body {
 
 .sidebar-nav .nav-item {
   border-radius: 4px;
+  margin-bottom: 8px;
 }
 
 .sidebar-nav .nav-item.active {
-  background-color: #0056b3;
+  background-color: #0d6efd;
   color: white !important;
 }
 
-.sidebar-nav .nav-item.hover {
-  background-color: #f0f0f0;
+.sidebar-nav .nav-item.active .item-name,
+.sidebar-nav .nav-item.active .menu-icon {
+  color: white !important;
+}
+
+.sidebar-nav .nav-item .item-name:hover {
+  color: #0d6efd !important;  /* Blue color when hovered */
 }
 
 .menu-icon {
@@ -335,14 +341,6 @@ body {
   color:#343a40;
 }
 
-.active {
-  color: white !important; /* Make both icon and text white when active */
-}
-
-/* Optional: Active hover effect */
-.active:hover {
-  color: white; /* Ensure color stays white on hover */
-}
 /* juju */
 
 
