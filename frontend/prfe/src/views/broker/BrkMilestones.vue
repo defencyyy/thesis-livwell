@@ -84,14 +84,14 @@
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title">Milestones Achieved</div>
+              <div class="edit-title ">Milestones Achieved</div>
             </div>
           </div>
 
-          <div class="outside-headers">
+          <div class="outside-headers text-center">
             <span class="header-item">Name</span>
-            <span class="header-item">Reward</span>
-            <span class="header-item">Description</span>
+            <span class="header-item" style="padding-left: 20%;">Reward</span>
+            <span class="header-item" style="padding-left: 20%;" >Description</span>
           </div>
 
           <div v-if="achievedMilestones.length === 0">
@@ -134,10 +134,10 @@
               <div class="edit-title">Next Milestones</div>
             </div>
           </div>
-          <div class="outside-headers">
-            <span class="header-item">Name</span>
-            <span class="header-item">Reward</span>
-            <span class="header-item">Description</span>
+          <div class="outside-headers text-center">
+            <p class="header-item">Name</p>
+            <p class="header-item" style="padding-left: 20%;">Reward</p>
+            <p class="header-item" style="padding-left: 20%;">Description</p>
           </div>
 
           <div v-if="nextMilestones.length === 0">
@@ -474,23 +474,20 @@ body {
 }
 
 .outside-headers {
-  display: grid;
-  grid-template-columns: 25% 25% 50%; /* Match column widths */
-  padding: 10px 18px;
+  display: flex;
+  justify-content: space-between; /* Distribute items evenly */
+  padding: 10px 20px;
   margin: 20px auto 10px;
   max-width: 1100px;
   font-weight: bold;
-  text-align: left; /* Left-align for consistency with table */
+  text-align: left;
 }
 
 .outside-headers .header-item {
-  display: flex;
-  justify-content: flex-start; /* Align text horizontally to the left */
-  align-items: center; /* Center vertically */
-  padding: 5px 0; /* Consistent with table cell padding */
-  line-height: 1.2;
-  word-wrap: break-word;
+  padding: 5px 0;
+  width: 33.33%; /* Ensures that each header item takes up a third of the width */
 }
+
 
 .next-milestone-table {
   width: 100%;
@@ -629,4 +626,33 @@ body {
   color: red;
   font-size: 1.2em;
 }
+
+
+@media (max-width: 1440px) {
+  .outside-headers .header-item {
+    padding: 5px 0;
+    font-size: 14px; /* Adjust font size for better fit on medium screens */
+  }
+}
+
+@media (max-width: 1024px) {
+  .outside-headers .header-item {
+    font-size: 12px; /* Decrease font size on smaller screens */
+    width: 30%; /* Reduce width to allow more space between items */
+  }
+}
+
+@media (max-width: 720px) {
+  .outside-headers {
+    flex-direction: column;
+    align-items: center; /* Stack items vertically */
+    text-align: center;
+  }
+
+  .outside-headers .header-item {
+    width: 100%; /* Each item takes up full width on smaller screens */
+    padding: 10px 0; /* Increase padding for better touch targets */
+  }
+}
+
 </style>

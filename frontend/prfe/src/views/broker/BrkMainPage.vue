@@ -455,25 +455,25 @@ canvas {
   padding: 20px;
 }
 
+
+/* Responsive Dashboard and Pie Chart */
 .dashboard-and-pie {
   display: flex;
   justify-content: space-between;
-  gap: 20px; /* Space between the boxes and pie chart */
-  margin-bottom: 30px; /* Space between the pie chart and the bar chart */
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .dashboard-boxes {
   display: flex;
-  flex-direction: column; /* Stacks the boxes vertically */
-  gap: 20px; /* Space between the boxes */
+  flex-direction: column;
+  gap: 20px;
   flex: 1;
-  margin-top: 50px; /* Adds more space at the top */
-  margin-bottom: 20px; /* Keeps bottom margin as is */
+  margin-top: 50px;
 }
 
 .box {
   position: relative;
-  /* Make the box a positioning context */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -482,54 +482,10 @@ canvas {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.box-header {
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  gap: 15px;
-  margin: 0;
-}
-
-.icon-container {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  /* Make the icon circular */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #343a40;
-  color: #ffffff;
-}
-
-.box-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  /* Space between icon and title */
-}
-
-.box h2 {
-  margin: 10px 0 0;
-  font-size: 30px;
-  font-weight: bold;
-  color: #000;
-  padding-bottom: 10px;
-}
-
-.box-header p {
-  margin: 0;
-  padding: 0;
-  font-size: 13px;
-  color: #000000;
-}
-
-
 .piechart-container {
   flex: 1;
   display: flex;
-  justify-content: center; /* Centers the pie chart */
+  justify-content: center;
   align-items: center;
   margin-top: 30px;
 }
@@ -564,47 +520,105 @@ canvas {
   border: 1px solid #ddd;
 }
 
-#salesBarChart {
-  max-width: 100%;
-  width: 100%;
-  height: 500px;
-  margin-top: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background: #fff;
-}
-
-.box {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.box p {
-  font-size: 14px;
-  color: #666;
-}
-
-.box h2 {
-  font-size: 24px;
-  margin: 10px 0 0;
-}
-
-@media (max-width: 768px) {
-  .dashboard-and-pie {
-    flex-direction: column; /* Stacks everything vertically on small screens */
-    align-items: center;
-  }
-
-  .piechart-container {
-    width: 100%; /* Makes the pie chart responsive */
+/* Responsive Styles */
+@media (max-width: 1440px) {
+  .main-content {
+    margin-left: 220px;
   }
 
   .dashboard-boxes {
-    width: 100%; /* Makes the boxes responsive */
+    gap: 15px;
+  }
+
+  .piechart-container {
+    margin-top: 20px;
+  }
+
+  #salesPieChart {
+    max-width: 450px;
   }
 }
 
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 200px;
+    padding: 15px;
+  }
+
+  .dashboard-and-pie {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dashboard-boxes {
+    width: 100%;
+    gap: 15px;
+  }
+
+  .piechart-container {
+    width: 100%;
+  }
+
+  #salesPieChart {
+    max-width: 400px;
+  }
+
+  #salesBarChart {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 60px;
+    padding: 10px;
+  }
+
+  .dashboard-and-pie {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dashboard-boxes {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .piechart-container {
+    width: 100%;
+  }
+
+  #salesPieChart {
+    max-width: 350px;
+  }
+
+  #salesBarChart {
+    height: 350px;
+  }
+}
+
+@media (max-width: 720px) {
+  .main-content {
+    margin-left: 50px;
+    padding: 10px;
+  }
+
+  .content h1,
+  .content p {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .dashboard-boxes {
+    gap: 10px;
+  }
+
+  #salesPieChart {
+    max-width: 300px;
+  }
+
+  #salesBarChart {
+    height: 300px;
+  }
+}
 </style>

@@ -307,13 +307,16 @@ export default {
 </script>
 
 <style scoped>
-html,
-body {
+html{
   height: 100%;
   margin: 0;
   /* Removes default margin */
   padding: 0;
   /* Removes default padding */
+}
+
+body {
+  font-size: 16px; /* Base size */
 }
 
 .SideNav {
@@ -423,12 +426,10 @@ body {
 /* Ensure the container takes the full width available */
 .site-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Automatically adjust based on screen size */
-  gap: 16px; /* Spacing between grid items */
-  max-width: 1100px; /* Limiting max width if necessary */
-  width: 100%; /* Ensure it takes up the full width */
-  margin: 0 auto; /* Centering the grid */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust for responsive behavior */
+  gap: 16px;
 }
+
 
 /* Site card settings */
 .site-card {
@@ -684,6 +685,48 @@ body {
 
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef; /* Light gray */
+}
+
+
+@media (max-width: 1440px) {
+  .site-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 1080px) {
+  .site-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .site-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .site-card {
+    height: auto; /* Adjust for smaller screens */
+  }
+
+  .pagination-controls {
+    flex-direction: column; /* Stack pagination for smaller viewports */
+    align-items: center;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    font-size: 14px; /* Smaller font for smaller screens */
+  }
+
+  .site-name {
+    font-size: 14px;
+  }
+
+  .site-location {
+    font-size: 12px;
+  }
 }
 
 

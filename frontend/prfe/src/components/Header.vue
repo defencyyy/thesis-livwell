@@ -217,4 +217,61 @@ export default {
   border-right: 0.3em solid transparent;
   border-left: 0.3em solid transparent;
 }
+
+/* Media queries for responsiveness */
+@media (max-width: 1440px) {
+  .top-bar {
+    left: 220px; /* Adjust for the narrower sidebar */
+    width: calc(100% - 220px);
+  }
+
+  .welcome-text {
+    font-size: 16px; /* Adjust font size */
+  }
+
+  .profile-icon {
+    font-size: 20px; /* Scale down icon */
+  }
+
+  .dropdown-menu {
+    width: 200px; /* Adjust dropdown width */
+  }
+}
+
+@media (max-width: 1024px) {
+  .top-bar {
+    left: 200px; /* Adjust for smaller sidebar */
+    width: calc(100% - 200px);
+    padding: 10px 20px; /* Adjust padding */
+  }
+
+  .welcome-text {
+    font-size: 15px; /* Scale down text */
+  }
+
+  .profile-icon {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .top-bar {
+    left: 60px; /* Adjust for collapsed sidebar */
+    width: calc(100% - 60px);
+    padding: 8px 15px; /* Minimal padding */
+  }
+
+  .welcome-text {
+    display: none; /* Hide welcome text for small screens */
+  }
+
+  .profile-icon {
+    font-size: 16px;
+  }
+
+  .d-flex .dropdown {
+    margin-left: 10px; /* Reduce spacing */
+  }
+}
+
 </style>
