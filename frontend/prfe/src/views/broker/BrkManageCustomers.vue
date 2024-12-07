@@ -81,7 +81,7 @@
 
           <div
             v-else
-            v-for="(customer, index) in filteredCustomers"
+            v-for="(customer, index) in paginatedCustomers"
             :key="index"
             class="card border-0 rounded-1 mx-auto my-2"
             style="
@@ -142,6 +142,32 @@
             </div>
           </div>
         </div>
+          <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
         <!-- Modal for Adding Customer -->
         <b-modal v-model="showModal" hide-header hide-footer centered>
           <div class="modal-title p-3">
@@ -448,6 +474,49 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
+      sortedAndFilteredCustomers() {
+    let filtered = this.searchQuery
+      ? this.customers.filter((customer) => {
+          const customerName = customer.customer_name.toLowerCase();
+          const customerCode = customer.customer_code
+            ? customer.customer_code.toLowerCase()
+            : "";
+          return (
+            customerName.includes(this.searchQuery.toLowerCase()) ||
+            customerCode.includes(this.searchQuery.toLowerCase())
+          );
+        })
+      : this.customers;
+
+    switch (this.sortBy) {
+      case "name_asc":
+        return filtered.sort((a, b) =>
+          a.customer_name.localeCompare(b.customer_name)
+        );
+      case "name_desc":
+        return filtered.sort((a, b) =>
+          b.customer_name.localeCompare(a.customer_name)
+        );
+      case "customer_code_asc":
+        return filtered.sort((a, b) =>
+          a.customer_code.localeCompare(b.customer_code)
+        );
+      case "customer_code_desc":
+        return filtered.sort((a, b) =>
+          b.customer_code.localeCompare(a.customer_code)
+        );
+      default:
+        return filtered;
+    }
+  },
+  paginatedCustomers() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.sortedAndFilteredCustomers.slice(startIndex, endIndex);
+  },
+  totalPages() {
+    return Math.ceil(this.sortedAndFilteredCustomers.length / this.itemsPerPage);
+  },
   },
   vuexUserId() {
     return this.userId;
@@ -476,30 +545,20 @@ export default {
       filePreviews: {}, // Object to store file previews for each document type
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
+      currentPage: 1, // Current page number
+      itemsPerPage: 5, // Number of customers per page
     };
   },
   mounted() {
     this.fetchCustomers();
   },
   methods: {
-    filterCustomers() {
-      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-
-      if (!query) {
-        // If there's no search query, show all customers
-        this.filteredCustomers = this.customers;
-      } else {
-        // Filter customers by name or customer code
-        this.filteredCustomers = this.customers.filter((customer) => {
-          const customerName = customer.customer_name.toLowerCase();
-          const customerCode = customer.customer_code
-            ? customer.customer_code.toLowerCase()
-            : ""; // Assuming customer code is in customer_code field
-          return customerName.includes(query) || customerCode.includes(query);
-        });
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
       }
     },
-
+    
     async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -528,33 +587,6 @@ export default {
       }
     },
 
-    // Sort customers based on selected option
-    sortCustomers() {
-      switch (
-        this.sortBy // Default to "name_asc"
-      ) {
-        case "name_asc":
-          this.customers.sort((a, b) =>
-            a.customer_name.localeCompare(b.customer_name)
-          );
-          break;
-        case "name_desc":
-          this.customers.sort((a, b) =>
-            b.customer_name.localeCompare(a.customer_name)
-          );
-          break;
-        case "customer_code_asc":
-          this.customers.sort((a, b) =>
-            a.customer_code.localeCompare(b.customer_code)
-          );
-          break;
-        case "customer_code_desc":
-          this.customers.sort((a, b) =>
-            b.customer_code.localeCompare(a.customer_code)
-          );
-          break;
-      }
-    },
     openEditModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       this.editEmail = customer.email;
@@ -704,9 +736,6 @@ export default {
           this.showNotification = true; // Show the notification modal
         }
       } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while adding the customer.";
         this.showNotification = true; // Show the notification modal
       }
     },
@@ -1035,5 +1064,30 @@ body {
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
+}
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
 }
 </style>
