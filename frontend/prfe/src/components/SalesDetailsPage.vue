@@ -90,7 +90,6 @@
             </div>
           </div>
 
-
           <!-- <div v-if="activeTab === 'document-status'" class="tab-content">
             <div v-if="salesDetail" class="details-card">
                 <p>{{ salesDetail.customer_name }}</p>
