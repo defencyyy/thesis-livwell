@@ -151,7 +151,7 @@
                     }}
                   </p>
                 </div>
-                <button @click.stop="openFloorManagement(site)">
+                <button @click.stop="openFloorManagement(site)" class = "button-bottom-right">
                   Manage Floors
                 </button>
               </div>
@@ -797,5 +797,18 @@ body {
 
 .filters b-button {
   margin-top: 10px;
+}
+
+.button-bottom-right {
+  padding: 10px 15px;   /* Optional: Adjust padding for button size */
+  background-color: #007bff; /* Optional: Change button color */
+  color: white;         /* Button text color */
+  border: none;         /* Remove border */
+  border-radius: 4px;   /* Rounded corners */
+  cursor: pointer;      /* Add pointer cursor */
+}
+
+.button-bottom-right:hover {
+  background-color: #0056b3; /* Optional: Change color on hover */
 }
 </style>
