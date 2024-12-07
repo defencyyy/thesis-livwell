@@ -54,7 +54,7 @@
 
         <div
         v-else
-        v-for="sale in filteredCustomers"
+        v-for="sale in paginatedCustomers"
         :key="sale.id"
         class="card border-0 rounded-1 mx-auto my-2"
         style="
@@ -126,6 +126,32 @@
             </table>
           </div>
         </div>
+         <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
 
         <!-- Sales Agreement Modal -->
         <b-modal v-model="showModal" title = "Sales Agreement" size="lg" centered hide-footer >
@@ -692,6 +718,49 @@ export default {
     localStorageCompanyId() {
       return localStorage.getItem("company_id");
     },
+     // Filter and sort customers dynamically
+  sortedAndFilteredCustomers() {
+    const query = this.searchQuery.toLowerCase();
+    const filtered = this.sales.filter((customer) => {
+      const customerName = customer.customer_name.toLowerCase();
+      const customerCode = customer.customer_code
+        ? customer.customer_code.toLowerCase()
+        : "";
+      return (
+        !query ||
+        customerName.includes(query) ||
+        customerCode.includes(query)
+      );
+    });
+
+    // Sort based on selected option
+    return filtered.sort((a, b) => {
+      switch (this.sortBy) {
+        case "name_asc":
+          return a.customer_name.localeCompare(b.customer_name);
+        case "name_desc":
+          return b.customer_name.localeCompare(a.customer_name);
+        case "customer_code_asc":
+          return a.customer_code.localeCompare(b.customer_code);
+        case "customer_code_desc":
+          return b.customer_code.localeCompare(a.customer_code);
+        default:
+          return 0; // Default case: no sorting
+      }
+    });
+  },
+
+  // Paginate filtered and sorted customers
+  paginatedCustomers() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.sortedAndFilteredCustomers.slice(startIndex, endIndex);
+  },
+
+  // Total pages based on filtered customers
+  totalPages() {
+    return Math.ceil(this.sortedAndFilteredCustomers.length / this.itemsPerPage);
+  },
   },
   data() {
     return {
@@ -741,8 +810,8 @@ export default {
       showDeleteModal: false, // To toggle the delete modal visibility
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
-
-
+      currentPage: 1, // Current page number
+      itemsPerPage: 15, // Number of customers per page
     };
   },
   mounted() {
@@ -771,29 +840,16 @@ export default {
     },
   },
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
      validateSpotCashDiscount() {
       if (this.spotCashDiscount < 0) {
         this.spotCashDiscount = 0;
       } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
         this.spotCashDiscount = this.maxSpotCashDiscount;
-      }
-    },
-    filterCustomers() {
-      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-
-      if (!query) {
-        // If there's no search query, show all customers
-        this.filteredCustomers = this.sales;
-      } else {
-        // Filter customers by name or customer code
-        this.filteredCustomers = this.sales.filter((customer) => {
-          const customerName = customer.customer_name.toLowerCase();
-          console.log(customerName);
-          const customerCode = customer.customer_code
-            ? customer.customer_code.toLowerCase()
-            : ""; // Assuming customer code is in customer_code field
-          return customerName.includes(query) || customerCode.includes(query);
-        });
       }
     },
     toggleDetailedSchedule() {
@@ -1729,5 +1785,30 @@ input[type="file"] {
   font-size: 16px;
   pointer-events: none;
   /* Prevent the icon from blocking clicks in the input */
+}
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
 }
 </style>

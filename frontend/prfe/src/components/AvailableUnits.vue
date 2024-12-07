@@ -59,7 +59,7 @@
 
     <div v-if = "filteredUnits.length" class = "site-grid">
       <div
-      v-for="unit in filteredUnits"
+      v-for="unit in paginatedUnits"
       :key="unit.id"
       class="site-card"
       @click="showUnitDetails(unit)"
@@ -70,6 +70,33 @@
 
     <div v-else>
       <p>No sites with available units.</p>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
     </div>
 
 
@@ -613,6 +640,8 @@ export default {
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
       selectedUnitType: 'all', // Default unit type filter
+      currentPage: 1, // Current page number
+      itemsPerPage: 5, // Number of customers per page
     };
   },
 
@@ -625,6 +654,16 @@ export default {
     this.updatePaymentDetails();
   },
   computed: {
+ // Paginate filtered units
+    paginatedUnits() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredUnits.slice(startIndex, endIndex);
+    },
+    // Calculate total pages based on the number of filtered units
+    totalPages() {
+      return Math.ceil(this.filteredUnits.length / this.itemsPerPage);
+    },
   availableFloors() {
     // Get unique floor values from available units
     const floors = this.units.map(unit => unit.floor);
@@ -653,13 +692,19 @@ export default {
 
       return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
     });
-  },
+    },
+   
 },
   created() {
       this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
+     goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     toggleDetailedSchedule() {
       // Toggle the visibility of the detailed payment schedule
       this.showDetailedSchedule = !this.showDetailedSchedule;
@@ -854,6 +899,7 @@ export default {
         customer_name: this.reservationForm.customerName,
         site_id: parseInt(this.siteId, 10), // Convert to integer
         unit_id: this.selectedUnit.id,
+        commission:this.selectedUnit.commission,
         broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
         company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
         payment_amount: this.reservationForm.paymentAmount,
@@ -863,6 +909,7 @@ export default {
           ? this.reservationForm.file.name
           : null, // Ensure file is present
       };
+      console.log(this.selectedUnit.commission);
 
       console.log("Data being sent to the API:", data);
 
@@ -1424,5 +1471,30 @@ button:hover {
 .unit-list li {
   padding: 10px;
   border-bottom: 1px solid #ddd; /* Add separator between units */
+}
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
 }
 </style>

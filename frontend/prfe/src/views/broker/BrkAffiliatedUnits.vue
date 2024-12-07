@@ -47,7 +47,7 @@
 
         <div v-if = "filteredSites.length" class = "site-grid">
           <div
-            v-for="site in filteredSites"
+            v-for="site in paginatedSites"
             :key="site.id || index"
             class="site-card"
             @click="() => redirectToUnits(site.id)"
@@ -75,8 +75,32 @@
         <div v-else>
           <p>No sites with available units.</p>
         </div>
-
-
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
       </div>
     </div>
   </div>
@@ -110,7 +134,9 @@ export default {
       loading: true,
       sortBy: "site_asc",
       searchQuery: "", // New property for search input
-      filteredSites:[],
+      filteredSites: [],
+      currentPage: 1, // Current page number
+      itemsPerPage: 5, // Number of customers per page
 
     };
   },
@@ -120,6 +146,45 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
+     // Filter and sort sites dynamically
+    filteredAndSortedSites() {
+      // Filter by search query
+      const query = this.searchQuery.toLowerCase();
+      const filtered = this.sites.filter((site) => {
+        const siteName = site.name.toLowerCase();
+        return !query || siteName.includes(query);
+      });
+
+      // Sort based on selected option
+      return filtered.sort((a, b) => {
+        switch (this.sortBy) {
+          case "site_asc":
+            return a.name.localeCompare(b.name);
+          case "site_desc":
+            return b.name.localeCompare(a.name);
+          case "status_pre":
+            return a.status === "preselling" ? -1 : b.status === "preselling" ? 1 : 0;
+          case "status_comp":
+            return a.status === "completed" ? -1 : b.status === "completed" ? 1 : 0;
+          case "status_on":
+            return a.status === "on going" ? -1 : b.status === "on going" ? 1 : 0;
+          default:
+            return 0;
+        }
+      });
+    },
+
+    // Paginate filtered and sorted sites
+    paginatedSites() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredAndSortedSites.slice(startIndex, endIndex);
+    },
+
+    // Total pages based on filtered and sorted sites
+    totalPages() {
+      return Math.ceil(this.filteredAndSortedSites.length / this.itemsPerPage);
+    },
   },
   vuexUserId() {
     return this.userId;
@@ -131,6 +196,12 @@ export default {
     this.fetchAvailableSites();
   },
   methods: {
+      goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
+    
     async fetchAvailableSites() {
       try {
         console.log("Fetching sites for company ID:", this.companyId);
@@ -155,54 +226,6 @@ export default {
         );
       } finally {
         this.loading = false;
-      }
-    },
-    filterSites() {
-  const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-  if (!query) {
-  // If there's no search query, show all sites
-    this.filteredSites = this.sites;
-  } else {
-    // Filter sites by name
-    this.filteredSites = this.sites.filter((site) => {
-      const siteName = site.name.toLowerCase(); // Correctly reference the `name` property
-      return siteName.includes(query);
-    });
-  }
-},
-
-    sortSites() {
-      switch (this.sortBy) {
-        case 'site_asc':
-          this.sites.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case 'site_desc':
-          this.sites.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case 'status_pre':
-      this.sites.sort((a, b) => {
-        if (a.status === 'preselling' && b.status !== 'preselling') return -1;
-        if (a.status !== 'preselling' && b.status === 'preselling') return 1;
-        return 0;
-      });
-      break;
-    case 'status_comp':
-      this.sites.sort((a, b) => {
-        if (a.status === 'completed' && b.status !== 'completed') return -1;
-        if (a.status !== 'completed' && b.status === 'completed') return 1;
-        return 0;
-      });
-      break;
-    case 'status_on':
-      this.sites.sort((a, b) => {
-        if (a.status === 'on going' && b.status !== 'on going') return -1;
-        if (a.status !== 'on going' && b.status === 'on going') return 1;
-        return 0;
-      });
-      break;
-    default:
-      break;
-        
       }
     },
   },
@@ -440,5 +463,29 @@ body {
   /* Centers the card */
   margin-right: auto;
 }
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
 
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
 </style>
