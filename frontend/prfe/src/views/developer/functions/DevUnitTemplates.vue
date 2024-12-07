@@ -13,66 +13,145 @@
           </div>
 
           <!-- Actions -->
+          
           <div class="actions" v-if="!isLoading && !errorMessage">
-            <button @click="redirectToUnits">Manage Units</button>
-            <button @click="redirectToUnitTemplates">
-              Manage Unit Templates
-            </button>
-            <button @click="redirectToUnitTypes">Manage Unit Types</button>
+            <div class="nav nav-tabs">
+              <!-- Manage Units Tab -->
+              <button
+                class="nav-link"
+                id="units-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnits"
+              >
+                Manage Units
+              </button>
+
+              <!-- Manage Unit Templates Tab -->
+              <button
+                class="nav-link active"
+                id="unit-templates-tab"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                @click="redirectToUnitTemplates"
+              >
+                Manage Unit Templates
+              </button>
+
+              <!-- Manage Unit Types Tab -->
+              <button
+                class="nav-link"
+                id="unit-types-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnitTypes"
+              >
+                Manage Unit Types
+              </button>
+            </div>
           </div>
 
           <!-- Unit Templates Section -->
           <div v-if="view === 'templates'">
-            <h2>Unit Templates</h2>
-            <div>
-              <p>Total Unit Templates: {{ templates.length }}</p>
+            <div class = "title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">Unit Templates</div>
+              </div>
+              <div class = "total-templates">
+                <div>Total Unit Templates: {{ templates.length }}</div>
+              </div>
             </div>
 
             <!-- Search and Create Template -->
-            <div class="search-create">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search by template name"
-                @input="filterTemplates"
-              />
-              <button @click="openCreateTemplateModal">
-                Create Unit Template
-              </button>
+            <div
+            class="card border-0 rounded-1 mx-auto"
+            style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+            >
+              <div class = "card-body">
+                <div class = "toolbar">
+                  <div class = "left-section">
+                    <div class = "search-bar-container">
+                      <input
+                      v-model="searchQuery"
+                      type="text"
+                      class = "search-bar"
+                      placeholder="Search by template name"
+                      @input="filterTemplates"
+                      />
+                      <i class="fa fa-search search-icon"></i>
+                    </div>
+                  </div>
+                  <div class="right-section">
+                    <button @click="openCreateTemplateModal" class = "btn-primary add-button">
+                      Create Unit Template
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Templates Table -->
-            <table>
-              <thead>
-                <tr>
-                  <th>RelativeId</th>
-                  <th>Name</th>
-                  <th>Bedrooms</th>
-                  <th>Bathrooms</th>
-                  <th>Price</th>
-                  <th>Floor Area</th>
-                  <th>Lot Area</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="template in filteredTemplates" :key="template.id">
-                  <td>{{ template.relativeId }}</td>
-                  <td>{{ template.name }}</td>
-                  <td>{{ template.bedroom }}</td>
-                  <td>{{ template.bathroom }}</td>
-                  <td>{{ template.price }}</td>
-                  <td>{{ template.floor_area }}</td>
-                  <td>{{ template.lot_area }}</td>
-                  <td>
-                    <button @click="openEditTemplateModal(template)">
-                      Edit
-                    </button>
-                    <button @click="deleteTemplate(template.id)">Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <!-- Headers outside the card -->
+              <div class="outside-headers">
+                <span class="header-item">Relative ID</span>
+                <span class="header-item">Name</span>
+                <span class="header-item">Bedrooms</span>
+                <span class="header-item">Bathrooms</span>
+                <span class="header-item">Price</span>
+                <span class="header-item">Floor Area</span>
+                <span class="header-item">Lot Area</span>
+                <span class="header-item">Actions</span>
+              </div>
+
+              <div v-for="template in filteredTemplates" :key="template.id"
+              class="card border-0 rounded-1 mx-auto my-2"
+              style="
+              
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              "
+              >
+              <div class = "card-body">
+                <table class = "template-table">
+                  <tbody>
+                    <tr>
+                      <td><span>{{ template.relativeId }}</span></td>
+                      <td><span>{{ template.name }}</span></td>
+                      <td><span>{{ template.bedroom }}</span></td>
+                      <td><span>{{ template.bathroom }}</span></td>
+                      <td><span>{{ template.price }}</span></td>
+                      <td><span>{{ template.floor_area }}</span></td>
+                      <td><span>{{ template.lot_area }}</span></td>
+                      <td>
+                        <div class="broker-actions d-flex gap-2">
+                          <button @click="openEditTemplateModal(template)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button @click="deleteTemplate(template.id)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "><i class="fas fa-archive"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -85,36 +164,43 @@
       hide-footer
       centered
     >
-      <form @submit.prevent="createTemplate">
-        <div>
-          <label for="name">Name</label>
-          <input type="text" v-model="newTemplate.name" required />
-        </div>
-        <div>
-          <label for="bedroom">Bedrooms</label>
-          <input type="number" v-model="newTemplate.bedroom" required />
-        </div>
-        <div>
-          <label for="bathroom">Bathrooms</label>
-          <input type="number" v-model="newTemplate.bathroom" required />
-        </div>
-        <div>
-          <label for="price">Price</label>
-          <input type="number" v-model="newTemplate.price" required />
-        </div>
-        <div>
-          <label for="floor_area">Floor Area</label>
-          <input type="number" v-model="newTemplate.floor_area" />
-        </div>
-        <div>
-          <label for="lot_area">Lot Area</label>
-          <input type="number" v-model="newTemplate.lot_area" />
-        </div>
-        <div class="modal-actions">
-          <button type="submit">Create</button>
-          <button @click="closeCreateModal">Cancel</button>
-        </div>
-      </form>
+      <div class = "p-3">
+        <form @submit.prevent="createTemplate">
+          <div class = "row mb-3">
+            <div class="form-group mb-3">
+              <label for="name">Name</label>
+              <input type="text" v-model="newTemplate.name" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="bedroom">Bedrooms</label>
+              <input type="number" v-model="newTemplate.bedroom" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="bathroom">Bathrooms</label>
+              <input type="number" v-model="newTemplate.bathroom" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="price">Price</label>
+              <input type="number" v-model="newTemplate.price" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="floor_area">Floor Area</label>
+              <input type="number" v-model="newTemplate.floor_area" class = "form-control"/>
+            </div>
+            <div class="form-group mb-3">
+              <label for="lot_area">Lot Area</label>
+              <input type="number" v-model="newTemplate.lot_area" class = "form-control"/>
+            </div>
+          </div>
+          <div
+          class="d-flex justify-content-end gap-2 mt-30"
+          style="padding-top: 15px"
+          >
+          <button type="submit" class = "btn-add">Create</button>
+          <button @click="closeCreateModal" class = "btn-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
     </b-modal>
 
     <!-- Edit Template Modal -->
@@ -124,36 +210,43 @@
       hide-footer
       centered
     >
+    <div class = "p-3">
       <form @submit.prevent="saveTemplateChanges">
-        <div v-if="selectedTemplate">
-          <label for="name">Name</label>
-          <input type="text" v-model="selectedTemplate.name" required />
+        <div class = "row mb-3">
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="name">Name</label>
+            <input type="text" v-model="selectedTemplate.name" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="bedroom">Bedrooms</label>
+            <input type="number" v-model="selectedTemplate.bedroom" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="bathroom">Bathrooms</label>
+            <input type="number" v-model="selectedTemplate.bathroom" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="price">Price</label>
+            <input type="number" v-model="selectedTemplate.price" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="floor_area">Floor Area</label>
+            <input type="number" v-model="selectedTemplate.floor_area" class = "form-control"/>
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="lot_area">Lot Area</label>
+            <input type="number" v-model="selectedTemplate.lot_area" class = "form-control"/>
+          </div>
         </div>
-        <div v-if="selectedTemplate">
-          <label for="bedroom">Bedrooms</label>
-          <input type="number" v-model="selectedTemplate.bedroom" required />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="bathroom">Bathrooms</label>
-          <input type="number" v-model="selectedTemplate.bathroom" required />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="price">Price</label>
-          <input type="number" v-model="selectedTemplate.price" required />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="floor_area">Floor Area</label>
-          <input type="number" v-model="selectedTemplate.floor_area" />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="lot_area">Lot Area</label>
-          <input type="number" v-model="selectedTemplate.lot_area" />
-        </div>
-        <div class="modal-actions">
-          <button type="submit">Save Changes</button>
-          <button @click="closeEditModal">Cancel</button>
+        <div
+        class="d-flex justify-content-end gap-2 mt-30"
+        style="padding-top: 15px"
+        >
+        <button type="submit" class = "btn-add">Save</button>
+        <button @click="closeEditModal" class = "btn-cancel">Cancel</button>
         </div>
       </form>
+    </div>
     </b-modal>
   </div>
 </template>
@@ -379,7 +472,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  background-color: #ebebeb;
+  background-color:  #e8f0fa;
 }
 
 .SideNav {
@@ -420,16 +513,79 @@ body {
   margin-bottom: 20px;
 }
 
-table {
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  max-width: 1100px;
   width: 100%;
-  border-collapse: collapse;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
 }
 
-th,
-td {
-  padding: 10px;
-  border: 1px solid #ddd;
+.template-table {
+  width: 100%;
+  border-collapse: collapse;
   text-align: left;
+  background: #fff;
+}
+
+.template-table th,
+.template-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.template-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.template-table th:nth-child(1),
+.template-table td:nth-child(1) {
+  width: 12%;
+}
+
+.template-table th:nth-child(2),
+.template-table td:nth-child(2) {
+  width: 12%;
+}
+
+.template-table th:nth-child(3),
+.template-table td:nth-child(3) {
+  width: 12%;
+}
+
+.template-table th:nth-child(4),
+.template-table td:nth-child(4) {
+  width: 12%;
+}
+
+.template-table th:nth-child(5),
+.template-table td:nth-child(5) {
+  width: 12%;
+}
+
+.template-table th:nth-child(6),
+.template-table td:nth-child(6) {
+  width: 12%;
+}
+
+.template-table th:nth-child(7),
+.template-table td:nth-child(7) {
+  width: 12%;
+}
+
+.template-table th:nth-child(8),
+.template-table td:nth-child(8) {
+  width: 12%;
 }
 
 .search-create {
@@ -497,12 +653,149 @@ td {
   padding: 10px 20px;
 }
 
-button {
-  cursor: pointer;
+.nav-tabs .nav-link {
+  background: none; /* Removes background if you want tabs without a button-like appearance */
+  border: none; /* Removes the default button border */
+  color: inherit; /* Inherits the text color */
+  font-weight: bold; /* Makes text bold */
 }
 
-button:hover {
+.nav-tabs .nav-link.active {
+  color: #000; /* Active tab color */
+  border-bottom: 2px solid #0d6efd;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.btn-primary.add-button {
+  padding: 8px 12px;
+  border: 1px solid #0560fd;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #0560fd;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary.add-button:hover {
   background-color: #0056b3;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 12% 12% 12% 12% 12% 12% 12% 12%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+.form-group .form-label,
+.row .form-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  /* Adjust the value to your preferred size */
+}
+
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
   color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

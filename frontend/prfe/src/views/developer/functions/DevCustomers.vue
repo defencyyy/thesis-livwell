@@ -35,21 +35,6 @@
               </div>
               <div class="right-section"></div>
             </div>
-
-            <!-- Pagination -->
-            <div
-              class="pagination"
-              v-if="filteredCustomers.length > customersPerPage"
-            >
-              <button
-                v-for="page in totalPages"
-                :key="page"
-                @click="currentPage = page"
-                :class="{ active: currentPage === page }"
-              >
-                {{ page }}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -148,6 +133,31 @@
               </table>
             </div>
           </div>
+        <!-- Pagination -->
+        <div class="pagination-controls">
+          <button
+            :disabled="currentPage === 1"
+            @click="prevPage"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            @click="changePage(page)"
+            :class="['page-button', { active: currentPage === page }]"
+          >
+            {{ page }}
+          </button>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
         </div>
       </div>
     </div>
@@ -304,7 +314,7 @@ export default {
     return {
       customers: [],
       searchQuery: "",
-      customersPerPage: 25,
+      customersPerPage: 5,
       currentPage: 1,
       showEditModal: false,
       connectedUnitsCount: 0,
@@ -394,6 +404,19 @@ export default {
     },
   },
   methods: {
+     changePage(page) {
+    this.currentPage = page;
+  },
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
     async fetchCustomers() {
       try {
         const response = await axios.get(
@@ -766,4 +789,68 @@ body {
 .pagination .active {
   font-weight: bold;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
 </style>

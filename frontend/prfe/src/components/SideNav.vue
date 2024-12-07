@@ -229,4 +229,60 @@ export default {
 .active:hover {
   color: white; /* Ensure color stays white on hover */
 }
+
+/* RESPONSIVENESS */
+/* Media queries for responsive behavior */
+@media (max-width: 1440px) {
+  .sidebar {
+    width: 220px; /* Reduce sidebar width for medium screens */
+  }
+
+  #sidebar-title {
+    font-size: 1.1rem; /* Adjust font size */
+  }
+
+  .menu-icon {
+    width: 18px; /* Adjust icon size */
+  }
+
+  .item-name {
+    font-size: 13px; /* Adjust item font size */
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px; /* Reduce sidebar width further for smaller screens */
+  }
+
+  #sidebar-title {
+    font-size: 1rem;
+  }
+
+  .menu-icon {
+    width: 16px;
+  }
+
+  .item-name {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .sidebar {
+    width: 60px; /* Collapse sidebar */
+  }
+
+  #sidebar-title {
+    display: none; /* Hide title for small screens */
+  }
+
+  .menu-icon {
+    margin-right: 0; /* Center icon without extra space */
+  }
+
+  .item-name {
+    display: none; /* Hide text for small screens */
+  }
+}
 </style>
