@@ -31,23 +31,28 @@
           </div>
 
           <div>
-            <h2>Sites</h2>
-            <div class="view-switch">
-              <div
-                class="view-icon"
-                :class="{ active: viewMode === 'grid' }"
-                @click="viewMode = 'grid'"
-              >
-                <i class="fa fa-th"></i>
+            <div class="title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">Sites</div>
               </div>
-              <div class="separator"></div>
-              <div
-                class="view-icon"
-                :class="{ active: viewMode === 'table' }"
-                @click="viewMode = 'table'"
-              >
-                <i class="fa fa-list"></i>
-              </div>
+              <div class="view-switch">
+                <div
+                  class="view-icon"
+                  :class="{ active: viewMode === 'grid' }"
+                  @click="viewMode = 'grid'"
+                >
+                  <i class="fa fa-th"></i>
+                </div>
+                <div class="separator"></div>
+                <div
+                  class="view-icon"
+                  :class="{ active: viewMode === 'table' }"
+                  @click="viewMode = 'table'"
+                >
+                  <i class="fa fa-list"></i>
+                </div>
+            </div>
             </div>
 
             <div v-if="viewMode === 'grid'" class="site-grid">
