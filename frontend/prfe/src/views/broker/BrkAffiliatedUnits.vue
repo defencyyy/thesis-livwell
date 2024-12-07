@@ -67,15 +67,14 @@
         </div>
         
         <!-- Grid View -->
-        <div v-if="viewMode === 'grid'" class="site-grid">
-          <div v-if = "filteredSites.length">
+        <div v-if="viewMode === 'grid'">
+          <div v-if="filteredSites.length" class="site-grid">
             <div
               v-for="site in paginatedSites"
               :key="site.id || index"
               class="site-card"
               @click="() => redirectToUnits(site.id)"
             >
-
               <!-- Site Image -->
               <img
                 :src="site.picture || require('@/assets/home.png')"
@@ -98,6 +97,8 @@
             <p>No sites with available units.</p>
           </div>
         </div>
+
+
         <div v-if="viewMode === 'table'">
           <div class="outside-headers">
             <span class="header-item">Name</span>
@@ -137,6 +138,9 @@
                 </table>
               </div>
             </div>
+          </div>
+          <div v-else>
+            <p>No sites with available units.</p>
           </div>
         </div>
 
@@ -416,51 +420,61 @@ body {
   height: 100%;
 }
 
+/* Ensure the container takes the full width available */
 .site-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  max-width: 1100px;
-  margin: 0 auto;
-  /* Ensures grid behaves properly */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Automatically adjust based on screen size */
+  gap: 16px; /* Spacing between grid items */
+  max-width: 1100px; /* Limiting max width if necessary */
+  width: 100%; /* Ensure it takes up the full width */
+  margin: 0 auto; /* Centering the grid */
 }
 
+/* Site card settings */
 .site-card {
   background: #fff;
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  /* Ensure the card width is sufficiently large */
-  width: 100%;
-  box-sizing: border-box;
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+  transition: transform 0.2s ease; /* Smooth hover effect */
 }
 
+/* Hover effect */
 .site-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px); /* Lift effect on hover */
 }
 
+/* Image within the card */
 .site-image {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  /* Ensures the image is cropped to fit the area */
+  width: 100%; /* Fill the width of the card */
+  height: 150px; /* Fixed height for consistency */
+  object-fit: cover; /* Crop and maintain aspect ratio */
   border-radius: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 10px; /* Space between image and text */
 }
 
-.site-info {
-  flex-direction: row;
-}
-
+/* Site name styling */
 .site-name {
   font-size: 15px;
   font-weight: bold;
+  margin-bottom: 5px; /* Space below the site name */
 }
 
+/* Site location styling */
 .site-location {
   font-size: 14px;
   color: #777;
 }
+
+/* Optional: Add a max-height to the cards if the image/content is too large */
+.site-card {
+  height: 300px; /* Optional: Fix card height to prevent overflow */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space out the content */
+}
+
 
 .table-image {
   width: 30px;
@@ -526,6 +540,7 @@ body {
 
 .card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .card-hover:hover {
