@@ -66,7 +66,7 @@
               </div>
             </div>
             <div class="right-dashboard">
-              
+
               <SalesChart v-if="sales.length" :salesData="sales" />
             </div>
           </div>
@@ -247,50 +247,52 @@
             </div>
           </div> -->
 
-          <b-modal v-model="showModal" title="Manage Sale" hide-header hide-footer centered size="lg">
-    <div class="p-3" v-if="selectedSale && selectedSale.customer">
-      <h5 class="mb-3">Manage Sale</h5>
-      <p>
-        <strong>Customer:</strong> {{ selectedSale.customer.first_name }} {{ selectedSale.customer.last_name }}
-      </p>
-      <p><strong>Unit:</strong> {{ selectedSale.unit.unit_title }}</p>
-      <p><strong>Site:</strong> {{ selectedSale.site.name || "N/A" }}</p>
-      <p>
-        <strong>Reservation Fee:</strong> {{ formatCurrency(selectedSale.reservation_fee) }}
-      </p>
-      <p>
-        <strong>Payment Method:</strong> {{ selectedSale.payment_method }}
-      </p>
-      <p v-if="selectedSale.reservation_file">
-        <strong>Reservation File:</strong>
-        <a :href="getFileUrl(selectedSale.reservation_file)" target="_blank">View File</a>
-      </p>
+          <b-modal v-model="showModal" title="Manage Sale" hide-header hide-footer centered>
+            <div class="p-3" v-if="selectedSale && selectedSale.customer">
+              <div class="modal-title">
+                <h5 class="mb-4">Customer: {{ selectedSale.customer.first_name.toUpperCase() }} {{
+                  selectedSale.customer.last_name.toUpperCase() }}</h5>
+              </div>
+              <div class="customer-sales-info" style="margin-bottom: 30px;">
+                <p><strong>Unit:</strong> {{ selectedSale.unit.unit_title }}</p>
+                <p><strong>Site:</strong> {{ selectedSale.site.name || "N/A" }}</p>
+                <p>
+                  <strong>Reservation Fee:</strong> {{ formatCurrency(selectedSale.reservation_fee) }}
+                </p>
+                <p>
+                  <strong>Payment Method:</strong> {{ selectedSale.payment_method }}
+                </p>
+                <p v-if="selectedSale.reservation_file">
+                  <strong>Reservation File:</strong>
+                  <a :href="getFileUrl(selectedSale.reservation_file)" target="_blank">View File</a>
+                </p>
+              </div>
 
-      <div class="update-status mb-3">
-        <label for="status" class="form-label">Update Status:</label>
-        <select v-model="selectedSale.status" id="status" class="form-select">
-          <option value="Pending Reservation">Pending Reservation</option>
-          <option value="Reserved">Reserved</option>
-          <option value="Pending Sold">Pending Sold</option>
-          <option value="Sold">Sold</option>
-        </select>
-      </div>
-      
-      <div class="d-flex justify-content-end gap-2">
-        <button @click="confirmUpdate" class="btn btn-primary">
-          Save Changes
-        </button>
-        <button @click="closeModal" class="btn btn-secondary">
-          Close
-        </button>
-      </div>
-    </div>
-  </b-modal>
+              <div class="update-status mb-3">
+                <label for="status" class="form-label"><strong> Status:</strong></label>
+                <select v-model="selectedSale.status" id="status" class="form-select">
+                  <option value="Pending Reservation">Pending Reservation</option>
+                  <option value="Reserved">Reserved</option>
+                  <option value="Pending Sold">Pending Sold</option>
+                  <option value="Sold">Sold</option>
+                </select>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
+                <button @click="confirmUpdate" class="btn btn-primary">
+                  Save Changes
+                </button>
+                <button type="button" @click="showModal = false" class="btn btn-secondary">
+                  Close
+                </button>
+              </div>
+            </div>
+          </b-modal>
 
         </div>
       </div>
     </div>
-    
+
   </template>
 
 <script>
@@ -303,7 +305,7 @@ import SalesChart from "@/components/DevSalesChart.vue";
 
 export default {
   name: "DevSales",
-  components: { SideNav, AppHeader, SalesChart,BModal },
+  components: { SideNav, AppHeader, SalesChart, BModal },
   data() {
     return {
       sales: [],
@@ -582,7 +584,7 @@ body {
   flex: 1;
   padding: 20px;
   text-align: center;
-  
+
 }
 
 .title-wrapper {
@@ -723,7 +725,8 @@ body {
   text-align: center;
   margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  flex-grow: 1; /* Allow boxes to grow in height if needed */
+  flex-grow: 1;
+  /* Allow boxes to grow in height if needed */
 }
 
 .unit-box {
@@ -735,7 +738,8 @@ body {
   padding: 20px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  flex-grow: 1; /* Allow boxes to grow in height if needed */
+  flex-grow: 1;
+  /* Allow boxes to grow in height if needed */
 }
 
 
@@ -794,7 +798,8 @@ body {
 }
 
 .card-body {
-  font-size: 14px; /* Set a smaller default font size for the card body */
+  font-size: 14px;
+  /* Set a smaller default font size for the card body */
 }
 
 .btn-primary.add-button {
