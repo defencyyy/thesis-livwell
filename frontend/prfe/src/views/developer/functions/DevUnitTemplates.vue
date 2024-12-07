@@ -56,22 +56,42 @@
 
           <!-- Unit Templates Section -->
           <div v-if="view === 'templates'">
-            <h2>Unit Templates</h2>
-            <div>
-              <p>Total Unit Templates: {{ templates.length }}</p>
+            <div class = "title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">Unit Templates</div>
+              </div>
+              <div class = "total-templates">
+                <div>Total Unit Templates: {{ templates.length }}</div>
+              </div>
             </div>
 
             <!-- Search and Create Template -->
-            <div class="search-create">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search by template name"
-                @input="filterTemplates"
-              />
-              <button @click="openCreateTemplateModal">
-                Create Unit Template
-              </button>
+            <div
+            class="card border-0 rounded-1 mx-auto"
+            style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+            >
+              <div class = "card-body">
+                <div class = "toolbar">
+                  <div class = "left-section">
+                    <div class = "search-bar-container">
+                      <input
+                      v-model="searchQuery"
+                      type="text"
+                      class = "search-bar"
+                      placeholder="Search by template name"
+                      @input="filterTemplates"
+                      />
+                      <i class="fa fa-search search-icon"></i>
+                    </div>
+                  </div>
+                  <div class="right-section">
+                    <button @click="openCreateTemplateModal" class = "btn-primary add-button">
+                      Create Unit Template
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Templates Table -->
@@ -412,7 +432,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  background-color: #ebebeb;
+  background-color:  #e8f0fa;
 }
 
 .SideNav {
@@ -549,5 +569,93 @@ button:hover {
 .nav-tabs .nav-link.active {
   color: #000; /* Active tab color */
   border-bottom: 2px solid #0d6efd;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.btn-primary.add-button {
+  padding: 8px 12px;
+  border: 1px solid #0560fd;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #0560fd;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary.add-button:hover {
+  background-color: #0056b3;
 }
 </style>
