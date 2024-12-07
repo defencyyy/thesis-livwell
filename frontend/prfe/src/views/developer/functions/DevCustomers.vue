@@ -184,6 +184,16 @@
         <ul>
           <li v-for="document in currentCustomer.documents" :key="document.url">
             <span class="document-type">{{ document.type }}:</span>
+
+            <!-- Button to open the document in a modal -->
+            <button @click="openDocumentModal(document)" class="btn btn-link">
+              {{ document.name }}
+            </button>
+
+            <!-- Open document in a new tab -->
+            <a
+              :href="document.url"
+              target="_blank"
               class="btn btn-sm btn-outline-success"
               aria-label="Open document in a new tab"
             >
