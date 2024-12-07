@@ -474,14 +474,49 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
-   paginatedCustomers() {
-      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-      const endIndex = startIndex + this.itemsPerPage;
-      return this.customers.slice(startIndex, endIndex);
-    },
-    totalPages() {
-      return Math.ceil(this.customers.length / this.itemsPerPage);
-    },
+      sortedAndFilteredCustomers() {
+    let filtered = this.searchQuery
+      ? this.customers.filter((customer) => {
+          const customerName = customer.customer_name.toLowerCase();
+          const customerCode = customer.customer_code
+            ? customer.customer_code.toLowerCase()
+            : "";
+          return (
+            customerName.includes(this.searchQuery.toLowerCase()) ||
+            customerCode.includes(this.searchQuery.toLowerCase())
+          );
+        })
+      : this.customers;
+
+    switch (this.sortBy) {
+      case "name_asc":
+        return filtered.sort((a, b) =>
+          a.customer_name.localeCompare(b.customer_name)
+        );
+      case "name_desc":
+        return filtered.sort((a, b) =>
+          b.customer_name.localeCompare(a.customer_name)
+        );
+      case "customer_code_asc":
+        return filtered.sort((a, b) =>
+          a.customer_code.localeCompare(b.customer_code)
+        );
+      case "customer_code_desc":
+        return filtered.sort((a, b) =>
+          b.customer_code.localeCompare(a.customer_code)
+        );
+      default:
+        return filtered;
+    }
+  },
+  paginatedCustomers() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.sortedAndFilteredCustomers.slice(startIndex, endIndex);
+  },
+  totalPages() {
+    return Math.ceil(this.sortedAndFilteredCustomers.length / this.itemsPerPage);
+  },
   },
   vuexUserId() {
     return this.userId;
@@ -511,7 +546,7 @@ export default {
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
       currentPage: 1, // Current page number
-      itemsPerPage: 15, // Number of customers per page
+      itemsPerPage: 5, // Number of customers per page
     };
   },
   mounted() {
@@ -523,24 +558,7 @@ export default {
         this.currentPage = pageNumber;
       }
     },
-    filterCustomers() {
-      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-
-      if (!query) {
-        // If there's no search query, show all customers
-        this.filteredCustomers = this.customers;
-      } else {
-        // Filter customers by name or customer code
-        this.filteredCustomers = this.customers.filter((customer) => {
-          const customerName = customer.customer_name.toLowerCase();
-          const customerCode = customer.customer_code
-            ? customer.customer_code.toLowerCase()
-            : ""; // Assuming customer code is in customer_code field
-          return customerName.includes(query) || customerCode.includes(query);
-        });
-      }
-    },
-
+    
     async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -569,33 +587,6 @@ export default {
       }
     },
 
-    // Sort customers based on selected option
-    sortCustomers() {
-      switch (
-        this.sortBy // Default to "name_asc"
-      ) {
-        case "name_asc":
-          this.customers.sort((a, b) =>
-            a.customer_name.localeCompare(b.customer_name)
-          );
-          break;
-        case "name_desc":
-          this.customers.sort((a, b) =>
-            b.customer_name.localeCompare(a.customer_name)
-          );
-          break;
-        case "customer_code_asc":
-          this.customers.sort((a, b) =>
-            a.customer_code.localeCompare(b.customer_code)
-          );
-          break;
-        case "customer_code_desc":
-          this.customers.sort((a, b) =>
-            b.customer_code.localeCompare(a.customer_code)
-          );
-          break;
-      }
-    },
     openEditModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       this.editEmail = customer.email;
