@@ -1,21 +1,78 @@
 <template>
-  <div class="container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <nav>
-        <ul>
-          <li :class="{ active: activeTab === 'document-status' }">
-            <a href="#" @click.prevent="setActiveTab('document-status')">
-              Document Status
-            </a>
-          </li>
-          <li :class="{ active: activeTab === 'payment-schedule' }">
-            <a href="#" @click.prevent="setActiveTab('payment-schedule')">
-              Payment Schedule
-            </a>
-          </li>
-        </ul>
-      </nav>
+  <div v-if="salesDetail">
+    <h2>Sales Agreement Details</h2>
+
+    <p><strong>Customer Name:</strong> {{ salesDetail.customer_name }}</p>
+    <p><strong>Site Name:</strong> {{ salesDetail.site_name }}</p>
+    <p><strong>Unit Name:</strong> {{ salesDetail.unit_name }}</p>
+    <p><strong>Broker Name:</strong> {{ salesDetail.broker_name }}</p>
+    <p><strong>Payment Plan:</strong> {{ salesDetail.payment_plan }}</p>
+    <p><strong>Unit Price:</strong> ₱{{ salesDetail.unit_price }}</p>
+    <p>
+      <strong>Spot Discount Percentage:</strong>
+      {{ salesDetail.spot_discount_percent }}%
+    </p>
+    <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+    <p>
+      <strong>Unit Price after Spot Discount:</strong> ₱{{
+        unitPriceAfterSpotDiscount
+      }}
+    </p>
+    <p>
+      <strong>TLP Discount Percentage:</strong>
+      {{ salesDetail.tlp_discount_percent }}%
+    </p>
+    <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+    <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+    <p>
+      <strong>Other Charges Percentage:</strong>
+      {{ salesDetail.other_charges_percent }}%
+    </p>
+    <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+    <p v-if="netUnitPrice > 3600000">
+      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+    </p>
+    <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Spot Downpayment Percentage:</strong>
+      {{ salesDetail.spot_downpayment_percent }}%
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+    </p>
+    <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
+    <p v-if="salesDetail.payment_plan === 'Spot Cash'">
+      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Spread Downpayment Percentage:</strong>
+      {{ salesDetail.spread_downpayment_percent }}%
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Payable Months:</strong> {{ salesDetail.payable_months }}
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
+    </p>
+    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
+      <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
+    </p>
+    <div v-if="salesDetail.reservation_agreement_url">
+      <a
+        :href="
+          'http://localhost:8000/download_reservation_agreement/' +
+          salesDetail.id
+        "
+        download
+      >
+        <button>Download Reservation Agreement</button>
+      </a>
     </div>
 
     <!-- Main Content -->
@@ -23,30 +80,38 @@
       <!-- Document Status Content -->
       <div v-if="activeTab === 'document-status'" class="tab-content">
         <div v-if="salesDetail" class="details-card">
-            <p>{{ salesDetail.customer_name }}</p>
-            <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
-            <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>
-            <p>Documents Needed: Please Submit The Following Documents To Complete The Process</p>
+          <p>{{ salesDetail.customer_name }}</p>
+          <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
+          <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>
+          <p>
+            Documents Needed: Please Submit The Following Documents To Complete
+            The Process
+          </p>
           <div v-if="documentTypes.length">
-        <table class="documents-table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Document Status</th>
-              <th>Date Submitted</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="doc in documents" :key="doc.id">
-                  <td><strong>{{ doc.document_type_name }}</strong></td>
-                  <td>{{ doc.status }}</td>
-                  <td>{{ doc.uploaded_at || 'Pending' }}</td>
+            <table class="documents-table">
+              <thead>
+                <tr>
+                  <th>Document Name</th>
+                  <th>Document Status</th>
+                  <th>Date Submitted</th>
                 </tr>
-          </tbody>
-        </table>
-      </div>
-      <p v-else>No document types available.</p>
-          <div class="download-button" v-if="salesDetail.reservation_agreement_url">
+              </thead>
+              <tbody>
+                <tr v-for="doc in documents" :key="doc.id">
+                  <td>
+                    <strong>{{ doc.document_type_name }}</strong>
+                  </td>
+                  <td>{{ doc.status }}</td>
+                  <td>{{ doc.uploaded_at || "Pending" }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p v-else>No document types available.</p>
+          <div
+            class="download-button"
+            v-if="salesDetail.reservation_agreement_url"
+          >
             <a
               :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
               download
@@ -55,20 +120,22 @@
             </a>
           </div>
           <p>Ensure that all documents are up-to-date and complete.</p>
-          <p>If you need assitance or have further queries, please contact {{ salesDetail.broker_name }}</p>
+          <p>
+            If you need assitance or have further queries, please contact
+            {{ salesDetail.broker_name }}
+          </p>
         </div>
       </div>
       <!-- Payment Schedule Content -->
       <div v-if="activeTab === 'payment-schedule'" class="tab-content">
-        
-          <div class="detailed-schedule">
-            <p>{{ salesDetail.customer_name }}</p>
-            <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
-            <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>    
-            <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>  
-            <div v-if="salesDetail.payment_plan === 'Deffered Payment'">    
-            <p>Installment Terms: {{salesDetail.payable_months}} months</p> 
-             <table>
+        <div class="detailed-schedule">
+          <p>{{ salesDetail.customer_name }}</p>
+          <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
+          <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>
+          <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>
+          <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
+            <p>Installment Terms: {{ salesDetail.payable_months }} months</p>
+            <table>
               <thead>
                 <tr>
                   <th>Payment Type</th>
@@ -129,37 +196,38 @@ export default {
     const salesDetailUuid = this.$route.params.id; // Get the UUID from the URL
     this.fetchSalesDetail(salesDetailUuid);
     this.fetchDocumentTypes(); // Fetch the document types on component creation
-
   },
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
     },
     async fetchDocuments() {
-  try {
-    const response = await fetch(
-      `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
-    );
-    const data = await response.json();
-    if (data.success) {
-      // Update document status based on submission
-      this.documents = this.documentTypes.map((docType) => {
-        const submittedDoc = data.documents.find(
-          (doc) => doc.document_type_name === docType.name
+      try {
+        const response = await fetch(
+          `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
         );
-        return {
-          document_type_name: docType.name,
-          status: submittedDoc ? "Submitted" : "Pending",
-          uploaded_at: submittedDoc ? new Date(submittedDoc.uploaded_at).toLocaleDateString() : "Pending",
-        };
-      });
-    } else {
-      console.error("Failed to fetch documents:", data.message);
-    }
-  } catch (error) {
-    console.error("Error fetching documents:", error);
-  }
-},
+        const data = await response.json();
+        if (data.success) {
+          // Update document status based on submission
+          this.documents = this.documentTypes.map((docType) => {
+            const submittedDoc = data.documents.find(
+              (doc) => doc.document_type_name === docType.name
+            );
+            return {
+              document_type_name: docType.name,
+              status: submittedDoc ? "Submitted" : "Pending",
+              uploaded_at: submittedDoc
+                ? new Date(submittedDoc.uploaded_at).toLocaleDateString()
+                : "Pending",
+            };
+          });
+        } else {
+          console.error("Failed to fetch documents:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+      }
+    },
     async fetchSalesDetail(salesDetailUuid) {
       try {
         const response = await fetch(
@@ -176,7 +244,7 @@ export default {
           this.applyOtherCharges();
           this.calculateVAT();
           this.calculateFinancingDetails();
-          this.fetchDocuments(); 
+          this.fetchDocuments();
         }
       } catch (error) {
         console.error("Error fetching sales details:", error);
@@ -326,7 +394,8 @@ td {
 }
 th {
   background-color: #f2f2f2;
-}.container {
+}
+.container {
   display: flex;
 }
 
@@ -382,7 +451,8 @@ th {
 }
 
 /* Style for the content elements */
-h2, h3 {
+h2,
+h3 {
   margin-bottom: 20px;
 }
 * {
@@ -391,7 +461,8 @@ h2, h3 {
   box-sizing: border-box;
 }
 
-h2, h3 {
+h2,
+h3 {
   font-size: 24px;
   margin-bottom: 20px;
   color: #333;
@@ -453,7 +524,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
@@ -507,5 +579,4 @@ button:hover {
 .details-card strong {
   font-weight: bold;
 }
-
 </style>

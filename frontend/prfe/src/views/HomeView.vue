@@ -1,8 +1,8 @@
 <template class="all">
- 
+
     <nav class="navbar navbar-expand-lg  fixed-top mask-custom shadow-0 ">
         <div class="container">
-            <a class="navbar-brand" href="./HomeView.vue"><span style="color: black;">PN</span><span style="color: #fff;">PM</span></a>
+            <a class="navbar-brand" href="./HomeView.vue"><span style="color: black;">Company</span><span style="color: #fff;">Name</span></a>
             <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
                 data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
@@ -11,13 +11,13 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
             </div>
         </div>
-    </nav>
+    </nav> 
 
 <section class="home-section">
-    <div class="d-flex justify-content-evenly align-items-center bg-secondary home-container">
+    <div class="d-flex justify-content-evenly align-items-center home-container">
         <div class="home text-white">
             <p class="mt-5 fs-3 text-uppercase">Go to</p>
-            <h1 class="display-1 fw-bolder text-capitalize">DEVELOPER</h1>
+            <h1 class="display-1 fw-bolder text-capitalize ">DEVELOPER</h1>
             <div class="button-container">
             <button @click="goToDeveloperLogin" class="text-uppercase">Developer Login</button>
             </div>
@@ -33,30 +33,17 @@
 </section>
 
 
-<footer class="bg-dark footer">
+<footer class="footer">
     <div class="footer-top py-8">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 text-start">
-                    <h1 class="text-white footer-title-01 fs-5">LivWell</h1>
+                    <h1 class="text-white footer-title-01 fs-5">Company Name</h1>
                     <div>
-                        <p class="fs-sm text-white text-opacity-75">Official Website of LivWell</p>
+                        <p class="fs-sm text-white text-opacity-75">Official Website of Company</p>
                     </div>
                 </div>
-                <div class="col-lg-8 text-start ">
-                    <div class="row gy-5">
-                        <div class="col-6 col-lg-4 text-start ">
-                            <h5 class="text-white footer-title-01">Contact Us</h5>
-                            <ul class="list-unstyled footer-link-01 m-0 pb-2">
-                                <h6 class="text-white text-opacity-75"><b>Email:</b> LivWell@gmail.com</h6>
-                             
-                            </ul>
-                            <ul class="list-unstyled footer-link-01 m-0">
-                                <h6 class="text-white text-opacity-75"><b>Phone:</b> 092-2421-432</h6>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -64,12 +51,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start py-1">
-                    <p class="m-0 text-white text-opacity-75">© Copyright. All Rights Reserved <a class="text-reset" href="#">Livwell</a></p>
+                    <p class="m-0 text-white text-opacity-75">© Copyright. All Rights Reserved <a class="text-reset" href="#">Company</a></p>
                 </div>
             </div>
         </div>
     </div>
-</footer>
+</footer> 
 
 
 </template>
@@ -91,7 +78,7 @@ export default {
 <style scoped>
 /* NAVBAR SECTION  */
 .navbar{ 
-  background-color: rgb(131, 255, 131);
+    background-color: rgb(68, 143, 255);
 }
 .navbar a{
     font-size: 20px;
@@ -101,8 +88,8 @@ export default {
 /* HOME SECTION */
 
     .home-container {
-        background-image:  linear-gradient(to bottom, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0.7)), 
-        url('https://i.pinimg.com/originals/fc/ac/19/fcac194ad03f8af8dfaf702db8db5b0f.jpg');
+        background:  linear-gradient(to bottom, #a7cfff66, rgba(59, 155, 234, 0.7)) ;
+        /* url('https://i.pinimg.com/originals/fc/ac/19/fcac194ad03f8af8dfaf702db8db5b0f.jpg'); */
         background-size: cover;
         background-position: center;
         min-height: 75vh; /* Ensure the container takes up at least full viewport height */
@@ -131,7 +118,7 @@ export default {
 
     /* HOME BUTTON */
     .button-container button {
-        background-color:rgb(131, 255, 131);
+        background-color:rgb(95, 173, 255);
         color: #000;
         border: none;
         padding: 10px 25px;  /* Adjust the padding for top/bottom and left/right */
@@ -178,6 +165,10 @@ export default {
  }
 /* footer */
 
+footer
+{
+    background-color: rgb(68, 143, 255);
+}
 
 
 </style>

@@ -9,7 +9,7 @@ class FloorSerializer(serializers.ModelSerializer):
 
 class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
-    floors = FloorSerializer(many=True, read_only=True)  # Add this line
+    floors = serializers.SerializerMethodField()
     number_of_floors = serializers.IntegerField(write_only=True, required=False)  # New field to add floors
 
     class Meta:
@@ -114,3 +114,7 @@ class SiteSerializer(serializers.ModelSerializer):
             if field not in data or not data[field]:
                 raise serializers.ValidationError(f"{field} is required and cannot be empty.")
         return data
+
+    def get_floors(self, obj):
+        floors_with_counts = obj.floors_with_unit_counts()
+        return floors_with_counts

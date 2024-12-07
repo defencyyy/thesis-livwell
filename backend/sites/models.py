@@ -1,5 +1,6 @@
 from django.db import models
 from companies.models import Company
+from django.db.models import Count, Q
 from django.core.exceptions import ValidationError
 import os, re
 
@@ -69,15 +70,26 @@ class Site(models.Model):
 
     @property
     def total_units(self):
-        # Import Unit here to avoid circular import issues
+        # Using annotate to count the units per floor
         from units.models import Unit
         return Unit.objects.filter(site=self).count()
 
     @property
     def available_units(self):
-        # Import Unit here to avoid circular import issues
+        # Using annotate to count available units per floor
         from units.models import Unit
         return Unit.objects.filter(site=self, status='Available').count()
+
+    def floors_with_unit_counts(self):
+        # This method returns floors with unit counts and available unit counts.
+        return (
+            self.floors
+            .annotate(
+                total_units=Count('units'),
+                available_units=Count('units', filter=Q(units__status='Available'))
+            )
+            .values('id', 'floor_number', 'total_units', 'available_units')
+        )
 
     def create_units(self, units_per_floor, template=None):
         from units.models import Unit
@@ -121,6 +133,7 @@ class Site(models.Model):
         # Bulk create all units at once
         Unit.objects.bulk_create(created_units)
         return len(created_units)
+
 
 class Floor(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="floors")

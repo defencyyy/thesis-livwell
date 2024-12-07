@@ -91,7 +91,7 @@
           >
             <!-- Site Image -->
             <img
-              :src="site.picture || require('@/assets/home.png')"
+              :src="getPictureUrl(site.picture) || require('@/assets/home.png')"
               alt="Site Image"
               class="site-image"
             />
@@ -139,7 +139,10 @@
                     <td>
                       <div class="site-info">
                         <img
-                          :src="site.picture || require('@/assets/home.png')"
+                          :src="
+                            getPictureUrl(site.picture) ||
+                            require('@/assets/home.png')
+                          "
                           alt="Site Image"
                           class="table-image"
                         />
@@ -774,14 +777,20 @@ export default {
 
       // Apply search and sorting
       return sitesToFilter
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        .filter(
+          (site) =>
+            site?.name?.toLowerCase().includes(this.searchQuery.toLowerCase()) // Optional chaining for safety
         )
-        .sort((a, b) =>
-          this.sortBy === "name"
-            ? (a.name || "").localeCompare(b.name || "")
-            : (a.status || "").localeCompare(b.status || "")
-        );
+        .sort((a, b) => {
+          const aName = a?.name || ""; // Default to empty string if undefined or null
+          const bName = b?.name || "";
+          const aStatus = a?.status || "";
+          const bStatus = b?.status || "";
+
+          return this.sortBy === "name"
+            ? aName.localeCompare(bName)
+            : aStatus.localeCompare(bStatus);
+        });
     },
   },
   methods: {
@@ -815,6 +824,7 @@ export default {
         if (response.status === 200) {
           this.sites = response.data.data.map((site) => ({
             ...site,
+            name: site.name || "Unknown Site",
             location: this.constructLocation(site), // Dynamically build location
             isArchived: site.isArchived ?? false,
             floors: site.floors || [], // Ensure floors is always an array
