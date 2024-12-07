@@ -394,10 +394,10 @@
               </b-form-group>
 
               <b-form-group label="Balcony:">
-                <b-form-input
-                  :value="selectedUnit.balcony ? 'Has Balcony' : 'No Balcony'"
-                  readonly
-                />
+                <b-form-select
+                  v-model="newUnitBalcony"
+                  :options="balconyOptions"
+                ></b-form-select>
               </b-form-group>
 
               <b-form-group label="View:">
