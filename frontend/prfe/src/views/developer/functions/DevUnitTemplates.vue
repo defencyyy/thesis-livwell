@@ -152,38 +152,6 @@
               </div>
               </div>
             </div>
-<!-- 
-            <table>
-              <thead>
-                <tr>
-                  <th>RelativeId</th>
-                  <th>Name</th>
-                  <th>Bedrooms</th>
-                  <th>Bathrooms</th>
-                  <th>Price</th>
-                  <th>Floor Area</th>
-                  <th>Lot Area</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="template in filteredTemplates" :key="template.id">
-                  <td>{{ template.relativeId }}</td>
-                  <td>{{ template.name }}</td>
-                  <td>{{ template.bedroom }}</td>
-                  <td>{{ template.bathroom }}</td>
-                  <td>{{ template.price }}</td>
-                  <td>{{ template.floor_area }}</td>
-                  <td>{{ template.lot_area }}</td>
-                  <td>
-                    <button @click="openEditTemplateModal(template)">
-                      Edit
-                    </button>
-                    <button @click="deleteTemplate(template.id)">Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table> -->
           </div>
         </div>
       </div>
@@ -196,36 +164,43 @@
       hide-footer
       centered
     >
-      <form @submit.prevent="createTemplate">
-        <div>
-          <label for="name">Name</label>
-          <input type="text" v-model="newTemplate.name" required />
-        </div>
-        <div>
-          <label for="bedroom">Bedrooms</label>
-          <input type="number" v-model="newTemplate.bedroom" required />
-        </div>
-        <div>
-          <label for="bathroom">Bathrooms</label>
-          <input type="number" v-model="newTemplate.bathroom" required />
-        </div>
-        <div>
-          <label for="price">Price</label>
-          <input type="number" v-model="newTemplate.price" required />
-        </div>
-        <div>
-          <label for="floor_area">Floor Area</label>
-          <input type="number" v-model="newTemplate.floor_area" />
-        </div>
-        <div>
-          <label for="lot_area">Lot Area</label>
-          <input type="number" v-model="newTemplate.lot_area" />
-        </div>
-        <div class="modal-actions">
-          <button type="submit">Create</button>
-          <button @click="closeCreateModal">Cancel</button>
-        </div>
-      </form>
+      <div class = "p-3">
+        <form @submit.prevent="createTemplate">
+          <div class = "row mb-3">
+            <div class="form-group mb-3">
+              <label for="name">Name</label>
+              <input type="text" v-model="newTemplate.name" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="bedroom">Bedrooms</label>
+              <input type="number" v-model="newTemplate.bedroom" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="bathroom">Bathrooms</label>
+              <input type="number" v-model="newTemplate.bathroom" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="price">Price</label>
+              <input type="number" v-model="newTemplate.price" class = "form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="floor_area">Floor Area</label>
+              <input type="number" v-model="newTemplate.floor_area" class = "form-control"/>
+            </div>
+            <div class="form-group mb-3">
+              <label for="lot_area">Lot Area</label>
+              <input type="number" v-model="newTemplate.lot_area" class = "form-control"/>
+            </div>
+          </div>
+          <div
+          class="d-flex justify-content-end gap-2 mt-30"
+          style="padding-top: 15px"
+          >
+          <button type="submit" class = "btn-add">Create</button>
+          <button @click="closeCreateModal" class = "btn-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
     </b-modal>
 
     <!-- Edit Template Modal -->
@@ -235,36 +210,43 @@
       hide-footer
       centered
     >
+    <div class = "p-3">
       <form @submit.prevent="saveTemplateChanges">
-        <div v-if="selectedTemplate">
-          <label for="name">Name</label>
-          <input type="text" v-model="selectedTemplate.name" required />
+        <div class = "row mb-3">
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="name">Name</label>
+            <input type="text" v-model="selectedTemplate.name" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="bedroom">Bedrooms</label>
+            <input type="number" v-model="selectedTemplate.bedroom" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="bathroom">Bathrooms</label>
+            <input type="number" v-model="selectedTemplate.bathroom" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="price">Price</label>
+            <input type="number" v-model="selectedTemplate.price" class = "form-control" required />
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="floor_area">Floor Area</label>
+            <input type="number" v-model="selectedTemplate.floor_area" class = "form-control"/>
+          </div>
+          <div v-if="selectedTemplate"  class="form-group mb-3">
+            <label for="lot_area">Lot Area</label>
+            <input type="number" v-model="selectedTemplate.lot_area" class = "form-control"/>
+          </div>
         </div>
-        <div v-if="selectedTemplate">
-          <label for="bedroom">Bedrooms</label>
-          <input type="number" v-model="selectedTemplate.bedroom" required />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="bathroom">Bathrooms</label>
-          <input type="number" v-model="selectedTemplate.bathroom" required />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="price">Price</label>
-          <input type="number" v-model="selectedTemplate.price" required />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="floor_area">Floor Area</label>
-          <input type="number" v-model="selectedTemplate.floor_area" />
-        </div>
-        <div v-if="selectedTemplate">
-          <label for="lot_area">Lot Area</label>
-          <input type="number" v-model="selectedTemplate.lot_area" />
-        </div>
-        <div class="modal-actions">
-          <button type="submit">Save Changes</button>
-          <button @click="closeEditModal">Cancel</button>
+        <div
+        class="d-flex justify-content-end gap-2 mt-30"
+        style="padding-top: 15px"
+        >
+        <button type="submit" class = "btn-add">Save</button>
+        <button @click="closeEditModal" class = "btn-cancel">Cancel</button>
         </div>
       </form>
+    </div>
     </b-modal>
   </div>
 </template>
@@ -671,15 +653,6 @@ body {
   padding: 10px 20px;
 }
 
-button {
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-  color: #fff;
-}
-
 .nav-tabs .nav-link {
   background: none; /* Removes background if you want tabs without a button-like appearance */
   border: none; /* Removes the default button border */
@@ -797,5 +770,32 @@ button:hover {
   font-size: 15px;
   color: #333;
   font-weight: bold;
+}
+
+.form-group .form-label,
+.row .form-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  /* Adjust the value to your preferred size */
+}
+
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 </style>
