@@ -79,7 +79,7 @@
           </div>
 
           <div
-            v-for="(broker, index) in currentBrokers"
+            v-for="(broker, index) in paginatedBrokers"
             :key="broker.id || index"
             class="card border-0 rounded-1 mx-auto my-2"
             style="
@@ -166,6 +166,32 @@
             </div>
           </div>
         </div>
+         <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
 
         <!-- Editing Brokers -->
         <b-modal
@@ -418,8 +444,8 @@ export default {
       brokers: [],
       archivedBrokers: [],
       searchQuery: "",
-      brokersPerPage: 15,
-      currentPage: 1,
+      currentPage: 1, // Current page number
+      itemsPerPage: 15, // Number of customers per page
       editModalVisible: false,
       editBroker: {},
       // Error Tracking
@@ -461,18 +487,18 @@ export default {
 
       return brokers;
     },
-    currentBrokers() {
-      // Paginate the brokers
-      const start = (this.currentPage - 1) * this.brokersPerPage;
-      const end = start + this.brokersPerPage;
-      return this.filteredBrokers.slice(start, end);
+     paginatedBrokers() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredBrokers.slice(startIndex, endIndex);
     },
     totalPages() {
-      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
+      return Math.ceil(this.filteredBrokers.length / this.itemsPerPage);
     },
   },
 
   mounted() {
+    
     this.fetchBrokers();
     // Ensure user is logged in and has the correct role and companyId
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
@@ -480,6 +506,7 @@ export default {
     } else {
       this.fetchBrokers();
     }
+    
   },
 
   watch: {
@@ -501,6 +528,11 @@ export default {
   },
 
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     openEditModal(broker) {
       if (!broker || !broker.id) {
         console.error("Invalid broker object:", broker);
@@ -1040,4 +1072,37 @@ body {
   /* Adjust the border radius */
   padding: 10px;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
 </style>
