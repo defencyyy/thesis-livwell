@@ -1027,7 +1027,7 @@ body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   /* Button primary color */
   color: #fff;
   border: none;

@@ -5,14 +5,52 @@
       <AppHeader />
       <div class="content">
         <!-- Actions -->
-        <div class="actions" v-if="!loading">
-          <button @click="redirectToUnits">Manage Units</button>
-          <button @click="redirectToUnitTemplates">
-            Manage Unit Templates
-          </button>
-          <button @click="redirectToUnitTypes">Manage Unit Types</button>
-        </div>
-        <h1>Unit Types Management</h1>
+        <div class="actions" v-if="!isLoading && !errorMessage">
+            <div class="nav nav-tabs">
+              <!-- Manage Units Tab -->
+              <button
+                class="nav-link"
+                id="units-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnits"
+              >
+                Manage Units
+              </button>
+
+              <!-- Manage Unit Templates Tab -->
+              <button
+                class="nav-link"
+                id="unit-templates-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnitTemplates"
+              >
+                Manage Unit Templates
+              </button>
+
+              <!-- Manage Unit Types Tab -->
+              <button
+                class="nav-link active"
+                id="unit-types-tab"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                @click="redirectToUnitTypes"
+              >
+                Manage Unit Types
+              </button>
+            </div>
+          </div>
+        
+          <div class = "title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">Unit Types Management</div>
+              </div>
+          </div>
 
         <div v-if="loading" class="loading">Loading...</div>
 
@@ -34,65 +72,85 @@
             </form>
           </div>
 
-          <div class="unit-types-toggle">
-            <button @click="showArchived = !showArchived">
-              {{
-                showArchived
-                  ? "Show Active Unit Types"
-                  : "Show Archived Unit Types"
-              }}
-            </button>
-          </div>
-
-          <div class="unit-types-search">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search by Unit Type Name"
-            />
+          <div
+          class="card border-0 rounded-1 mx-auto"
+          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+          >
+            <div class="card-body">
+              <div class="row">
+                <div class="toolbar">
+                  <div class="left-section">
+                    <div class="search-bar-container">
+                      <input
+                        type="text"
+                        v-model="searchQuery"
+                        class="search-bar"
+                        placeholder="Search by Unit Type Name"
+                      />
+                      <i class="fa fa-search search-icon"></i>
+                    </div>
+                    <select v-model="viewFilter" @change="toggleView" class="dropdown">
+                      <option value="active">View: Active</option>
+                      <option value="archived">View: Archived</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="unit-types-list">
-            <h2>
-              {{ showArchived ? "Archived Unit Types" : "Existing Unit Types" }}
-            </h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="unitType in filteredUnitTypes" :key="unitType.id">
-                  <td>{{ unitType.name }}</td>
-                  <td>
-                    <button
-                      v-if="!unitType.is_custom && !showArchived"
-                      disabled
-                    >
-                      Default Unit Type
-                    </button>
-                    <button
-                      v-if="
-                        unitType.is_custom &&
-                        !unitType.is_archived &&
-                        !showArchived
-                      "
-                      @click="archiveUnitType(unitType.id)"
-                    >
-                      Archive
-                    </button>
-                    <button
-                      v-if="unitType.is_archived && showArchived"
-                      @click="unarchiveUnitType(unitType.id)"
-                    >
-                      Unarchive
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="title-wrapper">
+              <div class="title-left">
+                <div class="title-icon"></div>
+                <div class="edit-title">
+                  {{ showArchived ? "Archived Unit Types" : "Existing Unit Types" }}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="outside-headers">
+                <span class="header-item">Name</span>
+                <span class="header-item">Actions</span>
+              </div>
+
+              <div v-for="unitType in filteredUnitTypes" :key="unitType.id" class="card border-0 rounded-1 mx-auto my-2" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                <table class = "types-table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        {{ unitType.name }}
+                      </td>
+                      <td>
+                        <button
+                          v-if="!unitType.is_custom && !showArchived"
+                          disabled
+                        >
+                          Default Unit Type
+                        </button>
+                        <button
+                          v-if="
+                            unitType.is_custom &&
+                            !unitType.is_archived &&
+                            !showArchived
+                          "
+                          @click="archiveUnitType(unitType.id)"
+                        >
+                          Archive
+                        </button>
+                        <button
+                          v-if="unitType.is_archived && showArchived"
+                          @click="unarchiveUnitType(unitType.id)"
+                        >
+                          Unarchive
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -143,6 +201,14 @@ export default {
     },
   },
   methods: {
+    toggleView() {
+    if (this.viewFilter === 'active') {
+      this.showArchived = false;  // Set showArchived to false for Active
+    } else if (this.viewFilter === 'archived') {
+      this.showArchived = true;   // Set showArchived to true for Archived
+    }
+    },
+
     redirectToUnits() {
       this.$router.push({ name: "DevFuncUnits" });
     },
@@ -313,7 +379,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  background-color: #ebebeb;
+  background-color: #e8f0fa;
 }
 
 .SideNav {
@@ -385,6 +451,181 @@ input {
   margin-right: 10px;
 }
 
+.nav-tabs .nav-link {
+  background: none; /* Removes background if you want tabs without a button-like appearance */
+  border: none; /* Removes the default button border */
+  color: inherit; /* Inherits the text color */
+  font-weight: bold; /* Makes text bold */
+}
+
+.nav-tabs .nav-link.active {
+  color: #000; /* Active tab color */
+  border-bottom: 2px solid #0d6efd;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  max-width: 1100px;
+  width: 100%;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between search bar and dropdown */
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* Adjust the width as needed */
+}
+
+.search-bar {
+  width: 400px;
+  padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  /* Position the icon inside the input */
+  transform: translateY(-50%);
+  color: #777;
+  font-size: 16px;
+  pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 50% 50%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+.types-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.types-table th,
+.types-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  padding: 10px;
+  /* Remove borders from all cells */
+}
+
+.types-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.types-table th:nth-child(1),
+.types-table td:nth-child(1) {
+  /* Location column */
+  width: 50%;
+}
+
+.types-table th:nth-child(2),
+.types-table td:nth-child(2) {
+  /* Location column */
+  width: 50%;
+}
+
 table {
   width: 100%;
   margin-top: 20px;
@@ -398,7 +639,4 @@ td {
   border: 1px solid #ddd;
 }
 
-th {
-  background-color: #f2f2f2;
-}
 </style>
