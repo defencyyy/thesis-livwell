@@ -13,21 +13,59 @@
           <div class="actions" v-if="!isLoading && !errorMessage">
             <div class="nav nav-tabs">
               <!-- Manage Units Tab -->
-              <button class="nav-link active" id="units-tab" type="button" role="tab" aria-selected="true" @click="redirectToUnits">
+              <button
+                class="nav-link active"
+                id="units-tab"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                @click="redirectToUnits"
+              >
                 Manage Units
               </button>
-              
+
               <!-- Manage Unit Templates Tab -->
-              <button class="nav-link" id="unit-templates-tab" type="button" role="tab" aria-selected="false" @click="redirectToUnitTemplates">
+              <button
+                class="nav-link"
+                id="unit-templates-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnitTemplates"
+              >
                 Manage Unit Templates
               </button>
-              
+
               <!-- Manage Unit Types Tab -->
-              <button class="nav-link" id="unit-types-tab" type="button" role="tab" aria-selected="false" @click="redirectToUnitTypes">
+              <button
+                class="nav-link"
+                id="unit-types-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnitTypes"
+              >
                 Manage Unit Types
               </button>
             </div>
+          </div>
 
+          <!-- Search and Filter Section -->
+          <div class="search-filters">
+            <b-form-group label="Search Site Name:">
+              <b-form-input
+                v-model="searchQuery"
+                placeholder="Search by site name"
+              />
+            </b-form-group>
+
+            <b-form-group label="Sort By:">
+              <b-form-select v-model="sortBy" :options="sortOptions" />
+            </b-form-group>
+
+            <b-form-group label="Sort Order:">
+              <b-form-select v-model="sortOrder" :options="sortOrderOptions" />
+            </b-form-group>
           </div>
 
           <div>
@@ -52,7 +90,7 @@
                 >
                   <i class="fa fa-list"></i>
                 </div>
-            </div>
+              </div>
             </div>
 
             <div v-if="viewMode === 'grid'" class="site-grid">
@@ -215,7 +253,6 @@
   </div>
 </template>
 
-
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
@@ -239,30 +276,54 @@ export default {
       isLoading: false,
       errorMessage: null,
       viewMode: "grid",
-      searchQuery: "",
-      sortBy: "name",
       viewFilter: "active",
       selectedSite: null,
       unitNumberFilter: "",
       unitTypeFilter: "",
+      searchQuery: "", // Search query for site name
+      sortBy: "name", // Default sorting option
+      sortOrder: "asc", // Default sorting order (Ascending)
+      sortOptions: [
+        { value: "name", text: "Name" },
+        { value: "created_at", text: "Date Created" },
+        { value: "status", text: "Status" },
+        { value: "floors", text: "Floors" },
+      ],
+      sortOrderOptions: [
+        { value: "asc", text: "Ascending" },
+        { value: "desc", text: "Descending" },
+      ],
     };
   },
   computed: {
     filteredSites() {
-      const sitesToFilter =
-        this.viewFilter === "active"
-          ? this.sites.filter((s) => !s.archived)
-          : this.sites;
+      let sitesToFilter = this.sites.filter((site) =>
+        site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
 
-      return sitesToFilter
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .sort((a, b) =>
-          this.sortBy === "name"
-            ? a.name.localeCompare(b.name)
-            : a.status.localeCompare(b.status)
-        );
+      if (this.sortBy === "name") {
+        sitesToFilter.sort((a, b) => {
+          const comparison = a.name.localeCompare(b.name);
+          return this.sortOrder === "asc" ? comparison : -comparison;
+        });
+      } else if (this.sortBy === "created_at") {
+        sitesToFilter.sort((a, b) => {
+          const comparison = new Date(a.created_at) - new Date(b.created_at);
+          return this.sortOrder === "asc" ? comparison : -comparison;
+        });
+      } else if (this.sortBy === "status") {
+        sitesToFilter.sort((a, b) => {
+          const comparison = a.status.localeCompare(b.status);
+          return this.sortOrder === "asc" ? comparison : -comparison;
+        });
+      } else if (this.sortBy === "floors") {
+        sitesToFilter.sort((a, b) => {
+          const comparison = a.floors.length - b.floors.length;
+          return this.sortOrder === "asc" ? comparison : -comparison;
+        });
+      }
+
+      return sitesToFilter;
     },
     siteOptions() {
       return this.sites
@@ -420,17 +481,16 @@ body {
 }
 
 .nav-tabs .nav-link {
-  background: none;  /* Removes background if you want tabs without a button-like appearance */
-  border: none;  /* Removes the default button border */
-  color: inherit;  /* Inherits the text color */
-  font-weight: bold;  /* Makes text bold */
+  background: none; /* Removes background if you want tabs without a button-like appearance */
+  border: none; /* Removes the default button border */
+  color: inherit; /* Inherits the text color */
+  font-weight: bold; /* Makes text bold */
 }
 
 .nav-tabs .nav-link.active {
-  color: #000;  /* Active tab color */
-  border-bottom: 2px solid #0d6efd; 
+  color: #000; /* Active tab color */
+  border-bottom: 2px solid #0d6efd;
 }
-
 
 .content {
   flex: 1;
@@ -592,6 +652,17 @@ body {
   gap: 16px;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+.search-filters {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-filters b-form-group {
+  flex: 1;
 }
 
 .site-card {
