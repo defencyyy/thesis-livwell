@@ -343,13 +343,13 @@
           <template v-if="selectedUnit">
             <form>
               <b-form-group label="Unit Number:">
-                <b-form-input v-model="selectedUnit.unit_number" readonly />
+                <b-form-input v-model="selectedUnit.unit_number" disabled />
               </b-form-group>
 
               <b-form-group label="Unit Type:">
                 <b-form-input
                   :value="getUnitTypeName(selectedUnit.unit_type)"
-                  readonly
+                  disabled
                 />
               </b-form-group>
 
@@ -365,7 +365,7 @@
                 <b-form-input
                   v-model="selectedUnit.price"
                   type="number"
-                  readonly
+                  disabled
                 />
               </b-form-group>
 
@@ -373,7 +373,7 @@
                 <b-form-input
                   v-model="selectedUnit.lot_area"
                   type="number"
-                  readonly
+                  disabled
                 />
               </b-form-group>
 
@@ -381,7 +381,7 @@
                 <b-form-input
                   v-model="selectedUnit.floor_area"
                   type="number"
-                  readonly
+                  disabled
                 />
               </b-form-group>
 
@@ -389,7 +389,7 @@
                 <b-form-input
                   v-model="selectedUnit.commission"
                   type="number"
-                  readonly
+                  disabled
                 />
               </b-form-group>
 
@@ -401,7 +401,10 @@
               </b-form-group>
 
               <b-form-group label="View:">
-                <b-form-input :value="selectedUnit.view" readonly />
+                <b-form-select
+                  v-model="selectedUnit.view"
+                  :options="viewOptions"
+                />
               </b-form-group>
 
               <b-button
@@ -530,7 +533,6 @@
               <b-form-select
                 v-model="newUnitView"
                 :options="viewOptions"
-                required
               ></b-form-select>
             </b-form-group>
 
@@ -539,7 +541,6 @@
               <b-form-select
                 v-model="newUnitBalcony"
                 :options="balconyOptions"
-                required
               ></b-form-select>
             </b-form-group>
 
@@ -723,12 +724,29 @@ export default {
       companyId: (state) => state.companyId,
     }),
     floorOptions() {
-      return this.site
-        ? this.site.floors.map((floor) => ({
-            value: floor.id, // floor ID is the value sent to the backend
-            text: `Floor ${floor.floor_number}`, // floor number is displayed as text in the dropdown
-          }))
-        : []; // Return an empty array if no site is available
+      // Ensure the site and floors are available
+      if (this.site && this.site.floors) {
+        // Clone the floors array to avoid mutating the original array
+        const floorsCopy = [...this.site.floors];
+
+        // Sort the cloned floors array based on the selected order (asc or desc)
+        const sortedFloors = floorsCopy.sort((a, b) => {
+          // Ascending order (if `floorSortOrder` is 'asc')
+          if (this.floorSortOrder === "asc") {
+            return a.floor_number - b.floor_number;
+          }
+          // Descending order (if `floorSortOrder` is 'desc')
+          return b.floor_number - a.floor_number;
+        });
+
+        // Map the sorted floors to the options for the dropdown
+        return sortedFloors.map((floor) => ({
+          value: floor.id, // floor ID is the value sent to the backend
+          text: `Floor ${floor.floor_number}`, // floor number is displayed as text
+        }));
+      } else {
+        return []; // Return an empty array if no site or floors are available
+      }
     },
     unitTypeOptions() {
       return [
@@ -1176,8 +1194,17 @@ export default {
     onSearch() {
       this.currentPage = 1; // Reset pagination on new search
     },
+
     sortFloors() {
-      // Trigger a recompute of `sortedFloors`
+      if (this.floorSortOrder === "asc") {
+        this.sortedFloors = this.site.floors.sort(
+          (a, b) => a.floor_number - b.floor_number
+        );
+      } else if (this.floorSortOrder === "desc") {
+        this.sortedFloors = this.site.floors.sort(
+          (a, b) => b.floor_number - a.floor_number
+        );
+      }
     },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });

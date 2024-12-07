@@ -129,8 +129,8 @@ class Unit(models.Model):
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     price = models.DecimalField(max_digits=12, decimal_places=2, null=True)
-    view = models.CharField(max_length=10, choices=VIEW_CHOICES, blank=True)
-    balcony = models.CharField(max_length=20, choices=BALCONY_CHOICES, blank=True)
+    view = models.CharField(max_length=10, choices=VIEW_CHOICES, blank=True, null=True)
+    balcony = models.CharField(max_length=20, choices=BALCONY_CHOICES, blank=True, null=True)
     commission = models.DecimalField(
         max_digits=10, decimal_places=2, null=True,
         help_text="Commission earned when the unit is sold"
