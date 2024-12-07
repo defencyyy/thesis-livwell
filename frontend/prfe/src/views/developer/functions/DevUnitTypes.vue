@@ -626,6 +626,17 @@ input {
   width: 50%;
 }
 
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
 
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
 
 </style>
