@@ -114,11 +114,6 @@ export default {
             link: "/developer/sales",
             icon: "fas fa-chart-line",
           },
-          {
-            name: "Payment Schedules",
-            link: "/developer/payment-schedule",
-            icon: "fas fa-calendar-alt",
-          },
         ];
       } else if (this.userRole === "broker") {
         this.menuItems = [

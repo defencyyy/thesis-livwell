@@ -6,37 +6,47 @@
       <div class="content">
         <button class="back-button" @click="$router.back()">Back</button>
         <div v-if="site" class="site-details">
-          <!-- Site Information -->
-          <div class="site-header">
-            <div v-if="site.picture">
+          <div class="site-overview">
+            <!-- Site Image (50%) -->
+            <div class="site-picture">
               <img :src="site.picture" alt="Site Image" class="site-image" />
             </div>
-            <h2>{{ site.name }}</h2>
-            <p>{{ site.description }}</p>
-            <p><strong>Location:</strong> {{ site.location }}</p>
+            <!-- Site Info (50%) -->
+            <div class="site-info">
+              <h2>{{ site.name }}</h2>
+              <p>{{ site.description }}</p>
+              <p><strong>Location:</strong> {{ site.location }}</p>
+              <button class="add-units-button" @click="toggleAddUnitsModal">
+                Add Units
+              </button>
+            </div>
           </div>
-
-          <!-- Add Units Button -->
-          <button class="add-units-button" @click="toggleAddUnitsModal">
-            Add Units
-          </button>
 
           <!-- Floors List -->
           <h3>Floors ({{ site.floors.length }})</h3>
+          <div class="floor-sort">
+            <label for="sortFloors">Sort Floors:</label>
+            <select
+              id="sortFloors"
+              v-model="floorSortOrder"
+              @change="sortFloors"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
 
-          <div v-if="site.floors.length > 0" class="floor-list">
+          <div v-if="sortedFloors.length > 0" class="floor-list">
             <div
-              v-for="floor in site.floors"
+              v-for="floor in sortedFloors"
               :key="floor.id"
               class="floor-card"
             >
               <h4>Floor {{ floor.floor_number }}</h4>
-              <!-- Total Units and Available Units -->
               <div class="site-summary">
                 <p><strong>Total Units:</strong> {{ floor.total_units }}</p>
                 <p>
-                  <strong>Total Available Units:</strong>
-                  {{ floor.available_units }}
+                  <strong>Available Units:</strong> {{ floor.available_units }}
                 </p>
               </div>
               <button @click="openUnitManagement(floor)">Manage Units</button>
@@ -117,8 +127,7 @@
                   <td>{{ unit.lot_area }}</td>
                   <td>{{ unit.floor_area }}</td>
                   <td>
-                    <button @click="handleEditUnit(unit)">Edit</button>
-                    <button @click="handleDeleteUnit(unit)">Delete</button>
+                    <button @click="manageUnit(unit)">Edit</button>
                   </td>
                 </tr>
               </tbody>
@@ -321,6 +330,93 @@
             </b-form-group>
           </form>
         </b-modal>
+
+        <b-modal
+          v-model="showEditUnitModal"
+          title="Edit Unit"
+          @hide="clearSelectedUnit"
+        >
+          <template v-if="selectedUnit">
+            <form>
+              <b-form-group label="Unit Number:">
+                <b-form-input v-model="selectedUnit.unit_number" readonly />
+              </b-form-group>
+
+              <b-form-group label="Unit Type:">
+                <b-form-input
+                  :value="getUnitTypeName(selectedUnit.unit_type)"
+                  readonly
+                />
+              </b-form-group>
+
+              <b-form-group label="Status:">
+                <b-form-select
+                  v-model="selectedUnit.status"
+                  :options="editStatusOptions"
+                  disabled
+                />
+              </b-form-group>
+
+              <b-form-group label="Price:">
+                <b-form-input
+                  v-model="selectedUnit.price"
+                  type="number"
+                  readonly
+                />
+              </b-form-group>
+
+              <b-form-group label="Lot Area:">
+                <b-form-input
+                  v-model="selectedUnit.lot_area"
+                  type="number"
+                  readonly
+                />
+              </b-form-group>
+
+              <b-form-group label="Floor Area:">
+                <b-form-input
+                  v-model="selectedUnit.floor_area"
+                  type="number"
+                  readonly
+                />
+              </b-form-group>
+
+              <b-form-group label="Commission:">
+                <b-form-input
+                  v-model="selectedUnit.commission"
+                  type="number"
+                  readonly
+                />
+              </b-form-group>
+
+              <b-form-group label="Balcony:">
+                <b-form-input
+                  :value="selectedUnit.balcony ? 'Has Balcony' : 'No Balcony'"
+                  readonly
+                />
+              </b-form-group>
+
+              <b-form-group label="View:">
+                <b-form-input :value="selectedUnit.view" readonly />
+              </b-form-group>
+
+              <b-button
+                type="submit"
+                variant="primary"
+                @click="saveUnitChanges"
+              >
+                Save Changes
+              </b-button>
+              <b-button variant="secondary" @click="closeEditUnitModal">
+                Cancel
+              </b-button>
+            </form>
+          </template>
+
+          <template v-else>
+            <p>Loading unit details...</p>
+          </template>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -330,7 +426,13 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
-import { BModal, BFormGroup, BFormSelect, BFormInput } from "bootstrap-vue-3";
+import {
+  BModal,
+  BFormGroup,
+  BFormSelect,
+  BFormInput,
+  BButton,
+} from "bootstrap-vue-3";
 import { mapState } from "vuex";
 
 export default {
@@ -342,6 +444,7 @@ export default {
     BFormGroup,
     BFormSelect,
     BFormInput,
+    BButton,
   },
   data() {
     return {
@@ -384,11 +487,20 @@ export default {
         { value: "Pending Reservation", text: "Pending Reservation" },
         { value: "Reserved", text: "Reserved" },
       ],
+      editStatusOptions: [
+        { value: "Available", text: "Available" },
+        { value: "Sold", text: "Sold" },
+        { value: "Pending Reservation", text: "Pending Reservation" },
+        { value: "Reserved", text: "Reserved" },
+      ],
       priceRangeOptions: [
         { value: null, text: "All" },
         { value: "1-5", text: "1M - 5M" },
         { value: "5-10", text: "5M - 10M" },
-        { value: "10+", text: "10M+" },
+        { value: "10-15", text: "10M - 15M" },
+        { value: "15-20", text: "15M - 20M" },
+        { value: "20-25", text: "20M - 25M" },
+        { value: "25+", text: "25M+" },
       ],
       viewOptions: [
         { value: "south", text: "South" },
@@ -412,6 +524,11 @@ export default {
       currentPage: 1,
       unitsPerPage: 25,
       searchQuery: "",
+      floorSortOrder: "asc",
+      showEditUnitModal: false,
+      selectedUnit: {},
+      totalItems: 100, // Example: Set this value based on your API response or logic
+      itemsPerPage: 10,
     };
   },
   computed: {
@@ -430,13 +547,14 @@ export default {
     },
     unitTypeOptions() {
       return [
-        { value: null, text: "All" }, // This adds the "All" option to the dropdown
+        { value: null, text: "All" },
         ...this.unitTypes.map((type) => ({
-          value: type.id,
+          value: type.id, // Ensure type.id matches the type of unit_type_id
           text: type.name,
         })),
       ];
     },
+
     filteredUnits() {
       let units = this.unitsData;
 
@@ -453,9 +571,9 @@ export default {
       }
 
       // Filter by unit type
-      if (this.selectedUnitType) {
+      if (this.selectedUnitType !== null) {
         units = units.filter(
-          (unit) => unit.unit_type_id === this.selectedUnitType
+          (unit) => unit.unit_type_id === Number(this.selectedUnitType)
         );
       }
 
@@ -487,8 +605,18 @@ export default {
           }
         });
       }
-
       return units;
+    },
+    totalPages() {
+      return Math.ceil(this.totalItems / this.itemsPerPage); // Adjust according to your data
+    },
+    sortedFloors() {
+      if (!this.site?.floors) return [];
+      return [...this.site.floors].sort((a, b) =>
+        this.floorSortOrder === "asc"
+          ? a.floor_number - b.floor_number
+          : b.floor_number - a.floor_number
+      );
     },
   },
   mounted() {
@@ -498,6 +626,7 @@ export default {
       this.fetchSiteDetails();
       this.fetchUnitTypes();
     }
+    this.fetchUnits();
   },
   methods: {
     async fetchSiteDetails() {
@@ -655,15 +784,140 @@ export default {
       this.searchQuery = "";
       this.currentPage = 1;
     },
-    handleEditUnit(unit) {
-      alert(`Edit unit: ${unit.unit_title}`);
-    },
-    handleDeleteUnit(unit) {
-      if (
-        confirm(`Are you sure you want to delete unit: ${unit.unit_title}?`)
-      ) {
-        // Logic for deleting a unit goes here
+    async fetchUnits(unitId = null) {
+      if (unitId) {
+        try {
+          this.isLoading = true;
+          const response = await axios.get(
+            `http://localhost:8000/developer/units/${unitId}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          this.selectedUnit = response.data; // Set the fetched unit data to selectedUnit
+        } catch (error) {
+          console.error("Error fetching unit details:", error);
+          this.errorMessage = "Failed to load unit details.";
+        } finally {
+          this.isLoading = false;
+        }
+      } else {
+        console.error("No unit ID provided to fetch.");
       }
+    },
+    async manageUnit(unit = null) {
+      if (unit) {
+        try {
+          this.selectedUnit = unit; // Make sure selectedUnit is set
+          this.showEditUnitModal = true; // Show the modal for editing
+        } catch (error) {
+          console.error(
+            "Error fetching unit details:",
+            error.response || error
+          );
+        }
+      } else {
+        this.selectedUnit = {}; // Initialize an empty object for a new unit
+        this.showEditUnitModal = true; // Show modal for new unit creation
+      }
+    },
+    async saveUnitChanges() {
+      const formData = new FormData();
+      formData.append("unit_number", this.selectedUnit.unit_number);
+      formData.append("unit_title", this.selectedUnit.unit_title);
+      formData.append("bedroom", this.selectedUnit.bedroom);
+      formData.append("bathroom", this.selectedUnit.bathroom);
+      formData.append("floor_area", this.selectedUnit.floor_area);
+      formData.append("lot_area", this.selectedUnit.lot_area);
+      formData.append("status", this.selectedUnit.status);
+      formData.append("price", this.selectedUnit.price);
+      formData.append("view", this.selectedUnit.view);
+      formData.append("balcony", this.selectedUnit.balcony);
+      formData.append("commission", this.selectedUnit.commission);
+      formData.append(
+        "spot_discount_percentage",
+        this.selectedUnit.spot_discount_percentage || ""
+      );
+      formData.append(
+        "spot_discount_flat",
+        this.selectedUnit.spot_discount_flat || ""
+      );
+      formData.append(
+        "reservation_fee",
+        this.selectedUnit.reservation_fee || ""
+      );
+      formData.append("other_charges", this.selectedUnit.other_charges || "");
+      formData.append("vat_percentage", this.selectedUnit.vat_percentage);
+
+      try {
+        let response;
+
+        if (this.selectedUnit.id) {
+          // If the unit has an id, it's an update (PUT request)
+          response = await axios.put(
+            `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+        } else {
+          // If no id, it's a new unit (POST request)
+          response = await axios.post(
+            `http://localhost:8000/developer/units/`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+        }
+
+        if (response.status === 200 || response.status === 201) {
+          // Update local state or fetch updated units list
+          if (this.selectedUnit.id) {
+            const index = this.units.findIndex(
+              (unit) => unit.id === this.selectedUnit.id
+            );
+            if (index !== -1) {
+              this.units[index] = response.data;
+            }
+          } else {
+            this.units.push(response.data); // If it's a new unit, just push to list
+          }
+
+          this.showEditUnitModal = false; // Close the modal
+          this.fetchUnits(); // Optional: Fetch the updated list of units from the backend
+        }
+      } catch (error) {
+        console.error("Error saving unit changes:", error.response || error);
+      }
+    },
+    // This is the method that opens the modal for editing a unit
+    openEditUnitModal(unit) {
+      // Ensure the selected unit is properly set before opening the modal
+      this.selectedUnit = unit;
+      this.showEditUnitModal = true;
+    },
+    closeEditUnitModal() {
+      this.showEditUnitModal = false;
+      this.selectedUnit = null; // Clear selected unit when closing the modal
+    },
+    clearSelectedUnit() {
+      this.selectedUnit = null; // Reset selectedUnit when the modal is closed
+    },
+    getUnitTypeName(unitTypeId) {
+      const unitType = this.unitTypeOptions.find(
+        (type) => type.id === unitTypeId
+      );
+      return unitType ? unitType.name : "Unknown";
     },
     nextPage() {
       if (this.currentPage < this.totalPages) this.currentPage++;
@@ -674,11 +928,14 @@ export default {
     formatCurrency(value) {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: "PHP",
       }).format(value);
     },
     onSearch() {
       this.currentPage = 1; // Reset pagination on new search
+    },
+    sortFloors() {
+      // Trigger a recompute of `sortedFloors`
     },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
@@ -755,6 +1012,28 @@ body {
 }
 
 /* Site Details */
+.site-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+.site-picture {
+  flex: 1;
+  margin-right: 20px;
+}
+.site-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.site-info {
+  flex: 1;
+}
+.floor-sort {
+  margin-bottom: 10px;
+}
+
 .site-details {
   text-align: center;
 }

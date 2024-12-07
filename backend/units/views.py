@@ -84,7 +84,26 @@ class UnitListView(APIView):
                 {"error": "Company not found for this developer."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+        # Get filters from query parameters
+        unit_number = request.query_params.get('unitNumber', None)
+        unit_type = request.query_params.get('unitType', None)
+        site_id = request.query_params.get('siteId', None)
+        floor_id = request.query_params.get('floorId', None)
+
+        # Apply filters if provided
         units = Unit.objects.filter(company=company)
+
+        if unit_number:
+            units = units.filter(unit_number__icontains=unit_number)
+        if unit_type:
+            units = units.filter(unit_type__id=unit_type)  # Assuming unit_type is an ID
+        if site_id:
+            units = units.filter(floor__site__id=site_id)
+        if floor_id:
+            units = units.filter(floor__id=floor_id)  # Filter by floor's ID
+
+        # Serialize the data
         serializer = UnitSerializer(units, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
