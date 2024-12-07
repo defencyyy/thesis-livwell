@@ -121,9 +121,10 @@
                   <th>Unit Type</th>
                   <th>Status</th>
                   <th>Price</th>
-                  <th>Lot Area</th>
                   <th>Floor Area</th>
-                  <th>Action</th>
+                  <th>Balcony</th>
+                  <th>View</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,15 +132,21 @@
                   <td>{{ unit.unit_number }}</td>
                   <td>
                     {{
-                      unitTypes.find((type) => type.id === unit.unit_type_id)
+                      unitTypes.find((type) => type.id === unit.unit_type)
                         ?.name || "Unknown"
                     }}
                   </td>
-
+                  <!-- Unit Type -->
                   <td>{{ unit.status }}</td>
+                  <!-- Status -->
                   <td>{{ formatCurrency(unit.price) }}</td>
-                  <td>{{ unit.lot_area }}</td>
+                  <!-- Price -->
                   <td>{{ unit.floor_area }}</td>
+                  <!-- Floor Area -->
+                  <td>{{ unit.balcony }}</td>
+                  <!-- Balcony -->
+                  <td>{{ unit.view }}</td>
+                  <!-- View -->
                   <td>
                     <button @click="manageUnit(unit)">Edit</button>
                   </td>
@@ -699,7 +706,6 @@ export default {
         { value: "price_asc", text: "Price (Asc)" },
         { value: "price_desc", text: "Price (Desc)" },
       ],
-      selectedSort: null,
       // Updated options with "All"
       statusOptions: [
         { value: null, text: "Default" },
@@ -733,14 +739,9 @@ export default {
         { value: "has balcony", text: "Has Balcony" },
         { value: "no balcony", text: "No Balcony" },
       ],
-      selectedStatus: null,
-      selectedPriceRange: null,
-      selectedUnitType: null,
       totalUnits: 0,
       totalAvailableUnits: 0,
-      showUnitManagementModal: false,
       unitFields: [],
-      selectedFloor: {},
       unitsData: [],
       currentPage: 1,
       unitsPerPage: 25,
@@ -752,8 +753,12 @@ export default {
       totalItems: 100, // Example: Set this value based on your API response or logic
       itemsPerPage: 10,
       showAddFloorUnitsModal: false, // Track the modal visibility
-      // showSuccessToast: false, // Controls success toast visibility
-      // showConfirmToast: false, // Controls confirmation toast visibility
+      showUnitManagementModal: false,
+      selectedFloor: {},
+      selectedStatus: null,
+      selectedPriceRange: null,
+      selectedUnitType: null,
+      selectedSort: null,
     };
   },
   computed: {
@@ -789,9 +794,9 @@ export default {
     },
     unitTypeOptions() {
       return [
-        { value: null, text: "All" },
+        { value: null, text: "Default" },
         ...this.unitTypes.map((type) => ({
-          value: type.id, // Ensure type.id matches the type of unit_type_id
+          value: type.id,
           text: type.name,
         })),
       ];
@@ -803,7 +808,9 @@ export default {
       // Filter by search query
       if (this.searchQuery) {
         units = units.filter((unit) =>
-          unit.unit_title.toLowerCase().includes(this.searchQuery.toLowerCase())
+          unit.unit_number
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase())
         );
       }
 
@@ -815,20 +822,27 @@ export default {
       // Filter by unit type
       if (this.selectedUnitType !== null) {
         units = units.filter(
-          (unit) => unit.unit_type_id === Number(this.selectedUnitType)
+          (unit) => unit.unit_type === Number(this.selectedUnitType)
         );
       }
 
       // Filter by price range
       if (this.selectedPriceRange) {
-        let priceRange = this.selectedPriceRange;
+        const priceRange = this.selectedPriceRange;
         units = units.filter((unit) => {
           const price = unit.price;
+          // Price range filters based on selected range
           if (priceRange === "1-5") return price >= 1000000 && price <= 5000000;
           if (priceRange === "5-10")
             return price >= 5000001 && price <= 10000000;
-          if (priceRange === "10+") return price > 10000000;
-          return true;
+          if (priceRange === "10-15")
+            return price >= 10000001 && price <= 15000000;
+          if (priceRange === "15-20")
+            return price >= 15000001 && price <= 20000000;
+          if (priceRange === "20-25")
+            return price >= 20000001 && price <= 25000000;
+          if (priceRange === "25+") return price > 25000000;
+          return true; // Default case: no filtering by price range
         });
       }
 
@@ -844,13 +858,17 @@ export default {
               return a.price - b.price;
             case "price_desc":
               return b.price - a.price;
+            default:
+              return 0; // No sorting if no option is selected
           }
         });
       }
+
       return units;
     },
+
     totalPages() {
-      return Math.ceil(this.totalItems / this.itemsPerPage); // Adjust according to your data
+      return Math.ceil(this.totalItems / this.itemsPerPage);
     },
     sortedFloors() {
       if (!this.site?.floors) return [];
