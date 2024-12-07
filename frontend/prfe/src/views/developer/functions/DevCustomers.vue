@@ -378,7 +378,6 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCustomers();
-      this.setupAxiosInterceptor(); // Make sure the interceptor is set up for token handling
     }
   },
   watch: {
@@ -518,26 +517,45 @@ export default {
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          {
+            refresh: refreshToken,
           }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
         }
-      );
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+        this.handleTokenRefreshFailure();
+      }
+    },
 
+    handleTokenRefreshFailure() {
+      alert("Session expired. Redirecting to home.");
+      localStorage.clear();
+      this.$store.dispatch("logout");
+      this.$router.push({ name: "Home" });
+    },
+
+    setupAxiosInterceptors() {
       axios.interceptors.response.use(
         (response) => response,
         async (error) => {
           if (error.response?.status === 401) {
-            // Token refresh will be handled by App.vue interceptor, so no need to retry here
-            return Promise.reject(error);
+            const refreshedToken = await this.refreshAccessToken();
+            if (refreshedToken) {
+              error.config.headers[
+                "Authorization"
+              ] = `Bearer ${refreshedToken}`;
+              return axios(error.config);
+            }
           }
           return Promise.reject(error);
         }

@@ -35,6 +35,12 @@ class SiteSerializer(serializers.ModelSerializer):
             'location',
             'available_units',
             'maximum_months',
+            'commission',  
+            'spot_discount_percentage',
+            'spot_discount_flat',
+            'vat_percentage',
+            'reservation_fee',
+            'other_charges',
         ]
         read_only_fields = ['id', 'created_at']
 

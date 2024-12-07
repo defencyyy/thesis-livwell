@@ -186,6 +186,20 @@
               ></b-form-select>
             </b-form-group>
 
+            <!-- Image Upload (Multiple Files) -->
+            <b-form-group
+              label="Upload Images:"
+              description="You can upload up to 5 images."
+            >
+              <input
+                type="file"
+                @change="handleFileChange"
+                multiple
+                accept="image/jpeg, image/png, image/jpg"
+                class="form-control"
+              />
+            </b-form-group>
+
             <!-- Unit Type -->
             <b-form-group
               label="Unit Type:"
@@ -454,6 +468,20 @@
               ></b-form-select>
             </b-form-group>
 
+            <!-- Image Upload (Multiple Files) -->
+            <b-form-group
+              label="Upload Images:"
+              description="You can upload up to 5 images."
+            >
+              <input
+                type="file"
+                @change="handleFileChange"
+                multiple
+                accept="image/jpeg, image/png, image/jpg"
+                class="form-control"
+              />
+            </b-form-group>
+
             <!-- Unit Type -->
             <b-form-group
               label="Unit Type:"
@@ -619,6 +647,7 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
+import { mapState } from "vuex";
 import {
   BModal,
   BFormGroup,
@@ -626,7 +655,6 @@ import {
   BFormInput,
   BButton,
 } from "bootstrap-vue-3";
-import { mapState } from "vuex";
 
 export default {
   name: "DevUnitManagement",
@@ -674,7 +702,7 @@ export default {
       selectedSort: null,
       // Updated options with "All"
       statusOptions: [
-        { value: null, text: "All" },
+        { value: null, text: "Default" },
         { value: "Available", text: "Available" },
         { value: "Sold", text: "Sold" },
         { value: "Pending Reservation", text: "Pending Reservation" },
@@ -687,7 +715,7 @@ export default {
         { value: "Reserved", text: "Reserved" },
       ],
       priceRangeOptions: [
-        { value: null, text: "All" },
+        { value: null, text: "Default" },
         { value: "1-5", text: "1M - 5M" },
         { value: "5-10", text: "5M - 10M" },
         { value: "10-15", text: "10M - 15M" },
@@ -717,6 +745,7 @@ export default {
       currentPage: 1,
       unitsPerPage: 25,
       searchQuery: "",
+      newUnitImages: [],
       floorSortOrder: "asc",
       showEditUnitModal: false,
       selectedUnit: {},
@@ -904,7 +933,6 @@ export default {
         alert("An error occurred while fetching unit types.");
       }
     },
-
     toggleAddUnitsModal() {
       this.showAddUnitsModal = !this.showAddUnitsModal;
       if (!this.showAddUnitsModal) {
@@ -927,52 +955,74 @@ export default {
       this.showAddFloorUnitsModal = true; // Open the modal to add units to the specific floor
     },
     async addFloorUnits(floorId) {
+      // Validate form fields
       if (
         !this.newUnitType ||
         !this.newUnitPrice ||
         !this.newUnitLotArea ||
         !this.newUnitFloorArea ||
-        !this.newUnitQuantity
+        !this.newUnitQuantity ||
+        !floorId
       ) {
         alert("Please fill in all the required fields.");
         return;
       }
 
+      // Create FormData to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Append the selected floor ID
+      formData.append("floor_ids[]", floorId); // Directly pass the floorId
+
+      // Append images if available
+      if (this.newUnitImages && this.newUnitImages.length) {
+        console.log("Selected images:", this.newUnitImages);
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          formData.append(`images[${i}]`, this.newUnitImages[i]); // Appending unique key for each image
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
       try {
         const response = await axios.post(
           "http://localhost:8000/developer/units/bulk-add/",
-          {
-            floor_ids: [floorId], // Send the selected floor ID
-            quantity: this.newUnitQuantity,
-            unit_type_id: this.newUnitType,
-            unit_title: this.newUnitTitle,
-            bedroom: this.newUnitBedroom,
-            bathroom: this.newUnitBathroom,
-            lot_area: this.newUnitLotArea,
-            floor_area: this.newUnitFloorArea,
-            price: this.newUnitPrice,
-            status: this.newUnitStatus,
-            view: this.newUnitView,
-            balcony: this.newUnitBalcony,
-            commission: this.newUnitCommission,
-            spot_discount_percentage: this.newUnitSpotDiscountPercentage,
-            spot_discount_flat: this.newUnitSpotDiscountFlat,
-            reservation_fee: this.newUnitReservationFee,
-            other_charges: this.newUnitOtherCharges,
-            vat_percentage: this.newUnitVatPercentage,
-          },
+          formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
 
+        console.log("Response from backend:", response);
+
         if (response.status === 201) {
-          // Refresh the unit management modal for the floor
           this.openUnitManagement({ id: floorId });
-          this.fetchSiteDetails(); // Refresh the site details
+          this.fetchSiteDetails(); // Refresh site details
           this.showAddUnitsModal = false; // Close the modal
+          alert("Units successfully added!");
         }
       } catch (error) {
         console.error("Error adding unit:", error);
@@ -980,6 +1030,7 @@ export default {
       }
     },
     async addUnits() {
+      // Validate form fields
       if (
         !this.newUnitFloors.length ||
         !this.newUnitType ||
@@ -992,39 +1043,72 @@ export default {
         return;
       }
 
+      // Create a FormData object to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Log the selected floor IDs
+      console.log("Selected floor IDs:", this.newUnitFloors);
+
+      // Append the selected floor IDs as an array
+      this.newUnitFloors.forEach((floorId) => {
+        formData.append("floor_ids[]", floorId);
+      });
+
+      // Append images if available
+      if (this.newUnitImages && this.newUnitImages.length) {
+        console.log("Selected images:", this.newUnitImages);
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          formData.append(`images[${i}]`, this.newUnitImages[i]); // Appending unique key for each image
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      // Log FormData content for debugging
+      console.log("FormData contents before sending to backend:");
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
       try {
+        // Send the FormData to the backend
         const response = await axios.post(
           "http://localhost:8000/developer/units/bulk-add/",
-          {
-            floor_ids: this.newUnitFloors, // Send the correct floor IDs
-            quantity: this.newUnitQuantity,
-            unit_type_id: this.newUnitType,
-            unit_title: this.newUnitTitle,
-            bedroom: this.newUnitBedroom,
-            bathroom: this.newUnitBathroom,
-            lot_area: this.newUnitLotArea,
-            floor_area: this.newUnitFloorArea,
-            price: this.newUnitPrice,
-            status: this.newUnitStatus,
-            view: this.newUnitView,
-            balcony: this.newUnitBalcony,
-            commission: this.newUnitCommission,
-            spot_discount_percentage: this.newUnitSpotDiscountPercentage,
-            spot_discount_flat: this.newUnitSpotDiscountFlat,
-            reservation_fee: this.newUnitReservationFee,
-            other_charges: this.newUnitOtherCharges,
-            vat_percentage: this.newUnitVatPercentage,
-          },
+          formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
 
+        console.log("Response from backend:", response);
+
         if (response.status === 201) {
           this.fetchSiteDetails(); // Refresh the site details
           this.showAddUnitsModal = false; // Close the modal
+          alert("Units successfully added!");
         }
       } catch (error) {
         console.error("Error adding unit:", error);
@@ -1032,6 +1116,12 @@ export default {
       }
     },
     async openUnitManagement(floor) {
+      if (!floor.id) {
+        console.error("Invalid floor ID:", floor);
+        alert("Invalid floor ID.");
+        return;
+      }
+
       try {
         const response = await axios.get(
           `http://localhost:8000/developer/units/${this.$route.params.siteId}/floors/${floor.id}/`,
@@ -1046,6 +1136,7 @@ export default {
         this.showUnitManagementModal = true;
       } catch (error) {
         console.error("Error fetching units:", error);
+        alert("Failed to fetch units.");
       }
     },
     closeUnitManagementModal() {
@@ -1185,6 +1276,10 @@ export default {
     },
     clearSelectedUnit() {
       this.selectedUnit = null; // Reset selectedUnit when the modal is closed
+    },
+    handleFileChange(event) {
+      this.newUnitImages = Array.from(event.target.files);
+      console.log(this.newUnitImages);
     },
     getUnitTypeName(unitTypeId) {
       const unitType = this.unitTypeOptions.find(

@@ -10,9 +10,6 @@ class UnitImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnitImage
         fields = '__all__'
-        extra_kwargs = {
-            'uploaded_at': {'read_only': True},  # Read-only
-        }
 
     def validate(self, data):
         # Ensure that either 'unit' or 'unit_template' is provided depending on 'image_type'
