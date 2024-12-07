@@ -664,7 +664,8 @@ export default {
       }
     },
     // Add a new customer
-    async addCustomer() {
+  // Add a new customer
+  async addCustomer() {
       const companyId = this.companyId; // Directly access the mapped state
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -704,9 +705,6 @@ export default {
           this.showNotification = true; // Show the notification modal
         }
       } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while adding the customer.";
         this.showNotification = true; // Show the notification modal
       }
     },
