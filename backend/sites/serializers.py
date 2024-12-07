@@ -34,6 +34,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'total_units', 
             'location',
             'available_units',
+            'maximum_months',
         ]
         read_only_fields = ['id', 'created_at']
 
@@ -53,7 +54,7 @@ class SiteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Extract floors data from validated_data
         floors_data = validated_data.pop('floors', [])
-        
+
         # Update fields of the site instance
         for key, value in validated_data.items():
             setattr(instance, key, value)
@@ -106,6 +107,14 @@ class SiteSerializer(serializers.ModelSerializer):
             if value.content_type not in allowed_types:
                 raise serializers.ValidationError(f"Invalid image type. Allowed types are: {', '.join(allowed_types)}.")
         return value
+
+    def validate_maximum_months(self, value):
+        if not isinstance(value, int):
+            raise serializers.ValidationError("Maximum months must be an integer.")
+        if value < 0:
+            raise serializers.ValidationError("Maximum months cannot be negative.")
+        return value
+
 
     def validate(self, data):
         """Additional validation for required fields (if they are not included in 'required' attribute)."""

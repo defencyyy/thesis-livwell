@@ -57,9 +57,22 @@
                   {{ site.location || "Location unavailable" }}
                 </p>
                 <div class="site-stats">
-                  <p>Total Floors: {{ site.floors.length }}</p>
-                  <p>Total Units: {{ site.total_units }}</p>
-                  <p>Available Units: {{ site.available_units }}</p>
+                  <p>
+                    Floors:
+                    {{ site.floors.length > 0 ? site.floors.length : "None" }}
+                  </p>
+                  <p>
+                    Units:
+                    {{ site.total_units > 0 ? site.total_units : "None" }}
+                  </p>
+                  <p v-if="site.total_units > 0">
+                    Available Units:
+                    {{
+                      site.available_units > 0
+                        ? site.available_units
+                        : "No Available Units"
+                    }}
+                  </p>
                 </div>
                 <button @click.stop="openFloorManagement(site)">
                   Manage Floors
@@ -86,13 +99,29 @@
                         <td>{{ site.location || "Location unavailable" }}</td>
                         <td>{{ site.status || "Status unavailable" }}</td>
                         <td>
-                          <p>{{ site.floors?.length || 0 }}</p>
+                          <p>
+                            {{
+                              site.floors?.length > 0
+                                ? site.floors.length
+                                : "None"
+                            }}
+                          </p>
                         </td>
                         <td>
-                          <p>{{ site.total_units || 0 }}</p>
+                          <p>
+                            {{
+                              site.total_units > 0 ? site.total_units : "None"
+                            }}
+                          </p>
                         </td>
                         <td>
-                          <p>{{ site.available_units || 0 }}</p>
+                          <p>
+                            {{
+                              site.available_units > 0
+                                ? site.available_units
+                                : "None"
+                            }}
+                          </p>
                         </td>
                         <td>
                           <button @click.stop="openFloorManagement(site)">
@@ -130,9 +159,9 @@
               placeholder="Search by Unit Type"
             />
           </b-form-group>
-          <b-button @click="searchUnits" :disabled="!selectedSite"
-            >Search</b-button
-          >
+          <b-button @click="searchUnits" :disabled="!selectedSite">
+            Search
+          </b-button>
         </div>
 
         <div v-if="units.length > 0">
@@ -158,6 +187,11 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Display a message if no units are found -->
+        <div v-else>
+          <h2>No Units Found</h2>
         </div>
       </div>
     </div>
