@@ -653,20 +653,25 @@ body {
   margin-right: auto;
 }
 
+/* Custom pagination styles */
 .pagination-controls {
+  position: fixed; /* Fix the position on the page */
+  bottom: 20px; /* Distance from the bottom */
+  right: 20px; /* Distance from the right */
   display: flex;
-  justify-content: center;
+  justify-content: flex-end; /* Align items to the right */
   align-items: center;
-  margin-top: 20px;
-  gap: 10px;
+  gap: 5px; /* Reduce the gap between buttons */
 }
 
 .page-button {
-  padding: 5px 10px;
+  padding: 3px 8px; /* Smaller button size */
+  font-size: 12px; /* Smaller text */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
   border-radius: 4px;
+  transition: all 0.3s ease; /* Smooth hover effect */
 }
 
 .page-button.active {
@@ -678,4 +683,9 @@ body {
   cursor: not-allowed;
   background-color: #f5f5f5;
 }
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray on hover */
+}
+
 </style>
