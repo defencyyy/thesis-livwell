@@ -1,12 +1,14 @@
 <template>
-  <section>
-    <div class="container py-5 h-100">
+  <section class="hero overlay">
+    <div class="container h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-xl-10">
+        <div class="col-md-8 col-lg-6 col-xl-5">
           <div class="card rounded-3 text-black">
             <div class="card-body p-md-5 mx-md-4">
-              <h3>Reset Your Password</h3>
-              <p>Please enter your email to receive a password reset link.</p>
+              <h3 class="text-center">Reset Your Password</h3>
+              <p class="text-center">
+                Please enter your email to receive a password reset link.
+              </p>
               <form @submit.prevent="sendResetLink">
                 <div class="form-outline mb-4">
                   <label for="email" class="form-label">Email address</label>
@@ -26,6 +28,12 @@
                 <p v-if="message" class="text-success mt-3">{{ message }}</p>
                 <p v-if="error" class="text-danger mt-3">{{ error }}</p>
               </form>
+
+              <div class="text-center mt-4">
+                <router-link to="/broker/login" class="btn btn-outline-primary">
+                  Back to Login
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -45,7 +53,6 @@ export default {
   },
   methods: {
     async sendResetLink() {
-      //console.log("Entered email:", this.email);
       try {
         const response = await fetch(
           "http://localhost:8000/broker/reset-password/",
@@ -59,12 +66,10 @@ export default {
         );
 
         if (response.ok) {
-          // No need for "data" here, since we're not using the returned data
           this.message = "Password reset link sent to your email.";
           this.error = "";
         } else {
-          // No need to declare "data" unless you use it to extract a specific message
-          const data = await response.json(); // Extract message if available
+          const data = await response.json();
           this.error = data.message || "Failed to send the reset link.";
           this.message = "";
         }
@@ -78,5 +83,30 @@ export default {
 </script>
 
 <style>
-/* Add styles here */
+.overlay {
+  border-image: linear-gradient(
+      to bottom,
+      rgba(25, 128, 255, 0.4),
+      rgba(44, 171, 255, 0.7)
+    )
+    fill 1;
+}
+.hero {
+ 
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+}
+
+.form-control {
+  font-size: 1rem;
+}
 </style>
