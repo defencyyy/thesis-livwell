@@ -85,49 +85,14 @@
                     </div>
                   </div>
                   <p v-else>No document types available.</p>
+
+                  <div style = "margin-top: 30px;">
+                    <p class = "text-start">Ensure that all documents are up-to-date and complete. <br> If you have any questions or need further assistance, please contact <strong>{{ salesDetail.broker_name }}</strong>.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-
-          <!-- <div v-if="activeTab === 'document-status'" class="tab-content">
-            <div v-if="salesDetail" class="details-card">
-                <p>{{ salesDetail.customer_name }}</p>
-                <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
-                <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>
-                <p>Documents Needed: Please Submit The Following Documents To Complete The Process</p>
-              <div v-if="documentTypes.length">
-            <table class="documents-table">
-              <thead>
-                <tr>
-                  <th>Document Name</th>
-                  <th>Document Status</th>
-                  <th>Date Submitted</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="doc in documents" :key="doc.id">
-                      <td><strong>{{ doc.document_type_name }}</strong></td>
-                      <td>{{ doc.status }}</td>
-                      <td>{{ doc.uploaded_at || 'Pending' }}</td>
-                    </tr>
-              </tbody>
-            </table>
-          </div>
-          <p v-else>No document types available.</p>
-              <div class="download-button" v-if="salesDetail.reservation_agreement_url">
-                <a
-                  :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
-                  download
-                >
-                  <button>Download Reservation Agreement</button>
-                </a>
-              </div>
-              <p>Ensure that all documents are up-to-date and complete.</p>
-              <p>If you need assitance or have further queries, please contact {{ salesDetail.broker_name }}</p>
-            </div>
-          </div> -->
           
           <!-- Payment Schedule Content -->
           <div v-if="activeTab === 'payment-schedule'" class="tab-content">
