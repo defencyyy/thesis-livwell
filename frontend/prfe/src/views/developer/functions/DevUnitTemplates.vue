@@ -95,6 +95,64 @@
             </div>
 
             <!-- Templates Table -->
+            <div>
+              <!-- Headers outside the card -->
+              <div class="outside-headers">
+                <span class="header-item">Relative ID</span>
+                <span class="header-item">Name</span>
+                <span class="header-item">Bedrooms</span>
+                <span class="header-item">Bathrooms</span>
+                <span class="header-item">Price</span>
+                <span class="header-item">Floor Area</span>
+                <span class="header-item">Lot Area</span>
+                <span class="header-item">Actions</span>
+              </div>
+
+              <div v-for="template in filteredTemplates" :key="template.id"
+              class="card border-0 rounded-1 mx-auto my-2"
+              style="
+              
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              "
+              >
+              <div class = "card-body">
+                <table class = "template-table">
+                  <tbody>
+                    <tr>
+                      <td><span>{{ template.relativeId }}</span></td>
+                      <td><span>{{ template.name }}</span></td>
+                      <td><span>{{ template.bedroom }}</span></td>
+                      <td><span>{{ template.bathroom }}</span></td>
+                      <td><span>{{ template.price }}</span></td>
+                      <td><span>{{ template.floor_area }}</span></td>
+                      <td><span>{{ template.lot_area }}</span></td>
+                      <td>
+                        <div class="broker-actions d-flex gap-2">
+                          <button @click="openEditTemplateModal(template)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button @click="deleteTemplate(template.id)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "><i class="fas fa-archive"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              </div>
+            </div>
+<!-- 
             <table>
               <thead>
                 <tr>
@@ -125,7 +183,7 @@
                   </td>
                 </tr>
               </tbody>
-            </table>
+            </table> -->
           </div>
         </div>
       </div>
@@ -473,16 +531,79 @@ body {
   margin-bottom: 20px;
 }
 
-table {
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  max-width: 1100px;
   width: 100%;
-  border-collapse: collapse;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
 }
 
-th,
-td {
-  padding: 10px;
-  border: 1px solid #ddd;
+.template-table {
+  width: 100%;
+  border-collapse: collapse;
   text-align: left;
+  background: #fff;
+}
+
+.template-table th,
+.template-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.template-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.template-table th:nth-child(1),
+.template-table td:nth-child(1) {
+  width: 12%;
+}
+
+.template-table th:nth-child(2),
+.template-table td:nth-child(2) {
+  width: 12%;
+}
+
+.template-table th:nth-child(3),
+.template-table td:nth-child(3) {
+  width: 12%;
+}
+
+.template-table th:nth-child(4),
+.template-table td:nth-child(4) {
+  width: 12%;
+}
+
+.template-table th:nth-child(5),
+.template-table td:nth-child(5) {
+  width: 12%;
+}
+
+.template-table th:nth-child(6),
+.template-table td:nth-child(6) {
+  width: 12%;
+}
+
+.template-table th:nth-child(7),
+.template-table td:nth-child(7) {
+  width: 12%;
+}
+
+.template-table th:nth-child(8),
+.template-table td:nth-child(8) {
+  width: 12%;
 }
 
 .search-create {
@@ -657,5 +778,24 @@ button:hover {
 
 .btn-primary.add-button:hover {
   background-color: #0056b3;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 12% 12% 12% 12% 12% 12% 12% 12%;
+  /* Match the column widths */
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+  font-weight: bold;
 }
 </style>
