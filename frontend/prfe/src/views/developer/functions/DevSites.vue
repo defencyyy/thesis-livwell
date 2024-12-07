@@ -91,7 +91,7 @@
           >
             <!-- Site Image -->
             <img
-              :src="site.picture || require('@/assets/home.png')"
+              :src="getPictureUrl(site.picture) || require('@/assets/home.png')"
               alt="Site Image"
               class="site-image"
             />
@@ -139,7 +139,10 @@
                     <td>
                       <div class="site-info">
                         <img
-                          :src="site.picture || require('@/assets/home.png')"
+                          :src="
+                            getPictureUrl(site.picture) ||
+                            require('@/assets/home.png')
+                          "
                           alt="Site Image"
                           class="table-image"
                         />

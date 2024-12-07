@@ -5,14 +5,11 @@
       <AppHeader />
       <div class="content">
         <div class="dashboard-container">
-          <!-- Loading Indicator -->
           <div v-if="isLoading" class="loading-indicator">Loading...</div>
-          <!-- Error Message -->
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
           </div>
 
-          <!-- Actions -->
           <div class="actions" v-if="!isLoading && !errorMessage">
             <button @click="redirectToUnits">Manage Units</button>
             <button @click="redirectToUnitTemplates">
@@ -21,10 +18,8 @@
             <button @click="redirectToUnitTypes">Manage Unit Types</button>
           </div>
 
-          <!-- Grid View Section for Sites -->
           <div>
             <h2>Sites</h2>
-            <!-- Filters and View Switch -->
             <div class="view-switch">
               <div
                 class="view-icon"
@@ -32,7 +27,6 @@
                 @click="viewMode = 'grid'"
               >
                 <i class="fa fa-th"></i>
-                <!-- Grid Icon -->
               </div>
               <div class="separator"></div>
               <div
@@ -41,7 +35,6 @@
                 @click="viewMode = 'table'"
               >
                 <i class="fa fa-list"></i>
-                <!-- Table Icon -->
               </div>
             </div>
 
@@ -53,7 +46,9 @@
                 @click="openFloorManagement(site)"
               >
                 <img
-                  :src="site.picture || require('@/assets/home.png')"
+                  :src="
+                    getPictureUrl(site.picture) || require('@/assets/home.png')
+                  "
                   alt="Site Image"
                   class="site-image"
                 />
@@ -72,7 +67,6 @@
               </div>
             </div>
 
-            <!-- Table View Section for Sites -->
             <div v-if="viewMode === 'table'">
               <div class="outside-headers">
                 <span class="header-item">Name</span>
@@ -87,18 +81,18 @@
                 <div class="card-body">
                   <table>
                     <tbody>
-                      <tr v-for="unit in units" :key="unit.id">
+                      <tr>
                         <td>{{ site.name || "Unknown" }}</td>
                         <td>{{ site.location || "Location unavailable" }}</td>
                         <td>{{ site.status || "Status unavailable" }}</td>
                         <td>
-                          <p>{{ site.total_floors }}</p>
+                          <p>{{ site.floors?.length || 0 }}</p>
                         </td>
                         <td>
-                          <p>{{ site.total_units }}</p>
+                          <p>{{ site.total_units || 0 }}</p>
                         </td>
                         <td>
-                          <p>{{ site.available_units }}</p>
+                          <p>{{ site.available_units || 0 }}</p>
                         </td>
                         <td>
                           <button @click.stop="openFloorManagement(site)">
@@ -115,7 +109,7 @@
 
           <hr />
         </div>
-        <!-- Site and Unit Filters -->
+
         <div class="filters">
           <b-form-group label="Select Site:">
             <b-form-select
@@ -141,7 +135,6 @@
           >
         </div>
 
-        <!-- Units Section -->
         <div v-if="units.length > 0">
           <h2>Units</h2>
           <table>
@@ -191,19 +184,15 @@ export default {
     return {
       units: [],
       sites: [],
-      availableUnits: 0,
-      totalFloors: 0,
-      totalUnits: 0,
       isLoading: false,
       errorMessage: null,
       viewMode: "grid",
       searchQuery: "",
       sortBy: "name",
       viewFilter: "active",
-      selectedSite: null, // Define selectedSite here
-      unitNumberFilter: "", // Define unitNumberFilter
-      unitTypeFilter: "", // Define unitTypeFilter
-      siteFloorFilter: "",
+      selectedSite: null,
+      unitNumberFilter: "",
+      unitTypeFilter: "",
     };
   },
   computed: {
@@ -212,6 +201,7 @@ export default {
         this.viewFilter === "active"
           ? this.sites.filter((s) => !s.archived)
           : this.sites;
+
       return sitesToFilter
         .filter((site) =>
           site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -223,21 +213,24 @@ export default {
         );
     },
     siteOptions() {
-      return this.sites.map((site) => ({
-        value: site.id,
-        text: site.name,
-      }));
+      return this.sites
+        .map((site) => ({
+          value: site.id,
+          text: site.name,
+        }))
+        .sort((a, b) => a.text.localeCompare(b.text)); // Sort options alphabetically
     },
   },
   methods: {
+    getPictureUrl(picture) {
+      return `http://localhost:8000${picture}`;
+    },
     redirectToUnits() {
       this.$router.push({ name: "DevFuncUnits" });
     },
-
     redirectToUnitTemplates() {
       this.$router.push({ name: "DevUnitTemplates" });
     },
-
     redirectToUnitTypes() {
       this.$router.push({ name: "DevUnitTypes" });
     },
@@ -252,13 +245,14 @@ export default {
             },
           }
         );
+
         if (response.status === 200) {
           this.sites = response.data.data.map((site) => ({
             ...site,
             isArchived: site.isArchived ?? false,
             location: this.constructLocation(site),
-            floors: site.floors || [], // Ensure floors is always an array
-            units: site.units || [], // Ensure units is always an array
+            floors: site.floors || [],
+            units: site.units || [],
           }));
         }
       } catch (error) {
@@ -270,27 +264,15 @@ export default {
     },
     constructLocation(site) {
       const addressParts = [site.province, site.municipality, site.barangay];
-      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
+      return addressParts.filter(Boolean).join(", ");
     },
-
-    openSiteModal(site) {
-      console.log("Site clicked:", site);
-    },
-
-    openEditSiteModal(site) {
-      console.log("Edit site:", site);
-    },
-
     openFloorManagement(site) {
-      // Navigate to the DevUnitManagement.vue page
       this.$router.push({
         name: "DevUnitManagement",
         params: { siteId: site.id },
       });
     },
-
     updateFloorAndUnitCounts() {
-      // This method updates the total floors and available units for the sites
       this.totalFloors = this.sites.reduce(
         (sum, site) => sum + (site.floors?.length || 0),
         0
@@ -305,10 +287,11 @@ export default {
       try {
         this.isLoading = true;
         const params = {
-          siteId: this.selectedSite, // Only fetch units for the selected site
+          siteId: this.selectedSite,
           unitNumber: this.unitNumberFilter,
           unitType: this.unitTypeFilter,
         };
+
         const response = await axios.get(
           "http://localhost:8000/developer/units/",
           {
@@ -318,6 +301,7 @@ export default {
             params,
           }
         );
+
         this.units = response.data.data || [];
       } catch (error) {
         console.error("Error fetching units data:", error);
@@ -326,14 +310,13 @@ export default {
         this.isLoading = false;
       }
     },
-    // Method that gets called when the search button is clicked
     searchUnits() {
       if (!this.selectedSite) {
         this.errorMessage = "Please select a site before searching.";
         return;
       }
 
-      this.fetchUnits(); // Only fetch when the search button is clicked
+      this.fetchUnits();
     },
   },
   mounted() {
@@ -347,18 +330,13 @@ html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 
 .SideNav {
@@ -399,11 +377,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* Push items to opposite sides */
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
-  /* Center the wrapper */
 }
 
 .title-left {
@@ -460,29 +436,24 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-left: 20px;
-  /* Space on the left side */
   padding-right: 20px;
-  /* Space on the right side */
 }
 
 .left-section {
   display: flex;
   align-items: center;
   gap: 10px;
-  /* Space between search bar and dropdown */
 }
 
 .search-bar-container {
   position: relative;
   width: 100%;
   max-width: 400px;
-  /* Adjust the width as needed */
 }
 
 .search-bar {
   width: 400px;
   padding: 8px 12px 8px 40px;
-  /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
@@ -492,12 +463,10 @@ body {
   position: absolute;
   top: 50%;
   left: 10px;
-  /* Position the icon inside the input */
   transform: translateY(-50%);
   color: #777;
   font-size: 16px;
   pointer-events: none;
-  /* Prevent the icon from blocking clicks in the input */
 }
 
 .dropdown-container {
@@ -507,7 +476,6 @@ body {
 .dropdown {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
@@ -520,7 +488,6 @@ body {
 .dropdown2 {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
@@ -530,7 +497,6 @@ body {
   color: #333;
 }
 
-/* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
   border: 1px solid #0560fd;
@@ -551,26 +517,16 @@ body {
   margin-bottom: 10px;
   margin-top: 0;
   max-width: 1100px;
-  /* Ensures the card and grid align */
   margin-left: auto;
-  /* Centers the card */
   margin-right: auto;
 }
-
-/* .search-bar {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-} */
 
 .site-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   max-width: 1100px;
-  /* Matches the max-width of the card */
   margin: 0 auto;
-  /* Centers the grid within the parent */
 }
 
 .site-card {
@@ -578,7 +534,6 @@ body {
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
 }
 
 .site-card:hover {
@@ -589,20 +544,15 @@ body {
   width: 100%;
   height: 150px;
   object-fit: cover;
-  /* Ensures the image is cropped to fit the area */
   border-radius: 12px;
   margin-bottom: 10px;
 }
 
 .table-image {
   width: 30px;
-  /* Small size for the table */
   height: 30px;
-  /* Make the image smaller */
   object-fit: cover;
-  /* Crop the image if necessary */
   margin-right: 10px;
-  /* Adds some spacing between the image and the name */
 }
 
 .site-info {
@@ -632,7 +582,6 @@ body {
   text-align: left;
   vertical-align: middle;
   border: none;
-  /* Remove borders from all cells */
 }
 
 .site-table th {
@@ -642,28 +591,23 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  /* Location column */
   width: 35%;
   padding-right: 60px;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  /* Status column */
   width: 20%;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  /* Actions column */
   width: 20%;
 }
 
 .outside-headers {
   display: grid;
-  /* Change to grid layout */
   grid-template-columns: 25% 35% 20% 20%;
-  /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -681,28 +625,24 @@ body {
 .row .form-label {
   font-size: 0.9rem;
   color: #6c757d;
-  /* Adjust the value to your preferred size */
 }
 
 .btn-add {
   background-color: #0560fd;
-  /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
-  /* Adjust the border radius */
   padding: 10px;
 }
 
 .btn-cancel {
   background-color: #343a40;
-  /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
-  /* Adjust the border radius */
   padding: 10px;
 }
+
 .filters {
   margin-bottom: 20px;
 }
