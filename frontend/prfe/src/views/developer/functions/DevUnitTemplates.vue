@@ -13,7 +13,7 @@
           </div>
 
           <!-- Actions -->
-          
+
           <div class="actions" v-if="!isLoading && !errorMessage">
             <div class="nav nav-tabs">
               <!-- Manage Units Tab -->
@@ -56,37 +56,43 @@
 
           <!-- Unit Templates Section -->
           <div v-if="view === 'templates'">
-            <div class = "title-wrapper">
+            <div class="title-wrapper">
               <div class="title-left">
                 <div class="title-icon"></div>
                 <div class="edit-title">Unit Templates</div>
               </div>
-              <div class = "total-templates">
+              <div class="total-templates">
                 <div>Total Unit Templates: {{ templates.length }}</div>
               </div>
             </div>
 
             <!-- Search and Create Template -->
             <div
-            class="card border-0 rounded-1 mx-auto"
-            style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+              class="card border-0 rounded-1 mx-auto"
+              style="
+                max-width: 1100px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              "
             >
-              <div class = "card-body">
-                <div class = "toolbar">
-                  <div class = "left-section">
-                    <div class = "search-bar-container">
+              <div class="card-body">
+                <div class="toolbar">
+                  <div class="left-section">
+                    <div class="search-bar-container">
                       <input
-                      v-model="searchQuery"
-                      type="text"
-                      class = "search-bar"
-                      placeholder="Search by template name"
-                      @input="filterTemplates"
+                        v-model="searchQuery"
+                        type="text"
+                        class="search-bar"
+                        placeholder="Search by template name"
+                        @input="filterTemplates"
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
                   </div>
                   <div class="right-section">
-                    <button @click="openCreateTemplateModal" class = "btn-primary add-button">
+                    <button
+                      @click="openCreateTemplateModal"
+                      class="btn-primary add-button"
+                    >
                       Create Unit Template
                     </button>
                   </div>
@@ -108,48 +114,69 @@
                 <span class="header-item">Actions</span>
               </div>
 
-              <div v-for="template in filteredTemplates" :key="template.id"
-              class="card border-0 rounded-1 mx-auto my-2"
-              style="
-              
-                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-              "
+              <div
+                v-for="template in filteredTemplates"
+                :key="template.id"
+                class="card border-0 rounded-1 mx-auto my-2"
+                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
               >
-              <div class = "card-body">
-                <table class = "template-table">
-                  <tbody>
-                    <tr>
-                      <td><span>{{ template.relativeId }}</span></td>
-                      <td><span>{{ template.name }}</span></td>
-                      <td><span>{{ template.bedroom }}</span></td>
-                      <td><span>{{ template.bathroom }}</span></td>
-                      <td><span>{{ template.price }}</span></td>
-                      <td><span>{{ template.floor_area }}</span></td>
-                      <td><span>{{ template.lot_area }}</span></td>
-                      <td>
-                        <div class="broker-actions d-flex gap-2">
-                          <button @click="openEditTemplateModal(template)" style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          ">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button @click="deleteTemplate(template.id)" style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          "><i class="fas fa-archive"></i></button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                <div class="card-body">
+                  <table class="template-table">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span>{{ template.relativeId }}</span>
+                        </td>
+                        <td>
+                          <span>{{ template.name }}</span>
+                        </td>
+                        <td>
+                          <span>{{ template.bedroom }}</span>
+                        </td>
+                        <td>
+                          <span>{{ template.bathroom }}</span>
+                        </td>
+                        <td>
+                          <span>{{ template.price }}</span>
+                        </td>
+                        <td>
+                          <span>{{ template.floor_area }}</span>
+                        </td>
+                        <td>
+                          <span>{{ template.lot_area }}</span>
+                        </td>
+                        <td>
+                          <div class="broker-actions d-flex gap-2">
+                            <button
+                              @click="openEditTemplateModal(template)"
+                              style="
+                                border: none;
+                                background-color: transparent;
+                                color: #343a40;
+                                cursor: pointer;
+                                font-size: 18px;
+                              "
+                            >
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button
+                              @click="deleteTemplate(template.id)"
+                              style="
+                                border: none;
+                                background-color: transparent;
+                                color: #343a40;
+                                cursor: pointer;
+                                font-size: 18px;
+                              "
+                            >
+                              <i class="fas fa-archive"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -164,40 +191,127 @@
       hide-footer
       centered
     >
-      <div class = "p-3">
-        <form @submit.prevent="createTemplate">
-          <div class = "row mb-3">
+      <div class="p-3">
+        <form @submit.prevent="createTemplate" enctype="multipart/form-data">
+          <div class="row mb-3">
+            <!-- Name Field -->
             <div class="form-group mb-3">
               <label for="name">Name</label>
-              <input type="text" v-model="newTemplate.name" class = "form-control" required />
+              <input
+                type="text"
+                v-model="newTemplate.name"
+                class="form-control"
+                required
+              />
             </div>
+
+            <!-- Description Field -->
+            <div class="form-group mb-3">
+              <label for="description">Description</label>
+              <textarea
+                v-model="newTemplate.description"
+                class="form-control"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <!-- Unit Type Dropdown -->
+            <div class="form-group mb-3">
+              <label for="unit_type">Unit Type</label>
+              <b-form-select
+                v-model="newTemplate.unit_type"
+                :options="unitTypesOptions"
+                required
+              />
+            </div>
+
+            <!-- Bedrooms Field -->
             <div class="form-group mb-3">
               <label for="bedroom">Bedrooms</label>
-              <input type="number" v-model="newTemplate.bedroom" class = "form-control" required />
+              <input
+                type="number"
+                v-model="newTemplate.bedroom"
+                class="form-control"
+                required
+              />
             </div>
+
+            <!-- Bathrooms Field -->
             <div class="form-group mb-3">
               <label for="bathroom">Bathrooms</label>
-              <input type="number" v-model="newTemplate.bathroom" class = "form-control" required />
+              <input
+                type="number"
+                v-model="newTemplate.bathroom"
+                class="form-control"
+                required
+              />
             </div>
+
+            <!-- Price Field -->
             <div class="form-group mb-3">
               <label for="price">Price</label>
-              <input type="number" v-model="newTemplate.price" class = "form-control" required />
+              <input
+                type="number"
+                v-model="newTemplate.price"
+                class="form-control"
+                required
+              />
             </div>
+
+            <!-- Floor Area Field -->
             <div class="form-group mb-3">
               <label for="floor_area">Floor Area</label>
-              <input type="number" v-model="newTemplate.floor_area" class = "form-control"/>
+              <input
+                type="number"
+                v-model="newTemplate.floor_area"
+                class="form-control"
+              />
             </div>
+
+            <!-- Lot Area Field -->
             <div class="form-group mb-3">
               <label for="lot_area">Lot Area</label>
-              <input type="number" v-model="newTemplate.lot_area" class = "form-control"/>
+              <input
+                type="number"
+                v-model="newTemplate.lot_area"
+                class="form-control"
+              />
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group mb-3">
+              <label for="image">Upload Images</label>
+              <input
+                type="file"
+                @change="handleImageUpload"
+                class="form-control"
+                accept="image/*"
+                multiple
+              />
+            </div>
+
+            <!-- Image Previews -->
+            <div v-if="imagePreviews.length" class="image-previews">
+              <h5>Uploaded Images</h5>
+              <div class="d-flex gap-2">
+                <img
+                  v-for="(image, index) in imagePreviews"
+                  :key="index"
+                  :src="image"
+                  class="img-thumbnail"
+                  style="width: 100px; height: 100px"
+                />
+              </div>
             </div>
           </div>
+
+          <!-- Modal Buttons -->
           <div
-          class="d-flex justify-content-end gap-2 mt-30"
-          style="padding-top: 15px"
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
           >
-          <button type="submit" class = "btn-add">Create</button>
-          <button @click="closeCreateModal" class = "btn-cancel">Cancel</button>
+            <button type="submit" class="btn-add">Create</button>
+            <button @click="closeCreateModal" class="btn-cancel">Cancel</button>
           </div>
         </form>
       </div>
@@ -210,43 +324,111 @@
       hide-footer
       centered
     >
-    <div class = "p-3">
-      <form @submit.prevent="saveTemplateChanges">
-        <div class = "row mb-3">
-          <div v-if="selectedTemplate"  class="form-group mb-3">
-            <label for="name">Name</label>
-            <input type="text" v-model="selectedTemplate.name" class = "form-control" required />
-          </div>
-          <div v-if="selectedTemplate"  class="form-group mb-3">
-            <label for="bedroom">Bedrooms</label>
-            <input type="number" v-model="selectedTemplate.bedroom" class = "form-control" required />
-          </div>
-          <div v-if="selectedTemplate"  class="form-group mb-3">
-            <label for="bathroom">Bathrooms</label>
-            <input type="number" v-model="selectedTemplate.bathroom" class = "form-control" required />
-          </div>
-          <div v-if="selectedTemplate"  class="form-group mb-3">
-            <label for="price">Price</label>
-            <input type="number" v-model="selectedTemplate.price" class = "form-control" required />
-          </div>
-          <div v-if="selectedTemplate"  class="form-group mb-3">
-            <label for="floor_area">Floor Area</label>
-            <input type="number" v-model="selectedTemplate.floor_area" class = "form-control"/>
-          </div>
-          <div v-if="selectedTemplate"  class="form-group mb-3">
-            <label for="lot_area">Lot Area</label>
-            <input type="number" v-model="selectedTemplate.lot_area" class = "form-control"/>
-          </div>
-        </div>
-        <div
-        class="d-flex justify-content-end gap-2 mt-30"
-        style="padding-top: 15px"
+      <div class="p-3">
+        <form
+          @submit.prevent="saveTemplateChanges"
+          enctype="multipart/form-data"
         >
-        <button type="submit" class = "btn-add">Save</button>
-        <button @click="closeEditModal" class = "btn-cancel">Cancel</button>
-        </div>
-      </form>
-    </div>
+          <div class="row mb-3">
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="name">Name</label>
+              <input
+                type="text"
+                v-model="selectedTemplate.name"
+                class="form-control"
+                required
+              />
+            </div>
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="bedroom">Bedrooms</label>
+              <input
+                type="number"
+                v-model="selectedTemplate.bedroom"
+                class="form-control"
+                required
+              />
+            </div>
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="bathroom">Bathrooms</label>
+              <input
+                type="number"
+                v-model="selectedTemplate.bathroom"
+                class="form-control"
+                required
+              />
+            </div>
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="price">Price</label>
+              <input
+                type="number"
+                v-model="selectedTemplate.price"
+                class="form-control"
+                required
+              />
+            </div>
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="floor_area">Floor Area</label>
+              <input
+                type="number"
+                v-model="selectedTemplate.floor_area"
+                class="form-control"
+              />
+            </div>
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="lot_area">Lot Area</label>
+              <input
+                type="number"
+                v-model="selectedTemplate.lot_area"
+                class="form-control"
+              />
+            </div>
+            <!-- Display existing images in Edit Template Modal -->
+            <div
+              v-if="
+                selectedTemplate &&
+                selectedTemplate.images &&
+                selectedTemplate.images.length > 0
+              "
+              class="existing-images"
+            >
+              <h5>Existing Images</h5>
+              <div class="d-flex gap-2">
+                <img
+                  v-for="(image, index) in selectedTemplate.images"
+                  :key="index"
+                  :src="image.image_url"
+                  class="img-thumbnail"
+                  style="width: 100px; height: 100px"
+                />
+              </div>
+            </div>
+
+            <!-- Display existing images -->
+            <div
+              v-if="selectedTemplate && selectedTemplate.images"
+              class="existing-images"
+            >
+              <h5>Existing Images</h5>
+              <div class="d-flex gap-2">
+                <img
+                  v-for="(image, index) in selectedTemplate.images"
+                  :key="index"
+                  :src="image.image_url"
+                  class="img-thumbnail"
+                  style="width: 100px; height: 100px"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
+            <button type="submit" class="btn-add">Save</button>
+            <button @click="closeEditModal" class="btn-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
     </b-modal>
   </div>
 </template>
@@ -255,11 +437,11 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
-import { BModal } from "bootstrap-vue-3";
+import { BFormSelect, BModal } from "bootstrap-vue-3";
 
 export default {
   name: "DevUnitTemplates",
-  components: { SideNav, AppHeader, BModal },
+  components: { SideNav, AppHeader, BModal, BFormSelect },
   data() {
     return {
       view: "templates",
@@ -271,15 +453,31 @@ export default {
       selectedTemplate: null,
       newTemplate: {
         name: "",
+        description: "",
+        unit_type: "",
         bedroom: 1,
         bathroom: 1,
         price: 0,
         floor_area: 0,
         lot_area: 0,
       },
+      imagePreviews: [], // To hold image preview URLs
+      selectedImages: [],
       isCreateModalOpen: false,
       isEditModalOpen: false,
+      unitTypes: [], // The array to hold the unit types (this will come from your backend or be defined statically)
     };
+  },
+  computed: {
+    unitTypesOptions() {
+      return [
+        { value: null, text: "Select Unit Type" },
+        ...this.unitTypes.map((type) => ({
+          value: type.id,
+          text: type.name,
+        })),
+      ];
+    },
   },
   methods: {
     redirectToUnits() {
@@ -293,85 +491,110 @@ export default {
     redirectToUnitTypes() {
       this.$router.push({ name: "DevUnitTypes" });
     },
-    // Open the modal for creating a new template
+
     openCreateTemplateModal() {
       this.isCreateModalOpen = true;
     },
+
     closeCreateModal() {
       this.isCreateModalOpen = false;
       this.newTemplate = {
         name: "",
+        description: "",
         bedroom: 1,
         bathroom: 1,
         price: 0,
         floor_area: 0,
         lot_area: 0,
       };
+      this.imagePreviews = [];
+      this.selectedImages = [];
     },
+
+    closeEditModal() {
+      this.isEditModalOpen = false;
+      this.selectedTemplate = null;
+      this.selectedImages = []; // Reset images after editing
+      this.imagePreviews = [];
+    },
+
     openEditTemplateModal(template) {
       if (template) {
         this.selectedTemplate = { ...template };
         this.isEditModalOpen = true;
-      } else {
-        this.selectedTemplate = null;
-        this.isEditModalOpen = false;
-        console.error("Invalid template data passed to the modal");
       }
     },
-    closeEditModal() {
-      this.isEditModalOpen = false;
-      this.selectedTemplate = null;
+
+    // Handle image upload
+    handleImageUpload(event) {
+      const files = event.target.files;
+      this.selectedImages = Array.from(files); // Store file references
+      this.imagePreviews = Array.from(files).map((file) =>
+        URL.createObjectURL(file)
+      ); // Show previews
     },
 
-    // Create Template
     async createTemplate() {
+      const formData = new FormData();
+
+      // Log the formData before appending it, to see if the data structure is correct
+      console.log("FormData before appending:", this.newTemplate);
+
+      for (let key in this.newTemplate) {
+        formData.append(key, this.newTemplate[key]);
+      }
+
+      // Log image files to check if they are correctly added
+      this.selectedImages.forEach((file) => {
+        // Assuming you are uploading images for 'unit_template' type
+        const imageType = "unit_template"; // or set this dynamically depending on context
+        formData.append("images", file);
+        formData.append("image_type", imageType); // Ensure 'image_type' is appended
+      });
+
+      // Log the complete FormData to see if everything is correctly appended
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+      }
+
       try {
         const response = await axios.post(
           "http://localhost:8000/developer/units/templates/",
-          this.newTemplate,
+          formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json",
+              "Content-Type": "multipart/form-data",
             },
           }
         );
-        this.templates.push(response.data.data); // Add new template
+        this.templates.push(response.data.data);
         this.closeCreateModal();
         alert("Template created successfully!");
       } catch (error) {
-        this.errorMessage = "Failed to create template.";
-        console.error(error);
+        console.error("Error response:", error.response); // Log error response for debugging
+        alert("Failed to create template.");
       }
     },
-    // Save changes to an edited template
-    async saveTemplateChanges() {
-      if (!this.selectedTemplate) {
-        this.errorMessage = "No template selected for editing.";
-        console.error("No template selected for editing.");
-        return;
-      }
 
-      // Validate template fields
-      if (
-        !this.selectedTemplate.name ||
-        !this.selectedTemplate.bedroom ||
-        !this.selectedTemplate.bathroom ||
-        !this.selectedTemplate.price
-      ) {
-        this.errorMessage = "Please fill in all required fields.";
-        console.error("Missing required fields");
-        return; // Prevent sending invalid data
+    // Save changes to an edited template with image upload
+    async saveTemplateChanges() {
+      if (!this.selectedTemplate) return;
+
+      const formData = new FormData();
+      for (let key in this.selectedTemplate) {
+        formData.append(key, this.selectedTemplate[key]);
       }
+      this.selectedImages.forEach((file) => formData.append("images", file));
 
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
-          this.selectedTemplate,
+          formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json",
+              "Content-Type": "multipart/form-data",
             },
           }
         );
@@ -379,15 +602,16 @@ export default {
           (template) => template.id === this.selectedTemplate.id
         );
         if (index !== -1) {
-          this.templates[index] = response.data.data; // Update the template in the list
+          this.templates[index] = response.data.data;
         }
         this.closeEditModal();
         alert("Template updated successfully!");
       } catch (error) {
-        this.errorMessage = "Failed to update template.";
         console.error(error);
+        alert("Failed to update template.");
       }
     },
+
     // Delete Template
     async deleteTemplate(templateId) {
       if (confirm("Are you sure you want to delete this template?")) {
@@ -454,9 +678,29 @@ export default {
       this.closeCreateModal(); // Close the create modal when navigating
       this.closeEditModal(); // Close the edit modal when navigating
     },
+
+    // Fetch Unit Types (from API or statically defined)
+    async fetchUnitTypes() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/units/types/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        this.unitTypes = response.data.data;
+      } catch (error) {
+        console.error("Error fetching unit types:", error);
+        alert("Failed to load unit types.");
+      }
+    },
   },
   mounted() {
     this.showUnitTemplates(); // Default view to show unit templates
+    this.fetchUnitTypes(); // Fetch unit types on load
   },
 };
 </script>
@@ -472,7 +716,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  background-color:  #e8f0fa;
+  background-color: #e8f0fa;
 }
 
 .SideNav {

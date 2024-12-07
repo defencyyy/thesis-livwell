@@ -30,13 +30,28 @@ class UnitTemplateListView(APIView):
     def post(self, request):
         company = request.user.company
         data = request.data.copy()
+
+        # Log incoming data to see what is being received
+        print("Received data:", data)
+        print("Received files:", request.FILES)
+
         data['company'] = company.id
         serializer = UnitTemplateSerializer(data=data)
+
         if serializer.is_valid():
             template = serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Handle image creation if images are included
+            images_data = request.FILES.getlist('images')
+            if images_data:
+                for image in images_data:
+                    UnitImage.objects.create(unit_template=template, image=image)
+
+            return Response({"success": True, "data": UnitTemplateSerializer(template).data}, status=status.HTTP_201_CREATED)
+
+        # If serializer is not valid, log the errors
+        print("Serializer errors:", serializer.errors)
+        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class UnitTemplateDetailView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -48,7 +63,7 @@ class UnitTemplateDetailView(APIView):
             template = UnitTemplate.objects.get(pk=pk, company=company)
         except UnitTemplate.DoesNotExist:
             return Response({"error": "UnitTemplate not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
         serializer = UnitTemplateSerializer(template)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -60,9 +75,20 @@ class UnitTemplateDetailView(APIView):
             return Response({"error": "UnitTemplate not found"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UnitTemplateSerializer(template, data=request.data, partial=True)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+            template = serializer.save()
+
+            # Handle image updates (if images are included in the request)
+            images_data = request.FILES.getlist('images')  # Get images from the request
+            if images_data:
+                # Delete existing images before creating new ones (optional)
+                template.images.all().delete()
+                for image in images_data:
+                    UnitImage.objects.create(unit_template=template, image=image)
+
+            return Response({"success": True, "data": UnitTemplateSerializer(template).data}, status=status.HTTP_200_OK)
+
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -71,7 +97,7 @@ class UnitTemplateDetailView(APIView):
             template = UnitTemplate.objects.get(pk=pk, company=company)
         except UnitTemplate.DoesNotExist:
             return Response({"error": "UnitTemplate not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
         template.delete()
         return Response({"success": True}, status=status.HTTP_204_NO_CONTENT)
 
