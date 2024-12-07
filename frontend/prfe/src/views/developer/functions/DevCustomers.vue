@@ -421,7 +421,12 @@ export default {
     async fetchCustomers() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/customers/"
+          "http://localhost:8000/developer/customers/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
         console.log("Fetched customers:", response.data);
         this.customers = response.data;
@@ -433,7 +438,12 @@ export default {
     async viewCustomer(customer) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/customers/${customer.id}/`
+          `http://localhost:8000/developer/customers/${customer.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
         this.currentCustomer = response.data;
         this.fetchCustomerDocuments(customer.id); // Make sure this is called
@@ -445,7 +455,12 @@ export default {
     async fetchCustomerDocuments(customerId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/customers/${customerId}/documents/`
+          `http://localhost:8000/developer/customers/${customerId}/documents/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
         console.log("Fetched documents:", response.data);
         this.currentCustomer.documents = response.data.data.map((doc) => ({
@@ -461,7 +476,12 @@ export default {
     async fetchBrokerDetails(brokerId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/brokers/${brokerId}/`
+          `http://localhost:8000/developer/brokers/${brokerId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
         this.currentCustomer.broker = response.data;
       } catch (error) {
@@ -474,7 +494,11 @@ export default {
         console.log("Updating customer with ID:", this.currentCustomer.id);
         await axios.put(
           `http://localhost:8000/developer/customers/${this.currentCustomer.id}/`,
-          this.currentCustomer
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
         );
         this.showEditModal = false;
         this.fetchCustomers();
