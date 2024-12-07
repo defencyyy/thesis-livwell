@@ -98,40 +98,45 @@
           <div v-if="activeTab === 'payment-schedule'" class="tab-content">
             
             <div class="detailed-schedule">
-              <p>{{ salesDetail.customer_name }}</p>
-              <p><strong>Assigned Broker:</strong> {{ salesDetail.broker_name }}</p>
-              <p><strong>Selected Unit:</strong> {{ salesDetail.unit_name }}</p>    
-              <p>Total Amount Due: ₱{{ balanceUponTurnover.toFixed(2) }}</p>  
-              <div v-if="salesDetail.payment_plan === 'Deffered Payment'">    
-              <p>Installment Terms: {{salesDetail.payable_months}} months</p> 
-              <table>
-                <thead>
-                  <tr>
-                    <th>Payment Type</th>
-                    <th>Amount (₱)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Spot Downpayment</td>
-                    <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Spread Downpayment</td>
-                    <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-                  </tr>
-                  <tr v-for="month in salesDetail.payable_months" :key="month">
-                    <td>Month {{ month }} Payment</td>
-                    <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Balance Upon Turnover</td>
-                    <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </div>
+              <div class = "container mt-5">
+                <div class="mb-4">
+                  <h3 class="text-start display-5 fw-bolder text-capitalize pb-6">{{ salesDetail.customer_name }}</h3>
+                  <p class="text-start display-7" style = "margin-bottom: 1px;"> Assigned Broker: <strong>{{ salesDetail.broker_name }}</strong></p>
+                  <p class="text-start display-7"> Selected Unit: <strong>{{ salesDetail.unit_name }}</strong></p>
+                </div>
+                <div class="mb-4">
+                  <p class = "text-start" style = "margin-bottom: 1px;"><strong>Total Amount Due: </strong>₱{{ balanceUponTurnover.toFixed(2) }}</p>
+                  <div v-if="salesDetail.payment_plan === 'Deffered Payment'"> 
+                    <p class = "text-start"><strong>Installment Terms: </strong>{{salesDetail.payable_months}} months</p> 
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Payment Type</th>
+                          <th>Amount (₱)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Spot Downpayment</td>
+                          <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Spread Downpayment</td>
+                          <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+                        </tr>
+                        <tr v-for="month in salesDetail.payable_months" :key="month">
+                          <td>Month {{ month }} Payment</td>
+                          <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Balance Upon Turnover</td>
+                          <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div> 
+              </div>
           </div>
         </div>
       </div>
