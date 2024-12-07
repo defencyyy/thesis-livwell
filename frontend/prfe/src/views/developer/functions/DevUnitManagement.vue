@@ -63,6 +63,10 @@
           title="Manage Units"
           @hide="closeUnitManagementModal"
         >
+          <button @click="openAddUnitModalForFloor(selectedFloor.id)">
+            Add Units to Floor
+          </button>
+
           <div class="unit-management-content">
             <div class="search-bar">
               <b-form-input
@@ -407,15 +411,193 @@
               >
                 Save Changes
               </b-button>
-              <b-button variant="secondary" @click="closeEditUnitModal">
-                Cancel
-              </b-button>
             </form>
           </template>
 
           <template v-else>
             <p>Loading unit details...</p>
           </template>
+        </b-modal>
+
+        <!-- Add Units to Floor Modal -->
+        <b-modal
+          id="add-floor-units-modal"
+          title="Add Units to Floor"
+          v-model="showAddFloorUnitsModal"
+          ok-title="Save"
+          @ok="addFloorUnits(newUnitFloors[0])"
+        >
+          <form @submit.prevent="addFloorUnits(newUnitFloors[0])">
+            <!-- Only one floor (already set) -->
+            <b-form-group
+              label="Floor:"
+              description="This floor will have new units added."
+            >
+              <b-form-select
+                v-model="newUnitFloors"
+                :options="floorOptions"
+                required
+                disabled
+              ></b-form-select>
+            </b-form-group>
+
+            <!-- Unit Type -->
+            <b-form-group
+              label="Unit Type:"
+              description="Select the type of unit"
+            >
+              <b-form-select
+                v-model="newUnitType"
+                :options="unitTypeOptions"
+                required
+              ></b-form-select>
+            </b-form-group>
+
+            <!-- Quantity -->
+            <b-form-group label="Quantity:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitQuantity"
+                min="1"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Additional Fields (Bedrooms, Bathrooms, etc.) -->
+            <b-form-group label="Bedrooms:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitBedroom"
+                min="1"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Bathroom -->
+            <b-form-group label="Bathrooms:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitBathroom"
+                min="1"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Lot Area -->
+            <b-form-group label="Lot Area (sq.m):">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitLotArea"
+                min="1"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Floor Area -->
+            <b-form-group label="Floor Area (sq.m):">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitFloorArea"
+                min="1"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Price -->
+            <b-form-group
+              label="Price:"
+              description="Enter the price of the unit"
+            >
+              <b-form-input
+                type="number"
+                v-model.number="newUnitPrice"
+                min="0"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Status -->
+            <b-form-group label="Status:">
+              <b-form-select
+                v-model="newUnitStatus"
+                :options="statusOptions"
+                required
+              ></b-form-select>
+            </b-form-group>
+
+            <!-- View -->
+            <b-form-group label="View:">
+              <b-form-select
+                v-model="newUnitView"
+                :options="viewOptions"
+                required
+              ></b-form-select>
+            </b-form-group>
+
+            <!-- Balcony -->
+            <b-form-group label="Balcony:">
+              <b-form-select
+                v-model="newUnitBalcony"
+                :options="balconyOptions"
+                required
+              ></b-form-select>
+            </b-form-group>
+
+            <!-- Commission -->
+            <b-form-group label="Commission:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitCommission"
+                min="0"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Spot Discount Percentage -->
+            <b-form-group label="Spot Discount Percentage:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitSpotDiscountPercentage"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Spot Discount Flat -->
+            <b-form-group label="Spot Discount Flat:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitSpotDiscountFlat"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Reservation Fee -->
+            <b-form-group label="Reservation Fee:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitReservationFee"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- Other Charges -->
+            <b-form-group label="Other Charges:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitOtherCharges"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+
+            <!-- VAT Percentage -->
+            <b-form-group label="VAT Percentage:">
+              <b-form-input
+                type="number"
+                v-model.number="newUnitVatPercentage"
+                min="0"
+              ></b-form-input>
+            </b-form-group>
+          </form>
         </b-modal>
       </div>
     </div>
@@ -529,6 +711,9 @@ export default {
       selectedUnit: {},
       totalItems: 100, // Example: Set this value based on your API response or logic
       itemsPerPage: 10,
+      showAddFloorUnitsModal: false, // Track the modal visibility
+      // showSuccessToast: false, // Controls success toast visibility
+      // showConfirmToast: false, // Controls confirmation toast visibility
     };
   },
   computed: {
@@ -707,6 +892,63 @@ export default {
         this.newUnitStatus = "Available";
         this.newUnitView = null;
         this.newUnitBalcony = "no balcony";
+      }
+    },
+    openAddUnitModalForFloor(floorId) {
+      this.newUnitFloors = [floorId]; // Set the floor ID in the array
+      this.showAddFloorUnitsModal = true; // Open the modal to add units to the specific floor
+    },
+    async addFloorUnits(floorId) {
+      if (
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitLotArea ||
+        !this.newUnitFloorArea ||
+        !this.newUnitQuantity
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          {
+            floor_ids: [floorId], // Send the selected floor ID
+            quantity: this.newUnitQuantity,
+            unit_type_id: this.newUnitType,
+            unit_title: this.newUnitTitle,
+            bedroom: this.newUnitBedroom,
+            bathroom: this.newUnitBathroom,
+            lot_area: this.newUnitLotArea,
+            floor_area: this.newUnitFloorArea,
+            price: this.newUnitPrice,
+            status: this.newUnitStatus,
+            view: this.newUnitView,
+            balcony: this.newUnitBalcony,
+            commission: this.newUnitCommission,
+            spot_discount_percentage: this.newUnitSpotDiscountPercentage,
+            spot_discount_flat: this.newUnitSpotDiscountFlat,
+            reservation_fee: this.newUnitReservationFee,
+            other_charges: this.newUnitOtherCharges,
+            vat_percentage: this.newUnitVatPercentage,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          // Refresh the unit management modal for the floor
+          this.openUnitManagement({ id: floorId });
+          this.fetchSiteDetails(); // Refresh the site details
+          this.showAddUnitsModal = false; // Close the modal
+        }
+      } catch (error) {
+        console.error("Error adding unit:", error);
+        alert("Failed to add the unit. Please try again.");
       }
     },
     async addUnits() {
