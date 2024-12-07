@@ -6,8 +6,8 @@
       <div class="content">
         <button class="back-button" @click="$router.back()">Back</button>
         <div v-if="site" class="site-details">
+          <!-- Site Overview -->
           <div class="site-overview">
-            <!-- Site Image (50%) -->
             <div class="site-picture">
               <img
                 :src="
@@ -17,7 +17,6 @@
                 class="site-image"
               />
             </div>
-            <!-- Site Info (50%) -->
             <div class="site-info">
               <h2>{{ site.name }}</h2>
               <p>{{ site.description }}</p>
@@ -28,39 +27,44 @@
             </div>
           </div>
 
-          <!-- Floors List -->
-          <h3>Floors ({{ site.floors.length }})</h3>
-          <div class="floor-sort">
-            <label for="sortFloors">Sort Floors:</label>
-            <select
-              id="sortFloors"
-              v-model="floorSortOrder"
-              @change="sortFloors"
-            >
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
-          </div>
+          <!-- Floors Section -->
+          <div v-if="site.floors.length > 0">
+            <h3>Floors ({{ site.floors.length }})</h3>
+            <div class="floor-sort">
+              <label for="sortFloors">Sort Floors:</label>
+              <select
+                id="sortFloors"
+                v-model="floorSortOrder"
+                @change="sortFloors"
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
 
-          <div v-if="sortedFloors.length > 0" class="floor-list">
-            <div
-              v-for="floor in sortedFloors"
-              :key="floor.id"
-              class="floor-card"
-            >
-              <h4>Floor {{ floor.floor_number }}</h4>
-              <div class="site-summary">
-                <p><strong>Total Units:</strong> {{ floor.total_units }}</p>
-                <p>
-                  <strong>Available Units:</strong> {{ floor.available_units }}
-                </p>
+            <div v-if="sortedFloors.length > 0" class="floor-list">
+              <div
+                v-for="floor in sortedFloors"
+                :key="floor.id"
+                class="floor-card"
+              >
+                <h4>Floor {{ floor.floor_number }}</h4>
+                <div class="site-summary">
+                  <p><strong>Total Units:</strong> {{ floor.total_units }}</p>
+                  <p>
+                    <strong>Available Units:</strong>
+                    {{ floor.available_units }}
+                  </p>
+                </div>
+                <button @click="openUnitManagement(floor)">Manage Units</button>
               </div>
-              <button @click="openUnitManagement(floor)">Manage Units</button>
             </div>
           </div>
-        </div>
-        <div v-else>
-          <p>Loading site details...</p>
+
+          <!-- If no floors are available -->
+          <div v-else>
+            <p>No Floors Available</p>
+          </div>
         </div>
 
         <!-- Unit Management Modal -->

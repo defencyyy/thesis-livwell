@@ -159,9 +159,9 @@
               placeholder="Search by Unit Type"
             />
           </b-form-group>
-          <b-button @click="searchUnits" :disabled="!selectedSite"
-            >Search</b-button
-          >
+          <b-button @click="searchUnits" :disabled="!selectedSite">
+            Search
+          </b-button>
         </div>
 
         <div v-if="units.length > 0">
@@ -187,6 +187,11 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Display a message if no units are found -->
+        <div v-else>
+          <h2>No Units Found</h2>
         </div>
       </div>
     </div>
