@@ -50,24 +50,6 @@
             </div>
           </div>
 
-          <!-- Search and Filter Section -->
-          <div class="search-filters">
-            <b-form-group label="Search Site Name:">
-              <b-form-input
-                v-model="searchQuery"
-                placeholder="Search by site name"
-              />
-            </b-form-group>
-
-            <b-form-group label="Sort By:">
-              <b-form-select v-model="sortBy" :options="sortOptions" />
-            </b-form-group>
-
-            <b-form-group label="Sort Order:">
-              <b-form-select v-model="sortOrder" :options="sortOrderOptions" />
-            </b-form-group>
-          </div>
-
           <div>
             <div class="title-wrapper">
               <div class="title-left">
@@ -92,6 +74,46 @@
                 </div>
               </div>
             </div>
+
+          <!-- Search and Filter Section -->
+          <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+          >
+            <div class = "card-body">
+              <div class = "row">
+                <div class = "toolbar">
+                  <div class = "left-section">
+                    <div class = "search-bar-container">
+                      <input type = "text"
+                      v-model = "searchQuery" 
+                      placeholder="Search by site name"
+                      class = "search-bar">
+                      <i class="fa fa-search search-icon"></i>
+                    </div>
+                    <!-- Sort Dropdown -->
+                    <select
+                    v-model="sortBy"
+                    class = "dropdown"
+                    >
+                      <option value = "name">Name</option>
+                      <option value = "created_at">Date Created</option>
+                      <option value = "status">Status</option>
+                      <option value = "floors">Floors</option>
+                    </select>
+
+                    <select
+                    v-model="sortOrder"
+                    class = "dropdown"
+                    >
+                      <option value = "asc">Ascending</option>
+                      <option value = "desc">Descending</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
             <div v-if="viewMode === 'grid'" class="site-grid">
               <div
@@ -193,31 +215,30 @@
 
           <hr />
         </div>
-
-        <div class="filters">
-          <b-form-group label="Select Site:">
-            <b-form-select
-              v-model="selectedSite"
-              :options="siteOptions"
-              required
-            />
-          </b-form-group>
-          <b-form-group label="Unit Number (optional):">
-            <b-form-input
-              v-model="unitNumberFilter"
-              placeholder="Search by Unit Number"
-            />
-          </b-form-group>
-          <b-form-group label="Unit Type (optional):">
-            <b-form-input
-              v-model="unitTypeFilter"
-              placeholder="Search by Unit Type"
-            />
-          </b-form-group>
-          <b-button @click="searchUnits" :disabled="!selectedSite">
-            Search
-          </b-button>
-        </div>
+          <div class="filters">
+            <b-form-group label="Select Site:">
+              <b-form-select
+                v-model="selectedSite"
+                :options="siteOptions"
+                required
+              />
+            </b-form-group>
+            <b-form-group label="Unit Number (optional):">
+              <b-form-input
+                v-model="unitNumberFilter"
+                placeholder="Search by Unit Number"
+              />
+            </b-form-group>
+            <b-form-group label="Unit Type (optional):">
+              <b-form-input
+                v-model="unitTypeFilter"
+                placeholder="Search by Unit Type"
+              />
+            </b-form-group>
+            <b-button @click="searchUnits" :disabled="!selectedSite">
+              Search
+            </b-button>
+          </div>
 
         <div v-if="units.length > 0">
           <h2>Units</h2>
@@ -594,15 +615,13 @@ body {
   pointer-events: none;
 }
 
-.dropdown-container {
-  position: relative;
-}
 
 .dropdown {
   padding: 8px 12px;
   height: 38px;
+  /* Explicitly set height */
   border: 1px solid #ccc;
-  border-radius: 3px;
+  border-radius: 4px;
   font-size: 14px;
   width: 80%;
   max-width: 150px;
@@ -652,17 +671,6 @@ body {
   gap: 16px;
   max-width: 1100px;
   margin: 0 auto;
-}
-
-.search-filters {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-filters b-form-group {
-  flex: 1;
 }
 
 .site-card {
