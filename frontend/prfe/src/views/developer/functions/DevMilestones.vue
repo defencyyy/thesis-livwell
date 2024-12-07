@@ -6,13 +6,80 @@
       <div class="content">
         <!-- Milestones Section -->
         <div class="title-wrapper">
-          <div class="title-icon"></div>
-          <div class="edit-title">Milestones</div>
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Milestone Management</div>
+          </div>
         </div>
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 900px"
-        >
+
+        <div class="grid-layout">
+          <!-- Left Section -->
+          <div class="left-content">
+            <div>
+              <div class="add-milestones-headers">
+                <span class="header-item">Name</span>
+                <span class="header-item">Description</span>
+                <span class="header-item">Reward</span>
+                <span class="header-item">Actions</span>
+              </div>
+
+              <div v-for="milestone in milestones" :key="milestone.id" class="card border-0 rounded-1 mx-auto my-2"
+                style="
+             
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            ">
+
+                <div class="card-body">
+                  <table class="add-milestones-table">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="milestone-name">
+                            {{ milestone.name }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="milestone-description">
+                            {{ milestone.description || "N/A" }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="milestone-reward">
+                            {{ milestone.reward }}
+                          </span>
+                        </td>
+                        <td>
+                          <button @click="editMilestone(milestone)" class="btn btn-warning btn-sm">
+                            Edit
+                          </button>
+                          <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
+                            Delete
+                          </button>
+                        </td>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                </div></div></div>
+              </div>
+              <div class="right-content">
+                <div class="card border-0 rounded-1 mx-auto"
+                  style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); height: 60vh">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="toolbar">
+                        <div class="left-section"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+          
+
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px">
           <div class="card-body">
             <!-- Milestones Table -->
             <table class="table">
@@ -30,16 +97,10 @@
                   <td>{{ milestone.description || "N/A" }}</td>
                   <td>{{ milestone.reward }}</td>
                   <td>
-                    <button
-                      @click="editMilestone(milestone)"
-                      class="btn btn-warning btn-sm"
-                    >
+                    <button @click="editMilestone(milestone)" class="btn btn-warning btn-sm">
                       Edit
                     </button>
-                    <button
-                      @click="deleteMilestone(milestone.id)"
-                      class="btn btn-danger btn-sm"
-                    >
+                    <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
                       Delete
                     </button>
                   </td>
@@ -63,102 +124,50 @@
                 <h5 class="modal-title">
                   {{ newMilestone.id ? "Edit Milestone" : "Add Milestone" }}
                 </h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeForm"
-                ></button>
+                <button type="button" class="btn-close" @click="closeForm"></button>
               </div>
               <div class="modal-body">
                 <div class="mb-3">
                   <label for="milestoneName" class="form-label">Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="milestoneName"
-                    v-model="newMilestone.name"
-                    placeholder="Enter milestone name"
-                    required
-                  />
+                  <input type="text" class="form-control" id="milestoneName" v-model="newMilestone.name"
+                    placeholder="Enter milestone name" required />
                 </div>
                 <div class="mb-3">
-                  <label for="milestoneDescription" class="form-label"
-                    >Description</label
-                  >
-                  <textarea
-                    class="form-control"
-                    id="milestoneDescription"
-                    v-model="newMilestone.description"
-                    rows="4"
-                    placeholder="Enter description"
-                    required
-                  ></textarea>
+                  <label for="milestoneDescription" class="form-label">Description</label>
+                  <textarea class="form-control" id="milestoneDescription" v-model="newMilestone.description" rows="4"
+                    placeholder="Enter description" required></textarea>
                 </div>
                 <div class="mb-3">
                   <label for="milestoneReward" class="form-label">Reward</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="milestoneReward"
-                    v-model="newMilestone.reward"
-                    placeholder="Enter reward"
-                    required
-                  />
+                  <input type="text" class="form-control" id="milestoneReward" v-model="newMilestone.reward"
+                    placeholder="Enter reward" required />
                 </div>
                 <div class="mb-3">
-                  <label for="milestoneType" class="form-label"
-                    >Milestone Type</label
-                  >
-                  <select
-                    class="form-select"
-                    v-model="newMilestone.type"
-                    @change="onMilestoneTypeChange"
-                  >
+                  <label for="milestoneType" class="form-label">Milestone Type</label>
+                  <select class="form-select" v-model="newMilestone.type" @change="onMilestoneTypeChange">
                     <option value="sales">Sales</option>
                     <option value="commission">Commission</option>
                   </select>
                 </div>
                 <!-- Conditional input fields -->
                 <div v-if="newMilestone.type === 'sales'" class="mb-3">
-                  <label for="salesThreshold" class="form-label"
-                    >Sales Threshold</label
-                  >
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="salesThreshold"
-                    v-model="newMilestone.sales_threshold"
-                    placeholder="Enter sales threshold"
-                  />
+                  <label for="salesThreshold" class="form-label">Sales Threshold</label>
+                  <input type="number" class="form-control" id="salesThreshold" v-model="newMilestone.sales_threshold"
+                    placeholder="Enter sales threshold" />
                 </div>
                 <div v-if="newMilestone.type === 'commission'" class="mb-3">
-                  <label for="commissionThreshold" class="form-label"
-                    >Commission Threshold</label
-                  >
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="commissionThreshold"
-                    v-model="newMilestone.commission_threshold"
-                    placeholder="Enter commission threshold"
-                  />
+                  <label for="commissionThreshold" class="form-label">Commission Threshold</label>
+                  <input type="number" class="form-control" id="commissionThreshold"
+                    v-model="newMilestone.commission_threshold" placeholder="Enter commission threshold" />
                 </div>
               </div>
               <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeForm"
-                >
+                <button type="button" class="btn btn-secondary" @click="closeForm">
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  @click="
-                    newMilestone.id ? updateMilestone() : createMilestone()
-                  "
-                >
+                <button type="button" class="btn btn-primary" @click="
+                  newMilestone.id ? updateMilestone() : createMilestone()
+                  ">
                   Save
                 </button>
               </div>
@@ -168,12 +177,7 @@
 
         <!-- Add a search filter for brokers -->
         <div class="mb-3">
-          <input
-            type="text"
-            v-model="searchQuery"
-            class="form-control"
-            placeholder="Search brokers by name"
-          />
+          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search brokers by name" />
         </div>
 
         <!-- Table for displaying brokers -->
@@ -197,10 +201,7 @@
               <td>P {{ broker.total_commissions }}</td>
               <td>{{ broker.commissionMilestoneCount }}</td>
               <td>
-                <button
-                  @click="viewBrokerMilestones(broker)"
-                  class="btn btn-info btn-sm"
-                >
+                <button @click="viewBrokerMilestones(broker)" class="btn btn-info btn-sm">
                   View
                 </button>
               </td>
@@ -216,11 +217,7 @@
                   Broker Milestones: {{ selectedBroker.first_name }}
                   {{ selectedBroker.last_name }}
                 </h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeBrokerModal"
-                ></button>
+                <button type="button" class="btn-close" @click="closeBrokerModal"></button>
               </div>
               <div class="modal-body">
                 <!-- Broker Info -->
@@ -253,13 +250,8 @@
                       </td>
                       <td>{{ milestone.name }}</td>
                       <td>
-                        <input
-                          type="checkbox"
-                          :checked="
-                            checkMilestoneCompletion(milestone, selectedBroker)
-                          "
-                          disabled
-                        />
+                        <input type="checkbox" :checked="checkMilestoneCompletion(milestone, selectedBroker)
+                          " disabled />
                       </td>
                       <td>{{ milestone.description || "N/A" }}</td>
                       <td>{{ milestone.reward }}</td>
@@ -268,11 +260,7 @@
                 </table>
               </div>
               <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeBrokerModal"
-                >
+                <button type="button" class="btn btn-secondary" @click="closeBrokerModal">
                   Close
                 </button>
               </div>
@@ -638,15 +626,17 @@ html,
 body {
   height: 100%;
   margin: 0;
+  /* Removes default margin */
   padding: 0;
-  font-family: Arial, sans-serif;
+  /* Removes default padding */
 }
 
-.main-page {
+/* Ensure .main-page fills the available space */
+.developer-milestones-page {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #e8f0fa;
+  background-color: #eff4fb;
   /* Gray background */
 }
 
@@ -656,9 +646,8 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #343a40; /* Dark background */
+  background-color: #343a40;
   z-index: 1;
-  color: white;
 }
 
 .AppHeader {
@@ -676,13 +665,18 @@ body {
   margin-left: 250px;
   flex-direction: column;
   flex: 1;
-  padding: 20px;
+  margin-top: 60px;
 }
 
 .content {
   flex: 1;
-  text-align: center;
-  margin-top: 60px;
+  padding: 20px;
+  display: flex;
+  /* Use flexbox to center the content */
+  align-items: center;
+  /* Center vertically */
+  flex-direction: column;
+  /* Stack the dashboard boxes and sales table vertically */
 }
 
 .title-wrapper {
@@ -690,7 +684,9 @@ body {
   align-items: center;
   justify-content: space-between;
   max-width: 1100px;
+  width: 100%;
   margin: 20px auto;
+  /* Center the wrapper */
 }
 
 .title-left {
@@ -698,9 +694,42 @@ body {
   align-items: center;
 }
 
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
 .edit-title {
-  color: #000;
-  font-size: 20px;
+  color: #000000;
+  text-align: left;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  /* Equal width for both columns */
+
+  gap: 20px;
+  /* Match the spacing of the dashboard boxes */
+  width: 100%;
+  max-width: 1100px;
+  /* Match the max-width of the dashboard-boxes */
+  margin-left: 5px;
+  /* Center grid-layout horizontally */
+}
+
+.left-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.right-content {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
 }
 
 .toolbar {
