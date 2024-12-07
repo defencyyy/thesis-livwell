@@ -11,11 +11,23 @@
           </div>
 
           <div class="actions" v-if="!isLoading && !errorMessage">
-            <button @click="redirectToUnits">Manage Units</button>
-            <button @click="redirectToUnitTemplates">
-              Manage Unit Templates
-            </button>
-            <button @click="redirectToUnitTypes">Manage Unit Types</button>
+            <div class="nav nav-tabs">
+              <!-- Manage Units Tab -->
+              <button class="nav-link active" id="units-tab" type="button" role="tab" aria-selected="true" @click="redirectToUnits">
+                Manage Units
+              </button>
+              
+              <!-- Manage Unit Templates Tab -->
+              <button class="nav-link" id="unit-templates-tab" type="button" role="tab" aria-selected="false" @click="redirectToUnitTemplates">
+                Manage Unit Templates
+              </button>
+              
+              <!-- Manage Unit Types Tab -->
+              <button class="nav-link" id="unit-types-tab" type="button" role="tab" aria-selected="false" @click="redirectToUnitTypes">
+                Manage Unit Types
+              </button>
+            </div>
+
           </div>
 
           <div>
@@ -57,9 +69,22 @@
                   {{ site.location || "Location unavailable" }}
                 </p>
                 <div class="site-stats">
-                  <p>Total Floors: {{ site.floors.length }}</p>
-                  <p>Total Units: {{ site.total_units }}</p>
-                  <p>Available Units: {{ site.available_units }}</p>
+                  <p>
+                    Floors:
+                    {{ site.floors.length > 0 ? site.floors.length : "None" }}
+                  </p>
+                  <p>
+                    Units:
+                    {{ site.total_units > 0 ? site.total_units : "None" }}
+                  </p>
+                  <p v-if="site.total_units > 0">
+                    Available Units:
+                    {{
+                      site.available_units > 0
+                        ? site.available_units
+                        : "No Available Units"
+                    }}
+                  </p>
                 </div>
                 <button @click.stop="openFloorManagement(site)">
                   Manage Floors
@@ -86,13 +111,29 @@
                         <td>{{ site.location || "Location unavailable" }}</td>
                         <td>{{ site.status || "Status unavailable" }}</td>
                         <td>
-                          <p>{{ site.floors?.length || 0 }}</p>
+                          <p>
+                            {{
+                              site.floors?.length > 0
+                                ? site.floors.length
+                                : "None"
+                            }}
+                          </p>
                         </td>
                         <td>
-                          <p>{{ site.total_units || 0 }}</p>
+                          <p>
+                            {{
+                              site.total_units > 0 ? site.total_units : "None"
+                            }}
+                          </p>
                         </td>
                         <td>
-                          <p>{{ site.available_units || 0 }}</p>
+                          <p>
+                            {{
+                              site.available_units > 0
+                                ? site.available_units
+                                : "None"
+                            }}
+                          </p>
                         </td>
                         <td>
                           <button @click.stop="openFloorManagement(site)">
@@ -163,6 +204,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import SideNav from "@/components/SideNav.vue";
@@ -366,6 +408,19 @@ body {
   flex: 1;
   margin-top: 60px;
 }
+
+.nav-tabs .nav-link {
+  background: none;  /* Removes background if you want tabs without a button-like appearance */
+  border: none;  /* Removes the default button border */
+  color: inherit;  /* Inherits the text color */
+  font-weight: bold;  /* Makes text bold */
+}
+
+.nav-tabs .nav-link.active {
+  color: #000;  /* Active tab color */
+  border-bottom: 2px solid #0d6efd; 
+}
+
 
 .content {
   flex: 1;
