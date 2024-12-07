@@ -1343,22 +1343,16 @@ export default {
 </script>
 
 <style scoped>
-html,
-body {
+html, body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 
 .main-content {
@@ -1382,7 +1376,6 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
-  /* Center the wrapper */
 }
 
 .title-left {
@@ -1405,7 +1398,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 20% 15% 15% 15% 20% 15%; /* Adjust column widths */
+  grid-template-columns: 20% 15% 15% 15% 20% 15%;
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1427,33 +1420,31 @@ body {
   margin-bottom: 15px;
   margin-top: 0;
   max-width: 1100px;
-  /* Ensures the card and grid align */
   margin-left: auto;
-  /* Centers the card */
   margin-right: auto;
 }
 
 .sales-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left; /* Consistent with headers */
+  text-align: left;
 }
 
 .sales-table td {
-  padding: 10px 0; /* Matches outside-headers padding */
+  padding: 10px 0;
 }
 
-.sales-table  td:nth-child(1),
+.sales-table td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
   width: 20%;
 }
 
-.sales-table  td:nth-child(2),
+.sales-table td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
   width: 15%;
 }
 
-.sales-table  td:nth-child(3),
+.sales-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
   width: 15%;
 }
@@ -1472,8 +1463,6 @@ body {
 .outside-headers .header-item:nth-child(6) {
   width: 15%;
 }
-
-
 
 
 /* Flex container for button alignment */
@@ -1819,5 +1808,94 @@ input[type="file"] {
   background-color: #e9ecef; /* Light gray */
 }
 
+
+/* Responsive layout tweaks */
+@media (max-width: 1440px) {
+  .main-page {
+    flex-direction: column;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .outside-headers {
+    grid-template-columns: 25% 15% 15% 15% 20% 10%;
+  }
+
+  .sales-table td {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .title-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sales-table td {
+    font-size: 13px;
+  }
+
+  .card {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .button-container {
+    justify-content: center;
+  }
+
+  .search-bar {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 720px) {
+  .outside-headers {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+
+  .sales-table td {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    max-width: 100%;
+  }
+
+  .modal {
+    width: 90%;
+    height: 60%;
+  }
+
+  .modal-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .search-bar {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .page-button {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}
 
 </style>

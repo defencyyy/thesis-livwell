@@ -696,7 +696,8 @@ export default {
       }
     },
     // Add a new customer
-    async addCustomer() {
+  // Add a new customer
+  async addCustomer() {
       const companyId = this.companyId; // Directly access the mapped state
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -1097,5 +1098,6 @@ input[type="file"] {
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef; /* Light gray */
 }
+
 
 </style>
