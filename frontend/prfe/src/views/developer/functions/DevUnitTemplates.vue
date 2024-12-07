@@ -13,12 +13,45 @@
           </div>
 
           <!-- Actions -->
+          
           <div class="actions" v-if="!isLoading && !errorMessage">
-            <button @click="redirectToUnits">Manage Units</button>
-            <button @click="redirectToUnitTemplates">
-              Manage Unit Templates
-            </button>
-            <button @click="redirectToUnitTypes">Manage Unit Types</button>
+            <div class="nav nav-tabs">
+              <!-- Manage Units Tab -->
+              <button
+                class="nav-link"
+                id="units-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnits"
+              >
+                Manage Units
+              </button>
+
+              <!-- Manage Unit Templates Tab -->
+              <button
+                class="nav-link active"
+                id="unit-templates-tab"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                @click="redirectToUnitTemplates"
+              >
+                Manage Unit Templates
+              </button>
+
+              <!-- Manage Unit Types Tab -->
+              <button
+                class="nav-link"
+                id="unit-types-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                @click="redirectToUnitTypes"
+              >
+                Manage Unit Types
+              </button>
+            </div>
           </div>
 
           <!-- Unit Templates Section -->
@@ -504,5 +537,17 @@ button {
 button:hover {
   background-color: #0056b3;
   color: #fff;
+}
+
+.nav-tabs .nav-link {
+  background: none; /* Removes background if you want tabs without a button-like appearance */
+  border: none; /* Removes the default button border */
+  color: inherit; /* Inherits the text color */
+  font-weight: bold; /* Makes text bold */
+}
+
+.nav-tabs .nav-link.active {
+  color: #000; /* Active tab color */
+  border-bottom: 2px solid #0d6efd;
 }
 </style>
