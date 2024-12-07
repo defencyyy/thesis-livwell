@@ -461,7 +461,7 @@ body {
   justify-content: space-between;
   max-width: 1100px;
   width: 100%;
-  margin: 20px auto;
+  margin-bottom: 15px;
   /* Center the wrapper */
 }
 
@@ -500,7 +500,6 @@ body {
 .right-content {
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
 }
 
 .card {
@@ -630,6 +629,7 @@ body {
   border-radius: 8px;
   padding: 20px;
   text-align: center;
+  margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

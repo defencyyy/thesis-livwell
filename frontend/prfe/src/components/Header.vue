@@ -168,7 +168,6 @@ export default {
   width: calc(100% - 250px);
   z-index: 1;
   height: 68px;
-  margin-top: 3px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow at the bottom */
 }
 

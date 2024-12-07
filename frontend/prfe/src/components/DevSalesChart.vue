@@ -1,17 +1,19 @@
 <template>
-  <div>
-    <h2>Sales Data for {{ selectedYear }}</h2>
-    <div>
-      <label for="year">Select Year:</label>
-      <select id="year" v-model="selectedYear" @change="updateChart">
+  <div class="chart-container">
+    <div class="chart-header">
+      <h2 class="chart-title">Sales Data for {{ selectedYear }}</h2>
+      <select id="year" v-model="selectedYear" @change="updateChart" class="year-selector">
         <option v-for="year in availableYears" :key="year" :value="year">
           {{ year }}
         </option>
       </select>
     </div>
-    <canvas id="sales-chart"></canvas>
+    <div class="chart-wrapper">
+      <canvas id="sales-chart"></canvas>
+    </div>
   </div>
 </template>
+
 
 <script>
 import { Chart, registerables } from "chart.js";
@@ -79,8 +81,8 @@ export default {
           {
             label: "Sales",
             data: salesByMonth,
-            backgroundColor: "rgba(75, 192, 192, 0.2)", // Bar color
-            borderColor: "rgba(75, 192, 192, 1)", // Border color
+            backgroundColor: "#A78BFA", // Light purple for bars
+        borderColor: "#A78BFA", // Matching border color
             borderWidth: 1,
           },
         ],
@@ -95,48 +97,89 @@ export default {
     },
 
     renderChart() {
-      if (!this.localSalesData.length) {
-        console.error("No sales data available to render the chart.");
-        return;
-      }
+  if (!this.localSalesData.length) {
+    console.error("No sales data available to render the chart.");
+    return;
+  }
 
-      const ctx = document.getElementById("sales-chart").getContext("2d");
-      this.chart = new Chart(ctx, {
-        type: "bar", // Change to bar graph
-        data: this.getChartData(),
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-            },
-            title: {
-              display: true,
-              text: "Sales Per Month",
-            },
-          },
-          scales: {
-            x: {
-              ticks: {
-                autoSkip: false,
-                maxRotation: 0,
-                padding: 20,
-              },
-            },
-            y: {
-              beginAtZero: true,
-            },
-          },
+  const ctx = document.getElementById("sales-chart").getContext("2d");
+  this.chart = new Chart(ctx, {
+    type: "bar", // Bar chart
+    data: this.getChartData(),
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }, // Remove the legend  
+      },
+      scales: {
+        x: {
+          grid: { display: false }, // No grid lines for X-axis
+          ticks: { color: "#555" },
         },
-      });
+        y: {
+          beginAtZero: true,
+          grid: { color: "#eaeaea" },
+          ticks: { color: "#555" },
+        },
+      },
+      layout: {
+        padding: {
+          top: 20, // Spacing above the chart
+          bottom: 10,
+          left: 10,
+          right: 10,
+        },
+      },
     },
+  });
+}
+
   },
 };
 </script>
 
 <style scoped>
+.chart-container {
+  background-color: #fff; /* Clean white background */
+  border-radius: 4px; /* Rounded edges */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+  padding: 20px;
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between; /* Space out title and year selector */
+  align-items: center; /* Center items vertically */
+  margin-bottom: 10px;
+}
+
+.chart-title {
+  font-size: 18px;
+  padding: 10px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+
+.year-selector {
+  border: none;
+  border-radius: 2px;
+  padding: 12px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative; /* Allow fine control of position */
+  top: 5px; /* Move it slightly lower */
+  right: 10px; /* Move it slightly to the left */
+}
+
 canvas {
   max-width: 100%;
-  height: 400px;
 }
+
 </style>
+

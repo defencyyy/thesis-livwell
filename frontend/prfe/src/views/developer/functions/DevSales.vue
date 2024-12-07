@@ -4,88 +4,90 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1>Manage Sales</h1>
-        <p>
-          View and manage sales details for your company. Lagay siguro to sa
-          header?
-        </p>
-
-        <!-- Grid displaying summary info -->
-        <div class="info-grid">
-          <div class="grid-item">
-            <strong>Sales:</strong>
-            <select
-              v-model="salesPeriod"
-              @change="calculateSalesStatistics"
-              class="sales-dropdown"
-            >
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-              <option value="all">All-Time</option>
-            </select>
-            {{ displayedSales }}
-          </div>
-
-          <div class="grid-item">
-            <strong>Ongoing Sales:</strong> {{ ongoingSales }}
-          </div>
-          <div class="grid-item">
-            <strong>Total Units:</strong> {{ totalUnits }}
-          </div>
-          <div class="grid-item">
-            <strong>Available Units:</strong> {{ availableUnits }}
-          </div>
-          <div class="grid-item">
-            <strong>Sold Units:</strong> {{ soldUnits }}
-          </div>
-        </div>
-
-        <SalesChart v-if="sales.length" :salesData="sales" />
-
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
             <div class="edit-title">Sales Management</div>
           </div>
         </div>
+        <div class="sales-dashboard-container">
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-chart-line" style="font-size: 13px"></i>
+              </div>
+              <p>Sales</p>
+              <select v-model="salesPeriod" @change="calculateSalesStatistics" class="sales-dropdown">
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="all">All-Time</option>
+              </select>
+            </div>
+            <h2>{{ displayedSales }}</h2>
+          </div>
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
+              </div>
+              <p>Sold Units</p>
+            </div>
+            <h2>{{ soldUnits }}</h2>
+          </div>
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
+                <i class="fa fa-spinner" style="font-size: 13px"></i>
+              </div>
+              <p>Ongoing Sales</p>
+            </div>
+            <h2>{{ ongoingSales }}</h2>
+          </div>
+        </div>
+        <div class="dashboard-container">
+          <div class="left-dashboard">
+            <div class="unit-box">
+              <div class="box-header">
+                <div class="icon-container">
+                  <i class="fa fa-home" style="font-size: 13px"></i>
+                </div>
+                <p>Total Units</p>
+              </div>
+              <h2>{{ totalUnits }}</h2>
+            </div>
+            <div class="unit-box">
+              <div class="box-header">
+                <div class="icon-container">
+                  <i class="fa fa-home" style="font-size: 13px"></i>
+                </div>
+                <p>Available Units</p>
+              </div>
+              <h2>{{ availableUnits }}</h2>
+            </div>
+          </div>
+          <div class="right-dashboard">
+            
+            <SalesChart v-if="sales.length" :salesData="sales" />
+          </div>
+        </div>
 
-        <div
-          class="card border-0 rounded-1 mx-auto"
-          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-        >
+        <div class="card border-0 rounded-1 mx-auto" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
           <div class="card-body">
             <div class="row">
               <div class="toolbar">
                 <div class="left-section">
                   <div class="search-bar-container">
-                    <input
-                      type="text"
-                      v-model="searchQuery"
-                      @input="filterSales"
-                      placeholder="Search Customer/Broker/Unit/Site "
-                      class="search-bar"
-                    />
+                    <input type="text" v-model="searchQuery" @input="filterSales"
+                      placeholder="Search Customer/Broker/Unit/Site " class="search-bar" />
                     <i class="fa fa-search search-icon"></i>
                   </div>
-                  <select
-                    v-model="selectedBroker"
-                    @change="filterSales"
-                    class="dropdown"
-                  >
+                  <select v-model="selectedBroker" @change="filterSales" class="dropdown">
                     <option value="">All Brokers</option>
-                    <option
-                      v-for="broker in brokers"
-                      :key="broker.id"
-                      :value="broker.id"
-                    >
+                    <option v-for="broker in brokers" :key="broker.id" :value="broker.id">
                       {{ broker.first_name }} {{ broker.last_name }}
                     </option>
                   </select>
-                  <select
-                    v-model="selectedStatus"
-                    @change="filterSales"
-                    class="dropdown"
-                  >
+                  <select v-model="selectedStatus" @change="filterSales" class="dropdown">
                     <option value="">All Status</option>
                     <option value="Pending Reservation">
                       Pending Reservation
@@ -171,15 +173,10 @@
         </div>
 
         <div v-if="filteredSales.length > 0">
-          <div
-            v-for="sale in filteredSales"
-            :key="sale.id"
-            class="card border-0 rounded-1 mx-auto"
-            style="
+          <div v-for="sale in filteredSales" :key="sale.id" class="card border-0 rounded-1 mx-auto" style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
-          >
+            ">
             <div class="card-body">
               <table class="sale-table">
                 <tbody>
@@ -197,10 +194,7 @@
                       {{ sale.status }}
                     </td>
                     <td>
-                      <button
-                        @click="openSalesDetailModal(sale)"
-                        class="btn btn-primary"
-                      >
+                      <button @click="openSalesDetailModal(sale)" class="btn btn-primary">
                         Manage
                       </button>
                     </td>
@@ -231,20 +225,12 @@
             </p>
             <p v-if="selectedSale.reservation_file">
               <strong>Reservation File:</strong>
-              <a
-                :href="getFileUrl(selectedSale.reservation_file)"
-                target="_blank"
-                >View File</a
-              >
+              <a :href="getFileUrl(selectedSale.reservation_file)" target="_blank">View File</a>
             </p>
             <!-- Update Status -->
             <div class="update-status">
               <label for="status">Update Status:</label>
-              <select
-                v-model="selectedSale.status"
-                id="status"
-                class="filter-dropdown"
-              >
+              <select v-model="selectedSale.status" id="status" class="filter-dropdown">
                 <option value="Pending Reservation">Pending Reservation</option>
                 <option value="Reserved">Reserved</option>
                 <option value="Pending Sold">Pending Sold</option>
@@ -264,6 +250,7 @@
       </div>
     </div>
   </div>
+  
 </template>
 
 <script>
@@ -523,7 +510,7 @@ body {
 }
 
 .SideNav {
-  width: 250px;
+  width: 100%;
   position: fixed;
   top: 0;
   left: 0;
@@ -554,6 +541,7 @@ body {
   flex: 1;
   padding: 20px;
   text-align: center;
+  
 }
 
 .title-wrapper {
@@ -654,6 +642,105 @@ body {
   background-size: 14px;
 }
 
+.sales-dashboard-container {
+  display: grid;
+  /* Use grid for responsive layout */
+  grid-template-columns: 1fr 1fr 1fr;
+  /* Responsive grid */
+  gap: 20px;
+  /* Add spacing between boxes */
+  max-width: 1100px;
+  width: 100%;
+  /* Set a max width */
+  margin: 0 auto;
+  /* Center the container horizontally */
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  /* Space between icon and title */
+}
+
+.box h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
+}
+
+.box {
+  position: relative;
+  /* Make the box a positioning context */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-grow: 1; /* Allow boxes to grow in height if needed */
+}
+
+.unit-box {
+  position: relative;
+  /* Make the box a positioning context */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-grow: 1; /* Allow boxes to grow in height if needed */
+}
+
+
+.icon-container {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* Make the icon circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.box-header p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #000000;
+}
+
+.dashboard-container {
+  margin-left: 63px;
+  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  /* Equal width for both columns */
+  gap: 20px;
+  /* Match the spacing of the dashboard boxes */
+  width: 100%;
+  max-width: 1100px;
+  /* Match the max-width of the dashboard-boxes */
+}
+
+.left-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right-dashboard {
+  display: flex;
+  flex-direction: column;
+}
+
 .card {
   background-color: #fff;
   margin-bottom: 10px;
@@ -735,31 +822,6 @@ body {
   width: 10%;
 }
 
-.search-filter-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.filter-dropdown {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.search-button {
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
 
 .sales-table {
   width: 100%;
@@ -800,7 +862,8 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000; /* Ensure it appears above other elements */
+  z-index: 1000;
+  /* Ensure it appears above other elements */
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -836,12 +899,15 @@ body {
 .status-pending-reservation {
   color: #ffc107;
 }
+
 .status-reserved {
   color: #007bff;
 }
+
 .status-pending-sold {
   color: #fd7e14;
 }
+
 .status-sold {
   color: #28a745;
 }
@@ -861,9 +927,10 @@ body {
 }
 
 .sales-dropdown {
-  padding: 4px;
-  margin-left: 10px;
+  font-size: 12px;
+  padding: 1px;
   border-radius: 4px;
   border: 1px solid #ddd;
+  justify-content: space-between
 }
 </style>
