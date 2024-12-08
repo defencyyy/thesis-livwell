@@ -845,6 +845,7 @@ body {
 .edit-title {
   color: #000000;
   text-align: left;
+  font-weight: bold;
 }
 
 .toolbar {
@@ -958,7 +959,6 @@ body {
   /* Centers the card */
   margin-right: auto;
 }
-
 
 .broker-icon {
   width: 20px;

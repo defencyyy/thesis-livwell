@@ -338,14 +338,13 @@
           hide-header
           centered
           size="lg"
-          @hide="closeBrokerModal"
         >
           <!-- Modal Header -->
           <div v-if="selectedBroker">
-            <div class="modal-header">
-              <h5 class="modal-title">
-                Broker Milestones: {{ selectedBroker.first_name }}
-                {{ selectedBroker.last_name }}
+            <div class="modal-title p-3">
+              <h5 class="mb-0">
+                Broker: {{ selectedBroker.first_name.toUpperCase() }}
+                {{ selectedBroker.last_name.toUpperCase() }}
               </h5>
             </div>
 
@@ -364,22 +363,21 @@
               </div>
 
               <!-- Milestones Table -->
-              <table class="table table-bordered table-hover">
+              <table class="styled-table">
                 <thead>
                   <tr>
-                    <th>Milestone Type</th>
                     <th>Milestone Name</th>
+                    <th>Milestone Type</th>
                     <th>Completed</th>
-                    <th>Description</th>
                     <th>Reward</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="milestone in milestones" :key="milestone.id">
+                    <td>{{ milestone.name }}</td>
                     <td>
                       {{ milestone.type === "sales" ? "Sales" : "Commission" }}
                     </td>
-                    <td>{{ milestone.name }}</td>
                     <td class="text-center">
                       <input
                         type="checkbox"
@@ -389,7 +387,6 @@
                         disabled
                       />
                     </td>
-                    <td>{{ milestone.description || "N/A" }}</td>
                     <td>{{ milestone.reward }}</td>
                   </tr>
                 </tbody>
@@ -397,11 +394,15 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer">
+            <div
+              class="d-flex justify-content-end gap-3 mt-3"
+              style="padding: 15px"
+            >
               <button
                 type="button"
-                class="btn btn-secondary"
-                @click="closeBrokerModal"
+                class="btn-cancel"
+                @click="showBrokerModal = false"
+                style="width: 100px"
               >
                 Close
               </button>
@@ -853,6 +854,7 @@ body {
 .edit-title {
   color: #000000;
   text-align: left;
+  font-weight: bold;
 }
 
 .grid-layout {
@@ -1113,5 +1115,38 @@ td {
 .row .form-label {
   font-size: 0.9rem;
   color: #6c757d;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.styled-table thead tr {
+  background-color: #eff4fb;
+  color: #333;
+  font-weight: bold;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.styled-table td.text-center {
+  text-align: center;
+}
+
+.styled-table th {
+  cursor: pointer;
+  /* Optional if you add sortable columns */
 }
 </style>
