@@ -330,6 +330,17 @@ class UnitImage(models.Model):
         else:
             return "Image (Unassigned)"
 
+    def bulk_add_images(unit, images):
+        # Check if the total image count exceeds the limit of 5
+        existing_images_count = UnitImage.objects.filter(unit=unit).count()
+        if existing_images_count + len(images) > 5:
+            raise ValidationError("A unit can have a maximum of 5 images.")
+        
+        # Proceed with saving the images
+        for image in images:
+            unit_image = UnitImage(unit=unit, image=image)
+            unit_image.save()  # This will invoke the `save` method of `UnitImage`
+
     def save(self, *args, **kwargs):
         # Ensure that either unit or unit_template is set, not both
         if self.image_type == 'unit' and not self.unit:
@@ -340,14 +351,5 @@ class UnitImage(models.Model):
         # Ensure only one primary image per template
         if self.image_type == 'unit_template' and self.primary:
             UnitImage.objects.filter(unit_template=self.unit_template, primary=True).update(primary=False)
-
-        # Check if the number of images exceeds the limit of 5 for either unit or unit_template
-        if self.image_type == 'unit':
-            image_count = UnitImage.objects.filter(unit=self.unit).count()
-        else:
-            image_count = UnitImage.objects.filter(unit_template=self.unit_template).count()
-
-        if image_count >= 5:
-            raise ValidationError("A unit or unit template can have a maximum of 5 images.")
 
         super().save(*args, **kwargs)
