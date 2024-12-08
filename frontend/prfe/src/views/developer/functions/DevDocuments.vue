@@ -395,7 +395,7 @@ body {
 .title-icon {
   width: 15px;
   height: 5px;
-  background-color: #6c757d;
+  background-color: #343a40;
   border-radius: 5px;
   margin-right: 10px;
 }
@@ -403,6 +403,8 @@ body {
 .edit-title {
   color: #000000;
   text-align: left;
+  font-weight: bold;
+  /* Align the text to the left */
 }
 
 .d-flex {

@@ -297,6 +297,7 @@ body {
   color: #000000;
   margin-bottom: 0.8rem;
   text-align: left;
+  font-weight: bold;
   /* Align the text to the left */
 }
 

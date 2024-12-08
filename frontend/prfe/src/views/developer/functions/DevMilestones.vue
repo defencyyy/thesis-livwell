@@ -754,6 +754,7 @@ body {
 .edit-title {
   color: #000000;
   text-align: left;
+  font-weight: bold;
 }
 
 .grid-layout {
