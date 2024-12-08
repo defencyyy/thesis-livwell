@@ -116,39 +116,41 @@
               </div>
 
               <div v-for="unitType in filteredUnitTypes" :key="unitType.id" class="card border-0 rounded-1 mx-auto my-2" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-                <table class = "types-table">
-                  <tbody>
-                    <tr>
-                      <td>
-                        {{ unitType.name }}
-                      </td>
-                      <td>
-                        <button
-                          v-if="!unitType.is_custom && !showArchived"
-                          disabled
-                        >
-                          Default Unit Type
-                        </button>
-                        <button
-                          v-if="
-                            unitType.is_custom &&
-                            !unitType.is_archived &&
-                            !showArchived
-                          "
-                          @click="archiveUnitType(unitType.id)"
-                        >
-                          Archive
-                        </button>
-                        <button
-                          v-if="unitType.is_archived && showArchived"
-                          @click="unarchiveUnitType(unitType.id)"
-                        >
-                          Unarchive
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div class = "card-body">
+                  <table class = "types-table">
+                    <tbody>
+                      <tr class>
+                        <td>
+                          <span>{{ unitType.name }}</span>
+                        </td>
+                        <td>
+                          <button
+                            v-if="!unitType.is_custom && !showArchived"
+                            disabled
+                          >
+                            Default Unit Type
+                          </button>
+                          <button
+                            v-if="
+                              unitType.is_custom &&
+                              !unitType.is_archived &&
+                              !showArchived
+                            "
+                            @click="archiveUnitType(unitType.id)"
+                          >
+                            Archive
+                          </button>
+                          <button
+                            v-if="unitType.is_archived && showArchived"
+                            @click="unarchiveUnitType(unitType.id)"
+                          >
+                            Unarchive
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -597,6 +599,7 @@ input {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  table-layout: fixed;
 }
 
 .types-table th,
@@ -624,19 +627,6 @@ input {
 .types-table td:nth-child(2) {
   /* Location column */
   width: 50%;
-}
-
-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 10px;
-  text-align: left;
-  border: 1px solid #ddd;
 }
 
 </style>
