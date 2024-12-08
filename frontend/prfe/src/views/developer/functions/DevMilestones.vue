@@ -91,8 +91,8 @@
                 <div class="toolbar">
                   <div class="left-section">
                     <div class="search-bar-container">
-                      <input type="text" v-model="searchQuery" @input="filterSales"
-                        placeholder="Search Broker " class="search-bar" />
+                      <input type="text" v-model="searchQuery" @input="filterSales" placeholder="Search Broker "
+                        class="search-bar" />
                       <i class="fa fa-search search-icon"></i>
                     </div>
                     <!-- <select v-model="selectedBroker" @change="filterSales" class="dropdown">
@@ -115,34 +115,46 @@
               </div>
             </div>
           </div>
-          </div>
+        </div>
 
         <!-- Add/Edit Milestone Modal -->
-        <div v-if="showAddForm" class="modal show d-block" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">
-                  {{ newMilestone.id ? "Edit Milestone" : "Add Milestone" }}
-                </h5>
-                <button type="button" class="btn-close" @click="closeForm"></button>
-              </div>
-              <div class="modal-body">
+        <b-modal v-model="showAddForm" hide-header hide-footer centered size="lg" title="Add/Edit Milestone"
+          @hide="closeForm">
+          <!-- Modal Title -->
+          <div class="modal-title p-3">
+            <h5 class="mb-0">{{ newMilestone.id ? "Milestone Details / Edit" : "New Milestone" }}</h5>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="p-3">
+            <div class="row">
+              <!-- Left Section -->
+              <div class="col-md-6">
+                <!-- Name -->
                 <div class="mb-3">
                   <label for="milestoneName" class="form-label">Name</label>
                   <input type="text" class="form-control" id="milestoneName" v-model="newMilestone.name"
                     placeholder="Enter milestone name" required />
                 </div>
+
+                <!-- Description -->
                 <div class="mb-3">
                   <label for="milestoneDescription" class="form-label">Description</label>
-                  <textarea class="form-control" id="milestoneDescription" v-model="newMilestone.description" rows="4"
+                  <textarea class="form-control" id="milestoneDescription" v-model="newMilestone.description" rows="6"
                     placeholder="Enter description" required></textarea>
                 </div>
+              </div>
+
+              <!-- Right Section -->
+              <div class="col-md-6">
+                <!-- Reward -->
                 <div class="mb-3">
                   <label for="milestoneReward" class="form-label">Reward</label>
                   <input type="text" class="form-control" id="milestoneReward" v-model="newMilestone.reward"
                     placeholder="Enter reward" required />
                 </div>
+
+                <!-- Milestone Type -->
                 <div class="mb-3">
                   <label for="milestoneType" class="form-label">Milestone Type</label>
                   <select class="form-select" v-model="newMilestone.type" @change="onMilestoneTypeChange">
@@ -150,31 +162,35 @@
                     <option value="commission">Commission</option>
                   </select>
                 </div>
-                <!-- Conditional input fields -->
+
+                <!-- Conditional Fields -->
                 <div v-if="newMilestone.type === 'sales'" class="mb-3">
                   <label for="salesThreshold" class="form-label">Sales Threshold</label>
                   <input type="number" class="form-control" id="salesThreshold" v-model="newMilestone.sales_threshold"
                     placeholder="Enter sales threshold" />
                 </div>
+
                 <div v-if="newMilestone.type === 'commission'" class="mb-3">
                   <label for="commissionThreshold" class="form-label">Commission Threshold</label>
                   <input type="number" class="form-control" id="commissionThreshold"
                     v-model="newMilestone.commission_threshold" placeholder="Enter commission threshold" />
                 </div>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="closeForm">
-                  Cancel
-                </button>
-                <button type="button" class="btn btn-primary" @click="
-                  newMilestone.id ? updateMilestone() : createMilestone()
-                  ">
-                  Save
-                </button>
-              </div>
             </div>
           </div>
-        </div>
+
+          <!-- Modal Footer -->
+          <div class="d-flex justify-content-end gap-3 p-3">
+            <button type="button" class="btn-add" style="width: 150px"
+              @click="newMilestone.id ? updateMilestone() : createMilestone()">
+              Save Changes
+            </button>
+            <button type="button" class="btn-cancel" @click="closeForm">
+              Cancel
+            </button>
+          </div>
+        </b-modal>
+
 
         <!-- <div class="mb-3">
           <input type="text" v-model="searchQuery" class="form-control" placeholder="Search brokers by name" />
@@ -182,129 +198,124 @@
 
         <!-- Table for displaying brokers -->
         <div style="max-width: 1100px; width: 100%;">
-        <div class="broker-display-headers">
-                <span class="header-item">Broker Name</span>
-                <span class="header-item">Sales Completed</span>
-                <span class="header-item">Milestones Achieved</span>
-                <span class="header-item">Commission Collected</span>
-                <span class="header-item">Commission Achieved</span>
-                <span class="header-item">Action</span>
-              </div>
-              <div v-for="broker in filteredBrokers" :key="broker.id" class="card border-0 rounded-1 mx-auto my-2"
-                style="
+          <div class="broker-display-headers">
+            <span class="header-item">Broker Name</span>
+            <span class="header-item">Sales Completed</span>
+            <span class="header-item">Milestones Achieved</span>
+            <span class="header-item">Commission Collected</span>
+            <span class="header-item">Commission Achieved</span>
+            <span class="header-item">Action</span>
+          </div>
+          <div v-for="broker in filteredBrokers" :key="broker.id" class="card border-0 rounded-1 mx-auto my-2" style="
              
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             ">
 
-                <div class="card-body">
-                  <table class="broker-milestones-table">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <i
-                        class="fas fa-user-tie broker-icon"
-                      ></i>
-                          <span class="broker-name">
-                            {{ broker.first_name }} {{ broker.last_name }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="broker-sales">
-                            {{ broker.total_sales }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="broker-milestone-count">
-                            {{ broker.salesMilestoneCount }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="broker-commission">
-                            {{ broker.total_commissions }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="broker-commission-milestone-count">
-                            {{ broker.commissionMilestoneCount }}
-                          </span>
-                        </td>
+            <div class="card-body">
+              <table class="broker-milestones-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <i class="fas fa-user-tie broker-icon"></i>
+                      <span class="broker-name">
+                        {{ broker.first_name }} {{ broker.last_name }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="broker-sales">
+                        {{ broker.total_sales }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="broker-milestone-count">
+                        {{ broker.salesMilestoneCount }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="broker-commission">
+                        {{ broker.total_commissions }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="broker-commission-milestone-count">
+                        {{ broker.commissionMilestoneCount }}
+                      </span>
+                    </td>
 
-                        <td>
-                          <button @click="viewBrokerMilestones(broker)" class="btn btn-info btn-sm">
-                  View
-                </button>
-                          <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
+                    <td>
+                      <button @click="viewBrokerMilestones(broker)" class="btn btn-info btn-sm">
+                        View
+                      </button>
+                      <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
                             Delete
                           </button> -->
-                        </td>
+                    </td>
 
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              </div>
-
-
-        <!-- Broker Milestones Modal -->
-        <div v-if="showBrokerModal" class="modal show d-block" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">
-                  Broker Milestones: {{ selectedBroker.first_name }}
-                  {{ selectedBroker.last_name }}
-                </h5>
-                <button type="button" class="btn-close" @click="closeBrokerModal"></button>
-              </div>
-              <div class="modal-body">
-                <!-- Broker Info -->
-                <p>
-                  <strong>Sales Completed:</strong>
-                  {{ selectedBroker.total_sales }}
-                </p>
-                <p>
-                  <strong>Commissions Collected:</strong> P
-                  {{ selectedBroker.total_commissions }}
-                </p>
-
-                <!-- Milestones Table -->
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Milestone Type</th>
-                      <th>Milestone Name</th>
-                      <th>Completed</th>
-                      <th>Description</th>
-                      <th>Reward</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="milestone in milestones" :key="milestone.id">
-                      <td>
-                        {{
-                          milestone.type === "sales" ? "Sales" : "Commission"
-                        }}
-                      </td>
-                      <td>{{ milestone.name }}</td>
-                      <td>
-                        <input type="checkbox" :checked="checkMilestoneCompletion(milestone, selectedBroker)
-                          " disabled />
-                      </td>
-                      <td>{{ milestone.description || "N/A" }}</td>
-                      <td>{{ milestone.reward }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="closeBrokerModal">
-                  Close
-                </button>
-              </div>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+
+
+        <!-- Broker Milestones Modal -->
+        <b-modal v-model="showBrokerModal" title="Broker Milestones" hide-footer hide-header centered size="lg"
+          @hide="closeBrokerModal">
+          <!-- Modal Header -->
+          <div v-if="selectedBroker">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                Broker Milestones: {{ selectedBroker.first_name }} {{ selectedBroker.last_name }}
+              </h5>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+              <!-- Broker Info -->
+              <div class="mb-4">
+                <p>
+                  <strong>Sales Completed:</strong> {{ selectedBroker.total_sales }}
+                </p>
+                <p>
+                  <strong>Commissions Collected:</strong> P {{ selectedBroker.total_commissions }}
+                </p>
+              </div>
+
+              <!-- Milestones Table -->
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Milestone Type</th>
+                    <th>Milestone Name</th>
+                    <th>Completed</th>
+                    <th>Description</th>
+                    <th>Reward</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="milestone in milestones" :key="milestone.id">
+                    <td>{{ milestone.type === "sales" ? "Sales" : "Commission" }}</td>
+                    <td>{{ milestone.name }}</td>
+                    <td class="text-center">
+                      <input type="checkbox" :checked="checkMilestoneCompletion(milestone, selectedBroker)" disabled />
+                    </td>
+                    <td>{{ milestone.description || "N/A" }}</td>
+                    <td>{{ milestone.reward }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @click="closeBrokerModal">
+                Close
+              </button>
+            </div>
+          </div>
+        </b-modal>
+
       </div>
     </div>
   </div>
@@ -313,12 +324,13 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 import { mapState } from "vuex";
 
 export default {
   name: "DeveloperMilestones",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
   data() {
     return {
       milestones: [],
@@ -777,7 +789,7 @@ body {
   margin: 12px auto 10px;
 }
 
-.broker-display-headers{
+.broker-display-headers {
   display: grid;
   grid-template-columns: 30% 16% 16% 16% 16% 6%;
   /* Adjust widths for better layout */
@@ -795,7 +807,7 @@ body {
   background: #fff;
 }
 
-.broker-milestones-table{
+.broker-milestones-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -882,7 +894,7 @@ td {
   font-size: 14px;
 }
 
-.broker-name{
+.broker-name {
   font-weight: bold;
   font-size: 14px;
 }
@@ -909,7 +921,16 @@ td {
   color: #fff;
   border: none;
   border-radius: 3px;
-  font-size: 14px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
 }
@@ -995,13 +1016,5 @@ td {
 .row .form-label {
   font-size: 0.9rem;
   color: #6c757d;
-}
-
-.btn-cancel {
-  background-color: #343a40;
-}
-
-.btn-cancel:hover {
-  background-color: #495057;
 }
 </style>

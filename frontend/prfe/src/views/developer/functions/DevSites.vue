@@ -377,7 +377,7 @@
 
               <!-- Buttons -->
               <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
-                <button type="submit" class="btn btn-success" style="width: 150px">
+                <button type="submit" class="btn-add" style="width: 150px">
                   Save Changes
                 </button>
                 <button type="button" @click="cancelEdit" class="btn-cancel">
