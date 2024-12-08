@@ -649,7 +649,7 @@
           centered
         >
           <p>
-            Are you sure you want to delete this unit affiliation for this
+            Are you sure you want to delete this Sale affiliation for this
             customer?
           </p>
 
