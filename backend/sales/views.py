@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from .models import Sale
 from .serializers import SaleSerializer
 
@@ -33,11 +34,11 @@ class SaleListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Fetch sales for the company
-        sales = Sale.objects.filter(company=company)
+        # Use Q to filter sales for the company
+        sales = Sale.objects.filter(Q(company=company))
         serializer = SaleSerializer(sales, many=True)
-        
-        # Log sales data
+
+        # Log the sales data being returned
         logger.debug(f"Sales data fetched for company: {company.name}. Sales: {serializer.data}")
         
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
@@ -58,8 +59,8 @@ class SaleDetailView(APIView):
         # Fetch sale by ID and company
         sale = get_object_or_404(Sale, pk=pk, company=company)
         serializer = SaleSerializer(sale)
-        
-        # Log fetched sale data
+
+        # Log fetched sale details
         logger.debug(f"Sale details fetched: {serializer.data}")
         
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
@@ -76,7 +77,7 @@ class SaleDetailView(APIView):
         # Fetch the sale to update
         sale = get_object_or_404(Sale, pk=pk, company=company)
         
-        # Log the incoming PUT request data for debugging
+        # Log incoming PUT request data
         logger.debug(f"Incoming PUT request data for Sale ID {pk}: {request.data}")
         
         # Extract status from request data
