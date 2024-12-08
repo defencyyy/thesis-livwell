@@ -52,7 +52,7 @@
         <!-- Bottom: Bar Chart -->
         <div v-if="salesStatus.sold > 0" class="bar-chart-container">
           <!-- Bar Chart -->
-          <canvas id="salesBarChart"></canvas>
+          <canvas id="salesBarChart" style = "border-radius: 4px;"></canvas>
 
           <!-- Overlay for Label and Dropdown -->
           <div class="chart-overlay">
@@ -704,7 +704,7 @@ canvas {
 
 .bar-chart-container {
   position: relative; /* Position container relative for overlay positioning */
-  margin-top: 30px;
+  margin-top: 10px;
   width: 1120px;
 }
 
