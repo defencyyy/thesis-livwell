@@ -4,7 +4,12 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <button class="back-button" @click="$router.back()">Back</button>
+        <button class="back-button" @click="$router.back()">
+          <div class="back-container">
+            <i class="fas fa-arrow-left"></i> Back
+          </div>
+        </button>
+
         <div v-if="site" class="site-details">
           <!-- Site Overview -->
           <div class="site-overview">
@@ -1391,20 +1396,6 @@ body {
   text-align: center;
 }
 
-/* Back Button */
-.back-button {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 15px;
-  margin-bottom: 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.back-button:hover {
-  background-color: #45a049;
-}
 
 /* Site Details */
 .site-overview {
@@ -1469,10 +1460,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
-}
-
 .modal {
   display: flex;
   justify-content: center;
@@ -1530,7 +1517,22 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
-button:hover {
-  background-color: #0056b3;
+
+.back-button {
+  background-color: transparent;
+  color: black;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px; /* Adjust as needed */
+  text-decoration: none;
 }
+
+.back-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6; /* Make it slightly transparent when disabled */
+}
+
 </style>
