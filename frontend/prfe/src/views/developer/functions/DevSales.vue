@@ -1,281 +1,310 @@
-<template>
-  <div class="developer-sales-page">
-    <SideNav />
-    <div class="main-content">
-      <AppHeader />
-      <div class="content">
-        <h1>Manage Sales</h1>
-        <p>
-          View and manage sales details for your company. Lagay siguro to sa
-          header?
-        </p>
-
-        <!-- Grid displaying summary info -->
-        <div class="info-grid">
-          <div class="grid-item">
-            <strong>Sales:</strong>
-            <select
-              v-model="salesPeriod"
-              @change="calculateSalesStatistics"
-              class="sales-dropdown"
-            >
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-              <option value="all">All-Time</option>
-            </select>
-            {{ displayedSales }}
+  <template>
+    <div class="developer-sales-page">
+      <SideNav />
+      <div class="main-content">
+        <AppHeader />
+        <div class="content">
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title">Sales Management</div>
+            </div>
           </div>
-
-          <div class="grid-item">
-            <strong>Ongoing Sales:</strong> {{ ongoingSales }}
+          <div class="sales-dashboard-container">
+            <div class="box">
+              <div class="box-header">
+                <div class="icon-container">
+                  <i class="fa fa-chart-line" style="font-size: 13px"></i>
+                </div>
+                <p>Sales</p>
+                <select v-model="salesPeriod" @change="calculateSalesStatistics" class="sales-dropdown">
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                  <option value="all">All-Time</option>
+                </select>
+              </div>
+              <h2>{{ displayedSales }}</h2>
+            </div>
+            <div class="box">
+              <div class="box-header">
+                <div class="icon-container">
+                  <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
+                </div>
+                <p>Sold Units</p>
+              </div>
+              <h2>{{ soldUnits }}</h2>
+            </div>
+            <div class="box">
+              <div class="box-header">
+                <div class="icon-container">
+                  <i class="fa fa-spinner" style="font-size: 13px"></i>
+                </div>
+                <p>Ongoing Sales</p>
+              </div>
+              <h2>{{ ongoingSales }}</h2>
+            </div>
           </div>
-          <div class="grid-item">
-            <strong>Total Units:</strong> {{ totalUnits }}
-          </div>
-          <div class="grid-item">
-            <strong>Available Units:</strong> {{ availableUnits }}
-          </div>
-          <div class="grid-item">
-            <strong>Sold Units:</strong> {{ soldUnits }}
-          </div>
-        </div>
-
-        <SalesChart v-if="sales.length" :salesData="sales" />
-
-        <div class="title-wrapper">
-          <div class="title-left">
-            <div class="title-icon"></div>
-            <div class="edit-title">Sales Management</div>
-          </div>
-        </div>
-
-        <div
-          class="card border-0 rounded-1 mx-auto"
-          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-        >
-          <div class="card-body">
-            <div class="row">
-              <div class="toolbar">
-                <div class="left-section">
-                  <div class="search-bar-container">
-                    <input
-                      type="text"
-                      v-model="searchQuery"
-                      @input="filterSales"
-                      placeholder="Search Customer/Broker/Unit/Site "
-                      class="search-bar"
-                    />
-                    <i class="fa fa-search search-icon"></i>
+          <div class="dashboard-container">
+            <div class="left-dashboard">
+              <div class="unit-box">
+                <div class="box-header">
+                  <div class="icon-container">
+                    <i class="fa fa-home" style="font-size: 13px"></i>
                   </div>
-                  <select
-                    v-model="selectedBroker"
-                    @change="filterSales"
-                    class="dropdown"
-                  >
-                    <option value="">All Brokers</option>
-                    <option
-                      v-for="broker in brokers"
-                      :key="broker.id"
-                      :value="broker.id"
-                    >
-                      {{ broker.first_name }} {{ broker.last_name }}
-                    </option>
-                  </select>
-                  <select
-                    v-model="selectedStatus"
-                    @change="filterSales"
-                    class="dropdown"
-                  >
-                    <option value="">All Status</option>
-                    <option value="Pending Reservation">
-                      Pending Reservation
-                    </option>
-                    <option value="Reserved">Reserved</option>
-                    <option value="Pending Sold">Pending Sold</option>
-                    <option value="Sold">Sold</option>
-                  </select>
+                  <p>Total Units</p>
+                </div>
+                <!-- <h2>{{ totalUnits }}</h2> -->
+              </div>
+              <div class="unit-box">
+                <div class="box-header">
+                  <div class="icon-container">
+                    <i class="fa fa-home" style="font-size: 13px"></i>
+                  </div>
+                  <p>Available Units</p>
+                </div>
+                <!-- <h2>{{ availableUnits }}</h2> -->
+              </div>
+            </div>
+            <div class="right-dashboard">
+              
+              <SalesChart v-if="sales.length" :salesData="sales" />
+            </div>
+          </div>
+          <div style="max-width: 1100px; width: 100%;">
+          <div class="card border-0 rounded-1 mx-auto" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+            <div class="card-body">
+              <div class="row">
+                <div class="toolbar">
+                  <div class="left-section">
+                    <div class="search-bar-container">
+                      <input type="text" v-model="searchQuery" @input="filterSales"
+                        placeholder="Search Customer/Broker/Unit/Site " class="search-bar" />
+                      <i class="fa fa-search search-icon"></i>
+                    </div>
+                    <select v-model="selectedBroker" @change="filterSales" class="dropdown">
+                      <option value="">All Brokers</option>
+                      <option v-for="broker in brokers" :key="broker.id" :value="broker.id">
+                        {{ broker.first_name }} {{ broker.last_name }}
+                      </option>
+                    </select>
+                    <select v-model="selectedStatus" @change="filterSales" class="dropdown">
+                      <option value="">All Status</option>
+                      <option value="Pending Reservation">
+                        Pending Reservation
+                      </option>
+                      <option value="Reserved">Reserved</option>
+                      <option value="Pending Sold">Pending Sold</option>
+                      <option value="Sold">Sold</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+          </div>
 
-        <!-- Search and Filter Controls -->
-        <!-- <div class="search-filter-controls">
-          <input
-            type="text"
-            v-model="searchQuery"
-            @input="filterSales"
-            placeholder="Search by Customer Name or Broker Name"
-            class="search-input"
-          />
-          <select
-            v-model="selectedBroker"
-            @change="filterSales"
-            class="filter-dropdown"
-          >
-            <option value="">Select Broker</option>
-            <option
-              v-for="broker in brokers"
-              :key="broker.id"
-              :value="broker.id"
+          <!-- Search and Filter Controls -->
+          <!-- <div class="search-filter-controls">
+            <input
+              type="text"
+              v-model="searchQuery"
+              @input="filterSales"
+              placeholder="Search by Customer Name or Broker Name"
+              class="search-input"
+            />
+            <select
+              v-model="selectedBroker"
+              @change="filterSales"
+              class="filter-dropdown"
             >
-              {{ broker.first_name }} {{ broker.last_name }}
-            </option>
-          </select>
-          <select
-            v-model="selectedCustomer"
-            @change="filterSales"
-            class="filter-dropdown"
-          >
-            <option value="">Select Customer</option>
-            <option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
+              <option value="">Select Broker</option>
+              <option
+                v-for="broker in brokers"
+                :key="broker.id"
+                :value="broker.id"
+              >
+                {{ broker.first_name }} {{ broker.last_name }}
+              </option>
+            </select>
+            <select
+              v-model="selectedCustomer"
+              @change="filterSales"
+              class="filter-dropdown"
             >
-              {{ customer.first_name }} {{ customer.last_name }}
-            </option>
-          </select>
-          <select
-            v-model="selectedSite"
-            @change="filterSales"
-            class="filter-dropdown"
-          >
-            <option value="">Select Site</option>
-            <option v-for="site in sites" :key="site.id" :value="site.id">
-              {{ site.name }}
-            </option>
-          </select>
-          <select
-            v-model="selectedStatus"
-            @change="filterSales"
-            class="filter-dropdown"
-          >
-            <option value="">All Statuses</option>
-            <option value="Pending Reservation">Pending Reservation</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Pending Sold">Pending Sold</option>
-            <option value="Sold">Sold</option>
-          </select>
-          <button @click="filterSales" class="search-button">Search</button>
-        </div> -->
+              <option value="">Select Customer</option>
+              <option
+                v-for="customer in customers"
+                :key="customer.id"
+                :value="customer.id"
+              >
+                {{ customer.first_name }} {{ customer.last_name }}
+              </option>
+            </select>
+            <select
+              v-model="selectedSite"
+              @change="filterSales"
+              class="filter-dropdown"
+            >
+              <option value="">Select Site</option>
+              <option v-for="site in sites" :key="site.id" :value="site.id">
+                {{ site.name }}
+              </option>
+            </select>
+            <select
+              v-model="selectedStatus"
+              @change="filterSales"
+              class="filter-dropdown"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending Reservation">Pending Reservation</option>
+              <option value="Reserved">Reserved</option>
+              <option value="Pending Sold">Pending Sold</option>
+              <option value="Sold">Sold</option>
+            </select>
+            <button @click="filterSales" class="search-button">Search</button>
+          </div> -->
 
-        <div class="outside-headers">
-          <span class="header-item">Customer Name</span>
-          <span class="header-item">Broker Name</span>
-          <span class="header-item">Site Name</span>
-          <span class="header-item">Unit #</span>
-          <span class="header-item">Status</span>
-          <span class="header-item">Action</span>
-        </div>
+          <div class="outside-headers">
+            <span class="header-item">Customer Name</span>
+            <span class="header-item">Broker Name</span>
+            <span class="header-item">Site Name</span>
+            <span class="header-item">Unit #</span>
+            <span class="header-item">Status</span>
+            <span class="header-item">Action</span>
+          </div>
 
-        <div v-if="filteredSales.length > 0">
-          <div
-            v-for="sale in filteredSales"
-            :key="sale.id"
-            class="card border-0 rounded-1 mx-auto"
-            style="
-              max-width: 1100px;
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
-          >
-            <div class="card-body">
-              <table class="sale-table">
-                <tbody>
-                  <tr>
-                    <td>
-                      {{ sale.customer.first_name }}
-                      {{ sale.customer.last_name }}
-                    </td>
-                    <td>
-                      {{ sale.broker.first_name }} {{ sale.broker.last_name }}
-                    </td>
-                    <td>{{ sale.site.name || "N/A" }}</td>
-                    <td>{{ sale.unit.unit_title }}</td>
-                    <td :class="getStatusClass(sale.status)">
-                      {{ sale.status }}
-                    </td>
-                    <td>
-                      <button
-                        @click="openSalesDetailModal(sale)"
-                        class="btn btn-primary"
-                      >
-                        Manage
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div v-if="filteredSales.length > 0">
+            <div v-for="sale in filteredSales" :key="sale.id" class="card border-0 rounded-1 mx-auto" style="
+                max-width: 1100px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              ">
+              <div class="card-body">
+                <table class="sale-table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        {{ sale.customer.first_name }}
+                        {{ sale.customer.last_name }}
+                      </td>
+                      <td>
+                        {{ sale.broker.first_name }} {{ sale.broker.last_name }}
+                      </td>
+                      <td>{{ sale.site.name || "N/A" }}</td>
+                      <td>{{ sale.unit.unit_title }}</td>
+                      <td :class="getStatusClass(sale.status)">
+                        {{ sale.status }}
+                      </td>
+                      <td>
+                        <button @click="openSalesDetailModal(sale)" class="btn-primary add-button">
+                          Manage
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
-        <p v-else>No sales match the selected criteria.</p>
+          <p v-else>No sales match the selected criteria.</p>
 
-        <!-- Sales Detail Modal -->
-        <div v-if="showModal" class="modal">
-          <div class="modal-content">
-            <h2>Manage Sale</h2>
-            <p>
-              <strong>Customer:</strong> {{ selectedSale.customer.first_name }}
-              {{ selectedSale.customer.last_name }}
-            </p>
-            <p><strong>Unit:</strong> {{ selectedSale.unit.unit_title }}</p>
-            <p><strong>Site:</strong> {{ selectedSale.site.name || "N/A" }}</p>
-            <p>
-              <strong>Reservation Fee:</strong>
-              {{ formatCurrency(selectedSale.reservation_fee) }}
-            </p>
-            <p>
-              <strong>Payment Method:</strong> {{ selectedSale.payment_method }}
-            </p>
-            <p v-if="selectedSale.reservation_file">
-              <strong>Reservation File:</strong>
-              <a
-                :href="getFileUrl(selectedSale.reservation_file)"
-                target="_blank"
-                >View File</a
-              >
-            </p>
-            <!-- Update Status -->
-            <div class="update-status">
-              <label for="status">Update Status:</label>
-              <select
-                v-model="selectedSale.status"
-                id="status"
-                class="filter-dropdown"
-              >
-                <option value="Pending Reservation">Pending Reservation</option>
-                <option value="Reserved">Reserved</option>
-                <option value="Pending Sold">Pending Sold</option>
-                <option value="Sold">Sold</option>
-              </select>
+          <!-- Sales Detail Modal -->
+          <!-- <div v-if="showModal" class="modal">
+            <div class="modal-content">
+              <h2>Manage Sale</h2>
+              <p>
+                <strong>Customer:</strong> {{ selectedSale.customer.first_name }}
+                {{ selectedSale.customer.last_name }}
+              </p>
+              <p><strong>Unit:</strong> {{ selectedSale.unit.unit_title }}</p>
+              <p><strong>Site:</strong> {{ selectedSale.site.name || "N/A" }}</p>
+              <p>
+                <strong>Reservation Fee:</strong>
+                {{ formatCurrency(selectedSale.reservation_fee) }}
+              </p>
+              <p>
+                <strong>Payment Method:</strong> {{ selectedSale.payment_method }}
+              </p>
+              <p v-if="selectedSale.reservation_file">
+                <strong>Reservation File:</strong>
+                <a :href="getFileUrl(selectedSale.reservation_file)" target="_blank">View File</a>
+              </p>
+              <div class="update-status">
+                <label for="status">Update Status:</label>
+                <select v-model="selectedSale.status" id="status" class="filter-dropdown">
+                  <option value="Pending Reservation">Pending Reservation</option>
+                  <option value="Reserved">Reserved</option>
+                  <option value="Pending Sold">Pending Sold</option>
+                  <option value="Sold">Sold</option>
+                </select>
+              </div>
+              <div class="modal-buttons">
+                <button @click="confirmUpdate" class="btn btn-primary">
+                  Save Changes
+                </button>
+                <button @click="closeModal" class="btn btn-secondary">
+                  Close
+                </button>
+              </div>
             </div>
-            <div class="modal-buttons">
-              <button @click="confirmUpdate" class="btn btn-primary">
-                Save Changes
-              </button>
-              <button @click="closeModal" class="btn btn-secondary">
-                Close
-              </button>
-            </div>
+          </div> -->
+
+          <b-modal v-model="showModal" title="Manage Sale" hide-header hide-footer centered>
+    <div class="p-3" v-if="selectedSale && selectedSale.customer">
+      <div class="modal-title">
+            <h5 class="mb-4">Customer: {{ selectedSale.customer.first_name.toUpperCase() }} {{ selectedSale.customer.last_name.toUpperCase() }}</h5>
           </div>
+      <div class="customer-sales-info" style="margin-bottom: 30px;">
+      <p><strong>Unit:</strong> {{ selectedSale.unit.unit_title }}</p>
+      <p><strong>Site:</strong> {{ selectedSale.site.name || "N/A" }}</p>
+      <p>
+        <strong>Reservation Fee:</strong> {{ formatCurrency(selectedSale.reservation_fee) }}
+      </p>
+      <p>
+        <strong>Payment Method:</strong> {{ selectedSale.payment_method }}
+      </p>
+      <p v-if="selectedSale.reservation_file">
+        <strong>Reservation File:</strong>
+        <a :href="getFileUrl(selectedSale.reservation_file)" target="_blank">View File</a>
+      </p></div>
+
+      <div class="update-status mb-3">
+        <label for="status" class="form-label"><strong> Status:</strong></label>
+        <select v-model="selectedSale.status" id="status" class="form-select">
+          <option value="Pending Reservation">Pending Reservation</option>
+          <option value="Reserved">Reserved</option>
+          <option value="Pending Sold">Pending Sold</option>
+          <option value="Sold">Sold</option>
+        </select>
+      </div>
+      
+      <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
+        <button @click="confirmUpdate" class="btn btn-primary">
+          Save Changes
+        </button>
+        <button type="button" @click="showModal = false" class="btn btn-secondary">
+                  Close
+                </button>
+      </div>
+    </div>
+  </b-modal>
+
         </div>
       </div>
     </div>
-  </div>
-</template>
+    
+  </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 import { mapState } from "vuex";
 import SalesChart from "@/components/DevSalesChart.vue";
 
 export default {
   name: "DevSales",
-  components: { SideNav, AppHeader, SalesChart },
+  components: { SideNav, AppHeader, SalesChart,BModal },
   data() {
     return {
       sales: [],
@@ -523,7 +552,7 @@ body {
 }
 
 .SideNav {
-  width: 250px;
+  width: 100%;
   position: fixed;
   top: 0;
   left: 0;
@@ -553,7 +582,12 @@ body {
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  display: flex;
+  /* Use flexbox to center the content */
+  align-items: center;
+  /* Center vertically */
+  flex-direction: column;
+  /* Stack the dashboard boxes and sales table vertically */
 }
 
 .title-wrapper {
@@ -594,6 +628,7 @@ body {
   /* Space on the left side */
   padding-right: 20px;
   /* Space on the right side */
+  
 }
 
 .left-section {
@@ -654,6 +689,104 @@ body {
   background-size: 14px;
 }
 
+.sales-dashboard-container {
+  display: grid;
+  /* Use grid for responsive layout */
+  grid-template-columns: 1fr 1fr 1fr;
+  /* Responsive grid */
+  gap: 20px;
+  /* Add spacing between boxes */
+  max-width: 1100px;
+  width: 100%;
+  /* Set a max width */
+  margin: 0 auto;
+  /* Center the container horizontally */
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  /* Space between icon and title */
+}
+
+.box h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
+}
+
+.box {
+  position: relative;
+  /* Make the box a positioning context */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-grow: 1; /* Allow boxes to grow in height if needed */
+}
+
+.unit-box {
+  position: relative;
+  /* Make the box a positioning context */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-grow: 1; /* Allow boxes to grow in height if needed */
+}
+
+
+.icon-container {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* Make the icon circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.box-header p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #000000;
+}
+
+.dashboard-container {
+  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  /* Equal width for both columns */
+  gap: 20px;
+  /* Match the spacing of the dashboard boxes */
+  width: 100%;
+  max-width: 1100px;
+  /* Match the max-width of the dashboard-boxes */
+}
+
+.left-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right-dashboard {
+  display: flex;
+  flex-direction: column;
+}
+
 .card {
   background-color: #fff;
   margin-bottom: 10px;
@@ -665,9 +798,28 @@ body {
   margin-right: auto;
 }
 
+.card-body {
+  font-size: 14px; /* Set a smaller default font size for the card body */
+}
+
+.btn-primary.add-button {
+  padding: 8px 12px;
+  border: 1px solid #0560fd;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #0560fd;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary.add-button:hover {
+  background-color: #0056b3;
+}
+
 .outside-headers {
   display: grid;
-  grid-template-columns: 20% 20% 20% 15% 15% 10%;
+  grid-template-columns: 20% 20% 18% 14% 18% 10%;
   /* Adjust widths for better layout */
   max-width: 1100px;
   width: 100%;
@@ -714,19 +866,19 @@ body {
 .sale-table th:nth-child(3),
 .sale-table td:nth-child(3) {
   /* Status column */
-  width: 20%;
+  width: 18%;
 }
 
 .sale-table th:nth-child(4),
 .sale-table td:nth-child(4) {
   /* Actions column */
-  width: 15%;
+  width: 14%;
 }
 
 .sale-table th:nth-child(5),
 .sale-table td:nth-child(5) {
   /* Actions column */
-  width: 15%;
+  width: 18%;
 }
 
 .sale-table th:nth-child(6),
@@ -735,31 +887,6 @@ body {
   width: 10%;
 }
 
-.search-filter-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.filter-dropdown {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.search-button {
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
 
 .sales-table {
   width: 100%;
@@ -800,7 +927,8 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000; /* Ensure it appears above other elements */
+  z-index: 1000;
+  /* Ensure it appears above other elements */
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -836,12 +964,15 @@ body {
 .status-pending-reservation {
   color: #ffc107;
 }
+
 .status-reserved {
   color: #007bff;
 }
+
 .status-pending-sold {
   color: #fd7e14;
 }
+
 .status-sold {
   color: #28a745;
 }
@@ -861,9 +992,12 @@ body {
 }
 
 .sales-dropdown {
-  padding: 4px;
-  margin-left: 10px;
+  font-size: 12px;
+  padding: 1px;
   border-radius: 4px;
   border: 1px solid #ddd;
+  justify-content: space-between
 }
+
+
 </style>
