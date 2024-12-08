@@ -372,7 +372,7 @@
           </form>
         </b-modal>
 
-        <!-- View Selected Unit MOdal -->
+        <!-- View Selected Unit Modal -->
         <b-modal
           v-model="showEditUnitModal"
           title="Edit Unit"
@@ -380,30 +380,93 @@
         >
           <template v-if="selectedUnit">
             <form>
+              <!-- Unit Images Section -->
               <b-form-group label="Unit Images:">
                 <div v-if="selectedUnit.images && selectedUnit.images.length">
-                  <b-row>
+                  <b-row class="mb-3">
+                    <!-- Loop through images and display them -->
                     <b-col
                       v-for="(image, index) in selectedUnit.images"
                       :key="index"
-                      cols="6"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                      lg="3"
                       class="mb-2"
                     >
-                      <b-img
-                        v-if="image && image.image"
-                        :src="getPictureUrl(image.image)"
-                        alt="Unit Image"
-                        thumbnail
-                        fluid
-                        class="unit-image-preview"
-                      />
-                      <p v-else class="text-danger">Invalid image path</p>
+                      <div class="d-flex flex-column align-items-center">
+                        <b-img
+                          v-if="image && image.image"
+                          :src="getPictureUrl(image.image)"
+                          alt="Unit Image"
+                          thumbnail
+                          fluid
+                          class="unit-image-preview"
+                        />
+                        <p v-else class="text-danger">Invalid image path</p>
+
+                        <!-- Image Name, Update, and Delete buttons -->
+                        <div class="text-center mt-2">
+                          <span>{{ image.image_name || "Untitled" }}</span>
+                          <b-button
+                            size="sm"
+                            variant="primary"
+                            class="ml-2"
+                            @click="toggleImageEdit(index)"
+                          >
+                            Update
+                          </b-button>
+                          <b-button
+                            size="sm"
+                            variant="danger"
+                            class="ml-2"
+                            @click="deleteImage(index)"
+                          >
+                            Delete
+                          </b-button>
+                        </div>
+
+                        <!-- Image Replace Form (Toggled) -->
+                        <div v-if="imageEditIndex === index" class="mt-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            @change="onImageSelected(index, $event)"
+                          />
+                          <b-button
+                            variant="secondary"
+                            @click="replaceImage(index)"
+                          >
+                            Replace Image
+                          </b-button>
+                        </div>
+                      </div>
                     </b-col>
                   </b-row>
                 </div>
                 <p v-else>No images available for this unit.</p>
+
+                <!-- Add Image Button if less than 5 images -->
+                <div
+                  v-if="selectedUnit.images && selectedUnit.images.length < 5"
+                  class="mt-3"
+                >
+                  <b-button variant="primary" @click="triggerAddImage">
+                    Add Image
+                  </b-button>
+
+                  <!-- Immediately show file input when Add Image is clicked -->
+                  <input
+                    v-if="isAddingImage"
+                    type="file"
+                    accept="image/*"
+                    @change="handleFileChangeImage"
+                    class="form-control mt-2"
+                  />
+                </div>
               </b-form-group>
 
+              <!-- Unit Information -->
               <b-form-group label="Unit Number:">
                 <b-form-input v-model="selectedUnit.unit_number" disabled />
               </b-form-group>
@@ -457,7 +520,7 @@
 
               <b-form-group label="Balcony:">
                 <b-form-select
-                  v-model="newUnitBalcony"
+                  v-model="selectedUnit.balcony"
                   :options="balconyOptions"
                 ></b-form-select>
               </b-form-group>
@@ -466,14 +529,11 @@
                 <b-form-select
                   v-model="selectedUnit.view"
                   :options="viewOptions"
-                />
+                ></b-form-select>
               </b-form-group>
 
-              <b-button
-                type="submit"
-                variant="primary"
-                @click="saveUnitChanges"
-              >
+              <!-- Save Changes Button -->
+              <b-button variant="primary" @click="saveUnitChanges" class="mr-2">
                 Save Changes
               </b-button>
             </form>
@@ -796,6 +856,9 @@ export default {
       selectedPriceRange: null,
       selectedUnitType: null,
       selectedSort: null,
+      imageEditIndex: null, // To track which image is being edited
+      imageFile: [], // To store the new files selected for replacement
+      isAddingImage: false,
     };
   },
   computed: {
@@ -1052,11 +1115,21 @@ export default {
       // Append the selected floor ID
       formData.append("floor_ids[]", floorId); // Directly pass the floorId
 
-      // Append images if available
+      // Log the selected images
       if (this.newUnitImages && this.newUnitImages.length) {
         console.log("Selected images:", this.newUnitImages);
         for (let i = 0; i < this.newUnitImages.length; i++) {
-          formData.append(`images[${i}]`, this.newUnitImages[i]); // Appending unique key for each image
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+          console.log(`Appending image ${i + 1}:`, image);
         }
       } else {
         console.log("No images selected.");
@@ -1079,14 +1152,15 @@ export default {
         if (response.status === 201) {
           this.openUnitManagement({ id: floorId });
           this.fetchSiteDetails(); // Refresh site details
-          this.showAddUnitsModal = false; // Close the modal
-          alert("Units successfully added!");
+          this.showAddFloorUnitsModal = false; // Close the modal
+          alert("Units successfully added to the floor!");
         }
       } catch (error) {
-        console.error("Error adding unit:", error);
+        console.error("Error adding units to floor:", error);
         alert("Failed to add the unit. Please try again.");
       }
     },
+
     async addUnits() {
       // Validate form fields
       if (
@@ -1132,11 +1206,20 @@ export default {
         formData.append("floor_ids[]", floorId);
       });
 
-      // Append images if available
       if (this.newUnitImages && this.newUnitImages.length) {
         console.log("Selected images:", this.newUnitImages);
         for (let i = 0; i < this.newUnitImages.length; i++) {
-          formData.append(`images[${i}]`, this.newUnitImages[i]); // Appending unique key for each image
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+          console.log(`Appending image ${i + 1}:`, image);
         }
       } else {
         console.log("No images selected.");
@@ -1243,83 +1326,155 @@ export default {
         this.showEditUnitModal = true; // Show modal for new unit creation
       }
     },
+
     async saveUnitChanges() {
       const formData = new FormData();
       formData.append("unit_number", this.selectedUnit.unit_number);
-      formData.append("unit_title", this.selectedUnit.unit_title);
-      formData.append("bedroom", this.selectedUnit.bedroom);
-      formData.append("bathroom", this.selectedUnit.bathroom);
-      formData.append("floor_area", this.selectedUnit.floor_area);
-      formData.append("lot_area", this.selectedUnit.lot_area);
+      formData.append("unit_type_id", this.selectedUnit.unit_type);
       formData.append("status", this.selectedUnit.status);
       formData.append("price", this.selectedUnit.price);
-      formData.append("view", this.selectedUnit.view);
-      formData.append("balcony", this.selectedUnit.balcony);
+      formData.append("lot_area", this.selectedUnit.lot_area);
+      formData.append("floor_area", this.selectedUnit.floor_area);
       formData.append("commission", this.selectedUnit.commission);
-      formData.append(
-        "spot_discount_percentage",
-        this.selectedUnit.spot_discount_percentage || ""
-      );
-      formData.append(
-        "spot_discount_flat",
-        this.selectedUnit.spot_discount_flat || ""
-      );
-      formData.append(
-        "reservation_fee",
-        this.selectedUnit.reservation_fee || ""
-      );
-      formData.append("other_charges", this.selectedUnit.other_charges || "");
-      formData.append("vat_percentage", this.selectedUnit.vat_percentage);
+      formData.append("balcony", this.selectedUnit.balcony); // Add balcony
+      formData.append("view", this.selectedUnit.view); // Add view
+
+      // Handle image files if any
+      this.selectedUnit.images.forEach((image, index) => {
+        if (this.imageFile[index]) {
+          formData.append(`image_${index}`, this.imageFile[index]);
+        }
+      });
 
       try {
         let response;
 
-        if (this.selectedUnit.id) {
-          // If the unit has an id, it's an update (PUT request)
-          response = await axios.put(
-            `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-        } else {
-          // If no id, it's a new unit (POST request)
-          response = await axios.post(
-            `http://localhost:8000/developer/units/`,
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-        }
+        this.selectedUnit.id;
+        // If the unit has an id, it's an update (PUT request)
+        response = await axios.put(
+          `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         if (response.status === 200 || response.status === 201) {
-          // Update local state or fetch updated units list
-          if (this.selectedUnit.id) {
-            const index = this.units.findIndex(
-              (unit) => unit.id === this.selectedUnit.id
-            );
-            if (index !== -1) {
-              this.units[index] = response.data;
-            }
-          } else {
-            this.units.push(response.data); // If it's a new unit, just push to list
-          }
-
-          this.showEditUnitModal = false; // Close the modal
-          this.fetchUnits(); // Optional: Fetch the updated list of units from the backend
+          this.showEditUnitModal = false;
+          this.fetchUnits(); // Fetch the updated list of units
         }
       } catch (error) {
         console.error("Error saving unit changes:", error.response || error);
       }
     },
+
+    // Method to toggle the image edit state (show/hide replace form)
+    toggleImageEdit(index) {
+      this.imageEditIndex = this.imageEditIndex === index ? null : index;
+    },
+
+    // Trigger Add Image and show the file input
+    triggerAddImage() {
+      if (this.selectedUnit.images.length < 5) {
+        this.isAddingImage = true; // Show the file input
+      }
+    },
+
+    // Handle file change when user selects an image
+    handleFileChangeImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.imageFile.push(file); // Store the selected file
+        this.uploadNewImage();
+      }
+    },
+
+    // Upload the new image
+    async uploadNewImage() {
+      const formData = new FormData();
+      formData.append("image", this.imageFile[this.imageFile.length - 1]);
+
+      try {
+        const response = await axios.post(
+          `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          // Add the uploaded image to the unit's images array
+          this.selectedUnit.images.push(response.data);
+          this.isAddingImage = false; // Hide the file input after upload
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error.response || error);
+      }
+    },
+
+    onImageSelected(index, event) {
+      // This stores the selected file into the imageFile array for the specific index
+      this.imageFile[index] = event.target.files[0];
+    },
+
+    async replaceImage(index) {
+      const formData = new FormData();
+      // Ensure the file exists before appending it to FormData
+      if (!this.imageFile[index]) {
+        console.error("No image selected for replacement.");
+        return;
+      }
+
+      formData.append("image", this.imageFile[index]);
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          // Update the image source if the replacement was successful
+          this.selectedUnit.images[index].image = response.data.image;
+        }
+      } catch (error) {
+        console.error("Error replacing image:", error.response || error);
+      }
+    },
+
+    // Delete the image from the selected unit
+    async deleteImage(index) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.selectedUnit.images.splice(index, 1); // Remove the image from the array
+        }
+      } catch (error) {
+        console.error("Error deleting image:", error.response || error);
+      }
+    },
+
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
     },
@@ -1338,12 +1493,12 @@ export default {
     },
     handleFileChange(event) {
       this.newUnitImages = Array.from(event.target.files);
-      console.log(this.newUnitImages);
+      console.log("New unit images:", this.newUnitImages);
     },
     getUnitTypeName(unitTypeId) {
-      const unitType = this.unitTypeOptions.find(
-        (type) => type.id === unitTypeId
-      );
+      // Find the unit type by id
+      const unitType = this.unitTypes.find((type) => type.id === unitTypeId);
+      // Return the name if found, otherwise return 'Unknown'
       return unitType ? unitType.name : "Unknown";
     },
     nextPage() {

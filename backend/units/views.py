@@ -9,7 +9,9 @@ from .models import Unit, UnitImage, UnitTemplate, UnitType
 from sites.models import Floor
 from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer, UnitTypeSerializer
 from decimal import Decimal
+from rest_framework.parsers import MultiPartParser, FormParser
 import traceback
+from django.core.exceptions import ValidationError
 
 def get_company(request):
     company = request.user.company
@@ -190,12 +192,64 @@ class UnitDetailView(APIView):
 
     def put(self, request, pk):
         company = request.user.company
-        unit = Unit.objects.get(pk=pk, company=company)
-        serializer = UnitSerializer(unit, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            unit = Unit.objects.get(pk=pk, company=company)
+        except Unit.DoesNotExist:
+            return Response({"success": False, "message": "Unit not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Process the incoming request data
+        data = request.data
+        print(f"Request data for updating unit {unit.id}: {data}")
+
+        # Validate and update fields for the unit
+        unit.unit_title = data.get("unit_title", unit.unit_title)
+        unit.unit_type = data.get("unit_type", unit.unit_type)
+        unit.status = data.get("status", unit.status)
+        unit.price = data.get("price", unit.price)
+        unit.lot_area = data.get("lot_area", unit.lot_area)
+        unit.floor_area = data.get("floor_area", unit.floor_area)
+        unit.commission = data.get("commission", unit.commission)
+        unit.balcony = data.get("balcony", unit.balcony)
+        unit.view = data.get("view", unit.view)
+
+        # Handle updating floor IDs if provided
+        floor_ids = data.getlist("floor_ids[]", [])
+        if floor_ids:
+            unit.floors.clear()  # Clear the existing floors before adding new ones
+            for floor_id in floor_ids:
+                try:
+                    floor = Floor.objects.get(id=floor_id)
+                    unit.floors.add(floor)
+                except Floor.DoesNotExist:
+                    return Response({"error": f"Invalid floor ID: {floor_id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle image updates
+        image_files = request.FILES.getlist("images[]")
+        if image_files:
+            print(f"Found {len(image_files)} image(s) to update.")
+            # You can add more logic here for handling image updates if needed
+            for image in image_files:
+                # Save the new image for the unit
+                try:
+                    # You can create new UnitImage instances or associate new images to the unit
+                    unit_image = UnitImage.objects.create(
+                        unit=unit,
+                        image=image,
+                        image_type="Unit",  # Set a default or extract from request data
+                        primary=False,  # Set primary as per the request or default
+                    )
+                    print(f"Image {image.name} updated successfully.")
+                except Exception as e:
+                    return Response({"error": f"Error updating image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Save the updated unit
+        try:
+            unit.save()
+            print(f"Unit {unit.id} updated successfully.")
+            return Response({"success": True, "data": UnitSerializer(unit).data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Error saving updated unit: {str(e)}")
+            return Response({"error": f"Error saving unit: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         company = request.user.company
@@ -264,6 +318,8 @@ class BulkAddUnitsView(APIView):
         try:
             # Debugging the incoming request data
             data = request.data
+            print(f"Request data: {request.data}")
+
 
             # Convert numerical fields to appropriate types
             quantity = int(data.get("quantity", 1))  # Ensure quantity is an integer
@@ -352,21 +408,79 @@ class BulkAddUnitsView(APIView):
                         return Response({"error": f"Error saving unit: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                     created_units.append(unit)
+                    print(f"Request FILES: {request.FILES}")
 
-                    # Handle images if provided
-                    if "images" in request.FILES:
-                        images = request.FILES.getlist("images")
-                        print(f"Images received for unit: {len(images)} image(s)")
-                        for image in images:
+
+                    # Check if images are present in the request files
+                    images = []
+                    for key in request.FILES.keys():
+                        if key.startswith("images"):  # Checks if the key is related to images
+                            images.extend(request.FILES.getlist(key))  # Add all images under that key
+
+                    if images:
+                        print(f"Found {len(images)} image(s).")
+
+
+
+                        # Extract image types and primaries from request data
+                        image_types = request.data.getlist("image_types")  # Extract image_types
+                        primaries = request.data.getlist("primaries")  # Extract primaries
+                        unit_template_id = request.data.get("unit_template")  # Get the unit_template ID from the request
+
+                        # Debug: Log the length of the lists
+                        print(f"Received {len(images)} image(s), {len(image_types)} image type(s), and {len(primaries)} primary flags")
+
+                        # Check if unit_template_id is provided and retrieve the UnitTemplate instance
+                        unit_template = None
+                        if unit_template_id:
                             try:
-                                UnitImage.objects.create(
-                                    unit=unit,
+                                unit_template = UnitTemplate.objects.get(id=unit_template_id)
+                                print(f"Unit template {unit_template_id} found: {unit_template.name}")
+                            except UnitTemplate.DoesNotExist:
+                                print(f"UnitTemplate with ID {unit_template_id} does not exist.")
+                                return Response({"error": f"Invalid unit template ID: {unit_template_id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+                        # Iterate through each image to process it
+                        for i, image in enumerate(images):
+                            # Debug: Log image data being processed
+                            print(f"Processing image {i + 1}: {image.name}")
+                            
+                            image_type = image_types[i] if i < len(image_types) else 'Unit'  # Default to 'Unit' if not available
+                            primary = primaries[i] if i < len(primaries) else False  # Default to False if not available
+
+                            # Debug: Log the metadata being appended
+                            print(f"Image {i + 1} metadata: type={image_type}, primary={primary}")
+
+                            # Create UnitImage instance and save
+                            try:
+                                existing_images_count = UnitImage.objects.filter(unit=unit).count()
+                                print(f"Unit: {unit}, Unit Template: {unit_template}, Primary: {primary}, Image Type: {image_type}")
+                                print(f"Already {existing_images_count} images for this unit.")
+                                
+                                # Create UnitImage instance and save
+                                unit_image = UnitImage.objects.create(
+                                    unit=unit,  # assuming 'unit' is the correct Unit instance
+                                    unit_template=unit_template,  # Associate the unit_template if provided
                                     image=image,
-                                    image_type="Unit"
+                                    image_type=image_type,
+                                    primary=primary
                                 )
-                                print(f"Image {image.name} saved for unit {unit.id}")
+                                print(f"Image {image.name} saved successfully for unit {unit.id}")
                             except ValidationError as e:
+                                # Catch any validation errors
+                                print(f"Validation error while saving image: {str(e)}")
+                                print(f"Full traceback:\n{traceback.format_exc()}")
                                 return Response({"error": f"Image validation error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+                            except Exception as e:
+                                # General error handling
+                                print(f"Error while saving image: {str(e)}")
+                                print(f"Full traceback:\n{traceback.format_exc()}")
+                                return Response({"error": f"Error saving image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                    else:
+                        print("No images found in the request.")
+
+
 
             # After all units are created, return the response
             return Response({"message": f"{len(created_units)} units successfully added."}, status=status.HTTP_201_CREATED)
@@ -378,6 +492,71 @@ class BulkAddUnitsView(APIView):
             print("Full traceback:")
             print(traceback.format_exc())  # Log full traceback in case of unexpected error
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ImageUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, unit_id):
+        try:
+            # Get the unit by unit_id
+            unit = Unit.objects.get(id=unit_id)
+
+            # Make sure the image file is included in the request
+            image_file = request.FILES.get('image')
+            if not image_file:
+                return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Create a new UnitImage object and associate it with the unit
+            image = UnitImage(unit=unit, image=image_file, image_type='unit')  # Adjust image_type if needed
+            image.save()
+
+            # Return the serialized image data
+            image_serializer = UnitImageSerializer(image)
+            return Response(image_serializer.data, status=status.HTTP_201_CREATED)
+
+        except Unit.DoesNotExist:
+            return Response({'error': 'Unit not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class ImageManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request, unit_id, image_id):
+        try:
+            # Retrieve unit and the specific image by ID
+            unit = Unit.objects.get(id=unit_id)
+            image = UnitImage.objects.get(id=image_id, unit=unit)
+        except Unit.DoesNotExist:
+            return Response({"detail": "Unit not found."}, status=404)
+        except UnitImage.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=404)
+
+        image_file = request.FILES.get('image')
+        if image_file:
+            image.image = image_file  # Replace the old image with the new one
+            image.save()  # Save the changes to the database
+            return Response(UnitImageSerializer(image).data, status=200)
+        
+        return Response({"detail": "No image provided."}, status=400)
+
+    def delete(self, request, unit_id, image_id):
+        """Handle image deletion."""
+        try:
+            unit = Unit.objects.get(id=unit_id)
+            image = UnitImage.objects.get(id=image_id, unit=unit)
+        except Unit.DoesNotExist:
+            return Response({"detail": "Unit not found."}, status=404)
+        except UnitImage.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=404)
+
+        # Optionally delete the actual image file from the filesystem
+        if image.image:
+            image.image.delete()
+
+        image.delete()  # Delete the image record
+        return Response({"detail": "Image deleted successfully."}, status=200)
+
 
 class UnitsByFloorView(APIView):
     authentication_classes = [JWTAuthentication]
