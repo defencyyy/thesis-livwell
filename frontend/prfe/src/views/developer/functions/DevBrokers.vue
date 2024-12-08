@@ -927,9 +927,6 @@ body {
   margin-right: auto;
 }
 
-.broker-info {
-  flex-direction: row;
-}
 
 .broker-icon {
   width: 20px;

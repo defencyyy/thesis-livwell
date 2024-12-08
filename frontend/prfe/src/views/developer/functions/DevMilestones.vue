@@ -52,69 +52,70 @@
                           <button @click="editMilestone(milestone)" class="btn btn-warning btn-sm">
                             Edit
                           </button>
-                          <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
+                          <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
                             Delete
-                          </button>
+                          </button> -->
                         </td>
 
                       </tr>
                     </tbody>
                   </table>
-                </div></div></div>
-              </div>
-              <div class="right-content">
-                <div class="card border-0 rounded-1 mx-auto"
-                  style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); height: 60vh">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="toolbar">
-                        <div class="left-section"></div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
-            
-          
-
-        </div>
-
-        <div class="card shadow-lg border-0 rounded-3 mx-auto" style="max-width: 900px">
-          <div class="card-body">
-            <!-- Milestones Table -->
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Reward</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="milestone in milestones" :key="milestone.id">
-                  <td>{{ milestone.name }}</td>
-                  <td>{{ milestone.description || "N/A" }}</td>
-                  <td>{{ milestone.reward }}</td>
-                  <td>
-                    <button @click="editMilestone(milestone)" class="btn btn-warning btn-sm">
-                      Edit
-                    </button>
-                    <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <!-- Add Milestone Button -->
+            </div>
             <div class="d-flex justify-content-end mt-3">
-              <button @click="showAddForm = true" class="btn btn-primary">
+              <button @click="showAddForm = true" class="btn-add">
                 Add Milestone
               </button>
             </div>
           </div>
+          <div class="right-content">
+            <div class="card border-0 rounded-1 mx-auto"
+              style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); height: 55vh; width: 100%;">
+              <div class="card-body">
+                <div class="row">
+                  <div class="toolbar">
+                    <div class="left-section"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
+
+        <div style="max-width: 1100px; width: 100%;">
+          <div class="card border-0 rounded-1 mx-auto" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+            <div class="card-body">
+              <div class="row">
+                <div class="toolbar">
+                  <div class="left-section">
+                    <div class="search-bar-container">
+                      <input type="text" v-model="searchQuery" @input="filterSales"
+                        placeholder="Search Broker " class="search-bar" />
+                      <i class="fa fa-search search-icon"></i>
+                    </div>
+                    <!-- <select v-model="selectedBroker" @change="filterSales" class="dropdown">
+                      <option value="">All Brokers</option>
+                      <option v-for="broker in brokers" :key="broker.id" :value="broker.id">
+                        {{ broker.first_name }} {{ broker.last_name }}
+                      </option>
+                    </select>
+                    <select v-model="selectedStatus" @change="filterSales" class="dropdown">
+                      <option value="">All Status</option>
+                      <option value="Pending Reservation">
+                        Pending Reservation
+                      </option>
+                      <option value="Reserved">Reserved</option>
+                      <option value="Pending Sold">Pending Sold</option>
+                      <option value="Sold">Sold</option>
+                    </select> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
 
         <!-- Add/Edit Milestone Modal -->
         <div v-if="showAddForm" class="modal show d-block" tabindex="-1">
@@ -175,39 +176,76 @@
           </div>
         </div>
 
-        <!-- Add a search filter for brokers -->
-        <div class="mb-3">
+        <!-- <div class="mb-3">
           <input type="text" v-model="searchQuery" class="form-control" placeholder="Search brokers by name" />
-        </div>
+        </div> -->
 
         <!-- Table for displaying brokers -->
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Broker Name</th>
-              <th>Sales Completed</th>
-              <th>Sales Milestone Achieved Count</th>
-              <th>Commissions Collected</th>
-              <th>Commission Milestone Achieved Count</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="broker in filteredBrokers" :key="broker.id">
-              <td>{{ broker.first_name }} {{ broker.last_name }}</td>
-              <!-- Show full name -->
-              <td>{{ broker.total_sales }}</td>
-              <td>{{ broker.salesMilestoneCount }}</td>
-              <td>P {{ broker.total_commissions }}</td>
-              <td>{{ broker.commissionMilestoneCount }}</td>
-              <td>
-                <button @click="viewBrokerMilestones(broker)" class="btn btn-info btn-sm">
+        <div style="max-width: 1100px; width: 100%;">
+        <div class="broker-display-headers">
+                <span class="header-item">Broker Name</span>
+                <span class="header-item">Sales Completed</span>
+                <span class="header-item">Milestones Achieved</span>
+                <span class="header-item">Commission Collected</span>
+                <span class="header-item">Commission Achieved</span>
+                <span class="header-item">Action</span>
+              </div>
+              <div v-for="broker in filteredBrokers" :key="broker.id" class="card border-0 rounded-1 mx-auto my-2"
+                style="
+             
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            ">
+
+                <div class="card-body">
+                  <table class="broker-milestones-table">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <i
+                        class="fas fa-user-tie broker-icon"
+                      ></i>
+                          <span class="broker-name">
+                            {{ broker.first_name }} {{ broker.last_name }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="broker-sales">
+                            {{ broker.total_sales }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="broker-milestone-count">
+                            {{ broker.salesMilestoneCount }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="broker-commission">
+                            {{ broker.total_commissions }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="broker-commission-milestone-count">
+                            {{ broker.commissionMilestoneCount }}
+                          </span>
+                        </td>
+
+                        <td>
+                          <button @click="viewBrokerMilestones(broker)" class="btn btn-info btn-sm">
                   View
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                          <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
+                            Delete
+                          </button> -->
+                        </td>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              </div>
+
+
         <!-- Broker Milestones Modal -->
         <div v-if="showBrokerModal" class="modal show d-block" tabindex="-1">
           <div class="modal-dialog">
@@ -717,8 +755,7 @@ body {
   width: 100%;
   max-width: 1100px;
   /* Match the max-width of the dashboard-boxes */
-  margin-left: 5px;
-  /* Center grid-layout horizontally */
+  margin-bottom: 20px;
 }
 
 .left-content {
@@ -728,8 +765,135 @@ body {
 
 .right-content {
   display: flex;
-  width: 100%;
   flex-direction: column;
+}
+
+.add-milestones-headers {
+  display: grid;
+  grid-template-columns: 25% 40% 25% 10%;
+  /* Adjust widths for better layout */
+  width: 100%;
+  padding: 0 15px;
+  margin: 12px auto 10px;
+}
+
+.broker-display-headers{
+  display: grid;
+  grid-template-columns: 30% 16% 16% 16% 16% 6%;
+  /* Adjust widths for better layout */
+  max-width: 1100px;
+  width: 100%;
+  padding: 0 15px;
+  margin: 5px auto 10px;
+
+}
+
+.add-milestones-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.broker-milestones-table{
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.broker-milestones-table th,
+.broker-milestones-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.broker-milestones-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.add-milestones-table th,
+.add-milestones-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.add-milestones-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.add-milestones-table th:nth-child(2),
+.add-milestones-table td:nth-child(2) {
+  /* Location column */
+  width: 40%;
+}
+
+.add-milestones-table th:nth-child(3),
+.add-milestones-table td:nth-child(3) {
+  /* Status column */
+  width: 25%;
+}
+
+.add-milestones-table th:nth-child(4),
+.add-milestones-table td:nth-child(4) {
+  /* Actions column */
+  width: 10%;
+}
+
+.broker-milestones-table th:nth-child(2),
+.broker-milestones-table td:nth-child(2) {
+  /* Location column */
+  width: 16%;
+}
+
+.broker-milestones-table th:nth-child(3),
+.broker-milestones-table td:nth-child(3) {
+  /* Status column */
+  width: 16%;
+}
+
+.broker-milestones-table th:nth-child(4),
+.broker-milestones-table td:nth-child(4) {
+  /* Actions column */
+  width: 16%;
+}
+
+.broker-milestones-table th:nth-child(5),
+.broker-milestones-table td:nth-child(5) {
+  /* Status column */
+  width: 16%;
+}
+
+.broker-milestones-table th:nth-child(6),
+.broker-milestones-table td:nth-child(6) {
+  /* Actions column */
+  width: 6%;
+}
+
+td {
+  font-size: 14px;
+}
+
+.broker-name{
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.broker-icon {
+  font-size: 18px;
+  object-fit: cover;
+  /* Crop the image if necessary */
+  margin-right: 10px;
+  /* Adds some spacing between the image and the name */
+  color: #343a40;
 }
 
 .toolbar {
@@ -737,6 +901,17 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
+}
+
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-size: 14px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 
 .toggle-button {
@@ -755,19 +930,22 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Space between search bar and dropdown */
 }
 
 .search-bar-container {
   position: relative;
   width: 100%;
   max-width: 400px;
+  /* Adjust the width as needed */
 }
 
 .search-bar {
-  width: 100%;
+  width: 400px;
   padding: 8px 12px 8px 40px;
+  /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 14px;
 }
 
@@ -775,10 +953,12 @@ body {
   position: absolute;
   top: 50%;
   left: 10px;
+  /* Position the icon inside the input */
   transform: translateY(-50%);
   color: #777;
   font-size: 16px;
   pointer-events: none;
+  /* Prevent the icon from blocking clicks in the input */
 }
 
 .dropdown-container {
@@ -804,52 +984,8 @@ body {
   max-width: 1100px;
 }
 
-.broker-info {
-  display: flex;
-  align-items: center;
-}
-
-.broker-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: cover;
-  margin-right: 10px;
-  border-radius: 50%;
-}
-
-.broker-name {
-  font-size: 15px;
-  font-weight: bold;
-}
-
-.broker-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.broker-table th,
-.broker-table td {
-  padding: 8px;
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid #ddd;
-}
-
-.broker-table th {
-  background-color: #f8f9fa;
-}
-
-.outside-headers {
-  display: grid;
-  grid-template-columns: 25% 20% 25% 20% 10%;
-  padding: 0px 18px;
-  margin: 20px auto;
-  max-width: 1100px;
-}
-
 .header-item {
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
   text-align: left;
@@ -859,24 +995,6 @@ body {
 .row .form-label {
   font-size: 0.9rem;
   color: #6c757d;
-}
-
-.btn-add,
-.btn-cancel {
-  padding: 10px;
-  border-radius: 3px;
-  border: none;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.btn-add {
-  background-color: #42b983;
-}
-
-.btn-add:hover {
-  background-color: #38a169;
 }
 
 .btn-cancel {
