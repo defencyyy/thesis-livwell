@@ -389,8 +389,6 @@ body {
   /* Gray background */
 }
 
-
-
 .content {
   flex: 1;
   padding: 20px;
@@ -417,26 +415,6 @@ canvas {
   margin: 20px auto;
 }
 
-
-
-.box {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.box p {
-  font-size: 14px;
-  color: #666;
-}
-
-.box h2 {
-  font-size: 24px;
-  margin: 10px 0 0;
-}
 #salesBarChart {
   max-width: 100%;
   width: 100%; /* Adjust the width to 100% of its container */
@@ -455,13 +433,75 @@ canvas {
   padding: 20px;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 
 /* Responsive Dashboard and Pie Chart */
 .dashboard-and-pie {
   display: flex;
   justify-content: space-between;
+  align-items: stretch; /* Ensure both children match height */
   gap: 20px;
   margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  /* Space between icon and title */
+}
+
+.box h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
+}
+
+.box {
+  position: relative;
+  /* Make the box a positioning context */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 15px;
+  margin: 0;
+}
+
+.icon-container {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  /* Make the icon circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.box-header p {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: #000000;
 }
 
 .dashboard-boxes {
@@ -469,7 +509,8 @@ canvas {
   flex-direction: column;
   gap: 20px;
   flex: 1;
-  margin-top: 50px;
+  max-width: 1100px;
+  height: 500px; /* Fixed height */
 }
 
 .box {
@@ -487,19 +528,29 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
+  margin-top: -50px; /* Removed extra margin */
+  padding: 10px; /* Optional: Add some padding for aesthetic space */
+}
+
+canvas {
+  height: 450px !important; /* Force canvas to stretch to the container height */
+  width: 100% !important; /* Maintain proportional scaling */
 }
 
 #salesPieChart {
-  max-width: 500px;
-  width: 100%;
+  width: 100%; /* Ensure it stretches horizontally */
+  height: 100%; /* Ensure it takes up the full height of the container */
+  max-width: 100%;
+  max-height: 100%; /* Prevent the chart from exceeding the container's height */
   padding: 20px;
   text-align: center;
-  border: 2px solid #ccc;
-  border-radius: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
+  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
 }
+
 
 .bar-chart-header {
   display: flex;
