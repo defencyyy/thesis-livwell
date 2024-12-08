@@ -26,13 +26,39 @@ class UnitTypeSerializer(serializers.ModelSerializer):
 
 class UnitTemplateSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Add company field
-    images = UnitImageSerializer(many=True, read_only=True)
-    unit_type = UnitTypeSerializer()
+    images = UnitImageSerializer(many=True, required=False)  # Allow images to be included during creation/update
+    unit_type = serializers.PrimaryKeyRelatedField(queryset=UnitType.objects.all())
 
     class Meta:
         model = UnitTemplate
         fields = '__all__'
 
+    def create(self, validated_data):
+        images_data = validated_data.pop('images', [])
+        template = UnitTemplate.objects.create(**validated_data)
+
+        # Handle image creation separately (if provided)
+        if images_data:
+            for image_data in images_data:
+                image_data['unit_template'] = template  # Set the template reference
+                UnitImage.objects.create(**image_data)
+
+        return template
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', [])
+        instance = super().update(instance, validated_data)
+
+        # Handle image updates separately (if provided)
+        if images_data:
+            # Delete old images
+            instance.images.all().delete()
+            # Create new images
+            for image_data in images_data:
+                image_data['unit_template'] = instance  # Set the template reference
+                UnitImage.objects.create(**image_data)
+
+        return instance
 
 class UnitSerializer(serializers.ModelSerializer):
     images = UnitImageSerializer(many=True, required=False)
