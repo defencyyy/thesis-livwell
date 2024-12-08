@@ -87,6 +87,13 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
+                    <BFormSelect
+                      v-model="viewFilter"
+                      @change="toggleView(viewFilter)"
+                    >
+                      <option value="active">Active</option>
+                      <option value="archived">Archived</option>
+                    </BFormSelect>
                   </div>
                   <div class="right-section">
                     <button
@@ -179,8 +186,11 @@
                             >
                               <i class="fas fa-edit"></i>
                             </button>
+                            <!-- Archive/Unarchive button -->
                             <button
-                              @click="deleteTemplate(template.id)"
+                              v-if="template.is_archived === false"
+                              @click="archiveTemplate(template.id)"
+                              class="btn btn-sm btn-warning"
                               style="
                                 border: none;
                                 background-color: transparent;
@@ -190,6 +200,21 @@
                               "
                             >
                               <i class="fas fa-archive"></i>
+                            </button>
+
+                            <button
+                              v-if="template.is_archived === true"
+                              @click="unarchiveTemplate(template.id)"
+                              class="btn btn-sm btn-success"
+                              style="
+                                border: none;
+                                background-color: transparent;
+                                color: #343a40;
+                                cursor: pointer;
+                                font-size: 18px;
+                              "
+                            >
+                              <i class="fas fa-undo"></i>
                             </button>
                           </div>
                         </td>
@@ -500,7 +525,12 @@ export default {
       selectedImages: [],
       isCreateModalOpen: false,
       isEditModalOpen: false,
-      unitTypes: [], // The array to hold the unit types (this will come from your backend or be defined statically)
+      unitTypes: [],
+      templateStatus: "", // This will hold the selected status ("active" or "archived")
+      showArchived: false, // Set initial state to false for active templates
+      viewFilter: "active", // Initially, show active templates
+
+      // The array to hold the unit types (this will come from your backend or be defined statically)
     };
   },
   computed: {
@@ -516,14 +546,41 @@ export default {
         })),
       ];
     },
+
     filteredTemplates() {
-      // Ensure that the computed property does not mutate or change any values, just return the filtered data
-      return this.templates.filter((template) =>
-        template.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      let filtered = this.templates.filter((template) => {
+        // Filter by search query
+        const matchesSearch = template.name
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase());
+
+        // Filter by archived status
+        const isArchived =
+          this.viewFilter === "archived"
+            ? template.is_archived
+            : !template.is_archived;
+
+        return matchesSearch && isArchived;
+      });
+
+      return filtered;
+    },
+    archivedTemplates() {
+      return this.templates.filter((template) => template.is_archived);
+    },
+    activeTemplates() {
+      return this.templates.filter((template) => !template.is_archived);
     },
   },
   methods: {
+    toggleView(viewType) {
+      this.viewFilter = viewType;
+      if (this.viewFilter === "active") {
+        this.showArchived = false; // Hides archived templates
+      } else if (this.viewFilter === "archived") {
+        this.showArchived = true; // Shows archived templates
+      }
+    },
     redirectToUnits() {
       this.$router.push({ name: "DevFuncUnits" });
     },
@@ -648,26 +705,28 @@ export default {
     async saveTemplateChanges() {
       if (!this.selectedTemplate) return;
 
-      // Create a FormData object to send both updated template data and images
       const formData = new FormData();
 
-      // Append the fields for the template
-      formData.append("name", this.selectedTemplate.templateName);
-      formData.append("unit_type", this.selectedTemplate.templateType);
-      formData.append("description", this.selectedTemplate.templateDescription);
-      formData.append("price", this.selectedTemplate.templatePrice);
-      formData.append("lot_area", this.selectedTemplate.templateLotArea);
-      formData.append("floor_area", this.selectedTemplate.templateFloorArea);
+      // Log the selected template object for debugging
+      console.log("Selected template: ", this.selectedTemplate);
+      // Make sure the keys match
+      formData.append("name", this.selectedTemplate.name); // Ensure 'name' matches the v-model in the template
+      formData.append("unit_type", this.selectedTemplate.unit_type); // Ensure 'unit_type' matches the v-model in the template
+      formData.append("description", this.selectedTemplate.description); // Ensure 'description' matches the v-model in the template
+      formData.append("price", this.selectedTemplate.price); // Ensure 'price' matches the v-model in the template
+      formData.append("lot_area", this.selectedTemplate.lot_area); // Ensure 'lot_area' matches the v-model in the template
+      formData.append("floor_area", this.selectedTemplate.floor_area); // Ensure 'floor_area' matches the v-model in the template
 
-      // Append updated images (if selected)
       if (this.selectedImages && this.selectedImages.length) {
         this.selectedImages.forEach((file) => {
           formData.append("images", file);
         });
       }
 
+      // Log formData to verify the content being sent
+      console.log("FormData being sent: ", formData);
+
       try {
-        // Send the updated FormData to the backend for updating the template
         const response = await axios.put(
           `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
           formData,
@@ -679,7 +738,6 @@ export default {
           }
         );
 
-        // Update the template in the frontend array
         const index = this.templates.findIndex(
           (template) => template.id === this.selectedTemplate.id
         );
@@ -690,16 +748,21 @@ export default {
         this.closeEditModal();
         alert("Template updated successfully!");
       } catch (error) {
-        console.error(error);
+        console.error(
+          "Error saving template changes:",
+          error.response ? error.response.data : error
+        );
         alert("Failed to update template.");
       }
     },
-
-    async deleteTemplate(templateId) {
-      if (confirm("Are you sure you want to delete this template?")) {
+    // Archive a template
+    async archiveTemplate(templateId) {
+      if (confirm("Are you sure you want to archive this template?")) {
         try {
-          await axios.delete(
+          console.log(`Archiving template with ID: ${templateId}`);
+          const response = await axios.put(
             `http://localhost:8000/developer/units/templates/${templateId}/`,
+            { is_archived: true }, // Set to true to archive
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -707,17 +770,45 @@ export default {
               },
             }
           );
-          // Remove the deleted template from the frontend array
-          this.templates = this.templates.filter(
-            (template) => template.id !== templateId
-          );
-          alert("Template deleted successfully!");
+          console.log("Template archived successfully:", response.data);
+          alert("Template archived successfully!");
+
+          // Re-fetch the templates to ensure the UI is up-to-date
+          this.fetchTemplates();
         } catch (error) {
-          console.error(error);
-          alert("Failed to delete template.");
+          console.error("Error archiving template:", error.response || error);
+          alert("Failed to archive template. Please try again.");
         }
       }
     },
+
+    // Unarchive a template
+    async unarchiveTemplate(templateId) {
+      if (confirm("Are you sure you want to unarchive this template?")) {
+        try {
+          console.log(`Unarchiving template with ID: ${templateId}`);
+          const response = await axios.put(
+            `http://localhost:8000/developer/units/templates/${templateId}/`,
+            { is_archived: false }, // Set to false to unarchive
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          console.log("Template unarchived successfully:", response.data);
+          alert("Template unarchived successfully!");
+
+          // Re-fetch the templates to ensure the UI is up-to-date
+          this.fetchTemplates();
+        } catch (error) {
+          console.error("Error unarchiving template:", error.response || error);
+          alert("Failed to unarchive template. Please try again.");
+        }
+      }
+    },
+
     // Fetch Unit Templates
     async fetchTemplates() {
       try {
@@ -769,7 +860,6 @@ export default {
     },
   },
   mounted() {
-    console.log("Company ID:", this.companyId); // Check if companyId is available
     this.showUnitTemplates(); // Default view to show unit templates
     this.fetchUnitTypes(); // Fetch unit types on load
   },

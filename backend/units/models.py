@@ -240,6 +240,7 @@ class UnitTemplate(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     relative_id = models.CharField(max_length=255, blank=True, null=True)
     primary_image = models.ForeignKey('UnitImage', null=True, blank=True, on_delete=models.SET_NULL, related_name='primary_for_templates', help_text="Primary image for the template")
+    is_archived = models.BooleanField(default=False) 
 
     def clean(self):
         # Ensure floor_area is greater than or equal to lot_area

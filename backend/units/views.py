@@ -100,11 +100,14 @@ class UnitTemplateDetailView(APIView):
         except UnitTemplate.DoesNotExist:
             return Response({"error": "UnitTemplate not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Optional: Delete associated images as well
-        template.images.all().delete()
+        # Instead of deleting, archive the template by setting is_archived to True
+        template.is_archived = True
+        template.save()
 
-        template.delete()
-        return Response({"success": True}, status=status.HTTP_204_NO_CONTENT)
+        # Optional: You can delete associated images, but that's not necessary for archiving
+        # template.images.all().delete()
+
+        return Response({"success": True, "message": "Template archived successfully."}, status=status.HTTP_200_OK)
 
 class UnitListView(APIView):
     authentication_classes = [JWTAuthentication]
