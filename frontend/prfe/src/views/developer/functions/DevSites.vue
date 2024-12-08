@@ -1256,7 +1256,6 @@ export default {
     },
     constructLocation(site) {
       const addressParts = [
-        site.region,
         site.province,
         site.municipality,
         site.barangay,

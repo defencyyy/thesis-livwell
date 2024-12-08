@@ -3,583 +3,668 @@
     <SideNav />
     <div class="main-content">
       <AppHeader />
-    <div class="content">
-      <router-link class="text-start" to="/broker/affiliated-units">
-        <div class = "back-container">
-          <i class="fas fa-arrow-left"></i> Back to Sites
-        </div>
-      </router-link>
-
-      <div class="title-wrapper">
-        <div class="title-left">
-          <div class="title-icon"></div>
-          <div class="edit-title">Available Units for Site {{ siteName }} </div>
-        </div>
-      </div>
-
-      <div
-          class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 15px;"
-      >
-    
-      <div class = "card-body">
-        <div class = "row">
-          <!-- Toolbar -->
-           <div class = "toolbar">
-            <div class = "left-section">
-              <label>View </label>
-              <select v-model="selectedView" class = "dropdown-select">
-              <option value="all">All</option>
-              <option value="north">North</option>
-              <option value="south">South</option>
-              <option value="east">East</option>
-              <option value="west">West</option>
-            </select>
-            <label>Balcony</label>
-            <select v-model="selectedBalcony" class = "dropdown-select">
-              <option value="all">All</option>
-              <option value="has">Has Balcony</option>
-              <option value="no">No Balcony</option>
-            </select>
-            <label>Floor</label>
-            <select v-model="selectedFloor" class = "dropdown-select">
-              <option value="all">All</option>
-              <option v-for="floor in availableFloors" :key="floor" :value="floor">{{ floor }}</option>
-            </select>
-            <label>Unit Type</label>
-            <select v-model="selectedUnitType" class = "dropdown-select">
-              <option value="all">All</option>
-              <option v-for="unitType in availableUnitTypes" :key="unitType" :value="unitType">{{ unitType }}</option>
-            </select>
-           </div>
-        </div>
-      </div>
-      </div>
-    </div>
-
-    <div v-if = "filteredUnits.length" class = "site-grid">
-      <div
-      v-for="unit in paginatedUnits"
-      :key="unit.id"
-      class="site-card"
-      @click="showUnitDetails(unit)"
-      >
-        <p>{{ unit.unit_title }}</p>
-      </div>
-    </div>
-
-    <div v-else>
-      <p>No sites with available units.</p>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
-        >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
-
-
-      <!-- Unit Details Modal -->
-      <b-modal
-      id="unitDetailsModal"
-      v-model="isModalVisible"
-      title="Unit Details"
-      hide-footer
-      size="lg"
-      @hide="closeModal"
-    >
-
-      <div v-if="selectedUnit.images && selectedUnit.images.length" id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-      <!-- Indicators -->
-      <div class="carousel-indicators">
-        <button
-          v-for="(image, index) in selectedUnit.images"
-          :key="index"
-          :data-bs-target="'#carouselExampleIndicators'"
-          :data-bs-slide-to="index"
-          :class="{ active: index === 0 }"
-          :aria-current="index === 0 ? 'true' : null"
-          :aria-label="'Slide ' + (index + 1)"
-        ></button>
-      </div>
-
-      <!-- Carousel Items -->
-      <div class="carousel-inner">
-        <div
-          v-for="(image, index) in selectedUnit.images"
-          :key="index"
-          :class="['carousel-item', { active: index === 0 }]"
-        >
-          <img :src="image" class="d-block w-100" alt="Unit Picture" style="width: 100%; height: 500px; object-fit: cover;" />
-        </div>
-      </div>
-
-      <!-- Navigation Controls -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
-
-    <!-- Loading State -->
-    <div v-else class="text-center">
-      <p>No unit images.</p>
-    </div>
-    <div class="row mb-3">
-      <div class="col-12 d-flex justify-content-between align-items-center">
-          <!-- Left Section: Price and Installment Badge -->
-          <div class="d-flex align-items-center gap-2">
-              <span class="property-price">₱ {{ selectedUnit.price }}</span>
+      <div class="content">
+        <router-link class="text-start" to="/broker/affiliated-units">
+          <div class="back-container">
+            <i class="fas fa-arrow-left"></i> Back to Sites
           </div>
-          <!-- Right Section: Icons and Details -->
-          <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-1">
+        </router-link>
+
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">
+              Available Units for Site {{ siteName }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="
+            max-width: 1100px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+          "
+        >
+          <div class="card-body">
+            <div class="row">
+              <!-- Toolbar -->
+              <div class="toolbar">
+                <div class="left-section">
+                  <label>View </label>
+                  <select v-model="selectedView" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option value="north">North</option>
+                    <option value="south">South</option>
+                    <option value="east">East</option>
+                    <option value="west">West</option>
+                  </select>
+                  <label>Balcony</label>
+                  <select v-model="selectedBalcony" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option value="has">Has Balcony</option>
+                    <option value="no">No Balcony</option>
+                  </select>
+                  <label>Floor</label>
+                  <select v-model="selectedFloor" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option
+                      v-for="floor in availableFloors"
+                      :key="floor"
+                      :value="floor"
+                    >
+                      {{ floor }}
+                    </option>
+                  </select>
+                  <label>Unit Type</label>
+                  <select v-model="selectedUnitType" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option
+                      v-for="unitType in availableUnitTypes"
+                      :key="unitType"
+                      :value="unitType"
+                    >
+                      {{ unitType }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="filteredUnits.length" class="site-grid">
+          <div
+            v-for="unit in paginatedUnits"
+            :key="unit.id"
+            class="site-card"
+            @click="showUnitDetails(unit)"
+          >
+            <p>{{ unit.unit_title }}</p>
+          </div>
+        </div>
+
+        <div v-else>
+          <p>No sites with available units.</p>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <span v-for="page in totalPages" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="{ active: page === currentPage }"
+              class="page-button"
+            >
+              {{ page }}
+            </button>
+          </span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
+
+        <!-- Unit Details Modal -->
+        <b-modal
+          id="unitDetailsModal"
+          v-model="isModalVisible"
+          title="Unit Details"
+          hide-footer
+          size="lg"
+          @hide="closeModal"
+        >
+          <div
+            v-if="selectedUnit.images && selectedUnit.images.length"
+            id="carouselExampleIndicators"
+            class="carousel slide"
+            data-bs-ride="carousel"
+          >
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+              <button
+                v-for="(image, index) in selectedUnit.images"
+                :key="index"
+                :data-bs-target="'#carouselExampleIndicators'"
+                :data-bs-slide-to="index"
+                :class="{ active: index === 0 }"
+                :aria-current="index === 0 ? 'true' : null"
+                :aria-label="'Slide ' + (index + 1)"
+              ></button>
+            </div>
+
+            <!-- Carousel Items -->
+            <div class="carousel-inner">
+              <div
+                v-for="(image, index) in selectedUnit.images"
+                :key="index"
+                :class="['carousel-item', { active: index === 0 }]"
+              >
+                <img
+                  :src="image"
+                  class="d-block w-100"
+                  alt="Unit Picture"
+                  style="width: 100%; height: 500px; object-fit: cover"
+                />
+              </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <button
+              class="carousel-control-prev"
+              type="button"
+              data-bs-target="#carouselExampleIndicators"
+              data-bs-slide="prev"
+            >
+              <span
+                class="carousel-control-prev-icon"
+                aria-hidden="true"
+              ></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button
+              class="carousel-control-next"
+              type="button"
+              data-bs-target="#carouselExampleIndicators"
+              data-bs-slide="next"
+            >
+              <span
+                class="carousel-control-next-icon"
+                aria-hidden="true"
+              ></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+
+          <!-- Loading State -->
+          <div v-else class="text-center">
+            <p>No unit images.</p>
+          </div>
+          <div class="row mb-3">
+            <div
+              class="col-12 d-flex justify-content-between align-items-center"
+            >
+              <!-- Left Section: Price and Installment Badge -->
+              <div class="d-flex align-items-center gap-2">
+                <span class="property-price">₱ {{ selectedUnit.price }}</span>
+              </div>
+              <!-- Right Section: Icons and Details -->
+              <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-1">
                   <i class="fa-solid fa-bed"></i>
                   <span>{{ selectedUnit.bedroom }}</span>
-              </div>
-              <div class="d-flex align-items-center gap-1">
-                <i class="fa-solid fa-bath"></i>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                  <i class="fa-solid fa-bath"></i>
                   <span>{{ selectedUnit.bathroom }}</span>
-              </div>
-              <div class="d-flex align-items-center gap-1">
+                </div>
+                <div class="d-flex align-items-center gap-1">
                   <i class="bi bi-arrows-fullscreen"></i>
                   <span>{{ selectedUnit.floor_area }}m<sup>2</sup></span>
+                </div>
+                <span class="text-muted">Studio Type</span>
               </div>
-              <span class="text-muted">Studio Type</span>
+            </div>
           </div>
-      </div>
-    </div>
-    <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-          <h5 class="property-header">Details</h5>
-    </div>
-    <div class="row ps-5">
-      <!-- Column 1 -->
-      <div class="col-md-4">
-          <ul class="list-unstyled mb-0">
-            <li><strong>Balcony:</strong> {{ selectedUnit.balcony }} </li>
-            <li><strong>Floor Area (m²):</strong> {{ selectedUnit.floor_area }}m<sup>2</sup></li>
-            <li><strong>View:</strong> {{ selectedUnit.view }}</li>
-          </ul>
-      </div>
-      <!-- Column 2 -->
-      <div class="col-md-4">
-          <ul class="list-unstyled mb-0">
-              <li><strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}</li>
-              <li><strong>Build (Year):</strong> {{ siteYear }}</li>
-          </ul>
-      </div>
-      <!-- Column 3 -->
-      <div class="col-md-4">
-          <ul class="list-unstyled mb-0">
-            <li><strong>Baths:</strong> {{ selectedUnit.bathroom }}</li>
-            <li><strong>Bedrooms:</strong> {{ selectedUnit.bedroom }}</li>
-          </ul>
-      </div>
-    </div>
-    <br>
-    <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-      <h5 class="property-header">Payment Plan</h5><br>
-    </div>
-    <div class="row mb-3 ps-5">
-      <div class="col-12 d-flex justify-content-around align-items-center">
-        <!-- Left Section: Property Price -->
-        <div class="text-center">
-          <h5 class="muted price-header">Property Price</h5>
-          <p class="property-price1">₱ {{ selectedUnit.price }}</p>
-        </div>
-        <!-- Right Section: Payment Plan -->
-        <div class="text-center1">
-          <h5 class="price-header">Payment Plan</h5>
-          <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
-            <option value="Spot Cash">Spot Cash</option>
-            <option value="Deffered Payment">Deffered Payment</option>
-          </select>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Spot Discount -->
-    <div class="form-group">
-      <label for="spotDiscount">Spot Discount</label>
-      <input
-        type="number"
-        id="spotDiscount"
-        v-model="spotCashDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="100"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    
-    <p class = "description-align">
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
-
-    <!-- TLP Discount -->
-    <div class="form-group">
-      <label for="tlpDiscount">TLP Discount (Optional)</label>
-      <input
-        type="number"
-        id="tlpDiscount"
-        v-model="tlpDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="100"
-      />
-    </div>
-
-    <p class = "description-align"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-    <!-- Net Unit Price -->
-    <p class = "description-align"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-    <!-- Other Charges -->
-    <div class="form-group">
-      <label for="otherChargesPercentage">Other Charges (%)</label>
-      <input
-        type="number"
-        id="otherChargesPercentage"
-        v-model="otherChargesPercentage"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        step="0.1"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-    <!-- VAT Calculation -->
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-
-    <!-- Total Amount Payable -->
-    <p class = "description-align">
-      <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-    </p>
-
-    <div
-    v-if="selectedPaymentPlan === 'Deffered Payment'"
-    class="form-group"
-    >
-      <label for="spotDownpayment">Spot Downpayment</label>
-      <input
-        type="number"
-        id="spotDownpayment"
-        v-model="spotDownpaymentPercentage"
-        @input="updatePaymentDetails"
-        min="0"
-        step="5"
-        placeholder="Enter downpayment percentage"
-        required
-      />
-    </div>
-
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-
-    <!-- Reservation Fee -->
-    <p class = "description-align"><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
-    <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "description-align">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-
-    <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-
-    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-      <!-- Spread Downpayment -->
-      <div class="form-group">
-        <label for="spreadDownpayment">Spread Downpayment</label>
-        <select
-          v-model="spreadDownpaymentPercentage"
-          id="spreadDownpayment"
-          @change="updatePaymentDetails"
-          class="form-select mt-2"
-          style="width: 100px;"
-          required
-        >
-          <option value="0">0%</option>
-          <option value="5">5%</option>
-          <option value="10">10%</option>
-          <option value="15">15%</option>
-        </select>
-      </div>
-      
-      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-
-      <!-- Payable in Months -->
-      <div class="form-group">
-        <label for="months">Months to Pay</label>
-        <input
-          type="number"
-          v-model="payableMonths"
-          id="months"
-          @input="updatePaymentDetails"
-          min="1"
-          step="1"
-          required
-        />
-      </div>
-      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-      <!-- Balance Upon Turnover -->
-      <p class = "description-align">
-        <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-      </p>
-      <br>    
-      <div class="line mb-4"></div>
-      <div class="col-12 text-center mb-3 text-center">
-            <h5 class="property-header">Payment Schedule Summary</h5>
-      </div>
-
-      <!-- Payment Summary -->
-      <div class="payment-summary">
-        <p class = "description-align">
-          <strong>Spot Downpayment:</strong> ₱{{
-            spotDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Spread Downpayment:</strong> ₱{{
-            spreadDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Monthly Payment:</strong> ₱{{
-            payablePerMonth.toFixed(2)
-          }}
-          / month for {{ payableMonths }} months
-        </p>
-        <p class = "description-align">
-          <strong>Balance Upon Turnover:</strong> ₱{{
-            balanceUponTurnover.toFixed(2)
-          }}
-        </p>
-      </div>
-      <!-- Expandable Detailed Schedule Section -->
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div
-      class="d-flex justify-content-end gap-2 mt-30"
-      style="padding-top: 15px"
-    >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
-    </div>
-
-    <!-- Success Message Pop-up -->
-
-    <b-modal
-      v-model="showSuccessMessage"
-      title="Reservation Submitted"
-      @hide="closePopup"
-      centered
-      hide-footer
-      :visible="successMessage"
-      >
-        <p>{{ successMessage }}</p>
-        <div class = "buttons-container">
-          <button @click="closePopup" class="btn btn-primary">OK</button>
-        </div>
-    </b-modal>
-
-    <!-- Reserve Unit Modal -->
-    <b-modal
-      v-model="isReserveModalVisible"
-      @hide="closeReserveModal"
-      hide-footer
-      title="Reserve Unit"
-    >
-      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
-        <!-- Customer Name Dropdown -->
-        <div class="form-group">
-          <label for="customerName">Customer Name</label>
-          <select
-            v-model="reservationForm.customerName"
-            id="customerName"
-            class = "form-select"
-            style="margin-left: 1px;"
-            required
-          >
-            <option value="" disabled selected>Select Customer</option>
-            <option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
+          <div class="line mb-4"></div>
+          <div class="col-12 text-center mb-3 text-center">
+            <h5 class="property-header">Details</h5>
+          </div>
+          <div class="row ps-5">
+            <!-- Column 1 -->
+            <div class="col-md-4">
+              <ul class="list-unstyled mb-0">
+                <li><strong>Balcony:</strong> {{ selectedUnit.balcony }}</li>
+                <li>
+                  <strong>Floor Area (m²):</strong>
+                  {{ selectedUnit.floor_area }}m<sup>2</sup>
+                </li>
+                <li><strong>View:</strong> {{ selectedUnit.view }}</li>
+              </ul>
+            </div>
+            <!-- Column 2 -->
+            <div class="col-md-4">
+              <ul class="list-unstyled mb-0">
+                <li>
+                  <strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}
+                </li>
+                <li><strong>Build (Year):</strong> {{ siteYear }}</li>
+              </ul>
+            </div>
+            <!-- Column 3 -->
+            <div class="col-md-4">
+              <ul class="list-unstyled mb-0">
+                <li><strong>Baths:</strong> {{ selectedUnit.bathroom }}</li>
+                <li><strong>Bedrooms:</strong> {{ selectedUnit.bedroom }}</li>
+              </ul>
+            </div>
+          </div>
+          <br />
+          <div class="line mb-4"></div>
+          <div class="col-12 text-center mb-3 text-center">
+            <h5 class="property-header">Payment Plan</h5>
+            <br />
+          </div>
+          <div class="row mb-3 ps-5">
+            <div
+              class="col-12 d-flex justify-content-around align-items-center"
             >
-              {{ customer.name }} ({{ customer.customer_code }})
-            </option>
-          </select>
-        </div>
-        <!-- File Upload -->
-        <div class="form-group">
-          <label for="fileUpload">Upload File (Required)</label>
-          <input
-            type="file"
-            @change="handleFileUpload"
-            id="fileUpload"
-            class = "form-control"
-            required
-          />
-        </div>
-        <!-- Payment Amount -->
-        <div class="form-group">
-          <label for="paymentAmount">Payment Amount</label>
-          <input
-            type="number"
-            v-model="reservationForm.paymentAmount"
-            id="paymentAmount"
-            required
-          />
-        </div>
-        <!-- Payment Method -->
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select
-            v-model="reservationForm.paymentMethod"
-            id="paymentMethod"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          >
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="cash">Cash</option>
-            <option value="online_payment">Online Payment</option>
-          </select>
-        </div>
-        <!-- Payment Date -->
-        <div class="form-group">
-          <label for="paymentDate">Date of Payment</label>
-          <input
-            type="date"
-            v-model="reservationForm.paymentDate"
-            id="paymentDate"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Payment Reference (only if payment method is not cash) -->
-        <div
-          class="form-group"
-          v-if="reservationForm.paymentMethod !== 'cash'"
-        >
-          <label for="paymentReference">Payment Reference Number</label>
-          <input
-            type="text"
-            v-model="reservationForm.paymentReference"
-            id="paymentReference"
-            class = "form-control"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Submit Button -->
-        <div
-          class="d-flex justify-content-end gap-2 mt-30"
-          style="padding-top: 15px"
-        >
-        <button type="submit" class="btn-add">
-            Submit Reservation
-        </button>
-        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
-        </div>
-      </form>
-      
-      <!-- Error Message -->
-        <b-modal v-if="errorMessage">
-          <p>{{ errorMessage }}</p>
-          <div class = "button-container">
-            <button @click="closeModal" class = "btn-cancel-right">Close</button>
+              <!-- Left Section: Property Price -->
+              <div class="text-center">
+                <h5 class="muted price-header">Property Price</h5>
+                <p class="property-price1">₱ {{ selectedUnit.price }}</p>
+              </div>
+              <!-- Right Section: Payment Plan -->
+              <div class="text-center1">
+                <h5 class="price-header">Payment Plan</h5>
+                <select
+                  v-model="selectedPaymentPlan"
+                  id="paymentPlan"
+                  class="form-select mt-2"
+                  required
+                >
+                  <option value="Spot Cash">Spot Cash</option>
+                  <option value="Deffered Payment">Deffered Payment</option>
+                </select>
+              </div>
+            </div>
           </div>
+
+          <!-- Spot Discount -->
+          <div class="form-group">
+            <label for="spotDiscount">Spot Discount</label>
+            <input
+              type="number"
+              id="spotDiscount"
+              v-model="spotCashDiscount"
+              @input="updatePaymentDetails"
+              class="form-control"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <p class="description-align">
+            <strong>Spot Discount:</strong> ₱{{ spotDiscount }}
+          </p>
+
+          <p class="description-align">
+            <strong>Unit Price after Spot Discount:</strong> ₱{{
+              unitPriceAfterSpotDiscount
+            }}
+          </p>
+
+          <!-- TLP Discount -->
+          <div class="form-group">
+            <label for="tlpDiscount">TLP Discount (Optional)</label>
+            <input
+              type="number"
+              id="tlpDiscount"
+              v-model="tlpDiscount"
+              @input="updatePaymentDetails"
+              class="form-control"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <p class="description-align">
+            <strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}
+          </p>
+
+          <!-- Net Unit Price -->
+          <p class="description-align">
+            <strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}
+          </p>
+
+          <!-- Other Charges -->
+          <div class="form-group">
+            <label for="otherChargesPercentage">Other Charges (%)</label>
+            <input
+              type="number"
+              id="otherChargesPercentage"
+              v-model="otherChargesPercentage"
+              @input="updatePaymentDetails"
+              class="form-control"
+              min="0"
+              step="0.1"
+            />
+          </div>
+
+          <p class="description-align">
+            <strong>Other Charges:</strong> ₱{{ otherCharges }}
+          </p>
+
+          <!-- VAT Calculation -->
+          <p v-if="netUnitPrice > 3600000">
+            <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+          </p>
+
+          <!-- Total Amount Payable -->
+          <p class="description-align">
+            <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
+          </p>
+
+          <div
+            v-if="selectedPaymentPlan === 'Deffered Payment'"
+            class="form-group"
+          >
+            <label for="spotDownpayment">Spot Downpayment</label>
+            <input
+              type="number"
+              id="spotDownpayment"
+              v-model="spotDownpaymentPercentage"
+              @input="updatePaymentDetails"
+              min="0"
+              step="5"
+              placeholder="Enter downpayment percentage"
+              required
+            />
+          </div>
+
+          <p
+            v-if="selectedPaymentPlan === 'Deffered Payment'"
+            class="description-align"
+          >
+            <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+          </p>
+
+          <!-- Reservation Fee -->
+          <p class="description-align">
+            <strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}
+          </p>
+          <p
+            v-if="selectedPaymentPlan === 'Spot Cash'"
+            class="description-align"
+          >
+            <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+          </p>
+
+          <!-- Net Downpayment -->
+          <p
+            v-if="selectedPaymentPlan === 'Deffered Payment'"
+            class="description-align"
+          >
+            <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+          </p>
+
+          <div v-if="selectedPaymentPlan === 'Deffered Payment'">
+            <!-- Spread Downpayment -->
+            <div class="form-group">
+              <label for="spreadDownpayment">Spread Downpayment</label>
+              <select
+                v-model="spreadDownpaymentPercentage"
+                id="spreadDownpayment"
+                @change="updatePaymentDetails"
+                class="form-select mt-2"
+                style="width: 100px"
+                required
+              >
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+              </select>
+            </div>
+
+            <p class="description-align">
+              <strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}
+            </p>
+
+            <!-- Payable in Months -->
+            <div class="form-group">
+              <label for="months">Months to Pay</label>
+              <input
+                type="number"
+                v-model="payableMonths"
+                id="months"
+                @input="updatePaymentDetails"
+                min="1"
+                step="1"
+                required
+              />
+            </div>
+            <p class="description-align">
+              <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
+            </p>
+            <!-- Balance Upon Turnover -->
+            <p class="description-align">
+              <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
+            </p>
+            <br />
+            <div class="line mb-4"></div>
+            <div class="col-12 text-center mb-3 text-center">
+              <h5 class="property-header">Payment Schedule Summary</h5>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="payment-summary">
+              <p class="description-align">
+                <strong>Spot Downpayment:</strong> ₱{{
+                  spotDownpayment.toFixed(2)
+                }}
+              </p>
+              <p class="description-align">
+                <strong>Spread Downpayment:</strong> ₱{{
+                  spreadDownpayment.toFixed(2)
+                }}
+              </p>
+              <p class="description-align">
+                <strong>Monthly Payment:</strong> ₱{{
+                  payablePerMonth.toFixed(2)
+                }}
+                / month for {{ payableMonths }} months
+              </p>
+              <p class="description-align">
+                <strong>Balance Upon Turnover:</strong> ₱{{
+                  balanceUponTurnover.toFixed(2)
+                }}
+              </p>
+            </div>
+            <!-- Expandable Detailed Schedule Section -->
+            <button @click="toggleDetailedSchedule" class="toggle-button">
+              {{
+                showDetailedSchedule
+                  ? "Hide Detailed Schedule"
+                  : "Show Detailed Schedule"
+              }}
+            </button>
+
+            <!-- Detailed Monthly Schedule (Visible when expanded) -->
+            <div v-if="showDetailedSchedule" class="detailed-schedule">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th><center>Payment Type</center></th>
+                    <th><center>Amount (₱)</center></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Spot Downpayment</td>
+                    <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+                  </tr>
+                  <tr>
+                    <td>Spread Downpayment</td>
+                    <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+                  </tr>
+                  <!-- Loop through the months to display monthly payments -->
+                  <tr v-for="month in payableMonths" :key="month">
+                    <td>Month {{ month }} Payment</td>
+                    <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+                  </tr>
+                  <tr>
+                    <td>Balance Upon Turnover</td>
+                    <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
+            <button class="reserve-btn" @click="openReserveModal">
+              Reserve Unit
+            </button>
+          </div>
+
+          <!-- Success Message Pop-up -->
+
+          <b-modal
+            v-model="showSuccessMessage"
+            title="Reservation Submitted"
+            @hide="closePopup"
+            centered
+            hide-footer
+            :visible="successMessage"
+          >
+            <p>{{ successMessage }}</p>
+            <div class="buttons-container">
+              <button @click="closePopup" class="btn btn-primary">OK</button>
+            </div>
+          </b-modal>
+
+          <!-- Reserve Unit Modal -->
+          <b-modal
+            v-model="isReserveModalVisible"
+            @hide="closeReserveModal"
+            hide-footer
+            title="Reserve Unit"
+          >
+            <form
+              @submit.prevent="submitReservation"
+              style="margin-left: -25px"
+            >
+              <!-- Customer Name Dropdown -->
+              <div class="form-group">
+                <label for="customerName">Customer Name</label>
+                <select
+                  v-model="reservationForm.customerName"
+                  id="customerName"
+                  class="form-select"
+                  style="margin-left: 1px"
+                  required
+                >
+                  <option value="" disabled selected>Select Customer</option>
+                  <option
+                    v-for="customer in customers"
+                    :key="customer.id"
+                    :value="customer.id"
+                  >
+                    {{ customer.name }} ({{ customer.customer_code }})
+                  </option>
+                </select>
+              </div>
+              <!-- File Upload -->
+              <div class="form-group">
+                <label for="fileUpload">Upload File (Required)</label>
+                <input
+                  type="file"
+                  @change="handleFileUpload"
+                  id="fileUpload"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <!-- Payment Amount -->
+              <div class="form-group">
+                <label for="paymentAmount">Payment Amount</label>
+                <input
+                  type="number"
+                  v-model="reservationForm.paymentAmount"
+                  id="paymentAmount"
+                  required
+                />
+              </div>
+              <!-- Payment Method -->
+              <div class="form-group">
+                <label for="paymentMethod">Payment Method</label>
+                <select
+                  v-model="reservationForm.paymentMethod"
+                  id="paymentMethod"
+                  class="form-select"
+                  style="width: 250px; margin-left: 1px"
+                  required
+                >
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="cash">Cash</option>
+                  <option value="online_payment">Online Payment</option>
+                </select>
+              </div>
+              <!-- Payment Date -->
+              <div class="form-group">
+                <label for="paymentDate">Date of Payment</label>
+                <input
+                  type="date"
+                  v-model="reservationForm.paymentDate"
+                  id="paymentDate"
+                  class="form-select"
+                  style="width: 250px; margin-left: 1px"
+                  required
+                />
+              </div>
+              <!-- Payment Reference (only if payment method is not cash) -->
+              <div
+                class="form-group"
+                v-if="reservationForm.paymentMethod !== 'cash'"
+              >
+                <label for="paymentReference">Payment Reference Number</label>
+                <input
+                  type="text"
+                  v-model="reservationForm.paymentReference"
+                  id="paymentReference"
+                  class="form-control"
+                  style="width: 250px; margin-left: 1px"
+                  required
+                />
+              </div>
+              <!-- Submit Button -->
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add">
+                  Submit Reservation
+                </button>
+                <button @click="closeReserveModal" class="btn-cancel">
+                  Cancel
+                </button>
+              </div>
+            </form>
+
+            <!-- Error Message -->
+            <b-modal v-if="errorMessage">
+              <p>{{ errorMessage }}</p>
+              <div class="button-container">
+                <button @click="closeModal" class="btn-cancel-right">
+                  Close
+                </button>
+              </div>
+            </b-modal>
+          </b-modal>
         </b-modal>
-      </b-modal>
-     </b-modal>
+      </div>
+    </div>
   </div>
-  </div>
-</div>
 </template>
 
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
-import { BModal } from "bootstrap-vue-3"; 
+import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 
 export default {
@@ -636,10 +721,10 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       vat: 0,
-      selectedView: 'all',      // Default to "all"
-      selectedBalcony: 'all',   // Default to "all"
-      selectedFloor: 'all',
-      selectedUnitType: 'all', // Default unit type filter
+      selectedView: "all", // Default to "all"
+      selectedBalcony: "all", // Default to "all"
+      selectedFloor: "all",
+      selectedUnitType: "all", // Default unit type filter
       currentPage: 1, // Current page number
       itemsPerPage: 5, // Number of customers per page
     };
@@ -654,7 +739,7 @@ export default {
     this.updatePaymentDetails();
   },
   computed: {
- // Paginate filtered units
+    // Paginate filtered units
     paginatedUnits() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
@@ -664,43 +749,45 @@ export default {
     totalPages() {
       return Math.ceil(this.filteredUnits.length / this.itemsPerPage);
     },
-  availableFloors() {
-    // Get unique floor values from available units
-    const floors = this.units.map(unit => unit.floor);
-    return [...new Set(floors)].sort(); // Remove duplicates and sort them
+    availableFloors() {
+      // Get unique floor values from available units
+      const floors = this.units.map((unit) => unit.floor);
+      return [...new Set(floors)].sort(); // Remove duplicates and sort them
     },
-  availableUnitTypes() {
-    // Get unique unit type values from available units
-    const unitTypes = this.units.map(unit => unit.type);
-    return [...new Set(unitTypes)].sort(); // Add 'all' option and remove duplicates
+    availableUnitTypes() {
+      // Get unique unit type values from available units
+      const unitTypes = this.units.map((unit) => unit.type);
+      return [...new Set(unitTypes)].sort(); // Add 'all' option and remove duplicates
+    },
+    filteredUnits() {
+      return this.units.filter((unit) => {
+        const viewMatch =
+          this.selectedView === "all" ||
+          unit.view.toLowerCase() === this.selectedView;
+
+        const balconyMatch =
+          this.selectedBalcony === "all" ||
+          (this.selectedBalcony === "has" &&
+            unit.balcony.toLowerCase() !== "no balcony") ||
+          (this.selectedBalcony === "no" &&
+            unit.balcony.toLowerCase() === "no balcony");
+        const floorMatch =
+          this.selectedFloor === "all" || unit.floor === this.selectedFloor;
+
+        const unitTypeMatch =
+          this.selectedUnitType === "all" ||
+          unit.type === this.selectedUnitType;
+
+        return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
+      });
+    },
   },
-  filteredUnits() {
-    return this.units.filter((unit) => {
-      const viewMatch =
-        this.selectedView === 'all' ||
-        unit.view.toLowerCase() === this.selectedView;
-
-      const balconyMatch =
-        this.selectedBalcony === 'all' ||
-        (this.selectedBalcony === 'has' && unit.balcony.toLowerCase() !== 'no balcony') ||
-        (this.selectedBalcony === 'no' && unit.balcony.toLowerCase() === 'no balcony');
-      const floorMatch =
-        this.selectedFloor === 'all' || unit.floor === this.selectedFloor;
-
-      const unitTypeMatch =
-        this.selectedUnitType === 'all' || unit.type === this.selectedUnitType;
-
-      return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
-    });
-    },
-   
-},
   created() {
-      this.fetchImages(); // Fetch images when the component is created
+    this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
-     goToPage(pageNumber) {
+    goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
@@ -760,7 +847,9 @@ export default {
     async fetchImages() {
       try {
         // Replace with your actual API endpoint
-        const response = await fetch("https://api.example.com/units/123/images");
+        const response = await fetch(
+          "https://api.example.com/units/123/images"
+        );
 
         // Assuming the API returns an array of image URLs
         const data = await response.json();
@@ -899,7 +988,7 @@ export default {
         customer_name: this.reservationForm.customerName,
         site_id: parseInt(this.siteId, 10), // Convert to integer
         unit_id: this.selectedUnit.id,
-        commission:this.selectedUnit.commission,
+        commission: this.selectedUnit.commission,
         broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
         company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
         payment_amount: this.reservationForm.paymentAmount,
@@ -961,7 +1050,6 @@ export default {
 </script>
 
 <style scoped>
-
 html,
 body {
   height: 100%;
@@ -1012,7 +1100,7 @@ body {
   text-align: center;
 }
 
-.text-start{
+.text-start {
   color: black;
   text-decoration: none !important;
 }
@@ -1061,7 +1149,7 @@ body {
   text-align: center;
   cursor: pointer;
   /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .site-card:hover {
@@ -1141,11 +1229,10 @@ body {
   margin-left: 5px;
 }
 
-
 .line {
-    border-top: 2px solid #000; /* Adjust thickness and color */
-    width: 100%; /* Full-width */
-    margin: 0 auto; /* Center it */
+  border-top: 2px solid #000; /* Adjust thickness and color */
+  width: 100%; /* Full-width */
+  margin: 0 auto; /* Center it */
 }
 
 .text-center1 {
@@ -1202,11 +1289,10 @@ body {
 }
 
 .btn-add:hover {
-  background-color: #3e9c73;  /* Slightly darker green */
+  background-color: #3e9c73; /* Slightly darker green */
   color: #fff;
   border: none;
 }
-
 
 .btn-cancel {
   background-color: #343a40;
@@ -1217,7 +1303,7 @@ body {
 }
 
 .btn-cancel:hover {
-  background-color: #495057;  /* Slightly lighter gray */
+  background-color: #495057; /* Slightly lighter gray */
   color: #fff;
   border: none;
 }
@@ -1415,7 +1501,6 @@ label {
   margin-bottom: 10px;
 }
 
-
 button {
   padding: 10px 15px;
   font-size: 14px;
@@ -1448,12 +1533,12 @@ button:hover {
 
 .filters {
   display: flex;
-  align-items: center;   /* Align vertically */
-  gap: 20px;             /* Add space between elements */
+  align-items: center; /* Align vertically */
+  gap: 20px; /* Add space between elements */
 }
 
 .filters label {
-  margin-right: 5px;     /* Small space between label and select */
+  margin-right: 5px; /* Small space between label and select */
 }
 
 .filters select {
@@ -1464,7 +1549,7 @@ button:hover {
 
 /* Style the list for better appearance */
 .unit-list {
-  list-style: none;      /* Remove default bullets */
+  list-style: none; /* Remove default bullets */
   padding: 0;
 }
 
