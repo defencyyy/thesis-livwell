@@ -6,75 +6,93 @@
       <div class="content">
         <!-- Actions -->
         <div class="actions" v-if="!isLoading && !errorMessage">
-            <div class="nav nav-tabs">
-              <!-- Manage Units Tab -->
-              <button
-                class="nav-link"
-                id="units-tab"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                @click="redirectToUnits"
-              >
-                Manage Units
-              </button>
+          <div class="nav nav-tabs">
+            <!-- Manage Units Tab -->
+            <button
+              class="nav-link"
+              id="units-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              @click="redirectToUnits"
+            >
+              Manage Units
+            </button>
 
-              <!-- Manage Unit Templates Tab -->
-              <button
-                class="nav-link"
-                id="unit-templates-tab"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                @click="redirectToUnitTemplates"
-              >
-                Manage Unit Templates
-              </button>
+            <!-- Manage Unit Templates Tab -->
+            <button
+              class="nav-link"
+              id="unit-templates-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              @click="redirectToUnitTemplates"
+            >
+              Manage Unit Templates
+            </button>
 
-              <!-- Manage Unit Types Tab -->
-              <button
-                class="nav-link active"
-                id="unit-types-tab"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                @click="redirectToUnitTypes"
-              >
-                Manage Unit Types
-              </button>
+            <!-- Manage Unit Types Tab -->
+            <button
+              class="nav-link active"
+              id="unit-types-tab"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              @click="redirectToUnitTypes"
+            >
+              Manage Unit Types
+            </button>
+          </div>
+        </div>
+
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Unit Types Management</div>
+          </div>
+        </div>
+
+        <b-modal
+          v-model="showCreateUnitTypeModal"
+          title="Create New Unit Type"
+          hide-footer
+        >
+          <form @submit.prevent="createUnitType">
+            <div class="form-group">
+              <label for="unitTypeName">Unit Type Name:</label>
+              <input
+                v-model="newUnitType.name"
+                id="unitTypeName"
+                type="text"
+                class="form-control"
+                placeholder="Enter Unit Type"
+                required
+              />
             </div>
-          </div>
-        
-          <div class = "title-wrapper">
-              <div class="title-left">
-                <div class="title-icon"></div>
-                <div class="edit-title">Unit Types Management</div>
-              </div>
-          </div>
+            <div class="d-flex justify-content-end mt-3">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="showCreateUnitTypeModal = false"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary ml-2">Create</button>
+            </div>
+          </form>
+        </b-modal>
+
+        <!-- Button to trigger Create Unit Type Modal -->
+        <button @click="showCreateUnitTypeModal = true" class="btn btn-primary">
+          Create New Unit Type
+        </button>
 
         <div v-if="loading" class="loading">Loading...</div>
 
         <div v-else>
-          <div class="unit-type-form">
-            <h2>Create New Unit Type</h2>
-            <form @submit.prevent="createUnitType">
-              <div>
-                <label for="unitTypeName">Unit Type Name:</label>
-                <input
-                  v-model="newUnitType.name"
-                  id="unitTypeName"
-                  type="text"
-                  placeholder="Enter Unit Type"
-                  required
-                />
-              </div>
-              <button type="submit">Create Unit Type</button>
-            </form>
-          </div>
-
           <div
-          class="card border-0 rounded-1 mx-auto"
-          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+            class="card border-0 rounded-1 mx-auto"
+            style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
           >
             <div class="card-body">
               <div class="row">
@@ -89,7 +107,11 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
-                    <select v-model="viewFilter" @change="toggleView" class="dropdown">
+                    <select
+                      v-model="viewFilter"
+                      @change="toggleView"
+                      class="dropdown"
+                    >
                       <option value="active">View: Active</option>
                       <option value="archived">View: Archived</option>
                     </select>
@@ -104,7 +126,9 @@
               <div class="title-left">
                 <div class="title-icon"></div>
                 <div class="edit-title">
-                  {{ showArchived ? "Archived Unit Types" : "Existing Unit Types" }}
+                  {{
+                    showArchived ? "Archived Unit Types" : "Existing Unit Types"
+                  }}
                 </div>
               </div>
             </div>
@@ -112,22 +136,32 @@
             <div>
               <div class="outside-headers">
                 <span class="header-item">Name</span>
+                <span class="header-item">Category</span>
                 <span class="header-item">Actions</span>
               </div>
 
-              <div v-for="unitType in filteredUnitTypes" :key="unitType.id" class="card border-0 rounded-1 mx-auto my-2" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-                <table class = "types-table">
+              <div
+                v-for="unitType in filteredUnitTypes"
+                :key="unitType.id"
+                class="card border-0 rounded-1 mx-auto my-2"
+                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+              >
+                <table class="types-table">
                   <tbody>
                     <tr>
                       <td>
                         {{ unitType.name }}
                       </td>
                       <td>
+                        <span v-if="unitType.is_custom">Custom</span>
+                        <span v-else>Default</span>
+                      </td>
+                      <td>
                         <button
                           v-if="!unitType.is_custom && !showArchived"
                           disabled
                         >
-                          Default Unit Type
+                          Un-Editable
                         </button>
                         <button
                           v-if="
@@ -162,20 +196,22 @@
 import axios from "axios";
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 
 export default {
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
   data() {
     return {
-      loading: true, // For the loading spinner
-      isLoading: false, // Ensure this is properly initialized
-      errorMessage: "", // Initialize error message
+      loading: true,
+      isLoading: false,
+      errorMessage: "",
       unitTypes: [],
       newUnitType: {
         name: "",
       },
-      showArchived: false, // Flag to toggle between archived and active unit types
-      searchQuery: "", // Search query for filtering unit types
+      showArchived: false,
+      searchQuery: "",
+      showCreateUnitTypeModal: false, // New state for modal visibility
     };
   },
   computed: {
@@ -202,11 +238,11 @@ export default {
   },
   methods: {
     toggleView() {
-    if (this.viewFilter === 'active') {
-      this.showArchived = false;  // Set showArchived to false for Active
-    } else if (this.viewFilter === 'archived') {
-      this.showArchived = true;   // Set showArchived to true for Archived
-    }
+      if (this.viewFilter === "active") {
+        this.showArchived = false; // Set showArchived to false for Active
+      } else if (this.viewFilter === "archived") {
+        this.showArchived = true; // Set showArchived to true for Archived
+      }
     },
 
     redirectToUnits() {
@@ -272,6 +308,8 @@ export default {
         if (response.status === 201) {
           this.unitTypes.push(response.data.data);
           this.newUnitType.name = "";
+          console.log(this.newUnitType);
+          this.$refs.createUnitTypeModal.hide();
         } else {
           alert("Error creating unit type.");
         }
@@ -638,5 +676,4 @@ td {
   text-align: left;
   border: 1px solid #ddd;
 }
-
 </style>
