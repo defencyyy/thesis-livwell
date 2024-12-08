@@ -133,20 +133,30 @@
         </div>
 
         <!-- Add/Edit Milestone Modal -->
-        <div v-if="showAddForm" class="modal show d-block" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">
-                  {{ newMilestone.id ? "Edit Milestone" : "Add Milestone" }}
-                </h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeForm"
-                ></button>
-              </div>
-              <div class="modal-body">
+        <b-modal
+          v-model="showAddForm"
+          hide-header
+          hide-footer
+          centered
+          size="lg"
+          title="Add/Edit Milestone"
+          @hide="closeForm"
+        >
+          <!-- Modal Title -->
+          <div class="modal-title p-3">
+            <h5 class="mb-0">
+              {{
+                newMilestone.id ? "Milestone Details / Edit" : "New Milestone"
+              }}
+            </h5>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="p-3">
+            <div class="row">
+              <!-- Left Section -->
+              <div class="col-md-6">
+                <!-- Name -->
                 <div class="mb-3">
                   <label for="milestoneName" class="form-label">Name</label>
                   <input
@@ -158,6 +168,8 @@
                     required
                   />
                 </div>
+
+                <!-- Description -->
                 <div class="mb-3">
                   <label for="milestoneDescription" class="form-label"
                     >Description</label
@@ -166,11 +178,16 @@
                     class="form-control"
                     id="milestoneDescription"
                     v-model="newMilestone.description"
-                    rows="4"
+                    rows="6"
                     placeholder="Enter description"
                     required
                   ></textarea>
                 </div>
+              </div>
+
+              <!-- Right Section -->
+              <div class="col-md-6">
+                <!-- Reward -->
                 <div class="mb-3">
                   <label for="milestoneReward" class="form-label">Reward</label>
                   <input
@@ -182,6 +199,8 @@
                     required
                   />
                 </div>
+
+                <!-- Milestone Type -->
                 <div class="mb-3">
                   <label for="milestoneType" class="form-label"
                     >Milestone Type</label
@@ -195,7 +214,8 @@
                     <option value="commission">Commission</option>
                   </select>
                 </div>
-                <!-- Conditional input fields -->
+
+                <!-- Conditional Fields -->
                 <div v-if="newMilestone.type === 'sales'" class="mb-3">
                   <label for="salesThreshold" class="form-label"
                     >Sales Threshold</label
@@ -208,6 +228,7 @@
                     placeholder="Enter sales threshold"
                   />
                 </div>
+
                 <div v-if="newMilestone.type === 'commission'" class="mb-3">
                   <label for="commissionThreshold" class="form-label"
                     >Commission Threshold</label
@@ -221,27 +242,24 @@
                   />
                 </div>
               </div>
-              <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeForm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  @click="
-                    newMilestone.id ? updateMilestone() : createMilestone()
-                  "
-                >
-                  Save
-                </button>
-              </div>
             </div>
           </div>
-        </div>
+
+          <!-- Modal Footer -->
+          <div class="d-flex justify-content-end gap-3 p-3">
+            <button
+              type="button"
+              class="btn-add"
+              style="width: 150px"
+              @click="newMilestone.id ? updateMilestone() : createMilestone()"
+            >
+              Save Changes
+            </button>
+            <button type="button" class="btn-cancel" @click="closeForm">
+              Cancel
+            </button>
+          </div>
+        </b-modal>
 
         <!-- <div class="mb-3">
           <input type="text" v-model="searchQuery" class="form-control" placeholder="Search brokers by name" />
@@ -313,22 +331,28 @@
         </div>
 
         <!-- Broker Milestones Modal -->
-        <div v-if="showBrokerModal" class="modal show d-block" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">
-                  Broker Milestones: {{ selectedBroker.first_name }}
-                  {{ selectedBroker.last_name }}
-                </h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeBrokerModal"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <!-- Broker Info -->
+        <b-modal
+          v-model="showBrokerModal"
+          title="Broker Milestones"
+          hide-footer
+          hide-header
+          centered
+          size="lg"
+          @hide="closeBrokerModal"
+        >
+          <!-- Modal Header -->
+          <div v-if="selectedBroker">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                Broker Milestones: {{ selectedBroker.first_name }}
+                {{ selectedBroker.last_name }}
+              </h5>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+              <!-- Broker Info -->
+              <div class="mb-4">
                 <p>
                   <strong>Sales Completed:</strong>
                   {{ selectedBroker.total_sales }}
@@ -337,53 +361,53 @@
                   <strong>Commissions Collected:</strong> P
                   {{ selectedBroker.total_commissions }}
                 </p>
+              </div>
 
-                <!-- Milestones Table -->
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Milestone Type</th>
-                      <th>Milestone Name</th>
-                      <th>Completed</th>
-                      <th>Description</th>
-                      <th>Reward</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="milestone in milestones" :key="milestone.id">
-                      <td>
-                        {{
-                          milestone.type === "sales" ? "Sales" : "Commission"
-                        }}
-                      </td>
-                      <td>{{ milestone.name }}</td>
-                      <td>
-                        <input
-                          type="checkbox"
-                          :checked="
-                            checkMilestoneCompletion(milestone, selectedBroker)
-                          "
-                          disabled
-                        />
-                      </td>
-                      <td>{{ milestone.description || "N/A" }}</td>
-                      <td>{{ milestone.reward }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeBrokerModal"
-                >
-                  Close
-                </button>
-              </div>
+              <!-- Milestones Table -->
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Milestone Type</th>
+                    <th>Milestone Name</th>
+                    <th>Completed</th>
+                    <th>Description</th>
+                    <th>Reward</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="milestone in milestones" :key="milestone.id">
+                    <td>
+                      {{ milestone.type === "sales" ? "Sales" : "Commission" }}
+                    </td>
+                    <td>{{ milestone.name }}</td>
+                    <td class="text-center">
+                      <input
+                        type="checkbox"
+                        :checked="
+                          checkMilestoneCompletion(milestone, selectedBroker)
+                        "
+                        disabled
+                      />
+                    </td>
+                    <td>{{ milestone.description || "N/A" }}</td>
+                    <td>{{ milestone.reward }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="closeBrokerModal"
+              >
+                Close
+              </button>
             </div>
           </div>
-        </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -392,12 +416,13 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 import { mapState } from "vuex";
 
 export default {
   name: "DeveloperMilestones",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
   data() {
     return {
       milestones: [],
@@ -993,7 +1018,16 @@ td {
   color: #fff;
   border: none;
   border-radius: 3px;
-  font-size: 14px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
 }
@@ -1079,13 +1113,5 @@ td {
 .row .form-label {
   font-size: 0.9rem;
   color: #6c757d;
-}
-
-.btn-cancel {
-  background-color: #343a40;
-}
-
-.btn-cancel:hover {
-  background-color: #495057;
 }
 </style>
