@@ -1,138 +1,201 @@
 <template>
-  <div v-if="salesDetail">
-    <h2>Sales Agreement Details</h2>
-
-    <p><strong>Customer ID:</strong> {{ salesDetail.customer_name }}</p>
-    <p><strong>Site ID:</strong> {{ salesDetail.site_name }}</p>
-    <p><strong>Unit ID:</strong> {{ salesDetail.unit_name }}</p>
-    <p><strong>Broker ID:</strong> {{ salesDetail.broker_name }}</p>
-    <p><strong>Payment Plan:</strong> {{ salesDetail.payment_plan }}</p>
-    <p><strong>Unit Price:</strong> ₱{{ salesDetail.unit_price }}</p>
-    <p>
-      <strong>Spot Discount Percentage:</strong>
-      {{ salesDetail.spot_discount_percent }}%
-    </p>
-    <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    <p>
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
-    <p>
-      <strong>TLP Discount Percentage:</strong>
-      {{ salesDetail.tlp_discount_percent }}%
-    </p>
-    <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-    <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-    <p>
-      <strong>Other Charges Percentage:</strong>
-      {{ salesDetail.other_charges_percent }}%
-    </p>
-    <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-    <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spot Downpayment Percentage:</strong>
-      {{ salesDetail.spot_downpayment_percent }}%
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-    <p><strong>Reservation Fee:</strong> ₱{{ salesDetail.reservation_fee }}</p>
-    <p v-if="salesDetail.payment_plan === 'Spot Cash'">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spread Downpayment Percentage:</strong>
-      {{ salesDetail.spread_downpayment_percent }}%
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Payable Months:</strong> {{ salesDetail.payable_months }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
-    </p>
-    <p v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-    </p>
-    <div v-if="salesDetail.reservation_agreement_url">
-      <a
-        :href="
-          'http://localhost:8000/download_reservation_agreement/' +
-          salesDetail.id
-        "
-        download
-      >
-        <button>Download Reservation Agreement</button>
-      </a>
-    </div>
-
-    <!-- Collapsible Table Section - Only for Deferred Payment -->
-    <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table>
-          <thead>
-            <tr>
-              <th>Payment Type</th>
-              <th>Amount (₱)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in salesDetail.payable_months" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
+  <div>
+    <!-- Header -->
+    <div class="header">
+      <div class="top-bar">
+        <div class="welcome-text">Welcome Back, <b>Customer!</b></div>
       </div>
     </div>
-    <div>
-      <h3>Required Documents</h3>
-      <ul v-if="documentTypes.length">
-        <li v-for="doc in documentTypes" :key="doc.id">
-          <strong>{{ doc.name }}</strong>
-        </li>
-      </ul>
-      <p v-else>No document types available.</p>
+
+    <div class="main-page">
+      <!-- Side Bar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
+          <!-- Font Awesome Icon -->
+          <h4 id="sidebar-title">{{ "Company Name" }}</h4>
+        </div>
+        <nav class="sidebar-nav">
+          <b-nav vertical pills>
+            <!-- Document Status Tab -->
+            <b-nav-item
+              href="#"
+              @click.prevent="setActiveTab('document-status')"
+              :class="{ active: activeTab === 'document-status' }"
+              exact
+              custom
+            >
+              <i class="menu-icon fas fa-file-alt"></i>
+              <span class="item-name">Document Status</span>
+            </b-nav-item>
+
+            <!-- Payment Schedule Tab -->
+            <b-nav-item
+              href="#"
+              @click.prevent="setActiveTab('payment-schedule')"
+              :class="{ active: activeTab === 'payment-schedule' }"
+              exact
+              custom
+            >
+              <i class="menu-icon fas fa-calendar-alt"></i>
+              <span class="item-name">Payment Schedule</span>
+            </b-nav-item>
+          </b-nav>
+        </nav>
+      </div>
+
+      <div class="main-content">
+        <div class="content">
+          <!-- Document Status Content -->
+          <div v-if="activeTab === 'document-status'">
+            <div v-if="salesDetail">
+              <div class="container mt-5">
+                <div class="mb-4">
+                  <h3
+                    class="text-start display-5 fw-bolder text-capitalize pb-6"
+                  >
+                    {{ salesDetail.customer_name }}
+                  </h3>
+                  <p class="text-start display-7" style="margin-bottom: 1px">
+                    Assigned Broker:
+                    <strong>{{ salesDetail.broker_name }}</strong>
+                  </p>
+                  <p class="text-start display-7">
+                    Selected Unit: <strong>{{ salesDetail.unit_name }}</strong>
+                  </p>
+                </div>
+                <div class="mb-4">
+                  <p class="text-start">
+                    <strong>DOCUMENTS NEEDED:</strong> Please submit the
+                    following documents to complete the process.
+                  </p>
+                  <div v-if="documentTypes.length">
+                    <table class="documents-table">
+                      <thead>
+                        <tr>
+                          <th>Document Name</th>
+                          <th>Document Status</th>
+                          <th>Date Submitted</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="doc in documents" :key="doc.id">
+                          <td>
+                            <strong>{{ doc.document_type_name }}</strong>
+                          </td>
+                          <td>{{ doc.status }}</td>
+                          <td>{{ doc.uploaded_at || "Pending" }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div
+                      class="download-button"
+                      v-if="salesDetail.reservation_agreement_url"
+                      style="text-align: right"
+                    >
+                      <a
+                        :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
+                        download
+                      >
+                        <button>Download Reservation Agreement</button>
+                      </a>
+                    </div>
+                  </div>
+                  <p v-else>No document types available.</p>
+
+                  <div style="margin-top: 30px">
+                    <p class="text-start">
+                      Ensure that all documents are up-to-date and complete.
+                      <br />
+                      If you have any questions or need further assistance,
+                      please contact
+                      <strong>{{ salesDetail.broker_name }}</strong
+                      >.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Schedule Content -->
+          <div v-if="activeTab === 'payment-schedule'" class="tab-content">
+            <div class="detailed-schedule">
+              <div class="container mt-5">
+                <div class="mb-4">
+                  <h3
+                    class="text-start display-5 fw-bolder text-capitalize pb-6"
+                  >
+                    {{ salesDetail.customer_name }}
+                  </h3>
+                  <p class="text-start display-7" style="margin-bottom: 1px">
+                    Assigned Broker:
+                    <strong>{{ salesDetail.broker_name }}</strong>
+                  </p>
+                  <p class="text-start display-7">
+                    Selected Unit: <strong>{{ salesDetail.unit_name }}</strong>
+                  </p>
+                </div>
+                <div class="mb-4">
+                  <p class="text-start" style="margin-bottom: 1px">
+                    <strong>Total Amount Due: </strong>₱{{
+                      balanceUponTurnover.toFixed(2)
+                    }}
+                  </p>
+                  <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
+                    <p class="text-start">
+                      <strong>Installment Terms: </strong
+                      >{{ salesDetail.payable_months }} months
+                    </p>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Payment Type</th>
+                          <th>Amount (₱)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Spot Downpayment</td>
+                          <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Spread Downpayment</td>
+                          <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+                        </tr>
+                        <tr
+                          v-for="month in salesDetail.payable_months"
+                          :key="month"
+                        >
+                          <td>Month {{ month }} Payment</td>
+                          <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Balance Upon Turnover</td>
+                          <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { BNav, BNavItem } from "bootstrap-vue-3";
+
 export default {
   name: "SalesDetails",
+  components: { BNav, BNavItem },
   data() {
     return {
+      activeTab: "document-status", // Default active tab
       salesDetail: null, // Store the sales details
       spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
@@ -148,6 +211,7 @@ export default {
       balanceUponTurnover: 0,
       showDetailedSchedule: false, // To toggle the detailed schedule
       documentTypes: [], // Store the document types fetched from the API
+      documents: [], // Store the documents fetched from the API
     };
   },
   created() {
@@ -156,6 +220,36 @@ export default {
     this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
   methods: {
+    setActiveTab(tab) {
+      this.activeTab = tab;
+    },
+    async fetchDocuments() {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
+        );
+        const data = await response.json();
+        if (data.success) {
+          // Update document status based on submission
+          this.documents = this.documentTypes.map((docType) => {
+            const submittedDoc = data.documents.find(
+              (doc) => doc.document_type_name === docType.name
+            );
+            return {
+              document_type_name: docType.name,
+              status: submittedDoc ? "Submitted" : "Pending",
+              uploaded_at: submittedDoc
+                ? new Date(submittedDoc.uploaded_at).toLocaleDateString()
+                : "Pending",
+            };
+          });
+        } else {
+          console.error("Failed to fetch documents:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+      }
+    },
     async fetchSalesDetail(salesDetailUuid) {
       try {
         const response = await fetch(
@@ -172,6 +266,7 @@ export default {
           this.applyOtherCharges();
           this.calculateVAT();
           this.calculateFinancingDetails();
+          this.fetchDocuments();
         }
       } catch (error) {
         console.error("Error fetching sales details:", error);
@@ -280,46 +375,190 @@ export default {
 </script>
 
 <style scoped>
-h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-ul {
-  list-style-type: none;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* Removes default margin */
   padding: 0;
+  /* Removes default padding */
 }
-li {
-  font-size: 16px;
+
+.top-bar {
+  background-color: #eff4fb;
+  color: #343a40;
+  padding: 12px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 250px; /* Sidebar width */
+  width: calc(100% - 250px);
+  z-index: 1;
+  height: 68px;
+  margin-top: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow at the bottom */
+}
+
+.welcome-text {
+  font-size: 18px;
+}
+
+.main-page {
+  display: flex;
+  min-height: 100vh;
+  /* Ensures it spans the full viewport height */
+  background-color: #e8f0fa;
+  /* Gray background */
+}
+
+.sidebar {
+  background-color: white;
+  width: 250px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  z-index: 2;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.sidebar-logo {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+#sidebar-title {
+  color: #343a40;
+  font-size: 18px;
+  margin: 0;
+}
+
+.sidebar-nav {
+  text-align: left;
+  margin-top: 50px;
+  padding-left: 13px !important;
+}
+
+.sidebar-nav .nav-item {
+  border-radius: 4px;
   margin-bottom: 8px;
 }
-button.toggle-button {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
+
+.sidebar-nav .nav-item.active {
+  background-color: #0d6efd;
+  color: white !important;
 }
-button.toggle-button:hover {
-  background-color: #45a049;
+
+.sidebar-nav .nav-item.active .item-name,
+.sidebar-nav .nav-item.active .menu-icon {
+  color: white !important;
 }
-.detailed-schedule {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+
+.sidebar-nav .nav-item .item-name:hover {
+  color: #0d6efd !important; /* Blue color when hovered */
 }
+
+.menu-icon {
+  width: 20px;
+  text-align: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+  color: #343a40;
+}
+
+.item-name {
+  font-size: 14px;
+  color: #343a40;
+}
+
+.main-content {
+  display: flex;
+  margin-left: 250px;
+  flex-direction: column;
+  flex: 1;
+  margin-top: 60px;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
 }
+
 th,
 td {
-  padding: 8px;
+  padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
+
 th {
-  background-color: #f2f2f2;
+  background-color: #f8f8f8;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+.documents-table th {
+  text-align: center;
+}
+
+/* juju */
+
+/* Button */
+button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.download-button {
+  margin-top: 20px;
+}
+
+/* Document List */
+.details-card {
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.details-card p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.details-card strong {
+  font-weight: bold;
 }
 </style>

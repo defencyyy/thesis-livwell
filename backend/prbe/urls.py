@@ -13,6 +13,7 @@ urlpatterns = [
     path('broker/login/', views.login_view_broker, name='broker_login'),
     path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
     path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
+    path('broker/manage-accounts/<int:broker_id>/', views.get_broker_data, name='get_broker_data'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
     path('sales/total/', views.total_sales_view, name='total_sales'),
@@ -38,6 +39,12 @@ urlpatterns = [
     path('customers/<int:customer_id>/', views.update_customer, name='update_customer'),
     path('mark/<int:customer_id>/<int:sales_id>/', views.mark_unit_as_sold, name='mark_unit_as_sold'),
     path('milestones/', views.get_milestones, name='get_milestones'),
+    path('delete_sale/<int:sale_id>/', views.delete_sale, name='delete_sale'),
+    path('delete_customer/<int:customer_id>/', views.delete_customer, name='delete_customer'),
+    path('sales/by-month/', views.sales_by_month, name='sales_by_month'),
+
+
+
 
     # PRBE
 

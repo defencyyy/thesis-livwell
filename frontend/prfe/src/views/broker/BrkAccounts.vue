@@ -1,7 +1,6 @@
 <template>
-  <header>
-    <AppHeaderLivwell />
-  </header>
+<div>    
+  <AppHeaderLivwell />
   <div class = "broker-account-page">
     <SideNav />
   <div class = "main-content">
@@ -17,24 +16,6 @@
               <!-- Personal Information Section -->
               <div class = "col-md-6">
                 <h5 class="mb-4">Personal Information</h5>
-                <div class="mb-3">
-                  <label for="firstName" class="form-label">First Name</label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    v-model="firstName"
-                    class="form-control"
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="lastName" class="form-label">Last Name</label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    v-model="lastName"
-                    class="form-control"
-                  />
-                  </div>
                   <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input
@@ -42,6 +23,8 @@
                       id="email"
                       v-model="email"
                       class="form-control"
+                      :placeholder="placeholderEmail"
+
                     />
                   </div>
                   <div class="mb-3">
@@ -53,6 +36,8 @@
                       id="contactNumber"
                       v-model="contactNumber"
                       class="form-control"
+                      :placeholder="placeholderContactNumber"
+
                     />
                   </div>
                   <div class="mb-3">
@@ -64,6 +49,8 @@
                       id="username"
                       v-model="username"
                       class="form-control"
+                      :placeholder="placeholderUsername"
+
                     />
                   </div>
               </div>
@@ -80,7 +67,6 @@
                     id="currentPassword"
                     v-model="currentPassword"
                     class="form-control"
-                    required
                   />
                 </div>
                 <div class="mb-3">
@@ -125,82 +111,8 @@
     </div>
   </div>
   </div>
-  <!-- 
-  <header>
-    <AppHeaderLivwell />
-  </header>
-  <div class="accounts-page">
-    <SideNav />
-    <div class="content row justify-content-center">
-      <div class="col-md-6 col-lg-4">
-        <div class="card mt-5">
-          <div class="card-header text-center">
-            <h1>Welcome to Account</h1>
-            <p>Here you can manage your account</p>
-          </div>
-          <div class="card-body">
-            <form @submit.prevent="updateAccount">
-              <div class="form-group">
-                <label for="username">Username:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="username"
-                  id="username"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="email">Email:</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  v-model="email"
-                  id="email"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="contactNumber">Contact Number:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="contactNumber"
-                  id="contactNumber"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="password">Password:</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  v-model="password"
-                  id="password"
-                />
-              </div>
-
-              <button
-                type="submit"
-                class="btn btn-primary btn-block"
-                :disabled="loading"
-              >
-                {{ loading ? "Updating..." : "Update Account" }}
-              </button>
-            </form>
-
-            <p v-if="error" class="text-danger">{{ error }}</p>
-            <p v-if="successMessage" class="text-success">
-              {{ successMessage }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  -->
+</div>
 </template>
-
 
 <script>
 import { mapGetters } from "vuex";
@@ -213,6 +125,9 @@ export default {
     SideNav,
     AppHeaderLivwell,
   },
+  mounted() {
+    this.fetchBrokerData();
+  },
   data() {
     return {
       username: "",
@@ -222,98 +137,119 @@ export default {
       error: null,
       successMessage: null,
       loading: false, // For showing loading state
+      placeholderUsername: "",
+      placeholderEmail: "",
+      placeholderContactNumber: "",
     };
   },
   computed: {
     ...mapGetters(["getUserId", "getAuthToken"]),
   },
   methods: {
-    async updateAccount() {
-      // Validate password on client-side
-      if (this.password) {
-        if (this.password.length < 8) {
-          this.error = "Password must be at least 8 characters long.";
-          this.successMessage = null;
-          return;
-        }
-        if (!/[A-Z]/.test(this.password)) {
-          this.error = "Password must contain at least one uppercase letter.";
-          this.successMessage = null;
-          return;
-        }
-        if (!/[a-z]/.test(this.password)) {
-          this.error = "Password must contain at least one lowercase letter.";
-          this.successMessage = null;
-          return;
-        }
-        if (!/\d/.test(this.password)) {
-          this.error = "Password must contain at least one number.";
-          this.successMessage = null;
-          return;
-        }
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
-          this.error = "Password must contain at least one special character.";
-          this.successMessage = null;
-          return;
-        }
-      }
-
-      const brokerId = this.getUserId; // Fetch brokerId from Vuex
-      const authToken = this.getAuthToken; // Fetch authToken from Vuex
-
-      if (!brokerId || !authToken) {
-        this.error =
-          "No broker ID or authentication token found. Please log in again.";
-        return;
-      }
-
-      this.loading = true; // Set loading state
-
+    async fetchBrokerData() {
+      const brokerId = this.getUserId;
+      const authToken = this.getAuthToken;
       try {
         const response = await fetch(
-          `http://localhost:8000/broker/manage-account/${brokerId}/`,
+          `http://localhost:8000/broker/manage-accounts/${brokerId}/`,
           {
-            method: "PUT",
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${authToken}`,
             },
-            body: JSON.stringify({
-              username: this.username || undefined,
-              email: this.email || undefined,
-              contact_number: this.contactNumber || undefined,
-              password: this.password || undefined,
-            }),
           }
         );
+
+        if (response.ok) {
+          const data = await response.json();
+          // Assign placeholders from fetched data
+          this.placeholderUsername = data.username;
+          this.placeholderEmail = data.email;
+          this.placeholderContactNumber = data.contact_number;
+        } else {
+          this.error = "Failed to fetch broker data.";
+        }
+      } catch (error) {
+        console.error("Error fetching broker data:", error);
+        this.error = "An error occurred while fetching broker data.";
+      }
+    },
+    async updateAccount() {
+    const brokerId = this.getUserId;
+    // Validate password on client-side
+    if (this.password) {
+      if (this.password.length < 8) {
+        this.error = "Password must be at least 8 characters long.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/[A-Z]/.test(this.password)) {
+        this.error = "Password must contain at least one uppercase letter.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/[a-z]/.test(this.password)) {
+        this.error = "Password must contain at least one lowercase letter.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/\d/.test(this.password)) {
+        this.error = "Password must contain at least one number.";
+        this.successMessage = null;
+        return;
+      }
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
+        this.error = "Password must contain at least one special character.";
+        this.successMessage = null;
+        return;
+      }
+      }
+    
+
+  if (this.password && this.password !== this.confirmNewPassword) {
+    this.error = "New passwords do not match.";
+    return;
+  }
+    if (brokerId) {
+      try {
+        const response = await fetch(`http://localhost:8000/broker/manage-account/${brokerId}/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({
+            current_password: this.currentPassword, 
+            username: this.username || undefined,
+            email: this.email || undefined,
+            contact_number: this.contactNumber || undefined,
+            password: this.password || undefined,
+          }),
+        });
 
         if (!response.ok) {
           const errorData = await response.json();
           this.error = errorData.message || "Failed to update account.";
           this.successMessage = null;
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          this.successMessage = "Account updated successfully!";
+          this.error = null;
         } else {
-          const data = await response.json();
-          if (data.success) {
-            this.successMessage = "Account updated successfully!";
-            this.error = null;
-            // Reset form fields
-            this.username = "";
-            this.email = "";
-            this.contactNumber = "";
-            this.password = "";
-          } else {
-            this.error = data.message || "Failed to update account.";
-            this.successMessage = null;
-          }
+          this.error = data.message || "Failed to update account.";
+          this.successMessage = null;
         }
       } catch (error) {
         console.error("Error updating account:", error);
         this.error = "An error occurred while updating your account.";
         this.successMessage = null;
-      } finally {
-        this.loading = false; // Reset loading state
       }
-    },
+    } else {
+      this.error = "No broker ID found in localStorage.";
+    }
+  },
   },
 };
 </script>
@@ -333,7 +269,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #f6f6f6;
+  background-color: #e8f0fa;
   /* Gray background */
 }
 

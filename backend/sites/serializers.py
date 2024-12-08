@@ -9,6 +9,7 @@ class FloorSerializer(serializers.ModelSerializer):
 
 class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
+    floors = serializers.SerializerMethodField()
     number_of_floors = serializers.IntegerField(write_only=True, required=False)  # New field to add floors
 
     class Meta:
@@ -30,6 +31,16 @@ class SiteSerializer(serializers.ModelSerializer):
             'archived',
             'floors',
             'number_of_floors',  # Include new field
+            'total_units', 
+            'location',
+            'available_units',
+            'maximum_months',
+            'commission',  
+            'spot_discount_percentage',
+            'spot_discount_flat',
+            'vat_percentage',
+            'reservation_fee',
+            'other_charges',
         ]
         read_only_fields = ['id', 'created_at']
 
@@ -47,24 +58,41 @@ class SiteSerializer(serializers.ModelSerializer):
         return site
 
     def update(self, instance, validated_data):
+        # Extract floors data from validated_data
         floors_data = validated_data.pop('floors', [])
+
+        # Update fields of the site instance
         for key, value in validated_data.items():
             setattr(instance, key, value)
         instance.save()
 
-        # Handle floor updates (if any)
+        # Retrieve existing floors for the site
         existing_floors = {floor.floor_number: floor for floor in instance.floors.all()}
+        
+        # Keep track of processed floors to handle deletions later
+        processed_floors = set()
+
+        # Iterate through incoming floors data
         for floor_data in floors_data:
             floor_number = floor_data['floor_number']
+            processed_floors.add(floor_number)
+
             if floor_number in existing_floors:
+                # Update existing floor
                 floor = existing_floors[floor_number]
-                floor.floor_number = floor_data['floor_number']
+                for key, value in floor_data.items():
+                    setattr(floor, key, value)
                 floor.save()
             else:
+                # Create new floor
                 Floor.objects.create(site=instance, **floor_data)
 
-        return instance
+        # Remove floors that were not included in the update request
+        for floor_number, floor in existing_floors.items():
+            if floor_number not in processed_floors:
+                floor.delete()
 
+        return instance
 
     def validate_status(self, value):
         """Ensure the status is within the allowed choices."""
@@ -86,6 +114,14 @@ class SiteSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(f"Invalid image type. Allowed types are: {', '.join(allowed_types)}.")
         return value
 
+    def validate_maximum_months(self, value):
+        if not isinstance(value, int):
+            raise serializers.ValidationError("Maximum months must be an integer.")
+        if value < 0:
+            raise serializers.ValidationError("Maximum months cannot be negative.")
+        return value
+
+
     def validate(self, data):
         """Additional validation for required fields (if they are not included in 'required' attribute)."""
         required_fields = ['name', 'region', 'province', 'municipality', 'barangay', 'status']
@@ -93,3 +129,7 @@ class SiteSerializer(serializers.ModelSerializer):
             if field not in data or not data[field]:
                 raise serializers.ValidationError(f"{field} is required and cannot be empty.")
         return data
+
+    def get_floors(self, obj):
+        floors_with_counts = obj.floors_with_unit_counts()
+        return floors_with_counts

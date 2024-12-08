@@ -8,14 +8,12 @@ from django.shortcuts import get_object_or_404
 from developers.models import Developer
 from .models import Site, Floor
 from .serializers import SiteSerializer
+from django.db import transaction
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 def get_developer_company(request):
-    """
-    Helper function to get the company of the logged-in developer.
-    """
     developer = request.user
     if not hasattr(developer, 'company'):
         return None
@@ -54,6 +52,7 @@ class SiteListView(APIView):
         # Handle floors in the request
         floors_data = data.pop('floors', [])
         serializer = SiteSerializer(data=data)
+        
 
         if serializer.is_valid():
             site = serializer.save()
@@ -86,56 +85,72 @@ class SiteDetailView(APIView):
 
     def put(self, request, pk):
         company = get_developer_company(request)
-        
-        # Debugging - check if company is retrieved correctly
         if not company:
-            logger.error(f"Company not found for developer (user: {request.user.username})")
             return Response(
                 {"error": "Company not found for this developer."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-
-        # Debugging - log company info
-        logger.debug(f"Company ID: {company.id} | Company Name: {company.name}")
 
         site = get_object_or_404(Site, pk=pk, company=company)
 
         data = request.data.copy()
         data['company'] = company.id
 
-        # Debugging - log the incoming data (site and floors)
-        logger.debug(f"Received data for site: {data}")
-        
+        # Log the received data for debugging
+        logger.debug(f"Received data for site update (PK: {pk}): {data}")
+
+        # Extract floor data
         floors_data = data.pop('floors', [])
         
-        # Debugging - log the floors data
-        if floors_data:
-            logger.debug(f"Received floor data: {floors_data}")
-        else:
-            logger.debug("No floor data received.")
+        # Log the floors data
+        logger.debug(f"Floors data received: {floors_data}")
 
+        # Serialize the site data
         serializer = SiteSerializer(site, data=data, partial=True)
 
         if serializer.is_valid():
-            site = serializer.save()
+            try:
+                with transaction.atomic():
+                    # Save site data
+                    site = serializer.save()
 
-            # Debugging - Check if floor data is being handled correctly
-            for floor_data in floors_data:
-                floor_number = floor_data.get('floor_number')
-                logger.debug(f"Processing floor: {floor_number} | Data: {floor_data}")
-                
-                floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
-                if floor:
-                    floor.save()
-                    logger.debug(f"Updated floor {floor_number}")
-                else:
-                    Floor.objects.create(site=site, **floor_data)
-                    logger.debug(f"Created new floor {floor_number}")
+                    # Process floors data: add or update floors
+                    for floor_data in floors_data:
+                        floor_number = floor_data.get('floor_number')
 
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+                        # Log the floor being processed
+                        logger.debug(f"Processing floor data: {floor_data} | floor_number: {floor_number}")
 
-        logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                        # Check if floor already exists
+                        existing_floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
+
+                        if existing_floor:
+                            # Log existing floor data
+                            logger.debug(f"Existing floor found: {existing_floor}")
+                            
+                            # Update the existing floor
+                            for field, value in floor_data.items():
+                                setattr(existing_floor, field, value)
+                                logger.debug(f"Updating floor field: {field} = {value}")
+                            
+                            existing_floor.save()
+                            logger.debug(f"Updated floor {floor_number}")
+
+                        else:
+                            # Create a new floor if it doesn't exist
+                            logger.debug(f"Creating new floor with number: {floor_number}")
+                            Floor.objects.create(site=site, **floor_data)
+                            logger.debug(f"Created new floor {floor_number}")
+
+                    return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                logger.error(f"Error updating site and floors: {e}")
+                return Response({"success": False, "error": "An error occurred while updating."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        else:
+            logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
+            return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         company = get_developer_company(request)
@@ -197,3 +212,12 @@ class ArchivedSiteView(APIView):
                 {"error": "Site not found or not archived."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+class SiteWithFloorCountsView(APIView):
+    def get(self, request, site_id):
+        try:
+            site = Site.objects.get(id=site_id)  # Get the site by ID
+            floor_data = site.floors_with_unit_counts()  # Call the method to get the floor data
+            return Response({"success": True, "data": floor_data}, status=status.HTTP_200_OK)
+        except Site.DoesNotExist:
+            return Response({"error": "Site not found"}, status=status.HTTP_404_NOT_FOUND)

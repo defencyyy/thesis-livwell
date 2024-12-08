@@ -157,7 +157,6 @@ export default {
     }),
   },
   mounted() {
-    this.setupAxiosInterceptor();
     this.fetchAccountDetails();
   },
   methods: {
@@ -215,13 +214,6 @@ export default {
       this.newPassword = "";
       this.confirmNewPassword = "";
     },
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use((config) => {
-        const token = this.authToken;
-        if (token) config.headers["Authorization"] = `Bearer ${token}`;
-        return config;
-      });
-    },
   },
 };
 </script>
@@ -241,7 +233,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
 }
 

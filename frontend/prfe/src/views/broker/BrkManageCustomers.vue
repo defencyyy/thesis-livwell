@@ -1,27 +1,67 @@
 <template>
+  <div>
+  <AppHeader />
   <div class="main-page">
     <SideNav />
     <div class="main-content">
-      <AppHeader />
       <div class="content">
-        <h1>Manage Customers</h1>
-        <p>Here you can view and manage your customers.</p>
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Manage Customers</div>
+          </div>
+        </div>
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
+          <div class="card-body">
+            <div class="row">
+              <!-- Toolbar -->
+              <div class="toolbar">
+                <div class="left-section">
+                  <!-- Search Bar -->
+                  <div class="search-bar-container">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search by Name or Customer Code"
+                      class="search-bar"
+                      @input="filterCustomers"
+                    />
+                    <i class="fa fa-search search-icon"></i>
+                  </div>
 
-        <!-- Sort Dropdown -->
-        <select v-model="sortBy" @change="sortCustomers" class="dropdown">
-          <option value="name_asc">Name (A-Z)</option>
-          <option value="name_desc">Name (Z-A)</option>
-          <option value="site_asc">Site (A-Z)</option>
-          <option value="site_desc">Site (Z-A)</option>
-          <option value="status_asc">Document Status (Complete)</option>
-          <option value="status_desc">Document Status (Pending)</option>
-        </select>
+                  <!-- Sort Dropdown -->
+                  <select
+                    v-model="sortBy"
+                    @change="sortCustomers"
+                    class="dropdown"
+                  >
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                    <option value="customer_code_asc">
+                      Customer Code (A-Z)
+                    </option>
+                    <option value="customer_code_desc">
+                      Customer Code (Z-A)
+                    </option>
+                    <!-- New sorting option -->
+                  </select>
+                </div>
 
-        <div class="right-section">
-          <!-- Add Site Button -->
-          <button @click="showModal = true" class="btn-primary add-button">
-            Add Customer
-          </button>
+                <div class="right-section">
+                  <!-- Add Site Button -->
+                  <button
+                    @click="showModal = true"
+                    class="btn-primary add-button"
+                  >
+                    Add Customer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Customer Table -->
@@ -29,11 +69,8 @@
           <!-- Headers outside the card -->
           <div class="outside-headers">
             <span class="header-item">Code</span>
-            <span class="header-item">Customer Name</span>
-            <span class="header-item">Site</span>
-            <span class="header-item">Unit</span>
+            <span class="header-item">Name</span>
             <span class="header-item">Contact</span>
-            <span class="header-item">Document Status</span>
             <span class="header-item">Actions</span>
           </div>
 
@@ -44,7 +81,7 @@
 
           <div
             v-else
-            v-for="(customer, index) in filteredCustomers"
+            v-for="(customer, index) in paginatedCustomers"
             :key="index"
             class="card border-0 rounded-1 mx-auto my-2"
             style="
@@ -67,39 +104,12 @@
                       </span>
                     </td>
                     <td>
-                      <span class="customer-site">
-                        {{ customer.site }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="customer-unit">
-                        {{ customer.unit }}
-                      </span>
-                    </td>
-                    <td>
                       <span class="customer-contact">
                         {{ customer.contact_number }}
                       </span>
                     </td>
                     <td>
-                      <span class="customer-document">
-                        {{ customer.document_status }}
-                      </span>
-                    </td>
-                    <td>
                       <div class="broker-actions d-flex gap-2">
-                        <button
-                          @click="openDocumentModal(customer)"
-                          style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          "
-                        >
-                          <i class="fas fa-file"></i>
-                        </button>
                         <button
                           @click="openEditModal(customer)"
                           style="
@@ -113,7 +123,7 @@
                           <i class="fas fa-edit"></i>
                         </button>
                         <button
-                          @click="archiveCustomer(customer)"
+                          @click="DeleteSaleModal(customer)"
                           style="
                             border: none;
                             background-color: transparent;
@@ -131,273 +141,319 @@
               </table>
             </div>
           </div>
+        </div>
+          <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
+        <!-- Modal for Adding Customer -->
+        <b-modal v-model="showModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Add Customer</h5>
+          </div>
 
-          <!-- Modal for Adding Customer -->
-          <b-modal v-model="showModal" hide-header hide-footer centered>
-            <div class="modal-title p-3">
-              <h5 class="mb-0">Add Customer</h5>
-            </div>
-
-            <div class="p-3">
-              <form @submit.prevent="addCustomer">
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="firstName" class="form-label"
-                      >First Name:</label
-                    >
-                    <input
-                      type="text"
-                      v-model="firstName"
-                      id="firstName"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="lastName" class="form-label">Last Name:</label>
-                    <input
-                      type="text"
-                      v-model="lastName"
-                      id="lastName"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="email" class="form-label">Email:</label>
-                  <input
-                    type="email"
-                    v-model="email"
-                    id="email"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="contactNumber" class="form-label"
-                    >Contact Number:</label
-                  >
+          <div class="p-3">
+            <form @submit.prevent="addCustomer">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label">First Name:</label>
                   <input
                     type="text"
-                    v-model="contactNumber"
-                    id="contactNumber"
+                    v-model="firstName"
+                    id="firstName"
                     class="form-control"
                     required
                   />
                 </div>
 
-                <!-- Submit & Cancel Buttons -->
-                <div
-                  class="d-flex justify-content-end gap-2 mt-30"
-                  style="padding-top: 15px"
-                >
-                  <button type="submit" class="btn-add" style="width: 150px">
-                    Add Customer
-                  </button>
-                  <button
-                    type="button"
-                    @click="showModal = false"
-                    class="btn-cancel"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </b-modal>
-
-          <!-- Edit Customer Modal -->
-          <b-modal v-model="showEditModal" hide-header hide-footer centered>
-            <div class="modal-title p-3">
-              <h5 class="mb-0">Update Details</h5>
-            </div>
-
-            <div class="p-3">
-              <form @submit.prevent="updateCustomer">
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="firstName" class="form-label"
-                      >First Name:</label
-                    >
-                    <input
-                      type="text"
-                      v-model="editFirstName"
-                      id="editFirstName"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="lastName" class="form-label">Last Name:</label>
-                    <input
-                      type="text"
-                      v-model="editLastName"
-                      id="editLastName"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="email" class="form-label">Email:</label>
-                  <input
-                    type="email"
-                    v-model="editEmail"
-                    id="editEmail"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="contactNumber" class="form-label"
-                    >Contact Number:</label
-                  >
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label">Last Name:</label>
                   <input
                     type="text"
-                    v-model="editContactNumber"
-                    id="editContactNumber"
+                    v-model="lastName"
+                    id="lastName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  v-model="email"
+                  id="email"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="contactNumber" class="form-label"
+                  >Contact Number:</label
+                >
+                <input
+                  type="text"
+                  v-model="contactNumber"
+                  id="contactNumber"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- Submit & Cancel Buttons -->
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add">Submit</button>
+                <button
+                  type="button"
+                  @click="showModal = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </b-modal>
+
+        <!-- Edit Customer Modal -->
+        <b-modal v-model="showEditModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Update Details</h5>
+          </div>
+
+          <div class="p-3">
+            <form @submit.prevent="updateCustomer">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label">First Name:</label>
+                  <input
+                    type="text"
+                    v-model="editFirstName"
+                    id="editFirstName"
                     class="form-control"
                     required
                   />
                 </div>
 
-                <!-- Submit & Cancel Buttons -->
-                <div
-                  class="d-flex justify-content-end gap-2 mt-30"
-                  style="padding-top: 15px"
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label">Last Name:</label>
+                  <input
+                    type="text"
+                    v-model="editLastName"
+                    id="editLastName"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  v-model="editEmail"
+                  id="editEmail"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="contactNumber" class="form-label"
+                  >Contact Number:</label
                 >
-                  <button type="submit" class="btn-add" style="width: 150px">
-                    Update
-                  </button>
-                  <button
-                    type="button"
-                    @click="showEditModal = false"
-                    class="btn-cancel"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </b-modal>
-
-          <!-- Documents -->
-          <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
-            <div class="modal-title p-3">
-              <h5 class="mb-0">Customer Documents</h5>
-            </div>
-
-            <div class="p-3">
-              <div v-if="showSalesMessage">
-                <p>Please create sales first before uploading documents.</p>
-                <div class="button-container">
-                  <button
-                    type="button"
-                    @click="showDocumentModal = false"
-                    class="btn-cancel-right"
-                  >
-                    Close
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  v-model="editContactNumber"
+                  id="editContactNumber"
+                  class="form-control"
+                  required
+                />
               </div>
-              <div v-if="showStatusMessage">
-                <p>Waiting for Developer to confirm Reservation</p>
-                <div class="button-container">
-                  <button
-                    type="button"
-                    @click="showDocumentModal = false"
-                    class="btn-cancel-right"
-                  >
-                    Close
-                  </button>
-                </div>
+
+              <!-- Submit & Cancel Buttons -->
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Update
+                </button>
+                <button
+                  type="button"
+                  @click="showEditModal = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
               </div>
-              <div v-else>
-                <form @submit.prevent="uploadDocuments">
-                  <div class="document-upload-form">
+            </form>
+          </div>
+        </b-modal>
+
+        <!-- Documents -->
+        <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">Customer Documents</h5>
+          </div>
+
+          <div class="p-3">
+            <div v-if="showStatusMessage">
+              <p>Waiting for Developer to confirm Reservation</p>
+              <div class="button-container">
+                <button
+                  type="button"
+                  @click="showDocumentModal = false"
+                  class="btn-cancel-right"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div v-else>
+              <form @submit.prevent="uploadDocuments">
+                <div class="document-upload-form">
+                  <div
+                    v-for="(docType, index) in documentTypes"
+                    :key="index"
+                    class="document-upload-section mb-3"
+                  >
+                    <label
+                      :for="'documentType' + docType.id"
+                      class="form-label"
+                    >
+                      <b> Upload {{ docType.name }} </b>
+                    </label>
+
                     <div
-                      v-for="(docType, index) in documentTypes"
-                      :key="index"
-                      class="document-upload-section mb-3"
+                      class="file-input-wrapper d-flex align-items-center gap-2"
                     >
-                      <label
-                        :for="'documentType' + docType.id"
-                        class="form-label"
-                      >
-                        <b> Upload {{ docType.name }} </b>
-                      </label>
+                      <!-- Show the file input if no file has been selected -->
+                      <input
+                        type="file"
+                        :id="'documentType' + docType.id"
+                        @change="handleFileUpload($event, docType.id)"
+                        class="form-control"
+                        v-if="!filePreviews[docType.id]"
+                      />
 
+                      <!-- Show the file name after file has been selected -->
                       <div
-                        class="file-input-wrapper d-flex align-items-center gap-2"
+                        v-if="filePreviews[docType.id]"
+                        class="d-flex align-items-center gap-2"
                       >
-                        <!-- Show the file input if no file has been selected -->
-                        <input
-                          type="file"
-                          :id="'documentType' + docType.id"
-                          @change="handleFileUpload($event, docType.id)"
-                          class="form-control"
-                          v-if="!filePreviews[docType.id]"
-                        />
+                        <span class="file-name">
+                          {{ filePreviews[docType.id].name }}
+                        </span>
 
-                        <!-- Show the file name after file has been selected -->
-                        <div
-                          v-if="filePreviews[docType.id]"
-                          class="d-flex align-items-center gap-2"
+                        <button
+                          type="button"
+                          @click="removeFile(docType.id)"
+                          class="btn btn-danger btn-sm"
                         >
-                          <span class="file-name">
-                            {{ filePreviews[docType.id].name }}
-                          </span>
-
-                          <button
-                            type="button"
-                            @click="removeFile(docType.id)"
-                            class="btn btn-danger btn-sm"
-                          >
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
+                          <i class="fas fa-trash"></i>
+                        </button>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div class="form-actions">
-                    <div
-                      class="d-flex justify-content-end gap-2 mt-30"
-                      style="padding-top: 15px"
+                <div class="form-actions">
+                  <div
+                    class="d-flex justify-content-end gap-2 mt-30"
+                    style="padding-top: 15px"
+                  >
+                    <button type="submit" class="btn-add" style="width: 150px">
+                      Upload Document
+                    </button>
+                    <button
+                      type="button"
+                      @click="showDocumentModal = false"
+                      class="btn-cancel"
                     >
-                      <button
-                        type="submit"
-                        class="btn-add"
-                        style="width: 150px"
-                      >
-                        Upload Document
-                      </button>
-                      <button
-                        type="button"
-                        @click="showDocumentModal = false"
-                        class="btn-cancel"
-                      >
-                        Cancel
-                      </button>
-                    </div>
+                      Cancel
+                    </button>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
-          </b-modal>
-        </div>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showDeleteModal"
+          title="Delete Confirmation"
+          hide-footer
+          centered
+        >
+          <p>
+            Are you sure you want to delete this this
+            customer?
+          </p>
+
+          <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px">
+            <button
+              type="button"
+              @click="
+                deleteSaleFromBackend(
+                  selectedCustomer.id,
+                )
+              "
+              class="btn-add"
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              @click="showDeleteModal = false"
+              class="btn-cancel"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class = "button-container">
+            <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
+  </div>
 </template>
-
 <script>
 import AppHeader from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";
@@ -417,6 +473,49 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
+      sortedAndFilteredCustomers() {
+    let filtered = this.searchQuery
+      ? this.customers.filter((customer) => {
+          const customerName = customer.customer_name.toLowerCase();
+          const customerCode = customer.customer_code
+            ? customer.customer_code.toLowerCase()
+            : "";
+          return (
+            customerName.includes(this.searchQuery.toLowerCase()) ||
+            customerCode.includes(this.searchQuery.toLowerCase())
+          );
+        })
+      : this.customers;
+
+    switch (this.sortBy) {
+      case "name_asc":
+        return filtered.sort((a, b) =>
+          a.customer_name.localeCompare(b.customer_name)
+        );
+      case "name_desc":
+        return filtered.sort((a, b) =>
+          b.customer_name.localeCompare(a.customer_name)
+        );
+      case "customer_code_asc":
+        return filtered.sort((a, b) =>
+          a.customer_code.localeCompare(b.customer_code)
+        );
+      case "customer_code_desc":
+        return filtered.sort((a, b) =>
+          b.customer_code.localeCompare(a.customer_code)
+        );
+      default:
+        return filtered;
+    }
+  },
+  paginatedCustomers() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.sortedAndFilteredCustomers.slice(startIndex, endIndex);
+  },
+  totalPages() {
+    return Math.ceil(this.sortedAndFilteredCustomers.length / this.itemsPerPage);
+  },
   },
   vuexUserId() {
     return this.userId;
@@ -427,8 +526,8 @@ export default {
   data() {
     return {
       showModal: false, // Controls the visibility of the Add Customer modal
-      showDocumentModal: false, // Controls the visibility of the Document Upload modal
       showEditModal: false, // Edit customer modal visibility
+      showDeleteModal: false, // To toggle the delete modal visibility
       showSalesMessage: false, // Controls the visibility of the "create sales first" message
       showStatusMessage: false,
       showNotification: false, // Controls the visibility of the notification modal
@@ -443,35 +542,22 @@ export default {
       notificationMessage: "", // Message for the notification modal
       sortBy: "name_asc", // Selected sorting option (default is "Name (A-Z)")
       filePreviews: {}, // Object to store file previews for each document type
-      document_status: "Pending",
-      documentFiles: {},
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
+      currentPage: 1, // Current page number
+      itemsPerPage: 5, // Number of customers per page
     };
   },
   mounted() {
     this.fetchCustomers();
-    this.fetchDocumentTypes(); // New function to fetch document types
   },
   methods: {
-    filterCustomers() {
-      const query = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive comparison
-
-      if (!query) {
-        // If there's no search query, show all customers
-        this.filteredCustomers = this.customers;
-      } else {
-        // Filter customers by name or customer code
-        this.filteredCustomers = this.customers.filter((customer) => {
-          const customerName = customer.customer_name.toLowerCase();
-          const customerCode = customer.customer_code
-            ? customer.customer_code.toLowerCase()
-            : ""; // Assuming customer code is in customer_code field
-          return customerName.includes(query) || customerCode.includes(query);
-        });
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
       }
     },
-
+    
     async fetchCustomers() {
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -480,14 +566,14 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=true`
+          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=false`
         );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
             this.customers = data.customers;
-            console.log(this.customers);
             this.filteredCustomers = this.customers; // Initialize filteredCustomers with all customers
+            this.sortCustomers(); // Call the sorting function here
           } else {
             this.error = data.message || "Failed to fetch customer data.";
           }
@@ -500,37 +586,6 @@ export default {
       }
     },
 
-    // Sort customers based on selected option
-    sortCustomers() {
-      switch (this.sortBy) {
-        case "name_asc":
-          this.customers.sort((a, b) =>
-            a.customer_name.localeCompare(b.customer_name)
-          );
-          break;
-        case "name_desc":
-          this.customers.sort((a, b) =>
-            b.customer_name.localeCompare(a.customer_name)
-          );
-          break;
-        case "site_asc":
-          this.customers.sort((a, b) => a.site.localeCompare(b.site));
-          break;
-        case "site_desc":
-          this.customers.sort((a, b) => b.site.localeCompare(a.site));
-          break;
-        case "status_asc": // New case for sorting by document status A-Z
-          this.customers.sort((a, b) =>
-            a.document_status.localeCompare(b.document_status)
-          );
-          break;
-        case "status_desc": // New case for sorting by document status Z-A
-          this.customers.sort((a, b) =>
-            b.document_status.localeCompare(a.document_status)
-          );
-          break;
-      }
-    },
     openEditModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       this.editEmail = customer.email;
@@ -582,8 +637,8 @@ export default {
       }
     },
 
-    // Opens the document upload modal for the selected customer
-    openDocumentModal(customer) {
+    
+    DeleteSaleModal(customer) {
       this.selectedCustomer = customer; // Set the selected customer
       if (
         this.selectedCustomer.site === "To be followed" ||
@@ -593,20 +648,45 @@ export default {
       } else {
         this.showSalesMessage = false; // Show the document upload form
       }
-      if (this.selectedCustomer.status != "Reserved") {
-        this.showStatusMessage = true; // Show the message to create sales first
-      } else {
-        this.showStatusMessage = false; // Show the message to create sales first
-      }
-      this.fetchCustomerDocuments(
-        this.selectedCustomer.id,
-        this.selectedCustomer.sales_id
-      );
+      this.showDeleteModal = true; // Show the modal
+    },
+    async deleteSaleFromBackend(customer_id) {
+      try {
+        // Send a POST request with DELETE override if CSRF protection is enabled
+        const response = await fetch(`http://localhost:8000/delete_customer/${customer_id}/`, {
+          method: "POST", // Use POST with _method override
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": this.getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ _method: "DELETE" }), // Overriding method to DELETE
+        });
 
-      this.showDocumentModal = true; // Open the document upload modal
+        if (response.ok) {
+          this.notificationTitle = "Success!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removed Successfully!"
+            : "Customer Sale Removed Successfully!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchCustomers(); // Refresh customers list after deletion
+        } else {
+          this.notificationTitle = "Error!";
+          this.notificationMessage = this.showSalesMessage
+            ? "Customer Removal Failed!"
+            : "Customer Sale Removal Failed!";
+          this.showNotification = true;
+          this.showDeleteModal = false; // Close the modal
+          this.fetchCustomers(); // Refresh customers list even if there's an error
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while deleting the sale or customer");
+      }
     },
     // Add a new customer
-    async addCustomer() {
+  // Add a new customer
+  async addCustomer() {
       const companyId = this.companyId; // Directly access the mapped state
       if (!this.userId) {
         this.error = "Broker ID not found. Please log in again.";
@@ -646,9 +726,6 @@ export default {
           this.showNotification = true; // Show the notification modal
         }
       } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while adding the customer.";
         this.showNotification = true; // Show the notification modal
       }
     },
@@ -692,101 +769,6 @@ export default {
         }
       });
     },
-
-    // Fetch document types from the API
-    async fetchDocumentTypes() {
-      try {
-        const response = await fetch("http://localhost:8000/document-types/");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            this.documentTypes = data.documentTypes;
-          } else {
-            this.error = data.message || "Failed to fetch document types.";
-          }
-        }
-      } catch (error) {
-        this.error = "An error occurred while fetching document types.";
-      }
-    },
-
-    // Handle file selection for multiple document types
-    handleFileUpload(event, docTypeId) {
-      const file = event.target.files[0];
-      if (file) {
-        if (this.filePreviews[docTypeId]) {
-          this.removeFile(docTypeId); // This will remove the old file
-        }
-        this.filePreviews[docTypeId] = file; // Store the file preview
-        this.documentFiles[docTypeId] = file; // Store the actual file
-      }
-    },
-
-    // Remove file preview and file data for a document type
-    removeFile(docTypeId) {
-      delete this.filePreviews[docTypeId];
-      delete this.documentFiles[docTypeId];
-    },
-
-    // Upload multiple documents
-    async uploadDocuments() {
-      const formData = new FormData();
-
-      // Loop through the documentFiles object to process each file and its document type
-      for (const docTypeId in this.documentFiles) {
-        const file = this.documentFiles[docTypeId];
-
-        // Append the file and the associated document type to formData
-        formData.append("files[]", file); // Append the file under "files[]"
-        formData.append("document_types[]", docTypeId); // Append the document type ID under "document_types[]"
-        formData.append("sales_id", this.selectedCustomer.sales_id);
-      }
-
-      // Append customer and company information
-      formData.append("customer", this.selectedCustomer.id);
-      formData.append("company", this.selectedCustomer.company_id);
-      // Log the formData for debugging
-      try {
-        const response = await fetch("http://localhost:8000/upload-document/", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-CSRFToken": this.getCookie("csrftoken"),
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok && data.success) {
-          this.notificationTitle = "Success!";
-          this.notificationMessage = "Documents uploaded successfully!";
-          this.showNotification = true;
-          this.showDocumentModal = false;
-          this.resetForm();
-
-          this.fetchCustomers(); // Refresh customer list
-        } else {
-          this.notificationTitle = "Error!";
-          this.notificationMessage =
-            data.message || "Failed to upload documents.";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error!";
-        this.notificationMessage =
-          "An error occurred while uploading documents.";
-        this.showNotification = true;
-      }
-    },
-    // Reset the form when the modal is closed
-    resetForm() {
-      this.email = "";
-      this.contactNumber = "";
-      this.lastName = "";
-      this.firstName = "";
-      this.documentFiles = {}; // Clear the actual files
-      // Optionally, clear any other form-related fields
-      this.selectedCustomer = null; // Clear selected customer
-    },
     getCookie(name) {
       let value = "; " + document.cookie;
       let parts = value.split("; " + name + "=");
@@ -811,19 +793,36 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #e8f0fa;
   /* Gray background */
+}
+
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeaderLivWell {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
 }
 
 .main-content {
   display: flex;
-  flex-direction: column;
-  margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
+  flex-direction: column;
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
+  margin-top: 60px;
 }
 
 .content {
@@ -935,10 +934,10 @@ body {
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #42b983;
+  border: 1px solid #0560fd;
   border-radius: 3px;
   font-size: 14px;
-  background-color: #42b983;
+  background-color: #0560fd;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -969,7 +968,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 10% 15% 20% 20% 15% 10% 15%; /* Match column widths */
+  grid-template-columns: 25% 35% 30% 10%; /* Match column widths */
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -993,51 +992,31 @@ body {
 }
 
 .customer-table td {
-  padding: 10px 18px; /* Matches outside-headers padding */
+  padding: 10px 0; /* Matches outside-headers padding */
 }
 
 .customer-table td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 10%;
+  width: 25%;
 }
 
 .customer-table td:nth-child(2),
 .outside-headers .header-item:nth-child(2) {
-  width: 15%;
+  width: 35%;
 }
 
 .customer-table td:nth-child(3),
 .outside-headers .header-item:nth-child(3) {
-  width: 20%;
+  width: 30%;
 }
 
 .customer-table td:nth-child(4),
 .outside-headers .header-item:nth-child(4) {
-  width: 20%;
-}
-
-.customer-table td:nth-child(5),
-.outside-headers .header-item:nth-child(5) {
-  width: 15%;
-}
-
-.customer-table td:nth-child(6),
-.outside-headers .header-item:nth-child(6) {
   width: 10%;
 }
 
-/* For the header */
-.outside-headers .header-item:nth-child(6) {
-  margin-left: -10px; /* Moves it slightly to the left */
-}
-
-.customer-table td:nth-child(7),
-.outside-headers .header-item:nth-child(7) {
-  width: 15%;
-}
-
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   /* Button primary color */
   color: #fff;
   border: none;
@@ -1076,4 +1055,38 @@ input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
+
 </style>

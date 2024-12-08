@@ -2,22 +2,21 @@
   <div>
     <div :class="['sidebar']">
       <div class="sidebar-header">
-        <!-- Use company logo from Vuex -->
-        <img
-          v-if="company.logo"
-          :src="getLogoUrl(company.logo)"
-          alt="Company Logo"
-          class="sidebar-logo"
-        />
+        <!-- Replace company logo with a Font Awesome icon or any other icon -->
+        <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
+        <!-- Font Awesome Icon -->
         <h4 id="sidebar-title">{{ company.name || "Company Name" }}</h4>
       </div>
       <nav class="sidebar-nav">
-        <div class="sidebar-menu-title">MAIN MENU</div>
-        <b-nav vertical>
+        <b-nav vertical pills>
           <template v-for="(item, index) in menuItems" :key="index">
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
-              <i :class="item.icon" class="menu-icon"></i>
-              {{ item.name }}
+              <i
+                :class="['menu-icon', item.icon, { active: isActive(item) }]"
+              ></i>
+              <span :class="['item-name', { active: isActive(item) }]">
+                {{ item.name }}
+              </span>
             </b-nav-item>
 
             <div v-else>
@@ -38,6 +37,8 @@
             </div>
           </template>
         </b-nav>
+        <div class="right-line"></div>
+        <!-- The vertical line -->
       </nav>
     </div>
   </div>
@@ -98,13 +99,20 @@ export default {
             icon: "fas fa-map-marker-alt",
           },
           { name: "Units", link: "/developer/units", icon: "fas fa-home" },
-          { name: "Documents", link: "/developer/documents", icon: "fas fa-folder-open", },
-          { name: "Milestones", link: "/developer/milestones", icon: "fas fa-trophy", },
-          { name: "Sales", link: "/developer/sales", icon: "fas fa-chart-line", },
           {
-            name: "Payment Schedules",
-            link: "/developer/payment-schedule",
-            icon: "fas fa-calendar-alt",
+            name: "Documents",
+            link: "/developer/documents",
+            icon: "fas fa-folder-open",
+          },
+          {
+            name: "Milestones",
+            link: "/developer/milestones",
+            icon: "fas fa-trophy",
+          },
+          {
+            name: "Sales",
+            link: "/developer/sales",
+            icon: "fas fa-chart-line",
           },
         ];
       } else if (this.userRole === "broker") {
@@ -117,7 +125,7 @@ export default {
           {
             name: "Units",
             link: "/broker/affiliated-units",
-            icon: "fas fa-home"
+            icon: "fas fa-home",
           },
           {
             name: "Sales",
@@ -134,7 +142,6 @@ export default {
             link: "/broker/milestones",
             icon: "fas fa-trophy",
           },
-          
         ];
       } else {
         this.menuItems = [
@@ -146,6 +153,9 @@ export default {
     getLogoUrl(logoPath) {
       return `http://localhost:8000${logoPath}`;
     },
+    isActive(item) {
+      return this.$route.path === item.link;
+    },
   },
 };
 </script>
@@ -154,33 +164,27 @@ export default {
 .sidebar {
   position: fixed;
   width: 250px;
-  background-color: #343a40;
+  background-color: #ffffff;
   height: 100%;
   display: flex;
   flex-direction: column;
   transition: width 0.3s;
-}
-
-.sidebar-menu-title {
-  font-size: 11px;
-  font-weight: bold;
-  color: #acacac;
-  padding-left: 16px;
-  padding-bottom: 15px;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1); /* Adds shadow on the right */
+  z-index: 2;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
   padding: 17px;
-  border-bottom: 2px solid #acacac;
   height: 68px;
   box-sizing: border-box;
+  margin-top: 5px;
 }
 
 .sidebar-logo {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   margin-right: 10px;
   margin-left: 5px;
@@ -194,7 +198,7 @@ export default {
 }
 
 #sidebar-title {
-  color: #ffffff;
+  color: #343a40;
   font-size: 1.2rem;
   margin: 0;
 }
@@ -204,6 +208,80 @@ export default {
   text-align: center;
   margin-right: 8px;
   flex-shrink: 0;
-  color: #ffffff;
+  color: #343a40;
+}
+
+.item-name {
+  color: #343a40; /* Set the text color */
+  font-size: 14px; /* Customize the font size */
+}
+
+.item-name:hover {
+  color: #0056b3; /* Change color on hover */
+}
+
+.active {
+  color: white !important; /* Make both icon and text white when active */
+}
+
+/* Optional: Active hover effect */
+.active:hover {
+  color: white; /* Ensure color stays white on hover */
+}
+
+/* RESPONSIVENESS */
+/* Media queries for responsive behavior */
+@media (max-width: 1440px) {
+  .sidebar {
+    width: 220px; /* Reduce sidebar width for medium screens */
+  }
+
+  #sidebar-title {
+    font-size: 1.1rem; /* Adjust font size */
+  }
+
+  .menu-icon {
+    width: 18px; /* Adjust icon size */
+  }
+
+  .item-name {
+    font-size: 13px; /* Adjust item font size */
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px; /* Reduce sidebar width further for smaller screens */
+  }
+
+  #sidebar-title {
+    font-size: 1rem;
+  }
+
+  .menu-icon {
+    width: 16px;
+  }
+
+  .item-name {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .sidebar {
+    width: 60px; /* Collapse sidebar */
+  }
+
+  #sidebar-title {
+    display: none; /* Hide title for small screens */
+  }
+
+  .menu-icon {
+    margin-right: 0; /* Center icon without extra space */
+  }
+
+  .item-name {
+    display: none; /* Hide text for small screens */
+  }
 }
 </style>

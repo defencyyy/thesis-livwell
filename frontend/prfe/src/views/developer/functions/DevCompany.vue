@@ -116,7 +116,6 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCompany();
-      this.setupAxiosInterceptor();
     }
   },
 
@@ -146,36 +145,8 @@ export default {
           alert("Error fetching company details.");
         }
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchCompany(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching company data:", error);
-          alert("Error fetching company data.");
-        }
-      }
-    },
-
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          {
-            refresh: refreshToken,
-          }
-        );
-        if (response.status === 200) {
-          const { access } = response.data;
-          localStorage.setItem("accessToken", access);
-          return access;
-        } else {
-          this.handleTokenRefreshFailure();
-        }
-      } catch (error) {
-        this.handleTokenRefreshFailure();
+        console.error("Error fetching company data:", error);
+        alert("Error fetching company data.");
       }
     },
 
@@ -244,37 +215,6 @@ export default {
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
-
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-          }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
-        }
-      );
-
-      axios.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          if (error.response?.status === 401) {
-            const refreshedToken = await this.refreshAccessToken();
-            if (refreshedToken) {
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${refreshedToken}`;
-              return axios(error.config);
-            }
-          }
-          return Promise.reject(error);
-        }
-      );
-    },
   },
 };
 </script>
@@ -294,7 +234,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #eff4fb;
   /* Gray background */
 }
 
@@ -305,7 +245,6 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #343a40;
   z-index: 1;
 }
 
@@ -313,7 +252,6 @@ body {
   width: 100%;
   height: 60px;
   /* Adjust height as needed */
-  background-color: #343a40;
   display: flex;
   align-items: center;
   padding-left: 10px;
@@ -359,6 +297,7 @@ body {
   color: #000000;
   margin-bottom: 0.8rem;
   text-align: left;
+  font-weight: bold;
   /* Align the text to the left */
 }
 
@@ -414,7 +353,7 @@ textarea:focus {
 }
 
 .btn-save {
-  background-color: #42b983; /* Button primary color */
+  background-color: #0560fd; /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px; /* Adjust the border radius */

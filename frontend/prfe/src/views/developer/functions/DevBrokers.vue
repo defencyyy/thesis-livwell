@@ -30,7 +30,7 @@
       </div> -->
         <div
           class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+          style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <div class="card-body">
             <div class="row">
@@ -45,7 +45,11 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
-                  <select v-model="viewFilter" @change="toggleView" class="dropdown">
+                  <select
+                    v-model="viewFilter"
+                    @change="toggleView"
+                    class="dropdown"
+                  >
                     <option value="active">View: Active</option>
                     <option value="archived">View: Archived</option>
                   </select>
@@ -57,16 +61,6 @@
                   >
                     Add Broker
                   </button>
-                  <!-- <button
-                    class="btn-secondary toggle-button"
-                    @click="toggleView"
-                  >
-                    {{
-                      showArchived
-                        ? "Show Active Brokers"
-                        : "Show Archived Brokers"
-                    }}
-                  </button> -->
                 </div>
               </div>
             </div>
@@ -85,11 +79,11 @@
           </div>
 
           <div
-            v-for="(broker, index) in currentBrokers"
+            v-for="(broker, index) in paginatedBrokers"
             :key="broker.id || index"
             class="card border-0 rounded-1 mx-auto my-2"
             style="
-              max-width: 1100px;
+             
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
@@ -98,12 +92,15 @@
                 <tbody>
                   <tr>
                     <td>
-  <!-- User Icon as Profile Picture -->
-  <i class="fas fa-user broker-icon" style="font-size: 30px; color: #343a40;"></i>
-  <span class="broker-name">
-    {{ broker.first_name }} {{ broker.last_name }}
-  </span>
-</td>
+                      <!-- User Icon as Profile Picture -->
+                      <i
+                        class="fas fa-user broker-icon"
+                        style="font-size: 30px; color: #343a40"
+                      ></i>
+                      <span class="broker-name">
+                        {{ broker.first_name }} {{ broker.last_name }}
+                      </span>
+                    </td>
                     <td>
                       <span class="broker-username">{{ broker.username }}</span>
                     </td>
@@ -169,6 +166,32 @@
             </div>
           </div>
         </div>
+         <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="page-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: page === currentPage }"
+          class="page-button"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="page-button"
+      >
+        Next
+      </button>
+    </div>
 
         <!-- Editing Brokers -->
         <b-modal
@@ -411,7 +434,7 @@ export default {
   data() {
     return {
       showModal: false,
-      viewFilter: 'active',
+      viewFilter: "active",
       email: "",
       contactNumber: "",
       lastName: "",
@@ -421,8 +444,8 @@ export default {
       brokers: [],
       archivedBrokers: [],
       searchQuery: "",
-      brokersPerPage: 15,
-      currentPage: 1,
+      currentPage: 1, // Current page number
+      itemsPerPage: 15, // Number of customers per page
       editModalVisible: false,
       editBroker: {},
       // Error Tracking
@@ -464,26 +487,26 @@ export default {
 
       return brokers;
     },
-    currentBrokers() {
-      // Paginate the brokers
-      const start = (this.currentPage - 1) * this.brokersPerPage;
-      const end = start + this.brokersPerPage;
-      return this.filteredBrokers.slice(start, end);
+     paginatedBrokers() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredBrokers.slice(startIndex, endIndex);
     },
     totalPages() {
-      return Math.ceil(this.filteredBrokers.length / this.brokersPerPage);
+      return Math.ceil(this.filteredBrokers.length / this.itemsPerPage);
     },
   },
 
   mounted() {
+    
     this.fetchBrokers();
     // Ensure user is logged in and has the correct role and companyId
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
       this.redirectToLogin();
     } else {
       this.fetchBrokers();
-      this.setupAxiosInterceptor();
     }
+    
   },
 
   watch: {
@@ -505,6 +528,11 @@ export default {
   },
 
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     openEditModal(broker) {
       if (!broker || !broker.id) {
         console.error("Invalid broker object:", broker);
@@ -558,15 +586,8 @@ export default {
         console.log("Brokers fetched:", response.data); // Log the response
         this.brokers = response.data;
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchBrokers(); // Retry after refreshing
-          }
-        } else {
-          console.error("Error fetching brokers:", error.response || error);
-          this.error = "Failed to load brokers.";
-        }
+        console.error("Error fetching brokers:", error.response || error);
+        this.error = "Failed to load brokers.";
       }
     },
 
@@ -692,45 +713,17 @@ export default {
       );
     },
 
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          { refresh: refreshToken }
-        );
-        if (response.status === 200) {
-          const { access } = response.data;
-          localStorage.setItem("accessToken", access);
-          return access;
-        } else {
-          this.handleTokenRefreshFailure();
-        }
-      } catch (error) {
-        this.handleTokenRefreshFailure();
-      }
-    },
-
-    handleTokenRefreshFailure() {
-      alert("Session expired. Please log in again.");
-      this.$store.dispatch("logout");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      this.$router.push({ name: "DevLogin" });
-    },
-
     async addBroker() {
       if (this.validateForm()) {
         try {
           const response = await axios.post(
             "http://localhost:8000/developer/brokers/add/",
             {
-              company: this.vuexCompanyId,
-              email: this.email,
-              contact_number: this.contactNumber,
-              last_name: this.lastName,
               first_name: this.firstName,
+              last_name: this.lastName,
+              email: this.email,
               password: this.password,
+              contact_number: this.contactNumber,
             },
             {
               headers: {
@@ -738,67 +731,31 @@ export default {
               },
             }
           );
-          console.log("Broker added:", response.data); // Check response data
-          this.successMessage = "Broker added successfully!";
-          this.resetForm();
-          this.showModal = false;
-          this.fetchBrokers();
+          console.log("Broker added:", response.data);
+          alert("Broker added successfully!");
+          this.resetForm(); // Reset form after successful submission
         } catch (error) {
-          console.error("Error adding broker:", error.response || error); // Log full error
-          this.error =
-            error.response?.data?.error ||
-            "Failed to add broker. Please try again.";
+          console.error("Error adding broker:", error.response || error);
+          this.error = "Failed to add broker. Please try again.";
         }
       }
     },
+
     resetForm() {
+      this.firstName = "";
+      this.lastName = "";
       this.email = "";
       this.contactNumber = "";
-      this.lastName = "";
-      this.firstName = "";
       this.password = "";
       this.emailError = null;
       this.contactNumberError = null;
-      this.lastNameError = null;
       this.firstNameError = null;
+      this.lastNameError = null;
       this.passwordError = null;
-      this.error = null;
-      this.successMessage = null;
     },
 
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
-    },
-
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-          }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
-        }
-      );
-
-      axios.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          if (error.response?.status === 401) {
-            const refreshedToken = await this.refreshAccessToken();
-            if (refreshedToken) {
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${refreshedToken}`;
-              return axios(error.config);
-            }
-          }
-          return Promise.reject(error);
-        }
-      );
     },
   },
 };
@@ -819,7 +776,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #eff4fb;
   /* Gray background */
 }
 
@@ -853,7 +810,7 @@ body {
 
 .content {
   flex: 1;
-  padding: 20px;
+  margin: 20px;
   text-align: center;
 }
 
@@ -861,8 +818,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   max-width: 1100px;
+  width: 100%;
   margin: 20px auto;
   /* Center the wrapper */
 }
@@ -888,6 +845,7 @@ body {
 .edit-title {
   color: #000000;
   text-align: left;
+  font-weight: bold;
 }
 
 .toolbar {
@@ -954,6 +912,7 @@ body {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
   height: 38px;
   /* Explicitly set height */
@@ -964,15 +923,20 @@ body {
   max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #42b983;
+  border: 1px solid #0560fd;
   border-radius: 3px;
   font-size: 14px;
-  background-color: #42b983;
+  background-color: #0560fd;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -989,14 +953,11 @@ body {
   margin-bottom: 15px;
   margin-top: 0;
   max-width: 1100px;
+  width: 100%;
   /* Ensures the card and grid align */
   margin-left: auto;
   /* Centers the card */
   margin-right: auto;
-}
-
-.broker-info {
-  flex-direction: row;
 }
 
 .broker-icon {
@@ -1070,6 +1031,7 @@ body {
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
+  width: 100%;
   max-width: 1100px;
 }
 
@@ -1089,7 +1051,7 @@ body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   /* Button primary color */
   color: #fff;
   border: none;
@@ -1107,4 +1069,37 @@ body {
   /* Adjust the border radius */
   padding: 10px;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
 </style>

@@ -16,6 +16,12 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.db.models import Sum
+from datetime import timedelta
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth, ExtractYear
+
+
+
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -228,6 +234,22 @@ def BrkResetPass(request, uid, token):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+@csrf_exempt
+def get_broker_data(request, broker_id):
+    try:
+        # Fetch broker data from the database
+        broker = Broker.objects.get(pk=broker_id)
+        broker_data = {
+            'username': broker.username,
+            'email': broker.email,
+            'contact_number': broker.contact_number,
+        }
+        return JsonResponse(broker_data, status=200)
+    
+    except Broker.DoesNotExist:
+        return JsonResponse({'message': 'Broker not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'message': str(e)}, status=500)
 
 @csrf_exempt
 def update_broker_view(request, broker_id):
@@ -235,6 +257,10 @@ def update_broker_view(request, broker_id):
         try:
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
+
+            current_password = data.get('current_password')
+            if current_password and not broker.check_password(current_password):
+                return JsonResponse({"success": False, "message": "Current password is incorrect."}, status=400)
 
             if 'password' in data and data['password'] is not None:
                 password = data['password']
@@ -245,6 +271,8 @@ def update_broker_view(request, broker_id):
 
                 broker.password = make_password(password)
 
+            if 'username' in data and data['username'] is not None:
+                broker.username = data['username']
             if 'email' in data and data['email'] is not None:
                 broker.email = data['email']
             if 'contact_number' in data and data['contact_number'] is not None:
@@ -253,30 +281,41 @@ def update_broker_view(request, broker_id):
             broker.save()
             return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
 
-        except Broker.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Broker does not exist."}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "message": "Invalid JSON data."}, status=400)
         except Exception as e:
+            error_message = str(e).lower()
+            
+            # Check for specific fields causing the unique constraint violation
+            if 'username' in error_message and 'already exists' in error_message:
+                return JsonResponse({"success": False, "message": "The username is already taken. Please choose a different one."}, status=400)
+            elif 'email' in error_message and 'already exists' in error_message:
+                return JsonResponse({"success": False, "message": "The email is already taken. Please choose a different one."}, status=400)
+            elif 'unique constraint' in error_message:
+                return JsonResponse({"success": False, "message": "The provided data violates a unique constraint."}, status=400)
+
             print(f"Error updating broker: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
 
 @csrf_exempt  # This decorator is optional if you are using CSRF tokens correctly in your request
 def add_customer(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            # Check if the email already exists in the database
-            if Customer.objects.filter(email=data['email']).exists():
-                return JsonResponse({"success": False, "message": "Email already taken."}, status=400)
+            broker_id = data['broker']
+            company_id = data['company_id']
+            email = data['email']
+            
+            # Check if the email already exists for the same broker and company
+            if Customer.objects.filter(email=email, broker_id=broker_id, company_id=company_id).exists():
+                return JsonResponse({"success": False, "message": "Email already taken for this broker and company."}, status=400)
 
             # Create a new customer instance, including company_id
             customer = Customer.objects.create(
-                broker_id=data['broker'],
-                company_id=data['company_id'],  # Include company_id
-                email=data['email'],
+                broker_id=broker_id,
+                company_id=company_id,  # Include company_id
+                email=email,
                 contact_number=data['contact_number'],
                 last_name=data['last_name'],
                 first_name=data['first_name']
@@ -303,6 +342,7 @@ def get_broker(request, broker_id):
                 "email": broker.email,
                 "f_name":broker.first_name,
                 "l_name":broker.last_name,
+                "username":broker.username,
                 # Add other fields you may need
             }
             return JsonResponse(broker_data, status=200)
@@ -396,35 +436,40 @@ def sales_details_view(request):
 @csrf_exempt
 def get_available_sites(request):
     if request.method == 'GET':
-        # Extract company_id from the request parameters
         company_id = request.GET.get('company_id')
 
         if not company_id:
+            logger.error("Company ID not provided in the request.")
             return JsonResponse({'success': False, 'message': 'Company ID is required.'}, status=400)
 
         try:
-            # Fetch the broker's company (you can modify this if necessary, assuming you're passing broker's company_id)
+            logger.debug(f"Fetching sites for company_id: {company_id}")
             sites = Site.objects.filter(company_id=company_id, status__in=['preselling', 'completed'])
-            
+            logger.debug(f"Found {sites.count()} sites for company_id: {company_id}")
+
             site_data = []
             for site in sites:
-                # Check if there are any available units for this site
-                available_units = Unit.objects.filter(site=site, status='available')
-                if available_units.exists():  # Only add the site if there are available units
+                available_units = Unit.objects.filter(site=site, status='Available')
+                logger.debug(f"Site ID: {site.id}, Name: {site.name}, Available Units: {available_units.count()}")
+                if available_units.exists():
                     site_data.append({
                         'id': site.id,
                         'name': site.name,
                         'description': site.description,
                         'location': site.location,
                         'picture': request.build_absolute_uri(site.picture.url) if site.picture else None,
+                        'status':site.status,
                     })
-            
+            logger.info(f"Returning {len(site_data)} sites with available units.")
             return JsonResponse({'sites': site_data}, status=200)
 
         except Exception as e:
+            logger.error(f"Error fetching sites: {str(e)}", exc_info=True)
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
+    logger.error("Invalid request method.")
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+    
 @csrf_exempt
 def get_site_name(request, site_id):
     if request.method == 'GET':
@@ -449,46 +494,60 @@ def get_site_name(request, site_id):
 def get_available_units(request):
     if request.method == 'GET':
         site_id = request.GET.get('site_id')
+        logger.debug("Received request to fetch available units for site ID: %s", site_id)
+        
         if not site_id:
+            logger.error("Site ID not provided in the request.")
             return JsonResponse({'success': False, 'message': 'Site ID not provided'}, status=400)
 
         try:
             # Fetch only units that are associated with the given site ID and have a status of 'available'
-            units = Unit.objects.filter(site_id=site_id, status='available')
+            units = Unit.objects.filter(site_id=site_id, status='Available')
+            logger.debug("Found %d available units for site ID %s", units.count(), site_id)
 
             # Prepare the response data
             unit_data = []
             for unit in units:
-                # Fetch all images associated with this unit using the UnitImage model
                 images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
-
-                # Get URLs for all images
                 image_urls = [request.build_absolute_uri(image.image.url) for image in images]
 
-                unit_data.append({
+                # Get the unit type name (you can also include more fields as needed)
+                unit_type_name = unit.unit_type.name if unit.unit_type else None
+
+                unit_info = {
                     'id': unit.id,
                     'unit_title': unit.unit_title,
-                    'images': image_urls,  # List of image URLs
+                    'images': image_urls,
                     'price': unit.price,
                     'bedroom': unit.bedroom,
                     'bathroom': unit.bathroom,
                     'floor_area': unit.floor_area,
-                    'floor': unit.floor.floor_number,  # Adding floor number here
+                    'floor': unit.floor.floor_number,
                     'balcony': unit.balcony,
+                    'type': unit_type_name,  # Add the unit type here
                     'view': unit.view,
-                    'company_id': unit.company.id,  # Add the company_id to the response
-                    'unit_number': unit.unit_number,  # Optionally include unit number
-                    'lot_area': unit.lot_area,  # Optionally include lot area
-                    'reservation_fee': unit.reservation_fee,  # If reservation fee is required
-                    'other_charges': unit.other_charges,  # Any other charges
-                })
+                    'company_id': unit.company.id,
+                    'unit_number': unit.unit_number,
+                    'lot_area': unit.lot_area,
+                    'reservation_fee': unit.reservation_fee,
+                    'other_charges': unit.other_charges,
+                    'TLP_Discount': unit.spot_discount_flat,
+                    'spot_discount': unit.spot_discount_percentage,
+                    'vat_percent': unit.vat_percentage,
+                    'commission':unit.commission,
+                }
+                logger.debug("Processed unit data: %s", unit_info)
+                unit_data.append(unit_info)
 
             return JsonResponse({'units': unit_data}, status=200)
 
         except Exception as e:
+            logger.error("Error while fetching units for site ID %s: %s", site_id, str(e))
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
+    logger.warning("Invalid request method: %s", request.method)
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 
 @csrf_exempt
 def get_customers_for_broker(request, broker_id):
@@ -497,11 +556,11 @@ def get_customers_for_broker(request, broker_id):
         broker = get_object_or_404(Broker, pk=broker_id)
         
         include_sales = request.GET.get('include_sales', 'false') == 'true'
+        
 
-        # Fetch customers for the broker
-        customers = Customer.objects.filter(broker_id=broker_id)
+                # Fetch customers for the broker
+        customers = Customer.objects.filter(broker_id=broker_id, archived=False)
         total_customers = customers.count()
-        print(f"Total customers for broker {broker_id}: {total_customers}")  # Debug print
 
         customer_data = []
         required_document_types = DocumentType.objects.all()
@@ -512,11 +571,9 @@ def get_customers_for_broker(request, broker_id):
             company_id = customer.company.id
             document_status = "Pending"
 
-            print(f"\nCustomer: {customer_name}")  # Debug print
             
             if include_sales:
                 sales = Sale.objects.filter(customer_id=customer.id)
-                print(f"  Sales count for {customer_name}: {sales.count()}")  # Debug print
                 
                 if sales.exists():
                     for sale in sales:
@@ -545,7 +602,6 @@ def get_customers_for_broker(request, broker_id):
                             'company_id': company_id,
                             'document_status': document_status,
                         }
-                        print(f"  Customer Data Entry: {customer_entry}")  # Debug print
                         customer_data.append(customer_entry)
                 else:
                     customer_entry = {
@@ -563,11 +619,11 @@ def get_customers_for_broker(request, broker_id):
                         'company_id': company_id,
                         'document_status': "Pending",
                     }
-                    print(f"  No Sales Customer Data Entry: {customer_entry}")  # Debug print
                     customer_data.append(customer_entry)
             else:
                 customer_entry = {
                     'id': customer.id,
+                    'customer_name': customer_name,
                     'name': customer_name,
                     'customer_code': customer.customer_code,
                     'f_name': customer.first_name,
@@ -577,10 +633,8 @@ def get_customers_for_broker(request, broker_id):
                     'status': "No sales info",
                     'company_id': company_id,
                 }
-                print(f"  Basic Customer Data Entry: {customer_entry}")  # Debug print
                 customer_data.append(customer_entry)
 
-        # print(f"\nFinal Customer Data: {customer_data}")  # Final debug print before response
         return JsonResponse({
             'success': True,
             'total_customers': total_customers,
@@ -588,7 +642,6 @@ def get_customers_for_broker(request, broker_id):
         }, status=200)
 
     except Exception as e:
-       # print(f"Error: {str(e)}")  # Print the error for debugging
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 
@@ -640,7 +693,7 @@ def update_customer(request, customer_id):
 
 def fetch_sites(request):
     # Filter sites that have available units
-    sites = Site.objects.filter(unit__status='available').distinct()
+    sites = Site.objects.filter(unit__status='Available').distinct()
 
     site_data = []
     for site in sites:
@@ -652,7 +705,7 @@ def fetch_sites(request):
                     'id': unit.id,
                     'unit_title': unit.unit_title  # Unit title
                 }
-                for unit in site.unit_set.filter(status='available')  # Only available units for the site
+                for unit in site.unit_set.filter(status='Available')  # Only available units for the site
             ]
         })
 
@@ -664,7 +717,7 @@ def fetch_units(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     
     # Get available units for the site
-    units = Unit.objects.filter(site=site, status='available')
+    units = Unit.objects.filter(site=site, status='Available')
 
     unit_data = [
         {
@@ -682,7 +735,7 @@ def fetch_sales(request):
 
         # Fetch sales based on the broker_id, if provided
         if broker_id:
-            sales = Sale.objects.filter(broker__id=broker_id).select_related(
+            sales = Sale.objects.filter(broker__id=broker_id,is_archived=False).select_related(
                 'customer',  # Fetch related customer data
                 'site',      # Fetch related site data
                 'unit',      # Fetch related unit data
@@ -710,7 +763,12 @@ def fetch_sales(request):
                 'status': sale.status,
                 'email': sale.customer.email,
                 'broker_id': sale.broker.id if sale.broker else None, # broker_id
-                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name     
+                'broker_name': f"{sale.broker.first_name} {sale.broker.last_name}" if sale.broker else None,  # broker_name  
+                'reservation_fee': sale.unit.reservation_fee,  # If reservation fee is required
+                'other_charges': sale.unit.other_charges,  # Any other charges
+                'TLP_Discount':sale.unit.spot_discount_flat,
+                'spot_discount':sale.unit.spot_discount_percentage,
+                'vat_percent':sale.unit.vat_percentage,   
             })      
          # Group the sales by status and count occurrences
         status_count = Counter(sale.status for sale in sales)
@@ -730,6 +788,7 @@ def fetch_sales(request):
 
 @csrf_exempt
 def reserve_unit(request):
+    print("submitting reservation")
     if request.method == 'POST':
         try:
             # Parse the incoming JSON request data
@@ -745,6 +804,7 @@ def reserve_unit(request):
             payment_method = data.get('payment_method')
             payment_reference = data.get('payment_reference')
             reservation_file = data.get('reservation_file')  # Just the filename in this case
+            commission=data.get('commission')
 
             # Fetch the related objects from the database
             customer = Customer.objects.get(id=customer_id)
@@ -763,9 +823,9 @@ def reserve_unit(request):
                 reservation_fee=payment_amount,
                 payment_method=payment_method,
                 payment_reference=payment_reference,
-                reservation_file=reservation_file if reservation_file else None
+                reservation_file=reservation_file if reservation_file else None,
+                commission=commission
             )
-
             # Update the unit status to pending_reservation
             unit.status = 'Pending Reservation'
             unit.save()
@@ -788,6 +848,7 @@ def submit_sales(request):
             customer_id = request.POST.get('customer_id')
             site_id = request.POST.get('site_id')
             unit_id = request.POST.get('unit_id')
+            sales_id=request.POST.get('sales_id')
             broker_id = request.POST.get('broker_id')
             payment_plan = request.POST.get('payment_plan')
             spot_discount_percent = request.POST.get('spot_discount_percent')
@@ -812,6 +873,7 @@ def submit_sales(request):
                 file_path = default_storage.save(f'reservations/{reservation_agreement.name}', reservation_agreement)
             else:
                 file_path = None
+                        
 
             # Create a new SalesDetails entry
             sales_detail = SalesDetails.objects.create(
@@ -819,6 +881,7 @@ def submit_sales(request):
                 site_id=site_id,
                 unit_id=unit_id,
                 broker_id=broker_id,
+                sales_id=sales_id,
                 payment_plan=payment_plan,
                 spot_discount_percent=spot_discount_percent,
                 tlp_discount_percent=tlp_discount_percent,
@@ -861,6 +924,7 @@ def get_sales_detail(request, sales_detail_id):
         'uuid': sales_detail_id,  # Use uuid here instead of id
         'id':sales_detail.id,
         'customer_id': sales_detail.customer_id,
+        'sales_id':sales_detail.sales_id,
         'site_id': sales_detail.site_id,
         'unit_id': sales_detail.unit_id,
         'broker_id': sales_detail.broker_id,
@@ -995,7 +1059,6 @@ def upload_document(request):
 
         files = request.FILES.getlist("files[]")
         document_type_ids = request.POST.getlist("document_types[]")
-
 
         if not customer_id or not document_type_ids or not files or not sales_id:
             return JsonResponse({"success": False, "message": "Missing required fields."}, status=400)
@@ -1139,16 +1202,11 @@ def mark_unit_as_sold(request, customer_id, sales_id):
         }, status=500)
     
 def get_milestones(request):
-    print("k")
     try:
         broker_id = request.GET.get('broker_id')  # Get broker_id from query parameter
         broker = Broker.objects.get(id=broker_id)  # Retrieve broker by id
         milestones = Milestone.objects.filter(company=broker.company)
 
-        # If there are no milestones, we can still return an empty response
-        if not milestones.exists():
-            print("No milestones available.")
-        
         # Calculate total sales and commission
         total_sales = Sale.objects.filter(broker_id=broker_id, status='Sold').count()
         sales = Sale.objects.filter(broker_id=broker_id, status='Sold')
@@ -1163,7 +1221,6 @@ def get_milestones(request):
         # Separate achieved and next milestones
         achieved_milestones = []
         next_milestones = []
-        print(total_commission)
 
         for milestone in milestones:
             if milestone.type == 'sales' and total_sales >= milestone.sales_threshold:
@@ -1187,20 +1244,104 @@ def get_milestones(request):
                 'reward': m.reward,
                 'type': m.type,
             } for m in next_milestones],
+            'total_milestones': len(achieved_milestones),  # Total achieved milestones count
         }
-
-        # Print the data to inspect it
-        print("Achieved Milestones:", data['achieved_milestones'])
-        print("Next Milestones:", data['next_milestones'])
-
+        
         return JsonResponse(data, status=200)
 
     except Exception as e:
         print(f"Error: {str(e)}")  # Print the error if something goes wrong
         return JsonResponse({'error': str(e)}, status=500)
 
+@csrf_exempt  # Use this temporarily for debugging
+def delete_sale(request, sale_id):
+    # If you want to handle _method POST -> DELETE override
+    if request.method == 'POST' and request.body:
+        data = json.loads(request.body)
+        if data.get('_method') == 'DELETE':
+            # Process the delete operation
+            sale = get_object_or_404(Sale, id=sale_id)
+            sale.is_archived = True
+            sale.save()
+            # Update unit status
+            unit = sale.unit
+            unit.status = 'Available'
+            unit.save()
+
+            return JsonResponse({"message": "Sale and unit affiliation deleted successfully"})
+
+    return JsonResponse({"message": "Invalid request"}, status=400)
+
+@csrf_exempt  # Use this temporarily for debugging
+def delete_customer(request, customer_id):
+    try:
+        customer = Customer.objects.get(id=customer_id)
+        if customer.archived:
+            return JsonResponse({"message": "Customer is already archived"}, status=400)
+        
+        customer.archived = True
+        customer.save()
+        return JsonResponse({"message": "Customer archived successfully"}, status=200)
+    except Customer.DoesNotExist:
+        return JsonResponse({"message": "Customer not found"}, status=404)
 
 
+
+def sales_by_month(request):
+    broker_id = request.GET.get('broker_id')
+    year = request.GET.get('year')  # Get the year from the query params
+
+    if not broker_id:
+        return JsonResponse({"success": False, "message": "Broker ID is required"}, status=400)
+
+    # If no year is provided, default to the current year
+    if not year:
+        year = timezone.now().year
+    else:
+        try:
+            year = int(year)  # Ensure the year is an integer
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid year"}, status=400)
+
+    # Get the count of sales grouped by month for a specific broker and year
+    sales_filter = Sale.objects.filter(broker_id=broker_id, status='Sold')
+    
+    # If a year is specified, filter by that year
+    if year:
+        sales_filter = sales_filter.filter(date_sold__year=year)
+
+    sales_data = sales_filter.annotate(month=ExtractMonth('date_sold')) \
+        .values('month') \
+        .annotate(sales_count=Count('id')) \
+        .order_by('month')
+
+    # Prepare the data for months and sales count
+    months = [sale['month'] for sale in sales_data]
+    sales_count = [sale['sales_count'] for sale in sales_data]
+
+    # Month names (1 = January, 2 = February, etc.)
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    # Prepare the response data mapping month numbers to their names and sales count
+    month_sales = {}
+    for month, count in zip(months, sales_count):
+        month_sales[month_names[month - 1]] = count  # Adjust month because month is 1-based
+
+
+    # Get distinct years the broker has made sales
+    years = Sale.objects.filter(broker_id=broker_id) \
+        .annotate(year=ExtractYear('date_sold')) \
+        .values('year') \
+        .distinct() \
+        .order_by('-year') 
+
+    available_years = [year['year'] for year in years]
+
+    return JsonResponse({
+        "success": True,
+        "month_sales": month_sales,  # Sales per month
+        "years": available_years,  # Available years for the dropdown
+    })
 # Developers
 @csrf_exempt
 def send_dev_password_reset_email(request):

@@ -20,4 +20,4 @@ class SaleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ['id', 'customer', 'broker', 'unit', 'site', 'status', 'reservation_fee', 'payment_method', 'reservation_file']
+        fields = ['id', 'customer', 'broker', 'unit', 'site', 'status', 'reservation_fee', 'date_sold','payment_method', 'reservation_file']

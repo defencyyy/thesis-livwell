@@ -35,21 +35,6 @@
               </div>
               <div class="right-section"></div>
             </div>
-
-            <!-- Pagination -->
-            <div
-              class="pagination"
-              v-if="filteredCustomers.length > customersPerPage"
-            >
-              <button
-                v-for="page in totalPages"
-                :key="page"
-                @click="currentPage = page"
-                :class="{ active: currentPage === page }"
-              >
-                {{ page }}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -61,6 +46,7 @@
             <span class="header-item">Email</span>
             <span class="header-item">Contact</span>
             <span class="header-item">Broker Name</span>
+            <!-- <span class="header-item">Units Connected</span> -->
             <span class="header-item">Actions</span>
           </div>
 
@@ -91,6 +77,7 @@
                         {{ customer.first_name + " " + customer.last_name }}
                       </span>
                     </td>
+
                     <td>
                       <span class="customer-email">
                         {{ customer.email }}
@@ -101,6 +88,19 @@
                         {{ customer.contact_number }}
                       </span>
                     </td>
+                    <!-- <td>
+                      <span class="customer-units">
+                        {{
+                          customer.broker_sales
+                            ? customer.broker_sales.reduce(
+                                (count, sale) =>
+                                  sale.site && sale.unit ? count + 1 : count,
+                                0
+                              )
+                            : 0
+                        }}
+                      </span>
+                    </td> -->
                     <td>
                       <span class="customer-broker">
                         {{
@@ -133,6 +133,31 @@
               </table>
             </div>
           </div>
+        <!-- Pagination -->
+        <div class="pagination-controls">
+          <button
+            :disabled="currentPage === 1"
+            @click="prevPage"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            @click="changePage(page)"
+            :class="['page-button', { active: currentPage === page }]"
+          >
+            {{ page }}
+          </button>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
         </div>
       </div>
     </div>
@@ -163,17 +188,62 @@
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
 
-      <!-- Document Requirements -->
+      <!-- Submitted Documents -->
       <h5>Submitted Documents</h5>
       <div v-if="currentCustomer.documents && currentCustomer.documents.length">
         <ul>
           <li v-for="document in currentCustomer.documents" :key="document.url">
             <span class="document-type">{{ document.type }}:</span>
-            <a :href="document.url" target="_blank">{{ document.name }}</a>
+
+            <!-- Button to open the document in a modal -->
+            <button @click="openDocumentModal(document)" class="btn btn-link">
+              {{ document.name }}
+            </button>
+
+            <!-- Open document in a new tab -->
+            <a
+              :href="document.url"
+              target="_blank"
+              class="btn btn-sm btn-outline-success"
+              aria-label="Open document in a new tab"
+            >
+              Open in New Tab
+            </a>
+
+            <!-- Download the document -->
+            <a
+              :href="document.url"
+              :download="document.name"
+              class="btn btn-sm btn-outline-success"
+              aria-label="Download
+              document"
+            >
+              Download
+            </a>
           </li>
         </ul>
       </div>
       <div v-else>No documents available.</div>
+
+      <b-modal
+        v-model="showDocumentModal"
+        title="View Document"
+        hide-footer
+        centered
+        size="lg"
+      >
+        <div v-if="selectedDocument">
+          <iframe
+            :src="selectedDocument.url"
+            width="100%"
+            height="500px"
+            frameborder="0"
+          ></iframe>
+        </div>
+        <div v-else>
+          <p>No document to display.</p>
+        </div>
+      </b-modal>
 
       <!-- Spacer -->
       <div style="margin-top: 20px"></div>
@@ -244,7 +314,7 @@ export default {
     return {
       customers: [],
       searchQuery: "",
-      customersPerPage: 25,
+      customersPerPage: 5,
       currentPage: 1,
       showEditModal: false,
       connectedUnitsCount: 0,
@@ -259,6 +329,8 @@ export default {
         broker_sales: [], // Ensure this exists
       },
       error: null,
+      showDocumentModal: false,
+      selectedDocument: {}, // Initialize as an empty object
     };
   },
   computed: {
@@ -306,7 +378,6 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCustomers();
-      this.setupAxiosInterceptor();
     }
   },
   watch: {
@@ -333,6 +404,19 @@ export default {
     },
   },
   methods: {
+     changePage(page) {
+    this.currentPage = page;
+  },
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
     async fetchCustomers() {
       try {
         const response = await axios.get(
@@ -346,15 +430,8 @@ export default {
         console.log("Fetched customers:", response.data);
         this.customers = response.data;
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchCustomers(); // Retry with refreshed token
-          }
-        } else {
-          console.error("Error fetching customers:", error);
-          this.error = "Failed to load customers.";
-        }
+        console.error("Error fetching customers:", error);
+        this.error = "Failed to load customers.";
       }
     },
     async viewCustomer(customer) {
@@ -416,7 +493,6 @@ export default {
         console.log("Updating customer with ID:", this.currentCustomer.id);
         await axios.put(
           `http://localhost:8000/developer/customers/${this.currentCustomer.id}/`,
-          this.currentCustomer,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -426,54 +502,49 @@ export default {
         this.showEditModal = false;
         this.fetchCustomers();
       } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.updateCustomer(); // Retry with refreshed token
-          }
-        } else {
-          console.error("Error updating customer:", error);
-          this.error = "Failed to update customer.";
-        }
+        console.error("Error updating customer:", error);
+        this.error = "Failed to update customer.";
       }
     },
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/refresh-token/",
-          {
-            refresh: refreshToken,
-          }
-        );
-
-        const newAccessToken = response.data.access;
-        localStorage.setItem("accessToken", newAccessToken);
-
-        return newAccessToken;
-      } catch (error) {
-        console.error("Error refreshing access token:", error);
-        this.error = "Failed to refresh access token.";
-        return null;
+    openDocumentModal(document) {
+      if (document && document.url) {
+        this.selectedDocument = document;
+        this.showDocumentModal = true;
+      } else {
+        console.error("Invalid document or missing URL:", document);
       }
     },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
-    setupAxiosInterceptor() {
-      axios.interceptors.request.use(
-        (config) => {
-          const token = localStorage.getItem("accessToken");
-          if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
+    async refreshAccessToken() {
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(
+          "http://localhost:8000/api/token/refresh/",
+          {
+            refresh: refreshToken,
           }
-          return config;
-        },
-        (error) => {
-          return Promise.reject(error);
+        );
+        if (response.status === 200) {
+          const { access } = response.data;
+          localStorage.setItem("accessToken", access);
+          return access;
         }
-      );
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+        this.handleTokenRefreshFailure();
+      }
+    },
 
+    handleTokenRefreshFailure() {
+      alert("Session expired. Redirecting to home.");
+      localStorage.clear();
+      this.$store.dispatch("logout");
+      this.$router.push({ name: "Home" });
+    },
+
+    setupAxiosInterceptors() {
       axios.interceptors.response.use(
         (response) => response,
         async (error) => {
@@ -510,7 +581,7 @@ body {
   display: flex;
   min-height: 100vh;
   /* Ensures it spans the full viewport height */
-  background-color: #ebebeb; /* Gray background */
+  background-color: #eff4fb;
   /* Gray background */
 }
 
@@ -718,4 +789,68 @@ body {
 .pagination .active {
   font-weight: bold;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
+}
+
+.page-button {
+  padding: 5px 10px;
+  font-size: 12px; /* Slightly smaller font */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e9ecef; /* Light gray */
+}
+
 </style>
