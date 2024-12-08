@@ -166,9 +166,27 @@ class UnitDetailView(APIView):
 
     def get(self, request, pk):
         company = request.user.company
-        unit = Unit.objects.get(pk=pk, company=company)
-        serializer = UnitSerializer(unit)
-        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        try:
+            unit = Unit.objects.get(pk=pk, company=company)
+        except Unit.DoesNotExist:
+            return Response({"success": False, "message": "Unit not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch images related to the unit
+        unit_images = unit.images.all()  # This uses the related_name 'images'
+
+        # Serialize unit data and unit images
+        unit_serializer = UnitSerializer(unit)
+        unit_images_serializer = UnitImageSerializer(unit_images, many=True)
+
+        # Include the serialized images data in the response
+        return Response(
+            {
+                "success": True,
+                "data": unit_serializer.data,
+                "images": unit_images_serializer.data,  # Include the image data here
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def put(self, request, pk):
         company = request.user.company

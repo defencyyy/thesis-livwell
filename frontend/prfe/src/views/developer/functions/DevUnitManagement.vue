@@ -372,6 +372,7 @@
           </form>
         </b-modal>
 
+        <!-- View Selected Unit MOdal -->
         <b-modal
           v-model="showEditUnitModal"
           title="Edit Unit"
@@ -379,6 +380,30 @@
         >
           <template v-if="selectedUnit">
             <form>
+              <b-form-group label="Unit Images:">
+                <div v-if="selectedUnit.images && selectedUnit.images.length">
+                  <b-row>
+                    <b-col
+                      v-for="(image, index) in selectedUnit.images"
+                      :key="index"
+                      cols="6"
+                      class="mb-2"
+                    >
+                      <b-img
+                        v-if="image && image.image"
+                        :src="getPictureUrl(image.image)"
+                        alt="Unit Image"
+                        thumbnail
+                        fluid
+                        class="unit-image-preview"
+                      />
+                      <p v-else class="text-danger">Invalid image path</p>
+                    </b-col>
+                  </b-row>
+                </div>
+                <p v-else>No images available for this unit.</p>
+              </b-form-group>
+
               <b-form-group label="Unit Number:">
                 <b-form-input v-model="selectedUnit.unit_number" disabled />
               </b-form-group>
@@ -667,6 +692,9 @@ import {
   BFormSelect,
   BFormInput,
   BButton,
+  BImg,
+  BRow,
+  BCol,
 } from "bootstrap-vue-3";
 
 export default {
@@ -679,6 +707,9 @@ export default {
     BFormSelect,
     BFormInput,
     BButton,
+    BImg,
+    BRow,
+    BCol,
   },
   data() {
     return {
@@ -1199,6 +1230,7 @@ export default {
       if (unit) {
         try {
           this.selectedUnit = unit; // Make sure selectedUnit is set
+          console.log("Selected Unit Images:", this.selectedUnit.images);
           this.showEditUnitModal = true; // Show the modal for editing
         } catch (error) {
           console.error(
@@ -1400,7 +1432,6 @@ body {
   text-align: center;
 }
 
-
 /* Site Details */
 .site-overview {
   display: flex;
@@ -1539,4 +1570,9 @@ button {
   opacity: 0.6; /* Make it slightly transparent when disabled */
 }
 
+.unit-image-preview {
+  max-height: 150px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
 </style>

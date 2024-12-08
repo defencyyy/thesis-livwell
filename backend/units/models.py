@@ -325,8 +325,10 @@ class UnitImage(models.Model):
     def __str__(self):
         if self.image_type == 'unit':
             return f"Image for {self.unit.unit_title}"
-        else:
+        elif self.image_type == 'unit_template' and self.unit_template:
             return f"Image for {self.unit_template.name}"
+        else:
+            return "Image (Unassigned)"
 
     def save(self, *args, **kwargs):
         # Ensure that either unit or unit_template is set, not both
