@@ -102,11 +102,11 @@ export default {
           { name: "Documents", link: "/developer/documents", icon: "fas fa-folder-open", },
           { name: "Milestones", link: "/developer/milestones", icon: "fas fa-trophy", },
           { name: "Sales", link: "/developer/sales", icon: "fas fa-chart-line", },
-          {
-            name: "Payment Schedules",
-            link: "/developer/payment-schedule",
-            icon: "fas fa-calendar-alt",
-          },
+          // {
+          //   name: "Payment Schedules",
+          //   link: "/developer/payment-schedule",
+          //   icon: "fas fa-calendar-alt",
+          // },
         ];
       } else if (this.userRole === "broker") {
         this.menuItems = [

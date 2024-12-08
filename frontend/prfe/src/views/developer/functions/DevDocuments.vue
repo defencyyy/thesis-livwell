@@ -9,48 +9,60 @@
           <div class="title-icon"></div>
           <div class="edit-title">Document Types</div>
         </div>
-        <div
-          class="card shadow-lg border-0 rounded-3 mx-auto"
-          style="max-width: 900px"
-        >
-          <div class="card-body">
-            <!-- Document Types Table -->
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="docType in documentTypes" :key="docType.id">
-                  <td>{{ docType.name }}</td>
-                  <td>{{ docType.description || "N/A" }}</td>
-                  <td>
+
+        <div style="width: 100%; max-width: 900px;" >
+          <!-- Headers outside the card -->
+          <div class="outside-headers">
+            <span class="header-item">Document Name</span>
+            <span class="header-item">Description</span>
+            <span class="header-item">Actions</span>
+          </div>
+          
+          <div
+            v-for="docType in documentTypes"
+            :key="docType.id"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
+             
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class="card-body">
+              <table class="document-table">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="document-name">
+                        <td>{{ docType.name }}</td>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="document-description"><td>{{ docType.description || "N/A" }}</td></span>
+                    </td>
+                    <td>
                     <button
                       @click="editDocumentType(docType)"
                       class="btn btn-warning btn-sm"
                     >
                       Edit
                     </button>
-                    <button
+                    <!-- <button
                       @click="deleteDocumentType(docType.id)"
                       class="btn btn-danger btn-sm"
                     >
                       Delete
-                    </button>
+                    </button> -->
                   </td>
-                </tr>
-              </tbody>
-            </table>
-            <!-- Add Document Type Button -->
-            <div class="d-flex justify-content-end mt-3">
-              <button @click="showAddForm = true" class="btn btn-primary">
-                Add Document Type
-              </button>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
+          <div class="d-flex justify-content-end mt-3">
+              <button @click="showAddForm = true" class="btn-add">
+                Add Document
+              </button>
+            </div>
         </div>
 
         <!-- Add/Edit Document Type Modal -->
@@ -295,7 +307,12 @@ body {
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  display: flex;
+  /* Use flexbox to center the content */
+  align-items: center;
+  /* Center vertically */
+  flex-direction: column;
+  /* Stack the dashboard boxes and sales table vertically */
 }
 
 .card {
@@ -308,31 +325,55 @@ body {
   margin-right: auto;
 }
 
-.card-body {
-  padding: 2.5rem;
-}
-
-.table {
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 35% 55% 10%;
+  /* Match the column widths */
+  padding: 0px 15px;
+  margin: 20px auto 10px;
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+  max-width: 900px;
 }
 
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.header-item {
+  flex: 1;
   text-align: left;
-  vertical-align: middle;
-}
-
-.table th {
-  background-color: #f8f9fa;
+  font-size: 14px;
+  color: #333;
   font-weight: bold;
 }
 
-.table td {
-  background-color: #ffffff;
+.document-table th:nth-child(2),
+.document-table td:nth-child(2) {
+  /* Location column */
+  width: 55%;
+}
+
+.document-table th:nth-child(3),
+.document-table td:nth-child(3) {
+  /* Status column */
+  width: 10%;
+}
+
+.document-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.document-table th,
+.document-table td {
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  /* Remove borders from all cells */
+}
+
+.document-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
 }
 
 .btn-warning {
@@ -407,23 +448,15 @@ body {
   /* Align the text to the left */
 }
 
-.d-flex {
-  display: flex;
-  justify-content: end;
+.btn-add {
+  background-color: #0560fd;
+  font-size: 14px;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 
-.mt-3 {
-  margin-top: 1rem;
-}
-
-/* Adjust button layout */
-.table td button {
-  padding: 4px 8px;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.card-body {
-  padding: 2.5rem;
-}
 </style>
