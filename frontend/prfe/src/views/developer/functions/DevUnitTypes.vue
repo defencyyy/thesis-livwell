@@ -94,10 +94,24 @@
                       <option value="archived">View: Archived</option>
                     </select>
                   </div>
+                  <div class="right-section">
+                    <button @click="openCreateTypeModal" class = "btn-primary add-button">
+                      Create Unit Type
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <b-modal
+          v-model="isCreateModalOpen"
+          title="Create Unit Type"
+          hide-footer
+          centered
+          >
+            
+          </b-modal>
 
           <div class="unit-types-list">
             <div class="title-wrapper">
@@ -112,23 +126,34 @@
             <div>
               <div class="outside-headers">
                 <span class="header-item">Name</span>
+                <span class="header-item">Category</span>
                 <span class="header-item">Actions</span>
               </div>
 
-              <div v-for="unitType in filteredUnitTypes" :key="unitType.id" class="card border-0 rounded-1 mx-auto my-2" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+              <div
+                v-for="unitType in filteredUnitTypes"
+                :key="unitType.id"
+                class="card border-0 rounded-1 mx-auto my-2"
+                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+              >
                 <div class = "card-body">
-                  <table class = "types-table">
+                  <table class="types-table">
                     <tbody>
-                      <tr class>
+                      <tr>
                         <td>
-                          <span>{{ unitType.name }}</span>
+                          {{ unitType.name }}
+                        </td>
+                        <td>
+                          <span v-if="unitType.is_custom">Custom</span>
+                          <span v-else>Default</span>
                         </td>
                         <td>
                           <button
                             v-if="!unitType.is_custom && !showArchived"
                             disabled
+                            style = "background-color: #fff; color: black;"
                           >
-                            Default Unit Type
+                            Un-Editable
                           </button>
                           <button
                             v-if="
@@ -137,14 +162,30 @@
                               !showArchived
                             "
                             @click="archiveUnitType(unitType.id)"
+                            class="btn btn-sm btn-warning"
+                            style="
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            "
                           >
-                            Archive
+                            <i class="fas fa-archive"></i>
                           </button>
                           <button
                             v-if="unitType.is_archived && showArchived"
                             @click="unarchiveUnitType(unitType.id)"
+                            class="btn btn-sm btn-success"
+                              style="
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            "
                           >
-                            Unarchive
+                            <i class="fas fa-undo"></i>
                           </button>
                         </td>
                       </tr>
@@ -178,6 +219,7 @@ export default {
       },
       showArchived: false, // Flag to toggle between archived and active unit types
       searchQuery: "", // Search query for filtering unit types
+      isCreateModalOpen: false,
     };
   },
   computed: {
@@ -203,6 +245,10 @@ export default {
     },
   },
   methods: {
+    openCreateTypeModal() {
+      this.isCreateModalOpen = true;
+    },
+
     toggleView() {
     if (this.viewFilter === 'active') {
       this.showArchived = false;  // Set showArchived to false for Active
@@ -578,7 +624,7 @@ input {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 50% 25% 25%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
@@ -626,7 +672,28 @@ input {
 .types-table th:nth-child(2),
 .types-table td:nth-child(2) {
   /* Location column */
-  width: 50%;
+  width: 25%;
+}
+
+.types-table th:nth-child(2),
+.types-table td:nth-child(2) {
+  /* Location column */
+  width:25%;
+}
+
+.btn-primary.add-button {
+  padding: 8px 12px;
+  border: 1px solid #0560fd;
+  border-radius: 3px;
+  font-size: 14px;
+  background-color: #0560fd;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary.add-button:hover {
+  background-color: #0056b3;
 }
 
 </style>
