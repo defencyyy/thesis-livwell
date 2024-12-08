@@ -57,6 +57,7 @@
           v-model="isCreateModalOpen"
           title="Create New Unit Type"
           hide-footer
+          centered
         >
           <form @submit.prevent="createUnitType">
             <div class="form-group">
@@ -70,15 +71,15 @@
                 required
               />
             </div>
-            <div class="d-flex justify-content-end mt-3">
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="submit" class="btn-add">Create</button>
               <button
                 type="button"
-                class="btn btn-secondary"
+                class="btn-cancel"
                 @click="isCreateModalOpen = false"
               >
                 Cancel
               </button>
-              <button type="submit" class="btn btn-primary ml-2">Create</button>
             </div>
           </form>
         </b-modal>
@@ -88,6 +89,7 @@
           v-model="isEditModalOpen"
           title="Edit Unit Type"
           hide-footer
+          centered
         >
           <form @submit.prevent="updateUnitType">
             <div class="form-group">
@@ -101,16 +103,19 @@
                 required
               />
             </div>
-            <div class="d-flex justify-content-end mt-3">
-              <button
+            <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add">Update</button>
+                <button
                 type="button"
-                class="btn btn-secondary"
+                class="btn-cancel"
                 @click="isEditModalOpen = false"
               >
                 Cancel
-              </button>
-              <button type="submit" class="btn btn-primary ml-2">Update</button>
-            </div>
+                </button>
+              </div>
           </form>
         </b-modal>
 
@@ -196,7 +201,7 @@
                           <button
                             v-if="!unitType.is_custom && !showArchived"
                             disabled
-                            style="background-color: #fff; color: black"
+                            style="background-color: #fff; color: black; border:none;"
                           >
                             Un-Editable
                           </button>
@@ -505,19 +510,6 @@ export default {
   width: 300px;
 }
 
-button {
-  margin-left: 10px;
-  padding: 5px 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
 html,
 body {
   height: 100%;
@@ -579,19 +571,6 @@ body {
 .loading {
   font-size: 18px;
   color: #888;
-}
-
-button {
-  margin-left: 10px;
-  padding: 5px 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
 }
 
 input {
@@ -795,5 +774,25 @@ input {
 
 .btn-primary.add-button:hover {
   background-color: #0056b3;
+}
+
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 </style>
