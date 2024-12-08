@@ -316,14 +316,16 @@ renderBarChart() {
           {
             label: "Sold Sales",
             data: this.salesCount,
-            backgroundColor: "#36A2EB",
+            backgroundColor: "#A78BFA",
+            borderColor: "#A78BFA", // Matching border color
+            borderWidth: 1,
           },
         ],
       },
       options: {
         responsive: true,
         plugins: {
-          legend: { position: "top" },
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label: function (context) {
@@ -339,12 +341,25 @@ renderBarChart() {
               display: true,
               text: "Month",
             },
+            grid: { display: false }, // No grid lines for X-axis
+            ticks: { color: "#555" },
           },
           y: {
             title: {
               display: true,
               text: "Number of Sales",
             },
+            beginAtZero: true,
+            grid: { color: "#eaeaea" },
+            ticks: { color: "#555" },
+          },
+        },
+        layout: {
+          padding: {
+            top: 60, // Spacing above the chart
+            bottom: 10,
+            left: 10,
+            right: 10,
           },
         },
       },
@@ -690,6 +705,7 @@ canvas {
 .bar-chart-container {
   position: relative; /* Position container relative for overlay positioning */
   margin-top: 30px;
+  width: 1120px;
 }
 
 .chart-overlay {
@@ -701,6 +717,8 @@ canvas {
   justify-content: space-between;
   align-items: center;
   pointer-events: none; /* Prevent overlay elements from blocking chart interactions */
+  margin-bottom: 50px;
+
 }
 
 .chart-label {
@@ -711,12 +729,16 @@ canvas {
 }
 
 .dropdown-container select {
-  padding: 5px;
-  font-size: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 12px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 2px;
   background-color: #fff;
   cursor: pointer;
   pointer-events: auto; /* Allow interactions */
+  position: relative;
+  top: 5px;
+  right: 10px;
 }
 </style>
