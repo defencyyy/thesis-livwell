@@ -58,8 +58,12 @@ class Sale(models.Model):
             self.date_sold = date.today()
         
         # Automatically set commission if the unit is sold
-        if self.status == 'Sold' and self.commission is None:
-            self.commission = self.unit.commission  # The commission comes from the unit's commission
+        if self.status == 'Sold':
+            if self.commission is None:
+                self.commission = self.unit.commission  # The commission comes from the unit's commission
+        else:
+            # Reset commission to 0 if status is not "Sold"
+            self.commission = 0
 
         super().save(*args, **kwargs)
 

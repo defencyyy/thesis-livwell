@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from .models import Unit, UnitImage, UnitTemplate, UnitType
 from sites.models import Floor
 from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer, UnitTypeSerializer
+from decimal import Decimal
+import traceback
 
 def get_company(request):
     company = request.user.company
@@ -251,12 +253,23 @@ class UnitTypeDetailView(APIView):
         return Response({"success": True, "message": "Unit type archived successfully"}, status=status.HTTP_200_OK)
 
 class BulkAddUnitsView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         try:
+            # Debugging the incoming request data
             data = request.data
-            floor_ids = data.get("floor_ids", [])
-            quantity = data.get("quantity", 1)
+
+            # Convert numerical fields to appropriate types
+            quantity = int(data.get("quantity", 1))  # Ensure quantity is an integer
             unit_type_id = data.get("unit_type_id")
+            floor_ids = data.getlist("floor_ids[]", [])
+
+            # Log the values for debugging
+            print(f"Floor IDs: {floor_ids}")
+            print(f"Quantity: {quantity}")
+            print(f"Unit Type ID: {unit_type_id}")
 
             if not floor_ids:
                 return Response({"error": "No floors selected."}, status=status.HTTP_400_BAD_REQUEST)
@@ -267,27 +280,48 @@ class BulkAddUnitsView(APIView):
 
             # Fetch the company ID
             company = get_company(request)
+            print(f"Company ID: {company}")  # Debug company ID
 
             # Fetch the UnitType instance based on the unit_type_id
             try:
                 unit_type = UnitType.objects.get(id=unit_type_id)
+                print(f"Found Unit Type: {unit_type.name}")  # Log unit type found
             except UnitType.DoesNotExist:
                 return Response({"error": f"Invalid unit type ID: {unit_type_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Validate floors and create units
+            created_units = []
             for floor_id in floor_ids:
                 try:
+                    # Attempt to fetch the floor based on the ID
                     floor = Floor.objects.get(id=floor_id)
+                    print(f"Found floor: {floor.floor_number} (ID: {floor.id})")  # Log the floor number
                 except Floor.DoesNotExist:
+                    print(f"Floor with ID {floor_id} not found")
                     return Response({"error": f"Invalid floor ID: {floor_id}"}, status=status.HTTP_400_BAD_REQUEST)
+                except Exception as e:
+                    print(f"Error fetching floor with ID {floor_id}: {str(e)}")
+                    return Response({"error": f"Error fetching floor: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                for _ in range(quantity):
+                # Ensure numerical fields are correctly converted
+                print(f"Creating {quantity} units for floor: {floor.id}")
+                quantity = int(data.get("quantity", 1))
+                bedroom = int(data.get("bedroom", 1))  # Default to 0 if not provided
+                bathroom = int(data.get("bathroom", 1))  # Default to 0 if not provided
+                lot_area = Decimal(data.get("lot_area", 5))  # Convert to float, default to 0 if not provided
+                floor_area = Decimal(data.get("floor_area", 5))  # Convert to float, default to 0 if not provided
+                price = Decimal(data.get("price", 5))  # Convert to float, default to 0 if not provided
+                view = data.get("view")
+                balcony = data.get("balcony")
+
+                for i in range(quantity):
+                    print(f"Creating unit number {i + 1} of {quantity}")  # Debugging the loop
                     unit = Unit(
                         floor=floor,
                         site=floor.site,
                         unit_type=unit_type,
-                        company=company,  # Ensure the company is passed to the unit
-                        status="Available",  # Default status
+                        company=company,
+                        status="Available",
                         unit_title=data.get("unit_title"),
                         bedroom=data.get("bedroom"),
                         bathroom=data.get("bathroom"),
@@ -303,12 +337,42 @@ class BulkAddUnitsView(APIView):
                         other_charges=data.get("other_charges"),
                         vat_percentage=data.get("vat_percentage")
                     )
-                    unit.save()
+                    print(f"Creating unit with the following data: {unit.__dict__}")
+                    try:
+                        unit.save()
+                        print(f"Unit {unit.id} created successfully.")
+                    except Exception as e:
+                        print(f"Error saving unit: {str(e)}")  # Log the error
+                        print("Full traceback:")
+                        print(traceback.format_exc())  # Capture full error traceback and log it
+                        return Response({"error": f"Error saving unit: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response({"message": "Units successfully added."}, status=status.HTTP_201_CREATED)
+                    created_units.append(unit)
+
+                    # Handle images if provided
+                    if "images" in request.FILES:
+                        images = request.FILES.getlist("images")
+                        print(f"Images received for unit: {len(images)} image(s)")
+                        for image in images:
+                            try:
+                                UnitImage.objects.create(
+                                    unit=unit,
+                                    image=image,
+                                    image_type="Unit"
+                                )
+                                print(f"Image {image.name} saved for unit {unit.id}")
+                            except ValidationError as e:
+                                return Response({"error": f"Image validation error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # After all units are created, return the response
+            return Response({"message": f"{len(created_units)} units successfully added."}, status=status.HTTP_201_CREATED)
+
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(f"An unexpected error occurred: {str(e)}")
+            print("Full traceback:")
+            print(traceback.format_exc())  # Log full traceback in case of unexpected error
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UnitsByFloorView(APIView):
