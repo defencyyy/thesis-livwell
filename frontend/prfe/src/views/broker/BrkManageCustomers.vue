@@ -423,7 +423,6 @@
               @click="
                 deleteSaleFromBackend(
                   selectedCustomer.id,
-                  selectedCustomer.sales_id
                 )
               "
               class="btn-add"
@@ -651,20 +650,10 @@ export default {
       }
       this.showDeleteModal = true; // Show the modal
     },
-    async deleteSaleFromBackend(customer_id, salesId) {
+    async deleteSaleFromBackend(customer_id) {
       try {
-        let url = "";
-
-        if (this.showSalesMessage) {
-          // If showSalesMessage is true, delete the customer
-          url = `http://localhost:8000/delete_customer/${customer_id}/`;
-        } else {
-          // Otherwise, delete the sale
-          url = `http://localhost:8000/delete_sale/${salesId}/`;
-        }
-
         // Send a POST request with DELETE override if CSRF protection is enabled
-        const response = await fetch(url, {
+        const response = await fetch(`http://localhost:8000/delete_customer/${customer_id}/`, {
           method: "POST", // Use POST with _method override
           headers: {
             "Content-Type": "application/json",
