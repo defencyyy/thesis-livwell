@@ -68,6 +68,15 @@
                 </div>
 
                 <div class="right-section">
+                  <!-- Filter Button -->
+                  <!-- <button
+                    @click="toggleArchived"
+                    :class="['btn-secondary', { active: showArchived }]"
+                    class="filter-button"
+                  >
+                    {{ showArchived ? "View Archived" : "View Active" }}
+                  </button> -->
+
                   <!-- Add Site Button -->
                   <button
                     @click="showAddModal = true"
@@ -104,10 +113,6 @@
             <!-- Site Location -->
             <p class="site-location">
               {{ site.location || "Location unavailable" }}
-            </p>
-
-            <p class="site-location">
-              {{ site.status || "Status unavailable" }}
             </p>
           </div>
         </div>
@@ -213,32 +218,32 @@
           </div>
         </div>
 
-         <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
-        >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <span v-for="page in totalPages" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="{ active: page === currentPage }"
+              class="page-button"
+            >
+              {{ page }}
+            </button>
+          </span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
 
         <b-modal
           v-model="showAddModal"
@@ -882,13 +887,12 @@
               <strong>Site Name:</strong> {{ currentSite.name }}
             </h5>
           </div>
-
           <div class="p-3">
             <!-- Floor Information -->
             <div class="mb-4">
               <strong>Floor Information</strong>
               <p>
-                <strong>Current Floors:</strong> {{ currentSite.floors.length }}
+                <strong>Total Floors:</strong> {{ currentSite.floors.length }}
               </p>
             </div>
 
@@ -903,7 +907,6 @@
                   placeholder="Enter number of floors"
                   min="1"
                   max="99"
-                  @input="updateTotalFloors"
                 />
                 <button @click="addFloors" class="btn btn-primary">
                   Add Floors
@@ -1071,17 +1074,17 @@ export default {
             : aStatus.localeCompare(bStatus);
         });
     },
-      paginatedSites() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredSites.slice(startIndex, endIndex); // Use filteredSites here
-  },
-  totalPages() {
-    return Math.ceil(this.filteredSites.length / this.itemsPerPage); // Use filteredSites here
-  },
+    paginatedSites() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredSites.slice(startIndex, endIndex); // Use filteredSites here
+    },
+    totalPages() {
+      return Math.ceil(this.filteredSites.length / this.itemsPerPage); // Use filteredSites here
+    },
   },
   methods: {
-     goToPage(pageNumber) {
+    goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
@@ -1252,7 +1255,13 @@ export default {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
     constructLocation(site) {
-      const addressParts = [site.province, site.municipality, site.barangay];
+      const addressParts = [
+        site.region,
+        site.province,
+        site.municipality,
+        site.barangay,
+        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
+      ];
       return addressParts.filter(Boolean).join(", "); // Join non-empty parts
     },
     async loadRegionData() {
@@ -1394,8 +1403,6 @@ export default {
       this.totalFloors = this.originalFloorCount;
       this.newFloorCount = 1; // Reset newFloorCount input field
     },
-
-    // Add floors based on the input
     addFloors() {
       if (!this.newFloorCount || this.newFloorCount < 1) {
         alert("Please enter a valid number of floors.");
@@ -1472,11 +1479,12 @@ export default {
 
         if (response.status === 200) {
           this.showFloorModal = false;
-          this.fetchSites(); // Assuming this function will fetch the updated sites
+          this.fetchSites();
           console.log("Site updated successfully!");
         }
       } catch (error) {
         console.error("Error saving site:", error.response || error);
+        // Display generic error message in case of failure
         alert("Failed to save site. Please try again.");
       }
     },
@@ -1670,50 +1678,6 @@ export default {
         console.error("Error fetching status options:", error);
       }
     },
-    async refreshAccessToken() {
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          {
-            refresh: refreshToken,
-          }
-        );
-        if (response.status === 200) {
-          const { access } = response.data;
-          localStorage.setItem("accessToken", access);
-          return access;
-        }
-      } catch (error) {
-        console.error("Error refreshing token:", error);
-        this.handleTokenRefreshFailure();
-      }
-    },
-
-    handleTokenRefreshFailure() {
-      alert("Session expired. Redirecting to home.");
-      localStorage.clear();
-      this.$store.dispatch("logout");
-      this.$router.push({ name: "Home" });
-    },
-
-    setupAxiosInterceptors() {
-      axios.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          if (error.response?.status === 401) {
-            const refreshedToken = await this.refreshAccessToken();
-            if (refreshedToken) {
-              error.config.headers[
-                "Authorization"
-              ] = `Bearer ${refreshedToken}`;
-              return axios(error.config);
-            }
-          }
-          return Promise.reject(error);
-        }
-      );
-    },
   },
   mounted() {
     console.log("Component mounted, fetching sites...");
@@ -1722,7 +1686,6 @@ export default {
     if (this.showArchived) {
       this.fetchArchivedSites();
     }
-    this.setupAxiosInterceptors();
   },
   watch: {
     showArchived() {},
@@ -2126,5 +2089,4 @@ body {
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef; /* Light gray */
 }
-
 </style>
