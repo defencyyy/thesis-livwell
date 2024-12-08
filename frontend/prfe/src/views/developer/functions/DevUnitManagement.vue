@@ -372,7 +372,7 @@
           </form>
         </b-modal>
 
-        <!-- View Selected Unit MOdal -->
+        <!-- View Selected Unit Modal -->
         <b-modal
           v-model="showEditUnitModal"
           title="Edit Unit"
@@ -520,7 +520,7 @@
 
               <b-form-group label="Balcony:">
                 <b-form-select
-                  v-model="newUnitBalcony"
+                  v-model="selectedUnit.balcony"
                   :options="balconyOptions"
                 ></b-form-select>
               </b-form-group>
@@ -529,14 +529,11 @@
                 <b-form-select
                   v-model="selectedUnit.view"
                   :options="viewOptions"
-                />
+                ></b-form-select>
               </b-form-group>
 
-              <b-button
-                type="submit"
-                variant="primary"
-                @click="saveUnitChanges"
-              >
+              <!-- Save Changes Button -->
+              <b-button variant="primary" @click="saveUnitChanges" class="mr-2">
                 Save Changes
               </b-button>
             </form>
@@ -1330,6 +1327,50 @@ export default {
       }
     },
 
+    async saveUnitChanges() {
+      const formData = new FormData();
+      formData.append("unit_number", this.selectedUnit.unit_number);
+      formData.append("unit_type_id", this.selectedUnit.unit_type);
+      formData.append("status", this.selectedUnit.status);
+      formData.append("price", this.selectedUnit.price);
+      formData.append("lot_area", this.selectedUnit.lot_area);
+      formData.append("floor_area", this.selectedUnit.floor_area);
+      formData.append("commission", this.selectedUnit.commission);
+      formData.append("balcony", this.selectedUnit.balcony); // Add balcony
+      formData.append("view", this.selectedUnit.view); // Add view
+
+      // Handle image files if any
+      this.selectedUnit.images.forEach((image, index) => {
+        if (this.imageFile[index]) {
+          formData.append(`image_${index}`, this.imageFile[index]);
+        }
+      });
+
+      try {
+        let response;
+
+        this.selectedUnit.id;
+        // If the unit has an id, it's an update (PUT request)
+        response = await axios.put(
+          `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          this.showEditUnitModal = false;
+          this.fetchUnits(); // Fetch the updated list of units
+        }
+      } catch (error) {
+        console.error("Error saving unit changes:", error.response || error);
+      }
+    },
+
     // Method to toggle the image edit state (show/hide replace form)
     toggleImageEdit(index) {
       this.imageEditIndex = this.imageEditIndex === index ? null : index;
@@ -1434,48 +1475,6 @@ export default {
       }
     },
 
-    // Handle saving unit changes
-    async saveUnitChanges() {
-      const formData = new FormData();
-      // (formData population logic here)
-
-      try {
-        let response;
-
-        if (this.selectedUnit.id) {
-          // If the unit has an id, it's an update (PUT request)
-          response = await axios.put(
-            `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-        } else {
-          // If no id, it's a new unit (POST request)
-          response = await axios.post(
-            `http://localhost:8000/developer/units/`,
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-        }
-
-        if (response.status === 200 || response.status === 201) {
-          this.showEditUnitModal = false;
-          this.fetchUnits(); // Optional: Fetch the updated list of units
-        }
-      } catch (error) {
-        console.error("Error saving unit changes:", error.response || error);
-      }
-    },
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
     },

@@ -192,12 +192,64 @@ class UnitDetailView(APIView):
 
     def put(self, request, pk):
         company = request.user.company
-        unit = Unit.objects.get(pk=pk, company=company)
-        serializer = UnitSerializer(unit, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            unit = Unit.objects.get(pk=pk, company=company)
+        except Unit.DoesNotExist:
+            return Response({"success": False, "message": "Unit not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Process the incoming request data
+        data = request.data
+        print(f"Request data for updating unit {unit.id}: {data}")
+
+        # Validate and update fields for the unit
+        unit.unit_title = data.get("unit_title", unit.unit_title)
+        unit.unit_type = data.get("unit_type", unit.unit_type)
+        unit.status = data.get("status", unit.status)
+        unit.price = data.get("price", unit.price)
+        unit.lot_area = data.get("lot_area", unit.lot_area)
+        unit.floor_area = data.get("floor_area", unit.floor_area)
+        unit.commission = data.get("commission", unit.commission)
+        unit.balcony = data.get("balcony", unit.balcony)
+        unit.view = data.get("view", unit.view)
+
+        # Handle updating floor IDs if provided
+        floor_ids = data.getlist("floor_ids[]", [])
+        if floor_ids:
+            unit.floors.clear()  # Clear the existing floors before adding new ones
+            for floor_id in floor_ids:
+                try:
+                    floor = Floor.objects.get(id=floor_id)
+                    unit.floors.add(floor)
+                except Floor.DoesNotExist:
+                    return Response({"error": f"Invalid floor ID: {floor_id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle image updates
+        image_files = request.FILES.getlist("images[]")
+        if image_files:
+            print(f"Found {len(image_files)} image(s) to update.")
+            # You can add more logic here for handling image updates if needed
+            for image in image_files:
+                # Save the new image for the unit
+                try:
+                    # You can create new UnitImage instances or associate new images to the unit
+                    unit_image = UnitImage.objects.create(
+                        unit=unit,
+                        image=image,
+                        image_type="Unit",  # Set a default or extract from request data
+                        primary=False,  # Set primary as per the request or default
+                    )
+                    print(f"Image {image.name} updated successfully.")
+                except Exception as e:
+                    return Response({"error": f"Error updating image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Save the updated unit
+        try:
+            unit.save()
+            print(f"Unit {unit.id} updated successfully.")
+            return Response({"success": True, "data": UnitSerializer(unit).data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Error saving updated unit: {str(e)}")
+            return Response({"error": f"Error saving unit: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         company = request.user.company
