@@ -83,6 +83,37 @@
           </form>
         </b-modal>
 
+        <b-modal
+          ref="editUnitTypeModal"
+          v-model="isEditModalOpen"
+          title="Edit Unit Type"
+          hide-footer
+        >
+          <form @submit.prevent="updateUnitType">
+            <div class="form-group">
+              <label for="editUnitTypeName">Unit Type Name:</label>
+              <input
+                v-model="editedUnitType.name"
+                id="editUnitTypeName"
+                type="text"
+                class="form-control"
+                placeholder="Enter Unit Type"
+                required
+              />
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="isEditModalOpen = false"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary ml-2">Update</button>
+            </div>
+          </form>
+        </b-modal>
+
         <div v-if="loading" class="loading">Loading...</div>
 
         <div v-else>
@@ -175,6 +206,25 @@
                               !unitType.is_archived &&
                               !showArchived
                             "
+                            @click="openEditModal(unitType)"
+                            class="btn btn-sm btn-info"
+                            style="
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            "
+                          >
+                            <i class="fas fa-edit"></i>
+                          </button>
+
+                          <button
+                            v-if="
+                              unitType.is_custom &&
+                              !unitType.is_archived &&
+                              !showArchived
+                            "
                             @click="archiveUnitType(unitType.id)"
                             class="btn btn-sm btn-warning"
                             style="
@@ -232,9 +282,15 @@ export default {
       newUnitType: {
         name: "",
       },
+      isEditModalOpen: false,
+      editedUnitType: {
+        id: null,
+        name: "",
+      },
       showArchived: false, // Flag to toggle between archived and active unit types
       searchQuery: "", // Search query for filtering unit types
       isCreateModalOpen: false,
+      viewFilter: "active", // Add this line
     };
   },
   computed: {
@@ -262,6 +318,12 @@ export default {
   methods: {
     openCreateTypeModal() {
       this.isCreateModalOpen = true;
+    },
+
+    openEditModal(unitType) {
+      this.editedUnitType.id = unitType.id;
+      this.editedUnitType.name = unitType.name;
+      this.isEditModalOpen = true;
     },
 
     toggleView() {
@@ -319,7 +381,6 @@ export default {
       };
 
       try {
-        console.log("Creating unit type:", data);
         const response = await axios.post(
           "http://localhost:8000/developer/units/types/",
           data,
@@ -335,14 +396,37 @@ export default {
         if (response.status === 201) {
           this.unitTypes.push(response.data.data);
           this.newUnitType.name = "";
-          console.log(this.newUnitType);
-          this.$refs.createUnitTypeModal.hide();
+          this.isCreateModalOpen = false; // Close the modal correctly
         } else {
           alert("Error creating unit type.");
         }
       } catch (error) {
         console.error("Error creating unit type:", error);
         alert("An error occurred while creating unit type.");
+      }
+    },
+    // Update the unit type
+    async updateUnitType() {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/units/types/${this.editedUnitType.id}/`,
+          { name: this.editedUnitType.name },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Unit type updated successfully:", response.data);
+        alert("Unit type updated successfully!");
+
+        // Refresh unit types list
+        this.fetchUnitTypes();
+        this.isEditModalOpen = false;
+      } catch (error) {
+        console.error("Error updating unit type:", error);
+        alert("Failed to update unit type. Please try again.");
       }
     },
 
