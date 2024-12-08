@@ -148,6 +148,20 @@ class Unit(models.Model):
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
 
+    def clean(self):
+        # Ensure floor_area is greater than or equal to lot_area
+        if self.floor_area is not None and self.lot_area is not None:
+            if self.floor_area < self.lot_area:
+                raise ValidationError("Floor area must be greater than or equal to lot area.")
+
+        # Additional validation for positive values
+        if self.floor_area is not None and self.floor_area <= 0:
+            raise ValidationError("Floor area must be greater than 0.")
+        if self.lot_area is not None and self.lot_area <= 0:
+            raise ValidationError("Lot area must be greater than 0.")
+        if self.price is not None and self.price <= 0:
+            raise ValidationError("Price must be greater than 0.")
+
     def save(self, *args, **kwargs):
         # Helper function to handle 'null' or empty values
         def convert_to_decimal(value):
@@ -168,13 +182,7 @@ class Unit(models.Model):
         self.lot_area = convert_to_decimal(self.lot_area)
         self.price = convert_to_decimal(self.price)
 
-        # Additional validation for positive values
-        if self.floor_area is not None and self.floor_area <= 0:
-            raise ValueError("Floor area must be greater than 0.")
-        if self.lot_area is not None and self.lot_area <= 0:
-            raise ValueError("Lot area must be greater than 0.")
-        if self.price is not None and self.price <= 0:
-            raise ValueError("Price must be greater than 0.")
+        super().clean()  # Call the parent class's clean method
 
         # Pull default values from the Site if not set
         if not self.commission:
@@ -225,12 +233,19 @@ class UnitTemplate(models.Model):
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price = models.DecimalField(max_digits=12, decimal_places=2, null=True)
-    view = models.CharField(max_length=10, choices=Unit.VIEW_CHOICES)
-    balcony = models.CharField(max_length=20, choices=Unit.BALCONY_CHOICES)
+    view = models.CharField(max_length=10, choices=Unit.VIEW_CHOICES, null=True, blank=True)
+    balcony = models.CharField(max_length=20, choices=Unit.BALCONY_CHOICES, null=True, blank=True)
     commission = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     description = models.TextField(blank=True, help_text="Description of the template")
     last_updated = models.DateTimeField(auto_now=True)
+    relative_id = models.CharField(max_length=255, blank=True, null=True)
     primary_image = models.ForeignKey('UnitImage', null=True, blank=True, on_delete=models.SET_NULL, related_name='primary_for_templates', help_text="Primary image for the template")
+
+    def clean(self):
+        # Ensure floor_area is greater than or equal to lot_area
+        if self.floor_area is not None and self.lot_area is not None:
+            if self.floor_area < self.lot_area:
+                raise ValidationError("Floor area must be greater than or equal to lot area.")
 
     def save(self, *args, **kwargs):
         # Helper function to handle 'null' or empty values
@@ -244,6 +259,9 @@ class UnitTemplate(models.Model):
         self.price = convert_to_decimal(self.price)
         self.floor_area = convert_to_decimal(self.floor_area)
         self.lot_area = convert_to_decimal(self.lot_area)
+    
+
+        super().clean()  # Call the parent class's clean method
 
         super().save(*args, **kwargs)
 
@@ -261,6 +279,25 @@ class UnitTemplate(models.Model):
             "balcony": self.balcony,
             "commission": self.commission,
         }
+
+    # @property
+    # def relative_id(self):
+    #     if not self.pk:  # If the template is not yet saved, skip to avoid errors
+    #         return None
+
+    #     # Check if the relative_id has already been set
+    #     if not hasattr(self, '_relative_id'):
+    #         # Retrieve all templates for the company, ordered by 'name'
+    #         company_templates = UnitTemplate.objects.filter(company=self.company).order_by('name')
+            
+    #         # Find the index of the current template in the company templates
+    #         index = list(company_templates).index(self) + 1  # Add 1 for a 1-based index
+            
+    #         # Generate the relative ID using the company's ID and the template's position
+    #         self._relative_id = f"{self.company.id} {index}"
+
+    #     return self._relative_id
+
 
 def validate_image_size(image):
     filesize = image.file.size

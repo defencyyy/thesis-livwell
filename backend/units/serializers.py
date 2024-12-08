@@ -33,6 +33,12 @@ class UnitTemplateSerializer(serializers.ModelSerializer):
         model = UnitTemplate
         fields = '__all__'
 
+    def validate(self, data):
+        # Explicitly call clean to enforce the custom validation
+        unitTemplate = UnitTemplate(**data)
+        unitTemplate.clean()  # This will run the custom validation in the model
+        return data
+
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
         template = UnitTemplate.objects.create(**validated_data)
@@ -66,6 +72,12 @@ class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
         fields = '__all__'
+
+    def validate(self, data):
+        # Explicitly call clean to enforce the custom validation
+        unit = Unit(**data)
+        unit.clean()  # This will run the custom validation in the model
+        return data
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])

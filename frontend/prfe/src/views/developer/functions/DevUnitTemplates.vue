@@ -102,15 +102,15 @@
 
             <!-- Templates Table -->
             <div>
-              <!-- Headers outside the card -->
+              <!-- Table Headers -->
               <div class="outside-headers">
                 <span class="header-item">Relative ID</span>
-                <span class="header-item">Name</span>
+                <span class="header-item">Unit Name</span>
+                <span class="header-item">Unit Type</span>
+                <span class="header-item">Price</span>
                 <span class="header-item">Bedrooms</span>
                 <span class="header-item">Bathrooms</span>
-                <span class="header-item">Price</span>
                 <span class="header-item">Floor Area</span>
-                <span class="header-item">Lot Area</span>
                 <span class="header-item">Actions</span>
               </div>
 
@@ -124,27 +124,47 @@
                   <table class="template-table">
                     <tbody>
                       <tr>
+                        <!-- Relative ID: Example - Company-based and sequential order -->
                         <td>
-                          <span>{{ template.relativeId }}</span>
+                          <span>
+                            {{ template.relativeId || "N/A" }}
+                          </span>
                         </td>
+
+                        <!-- Template Name -->
                         <td>
                           <span>{{ template.name }}</span>
                         </td>
+
                         <td>
-                          <span>{{ template.bedroom }}</span>
+                          {{
+                            unitTypes.find(
+                              (type) => type.id === template.unit_type
+                            )?.name || "Unknown"
+                          }}
                         </td>
-                        <td>
-                          <span>{{ template.bathroom }}</span>
-                        </td>
+
+                        <!-- Price -->
                         <td>
                           <span>{{ template.price }}</span>
                         </td>
+
+                        <!-- Bedrooms -->
+                        <td>
+                          <span>{{ template.bedroom }}</span>
+                        </td>
+
+                        <!-- Bathrooms -->
+                        <td>
+                          <span>{{ template.bathroom }}</span>
+                        </td>
+
+                        <!-- Floor Area -->
                         <td>
                           <span>{{ template.floor_area }}</span>
                         </td>
-                        <td>
-                          <span>{{ template.lot_area }}</span>
-                        </td>
+
+                        <!-- Actions -->
                         <td>
                           <div class="broker-actions d-flex gap-2">
                             <button
@@ -196,10 +216,10 @@
           <div class="row mb-3">
             <!-- Name Field -->
             <div class="form-group mb-3">
-              <label for="name">Name</label>
+              <label for="templateName">Name</label>
               <input
                 type="text"
-                v-model="newTemplate.name"
+                v-model="newTemplate.templateName"
                 class="form-control"
                 required
               />
@@ -207,9 +227,9 @@
 
             <!-- Description Field -->
             <div class="form-group mb-3">
-              <label for="description">Description</label>
+              <label for="templateDescription">Description</label>
               <textarea
-                v-model="newTemplate.description"
+                v-model="newTemplate.templateDescription"
                 class="form-control"
                 rows="3"
               ></textarea>
@@ -217,9 +237,9 @@
 
             <!-- Unit Type Dropdown -->
             <div class="form-group mb-3">
-              <label for="unit_type">Unit Type</label>
+              <label for="templateType">Unit Type</label>
               <b-form-select
-                v-model="newTemplate.unit_type"
+                v-model="newTemplate.templateType"
                 :options="unitTypesOptions"
                 required
               />
@@ -227,10 +247,10 @@
 
             <!-- Bedrooms Field -->
             <div class="form-group mb-3">
-              <label for="bedroom">Bedrooms</label>
+              <label for="templateBedrooms">Bedrooms</label>
               <input
                 type="number"
-                v-model="newTemplate.bedroom"
+                v-model="newTemplate.templateBedroom"
                 class="form-control"
                 required
               />
@@ -238,10 +258,10 @@
 
             <!-- Bathrooms Field -->
             <div class="form-group mb-3">
-              <label for="bathroom">Bathrooms</label>
+              <label for="templateBathrooms">Bathrooms</label>
               <input
                 type="number"
-                v-model="newTemplate.bathroom"
+                v-model="newTemplate.templateBathroom"
                 class="form-control"
                 required
               />
@@ -249,10 +269,10 @@
 
             <!-- Price Field -->
             <div class="form-group mb-3">
-              <label for="price">Price</label>
+              <label for="templatePrice">Price</label>
               <input
                 type="number"
-                v-model="newTemplate.price"
+                v-model="newTemplate.templatePrice"
                 class="form-control"
                 required
               />
@@ -260,20 +280,20 @@
 
             <!-- Floor Area Field -->
             <div class="form-group mb-3">
-              <label for="floor_area">Floor Area</label>
+              <label for="templateFloorArea">Floor Area</label>
               <input
                 type="number"
-                v-model="newTemplate.floor_area"
+                v-model="newTemplate.templateFloorArea"
                 class="form-control"
               />
             </div>
 
             <!-- Lot Area Field -->
             <div class="form-group mb-3">
-              <label for="lot_area">Lot Area</label>
+              <label for="templateLotArea">Lot Area</label>
               <input
                 type="number"
-                v-model="newTemplate.lot_area"
+                v-model="newTemplate.templateLotArea"
                 class="form-control"
               />
             </div>
@@ -331,7 +351,7 @@
         >
           <div class="row mb-3">
             <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="name">Name</label>
+              <label for="templateName">Name</label>
               <input
                 type="text"
                 v-model="selectedTemplate.name"
@@ -339,8 +359,30 @@
                 required
               />
             </div>
+
+            <!-- Description Field -->
             <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="bedroom">Bedrooms</label>
+              <label for="templateDescription">Description</label>
+              <textarea
+                v-model="selectedTemplate.description"
+                class="form-control"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <!-- Unit Type Dropdown -->
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="templateType">Unit Type</label>
+              <b-form-select
+                v-model="selectedTemplate.unit_type"
+                :options="unitTypesOptions"
+                required
+              />
+            </div>
+
+            <!-- Bedrooms Field -->
+            <div v-if="selectedTemplate" class="form-group mb-3">
+              <label for="templateBedrooms">Bedrooms</label>
               <input
                 type="number"
                 v-model="selectedTemplate.bedroom"
@@ -348,8 +390,10 @@
                 required
               />
             </div>
+
+            <!-- Bathrooms Field -->
             <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="bathroom">Bathrooms</label>
+              <label for="templateBathrooms">Bathrooms</label>
               <input
                 type="number"
                 v-model="selectedTemplate.bathroom"
@@ -357,8 +401,10 @@
                 required
               />
             </div>
+
+            <!-- Price Field -->
             <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="price">Price</label>
+              <label for="templatePrice">Price</label>
               <input
                 type="number"
                 v-model="selectedTemplate.price"
@@ -366,23 +412,28 @@
                 required
               />
             </div>
+
+            <!-- Floor Area Field -->
             <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="floor_area">Floor Area</label>
+              <label for="templateFloorArea">Floor Area</label>
               <input
                 type="number"
                 v-model="selectedTemplate.floor_area"
                 class="form-control"
               />
             </div>
+
+            <!-- Lot Area Field -->
             <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="lot_area">Lot Area</label>
+              <label for="templateLotArea">Lot Area</label>
               <input
                 type="number"
                 v-model="selectedTemplate.lot_area"
                 class="form-control"
               />
             </div>
-            <!-- Display existing images in Edit Template Modal -->
+
+            <!-- Image Previews -->
             <div
               v-if="
                 selectedTemplate &&
@@ -402,24 +453,8 @@
                 />
               </div>
             </div>
-
-            <!-- Display existing images -->
-            <div
-              v-if="selectedTemplate && selectedTemplate.images"
-              class="existing-images"
-            >
-              <h5>Existing Images</h5>
-              <div class="d-flex gap-2">
-                <img
-                  v-for="(image, index) in selectedTemplate.images"
-                  :key="index"
-                  :src="image.image_url"
-                  class="img-thumbnail"
-                  style="width: 100px; height: 100px"
-                />
-              </div>
-            </div>
           </div>
+
           <div
             class="d-flex justify-content-end gap-2 mt-30"
             style="padding-top: 15px"
@@ -437,6 +472,7 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
+import { mapState } from "vuex";
 import { BFormSelect, BModal } from "bootstrap-vue-3";
 
 export default {
@@ -449,7 +485,6 @@ export default {
       isLoading: false,
       errorMessage: null,
       searchQuery: "",
-      filteredTemplates: [],
       selectedTemplate: null,
       newTemplate: {
         name: "",
@@ -469,6 +504,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      companyId: (state) => state.companyId, // Using Vuex to access company ID
+    }),
     unitTypesOptions() {
       return [
         { value: null, text: "Select Unit Type" },
@@ -477,6 +515,12 @@ export default {
           text: type.name,
         })),
       ];
+    },
+    filteredTemplates() {
+      // Ensure that the computed property does not mutate or change any values, just return the filtered data
+      return this.templates.filter((template) =>
+        template.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     },
   },
   methods: {
@@ -528,36 +572,55 @@ export default {
     // Handle image upload
     handleImageUpload(event) {
       const files = event.target.files;
-      this.selectedImages = Array.from(files); // Store file references
-      this.imagePreviews = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      ); // Show previews
+      if (files) {
+        this.selectedImages = Array.from(files);
+        this.imagePreviews = this.selectedImages.map((file) =>
+          URL.createObjectURL(file)
+        );
+      }
     },
 
     async createTemplate() {
-      const formData = new FormData();
-
-      // Log the formData before appending it, to see if the data structure is correct
-      console.log("FormData before appending:", this.newTemplate);
-
-      for (let key in this.newTemplate) {
-        formData.append(key, this.newTemplate[key]);
+      // Validate form fields (add checks based on required fields for templates)
+      if (
+        !this.newTemplate.templateName || // Replace with actual template fields
+        !this.newTemplate.templateType || // Add all required template fields here
+        !this.newTemplate.templatePrice
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
       }
 
-      // Log image files to check if they are correctly added
-      this.selectedImages.forEach((file) => {
-        // Assuming you are uploading images for 'unit_template' type
-        const imageType = "unit_template"; // or set this dynamically depending on context
-        formData.append("images", file);
-        formData.append("image_type", imageType); // Ensure 'image_type' is appended
-      });
+      // Create a FormData object to send both template data and images
+      const formData = new FormData();
 
-      // Log the complete FormData to see if everything is correctly appended
+      // Append form data fields for the template
+      formData.append("name", this.newTemplate.templateName);
+      formData.append("unit_type", this.newTemplate.templateType);
+      formData.append("description", this.newTemplate.templateDescription);
+      formData.append("price", this.newTemplate.templatePrice);
+      formData.append("lot_area", this.newTemplate.templateLotArea);
+      formData.append("floor_area", this.newTemplate.templateFloorArea);
+      // Add fields from your template form here.
+
+      // If there are selected images, append them
+      if (this.selectedImages && this.selectedImages.length) {
+        console.log("Selected images:", this.selectedImages);
+        this.selectedImages.forEach((file) => {
+          formData.append("images", file); // Use a simple name
+        });
+      } else {
+        console.log("No images selected.");
+      }
+
+      // Log FormData content for debugging
+      console.log("FormData contents before sending to backend:");
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
+        console.log(pair[0], pair[1]);
       }
 
       try {
+        // Send the FormData to the backend
         const response = await axios.post(
           "http://localhost:8000/developer/units/templates/",
           formData,
@@ -568,26 +631,43 @@ export default {
             },
           }
         );
-        this.templates.push(response.data.data);
-        this.closeCreateModal();
-        alert("Template created successfully!");
+
+        // Check the response status
+        if (response.status === 201) {
+          // Assuming this.templates is an array that holds all the created templates
+          this.templates.push(response.data.data); // Push the new template data into the templates array
+          this.closeCreateModal(); // Close the modal after success
+          alert("Template created successfully!");
+        }
       } catch (error) {
-        console.error("Error response:", error.response); // Log error response for debugging
-        alert("Failed to create template.");
+        console.error("Error creating template:", error);
+        alert("Failed to create template. Please try again.");
       }
     },
 
-    // Save changes to an edited template with image upload
     async saveTemplateChanges() {
       if (!this.selectedTemplate) return;
 
+      // Create a FormData object to send both updated template data and images
       const formData = new FormData();
-      for (let key in this.selectedTemplate) {
-        formData.append(key, this.selectedTemplate[key]);
+
+      // Append the fields for the template
+      formData.append("name", this.selectedTemplate.templateName);
+      formData.append("unit_type", this.selectedTemplate.templateType);
+      formData.append("description", this.selectedTemplate.templateDescription);
+      formData.append("price", this.selectedTemplate.templatePrice);
+      formData.append("lot_area", this.selectedTemplate.templateLotArea);
+      formData.append("floor_area", this.selectedTemplate.templateFloorArea);
+
+      // Append updated images (if selected)
+      if (this.selectedImages && this.selectedImages.length) {
+        this.selectedImages.forEach((file) => {
+          formData.append("images", file);
+        });
       }
-      this.selectedImages.forEach((file) => formData.append("images", file));
 
       try {
+        // Send the updated FormData to the backend for updating the template
         const response = await axios.put(
           `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
           formData,
@@ -598,12 +678,15 @@ export default {
             },
           }
         );
+
+        // Update the template in the frontend array
         const index = this.templates.findIndex(
           (template) => template.id === this.selectedTemplate.id
         );
         if (index !== -1) {
           this.templates[index] = response.data.data;
         }
+
         this.closeEditModal();
         alert("Template updated successfully!");
       } catch (error) {
@@ -612,7 +695,6 @@ export default {
       }
     },
 
-    // Delete Template
     async deleteTemplate(templateId) {
       if (confirm("Are you sure you want to delete this template?")) {
         try {
@@ -625,17 +707,17 @@ export default {
               },
             }
           );
+          // Remove the deleted template from the frontend array
           this.templates = this.templates.filter(
             (template) => template.id !== templateId
           );
           alert("Template deleted successfully!");
         } catch (error) {
-          this.errorMessage = "Failed to delete template.";
           console.error(error);
+          alert("Failed to delete template.");
         }
       }
     },
-
     // Fetch Unit Templates
     async fetchTemplates() {
       try {
@@ -652,22 +734,10 @@ export default {
         );
 
         this.templates = response.data.data;
-        this.filteredTemplates = this.templates; // Initially display all templates
       } catch (error) {
         this.errorMessage = "Failed to load templates.";
       } finally {
         this.isLoading = false;
-      }
-    },
-
-    // Filter templates based on search query
-    filterTemplates() {
-      if (this.searchQuery) {
-        this.filteredTemplates = this.templates.filter((template) =>
-          template.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      } else {
-        this.filteredTemplates = this.templates; // Show all if no search query
       }
     },
 
@@ -699,6 +769,7 @@ export default {
     },
   },
   mounted() {
+    console.log("Company ID:", this.companyId); // Check if companyId is available
     this.showUnitTemplates(); // Default view to show unit templates
     this.fetchUnitTypes(); // Fetch unit types on load
   },

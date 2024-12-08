@@ -176,6 +176,7 @@
           id="add-units-modal"
           title="Add Units"
           v-model="showAddUnitsModal"
+          :disabled="isSaveButtonDisabled"
           ok-title="Save"
           @ok="addUnits"
         >
@@ -767,6 +768,9 @@ export default {
       userId: (state) => state.userId,
       companyId: (state) => state.companyId,
     }),
+    isSaveButtonDisabled() {
+      return this.newUnitFloorArea < this.newUnitLotArea;
+    },
     floorOptions() {
       // Ensure the site and floors are available
       if (this.site && this.site.floors) {
