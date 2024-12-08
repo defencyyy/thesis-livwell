@@ -108,7 +108,7 @@
                       @change="toggleView"
                       class="dropdown"
                     >
-                      <option value="active">View: Active</option>
+                      <option value="active">View: Existing</option>
                       <option value="archived">View: Archived</option>
                     </select>
                   </div>
