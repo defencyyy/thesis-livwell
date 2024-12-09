@@ -1,19 +1,25 @@
 <template>
   <div>
     <!-- Header -->
-    <div class="header">
-      <div class="top-bar">
-        <div class="welcome-text">Welcome Back, <b>Customer!</b></div>
+    <div>
+  <!-- Header -->
+  <div class="header">
+    <div class="top-bar">
+      <!-- Add conditional rendering to prevent errors -->
+      <div v-if="salesDetail?.customer_name" class="welcome-text">
+        Welcome Back, <b>{{ salesDetail.customer_name }}!</b>
       </div>
+      <div v-else class="welcome-text">Welcome Back!</div>
     </div>
-
+  </div>
+</div>
     <div class="main-page">
       <!-- Side Bar -->
       <div class="sidebar">
         <div class="sidebar-header">
           <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
           <!-- Font Awesome Icon -->
-          <h4 id="sidebar-title">{{ "Company Name" }}</h4>
+          <h4 id="sidebar-title">{{ salesDetail?.company_name || "Company Name" }}</h4>
         </div>
         <nav class="sidebar-nav">
           <b-nav vertical pills>
@@ -219,6 +225,7 @@ export default {
     this.fetchSalesDetail(salesDetailUuid);
     this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
+
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
@@ -260,6 +267,7 @@ export default {
           alert("Sales details not found");
         } else {
           this.salesDetail = data; // Store the sales details in data
+          console.log(this.salesDetail.company_name);
           this.applySpotCashDiscount(); // Call the function after the data is fetched
           this.applyTLPDiscount();
           this.updateNetUnitPrice();

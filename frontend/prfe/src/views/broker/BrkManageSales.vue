@@ -412,15 +412,15 @@
                   <div class="form-group">
                     <label for="months"><strong>Months to Pay</strong></label>
                     <input
-                      type="number"
-                      v-model="payableMonths"
-                      id="months"
-                      @input="updatePaymentDetails"
-                      min="1"
-                      step="1"
-                      class="form-control"
-                      required
-                    />
+                    type="number"
+                    v-model="payableMonths"
+                    id="months"
+                    @input="updatePaymentDetails"
+                    min="1"
+                    max="maxpayableMonths"
+                    step="1"
+                    required
+                  />
                   </div>
                   <p>
                     <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
@@ -793,7 +793,8 @@ export default {
       spotDownpayment: 0,
       spreadDownpaymentPercentage: 0,
       spreadDownpayment: 0,
-      payableMonths: 40,
+      payableMonths: 1,
+      maxpayableMonths: 0,
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       file: null,
@@ -907,6 +908,8 @@ export default {
       this.unitPrice = sale.price; // Set unitPrice to the selected sale's unit price
       this.showModal = true;
       this.spotCashDiscount = this.selectedSale.spot_discount;
+      this.payableMonths = this.selectedSale.months;
+      this.maxpayableMonths = this.payableMonths;
       this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
       this.tlpDiscount = this.selectedSale.TLP_Discount;
       this.maxtlpDiscount = this.tlpDiscount;
@@ -934,6 +937,11 @@ export default {
         this.otherChargesPercentage = 0;
       } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
         this.otherChargesPercentage = this.maxotherChargesPercentage;
+      }
+       if (this.payableMonths < 0) {
+        this.payableMonths = 1;
+      } else if (this.payableMonths > this.maxpayableMonths) {
+        this.payableMonths = this.maxpayableMonths;
       }
       if (this.salesDetailsExists) {
         // Use salesDetails to update payment details
@@ -1039,16 +1047,13 @@ export default {
         this.loading = false;
         return; // Stop further processing if validation fails
       }
-      if (this.selectedPaymentPlan === "Deffered Payment" && this.netDownpayment < 0) {
-        this.errorMessage = "Select Down Payment Percent";
+      if (  this.selectedPaymentPlan === "Deffered Payment" &&(this.netDownpayment < 0 || this.spreadDownpaymentPercentage <= 0)
+      ) {
+        this.errorMessage = "Please specify a valid spread downpayment percentage";
         this.loading = false;
         return; // Stop further processing if validation fails
       }
-      if (this.selectedPaymentPlan === "Deferred Payment" && (this.spreadDownpaymentPercentage <= 0)) {
-        this.errorMessage = "Please specify a valid spread downpayment percentage for deferred payment.";
-        this.loading = false;
-        return; // Stop further processing
-      }
+      
       const formData = new FormData();
       // Add sales details
       formData.append("customer_id", this.selectedSale.customer_id);
