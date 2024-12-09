@@ -934,10 +934,10 @@ body {
 /* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
-  border: 1px solid #42b983;
+  border: 1px solid #0560fd;
   border-radius: 3px;
   font-size: 14px;
-  background-color: #42b983;
+  background-color: #0560fd;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
