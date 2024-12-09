@@ -44,11 +44,11 @@ class SiteAdminForm(forms.ModelForm):
             if commit:
                 site.save()
 
-            # After saving the site, create the floors
-            max_floor_number = site.floors.count() + 1
-            for i in range(num_floors):
-                Floor.objects.create(site=site, floor_number=max_floor_number)
-                max_floor_number += 1
+                # After saving the site, create the floors
+                max_floor_number = site.floors.count() + 1
+                for i in range(num_floors):
+                    Floor.objects.create(site=site, floor_number=max_floor_number)
+                    max_floor_number += 1
 
         # Save the site instance if it hasn't been saved yet (in case commit was False)
         if commit:
