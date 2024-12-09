@@ -13,15 +13,13 @@
     </div>
   </div>
 </div>
-
-
     <div class="main-page">
       <!-- Side Bar -->
       <div class="sidebar">
         <div class="sidebar-header">
           <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
           <!-- Font Awesome Icon -->
-          <h4 id="sidebar-title">{{ "Company Name" }}</h4>
+          <h4 id="sidebar-title">{{ salesDetail?.company_name || "Company Name" }}</h4>
         </div>
         <nav class="sidebar-nav">
           <b-nav vertical pills>
@@ -227,6 +225,7 @@ export default {
     this.fetchSalesDetail(salesDetailUuid);
     this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
+
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
@@ -268,6 +267,7 @@ export default {
           alert("Sales details not found");
         } else {
           this.salesDetail = data; // Store the sales details in data
+          console.log(this.salesDetail.company_name);
           this.applySpotCashDiscount(); // Call the function after the data is fetched
           this.applyTLPDiscount();
           this.updateNetUnitPrice();

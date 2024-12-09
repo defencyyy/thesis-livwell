@@ -37,7 +37,8 @@ from units.models import Unit, UnitImage
 from sites.models import Site
 from documents.models import DocumentType, Document
 from salesdetails.models import SalesDetails
-from milestones.models import Milestone  # Ensure the correct path
+from milestones.models import Milestone  
+from companies.models import Company
 
 
 from collections import Counter
@@ -920,6 +921,7 @@ def get_sales_detail(request, sales_detail_id):
     broker = get_object_or_404(Broker, id=sales_detail.broker_id)
     customer = get_object_or_404(Customer, id=sales_detail.customer_id)
     unit = get_object_or_404(Unit, id=sales_detail.unit_id)
+    company = get_object_or_404(Company, id=broker.company_id)
 
     # Prepare the response data with all related information
     sales_detail_data = {
@@ -949,7 +951,9 @@ def get_sales_detail(request, sales_detail_id):
         'site_name': site.name,  # Site name
         'broker_name': f"{broker.first_name} {broker.last_name}",  # Broker full name
         'customer_name': f"{customer.first_name} {customer.last_name}",  # Customer full name
-        'unit_name': unit.unit_title  # Unit title
+        'unit_name': unit.unit_title, # Unit title
+        'company_name': company.name,  # Company name
+
     }
 
     # Add the reservation agreement URL
