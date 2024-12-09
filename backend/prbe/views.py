@@ -516,6 +516,7 @@ def get_available_units(request):
 
                 unit_info = {
                     'id': unit.id,
+                    'months':unit.site.maximum_months,
                     'unit_title': unit.unit_title,
                     'images': image_urls,
                     'price': unit.price,
@@ -768,7 +769,8 @@ def fetch_sales(request):
                 'other_charges': sale.unit.other_charges,  # Any other charges
                 'TLP_Discount':sale.unit.spot_discount_flat,
                 'spot_discount':sale.unit.spot_discount_percentage,
-                'vat_percent':sale.unit.vat_percentage,   
+                'vat_percent':sale.unit.vat_percentage,  
+                'months':sale.site.maximum_months, 
             })      
          # Group the sales by status and count occurrences
         status_count = Counter(sale.status for sale in sales)

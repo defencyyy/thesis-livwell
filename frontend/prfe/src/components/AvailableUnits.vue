@@ -229,15 +229,15 @@
     <!-- Spot Discount -->
     <div class="form-group">
       <label for="spotDiscount">Spot Discount</label>
-      <input
-        type="number"
+       <input
+       type="number"
         id="spotDiscount"
         v-model="spotCashDiscount"
         @input="updatePaymentDetails"
         class="form-control"
-        min="0"
-        max="100"
-      />
+        :min="0"
+        :max="maxSpotCashDiscount" 
+        />
     </div>
     
     <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
@@ -252,13 +252,13 @@
     <div class="form-group">
       <label for="tlpDiscount">TLP Discount (Optional)</label>
       <input
-        type="number"
-        id="tlpDiscount"
-        v-model="tlpDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="100"
+      type="number"
+      id="tlpDiscount"
+      v-model="tlpDiscount"
+      @input="updatePaymentDetails"
+      class="form-control"
+      min="0"
+      max="maxtlpDiscount"
       />
     </div>
 
@@ -277,6 +277,7 @@
         @input="updatePaymentDetails"
         class="form-control"
         min="0"
+        max="maxotherChargesPercentage"
         step="0.1"
       />
     </div>
@@ -329,19 +330,18 @@
       <!-- Spread Downpayment -->
       <div class="form-group">
         <label for="spreadDownpayment">Spread Downpayment</label>
-        <select
-          v-model="spreadDownpaymentPercentage"
-          id="spreadDownpayment"
-          @change="updatePaymentDetails"
-          class="form-select mt-2"
-          style="width: 100px;"
-          required
-        >
-          <option value="0">0%</option>
-          <option value="5">5%</option>
-          <option value="10">10%</option>
-          <option value="15">15%</option>
-        </select>
+        <input
+        type="number"
+        v-model="spreadDownpaymentPercentage"
+        id="spreadDownpayment"
+        @input="updatePaymentDetails"
+        min="0"
+        max="100"
+        step="1"
+        class="form-control"
+        required
+        placeholder="Enter percentage"
+        />
       </div>
       
       <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
@@ -355,6 +355,7 @@
           id="months"
           @input="updatePaymentDetails"
           min="1"
+          max="maxpayableMonths"
           step="1"
           required
         />
@@ -458,7 +459,7 @@
           <button @click="closePopup" class="btn btn-primary">OK</button>
         </div>
     </b-modal>
-
+    
     <!-- Reserve Unit Modal -->
     <b-modal
       v-model="isReserveModalVisible"
@@ -561,14 +562,18 @@
         <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
         </div>
       </form>
-      
-      <!-- Error Message -->
-        <b-modal v-if="errorMessage">
-          <p>{{ errorMessage }}</p>
-          <div class = "button-container">
-            <button @click="closeModal" class = "btn-cancel-right">Close</button>
-          </div>
-        </b-modal>
+      <!-- Error Message Modal -->
+      <b-modal 
+        v-model="isErrorModalVisible" 
+        hide-footer 
+        title="Error"
+        @hide="handleErrorModalClose"
+      >
+        <p>{{ errorMessage }}</p>
+        <div class="button-container">
+          <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
+        </div>
+      </b-modal>
       </b-modal>
      </b-modal>
   </div>
@@ -612,12 +617,15 @@ export default {
       customers: [],
       successMessage: "", // Success message
       errorMessage: "", // Error message
+      isErrorModalVisible: false, // To control modal visibility
       showSuccessMessage: false, // Control the visibility of the success message
-
       // Payment Scheme Data
       selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
       spotCashDiscount: 0,
+      maxSpotCashDiscount: 0, // Default value fetched from DB
+      maxotherChargesPercentage: 0,
+      maxtlpDiscount:0,
       tlpDiscount: 0,
       spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
@@ -632,7 +640,8 @@ export default {
       spotDownpayment: 0,
       spreadDownpaymentPercentage: 0,
       spreadDownpayment: 0,
-      payableMonths: 40,
+      payableMonths: 1,
+      maxpayableMonths:0,
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       vat: 0,
@@ -778,8 +787,13 @@ export default {
       this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
       this.spotCashDiscount = this.selectedUnit.spot_discount;
+      this.payableMonths = this.selectedUnit.months;
+      this.maxpayableMonths = this.payableMonths;
+      this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
       this.tlpDiscount = this.selectedUnit.TLP_Discount;
+      this.maxtlpDiscount = this.tlpDiscount;
       this.otherChargesPercentage = this.selectedUnit.other_charges;
+      this.maxotherChargesPercentage = this.otherChargesPercentage;
       this.reservationFee = this.selectedUnit.reservation_fee;
       this.vat = this.selectedUnit.vat_percent;
       // Recalculate payment details when the unit is selected
@@ -815,6 +829,26 @@ export default {
     },
 
     updatePaymentDetails() {
+    if (this.spotCashDiscount < 0) {
+        this.spotCashDiscount = 0;
+      } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
+        this.spotCashDiscount = this.maxSpotCashDiscount;
+      }
+      if (this.tlpDiscount < 0) {
+        this.tlpDiscount = 0;
+      } else if (this.tlpDiscount > this.maxtlpDiscount) {
+        this.tlpDiscount = this.maxtlpDiscount;
+      }
+      if (this.otherChargesPercentage < 0) {
+        this.otherChargesPercentage = 0;
+      } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
+        this.otherChargesPercentage = this.maxotherChargesPercentage;
+      }
+      if (this.payableMonths < 0) {
+        this.payableMonths = 1;
+      } else if (this.payableMonths > this.maxpayableMonths) {
+        this.payableMonths = this.maxpayableMonths;
+      }
       this.applySpotCashDiscount();
       this.applyTLPDiscount();
       this.applyOtherCharges();
@@ -876,7 +910,6 @@ export default {
     },
 
     async submitReservation() {
-      this.errorMessage = null;
       // Check if all required fields are filled, including the file
       if (
         !this.reservationForm.customerName ||
@@ -887,12 +920,13 @@ export default {
         (this.reservationForm.paymentMethod !== "cash" &&
           !this.reservationForm.paymentReference)
       ) {
-        this.errorMessage =
-          "All fields are required except the payment reference (if payment method is 'cash').";
+        this.errorMessage ="All fields are required except the payment reference (if payment method is 'cash').";
+        this.isErrorModalVisible = true;
         return;
       }
       if (this.reservationForm.paymentAmount < this.reservationFee) {
         this.errorMessage = "Payment Amount Insufficient";
+        this.isErrorModalVisible = true;
         return;
       }
       const data = {
@@ -956,6 +990,19 @@ export default {
       this.successMessage = ""; // Hide the success message pop-up
       this.$router.push({ name: "AffiliatedUnits" }); // Redirect to the 'AffiliatedUnits' page
     },
+     // Trigger the error modal
+  showErrorModal(message) {
+    this.errorMessage = message; // Set the error message
+    this.isErrorModalVisible = true; // Open the error modal
+  },
+  // Handle closing of the modal
+  handleErrorModalClose() {
+    this.isErrorModalVisible = false; // Ensure modal closes
+    this.errorMessage = ''; // Clear the error message
+  },
+  closeErrorModal() {
+    this.handleErrorModalClose();
+  },
   },
 };
 </script>
