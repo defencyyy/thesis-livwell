@@ -1,11 +1,19 @@
 <template>
   <div>
     <!-- Header -->
-    <div class="header">
-      <div class="top-bar">
-        <div class="welcome-text">Welcome Back, <b>Customer!</b></div>
+    <div>
+  <!-- Header -->
+  <div class="header">
+    <div class="top-bar">
+      <!-- Add conditional rendering to prevent errors -->
+      <div v-if="salesDetail?.customer_name" class="welcome-text">
+        Welcome Back, <b>{{ salesDetail.customer_name }}!</b>
       </div>
+      <div v-else class="welcome-text">Welcome Back!</div>
     </div>
+  </div>
+</div>
+
 
     <div class="main-page">
       <!-- Side Bar -->
