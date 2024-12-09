@@ -15,21 +15,14 @@
           </div>
         </div>
 
-        <div
-          class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-        >
+        <div class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
           <div class="card-body">
             <!-- Toolbar -->
             <div class="toolbar">
               <div class="left-section">
                 <div class="search-bar-container">
-                  <input
-                    type="text"
-                    v-model="searchQuery"
-                    placeholder="Search Customers"
-                    class="search-bar"
-                  />
+                  <input type="text" v-model="searchQuery" placeholder="Search Customers" class="search-bar" />
                   <i class="fa fa-search search-icon"></i>
                 </div>
               </div>
@@ -38,7 +31,6 @@
           </div>
         </div>
 
-        <!-- Broker Table -->
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
@@ -51,23 +43,15 @@
           </div>
 
           <!-- Conditional Rendering -->
-          <div
-            v-if="currentCustomers.length === 0"
-            class="no-customers-message"
-          >
+          <div v-if="currentCustomers.length === 0" class="no-customers-message">
             No customers found.
           </div>
 
-          <div
-            v-else
-            v-for="(customer, index) in currentCustomers"
-            :key="customer.id || index"
-            class="card border-0 rounded-1 mx-auto my-2"
-            style="
+          <div v-else v-for="(customer, index) in currentCustomers" :key="customer.id || index"
+            class="card border-0 rounded-1 mx-auto my-2" style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
-          >
+            ">
             <div class="card-body">
               <table class="customer-table">
                 <tbody>
@@ -106,24 +90,21 @@
                         {{
                           customer.broker
                             ? customer.broker.first_name +
-                              " " +
-                              customer.broker.last_name
+                            " " +
+                            customer.broker.last_name
                             : "N/A"
                         }}
                       </span>
                     </td>
                     <td>
                       <div class="broker-actions d-flex gap-2">
-                        <button
-                          @click="viewCustomer(customer)"
-                          style="
+                        <button @click="viewCustomer(customer)" style="
                             border: none;
                             background-color: transparent;
                             color: #343a40;
                             cursor: pointer;
                             font-size: 18px;
-                          "
-                        >
+                          ">
                           <i class="fas fa-eye"></i>
                         </button>
                       </div>
@@ -133,167 +114,186 @@
               </table>
             </div>
           </div>
-        <!-- Pagination -->
-        <div class="pagination-controls">
-          <button
-            :disabled="currentPage === 1"
-            @click="prevPage"
-            class="page-button"
-          >
-            Previous
-          </button>
-          <button
-            v-for="page in totalPages"
-            :key="page"
-            @click="changePage(page)"
-            :class="['page-button', { active: currentPage === page }]"
-          >
-            {{ page }}
-          </button>
-          <button
-            :disabled="currentPage === totalPages"
-            @click="nextPage"
-            class="page-button"
-          >
-            Next
-          </button>
-        </div>
+          <!-- Pagination -->
+          <div class="pagination-controls">
+            <button :disabled="currentPage === 1" @click="prevPage" class="page-button">
+              Previous
+            </button>
+            <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+              :class="['page-button', { active: currentPage === page }]">
+              {{ page }}
+            </button>
+            <button :disabled="currentPage === totalPages" @click="nextPage" class="page-button">
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
+
     <!-- View Customer Modal -->
-    <b-modal
-      v-model="showEditModal"
-      title="Customer Details"
-      hide-footer
-      centered
-    >
-      <!-- Customer Info -->
-      <h5>Customer Information</h5>
-      <div class="form-group">
+    <b-modal v-model="showEditModal" title="Customer Details" hide-footer hide-header centered size="lg">
+
+      <div class="modal-title p-3">
+        <h5 class="mb-0">Customer: {{ (currentCustomer.first_name || '').toUpperCase() }} {{ (currentCustomer.last_name
+          || '').toUpperCase() }}</h5>
+        <h5><em>Connected Units: {{ connectedUnitsCount }} </em> </h5>
+      </div>
+
+      <!-- <div class="form-group">
         <label for="editFullName" style="font-weight: bold">Full Name: </label>
         <span id="editFullName">
           {{ currentCustomer.first_name }} {{ currentCustomer.last_name }}
         </span>
-      </div>
-      <div class="form-group">
+      </div> -->
+
+      <div class="modal-body">
+        <!-- Broker Info -->
+
+        <div>
+          <p style="margin-bottom: 5px;">
+            <strong>Email: </strong>
+            {{ currentCustomer.email }}
+          </p>
+          <p style="margin-bottom: 5px;">
+            <strong>Contact #: </strong>
+            {{ currentCustomer.contact_number }}
+          </p>
+        </div>
+
+        <!-- <div class="form-group">
         <label for="editEmail" style="font-weight: bold">Email: </label>
         <span id="editEmail">{{ currentCustomer.email }}</span>
       </div>
       <div class="form-group">
         <label for="editContact" style="font-weight: bold">Contact: </label>
         <span id="editContact">{{ currentCustomer.contact_number }}</span>
-      </div>
+      </div> -->
 
-      <!-- Spacer -->
-      <div style="margin-top: 20px"></div>
+        <!-- Spacer -->
+        <!-- <div style="margin-top: 20px"></div> -->
 
-      <!-- Submitted Documents -->
-      <h5>Submitted Documents</h5>
-      <div v-if="currentCustomer.documents && currentCustomer.documents.length">
-        <ul>
-          <li v-for="document in currentCustomer.documents" :key="document.url">
-            <span class="document-type">{{ document.type }}:</span>
-
-            <!-- Button to open the document in a modal -->
-            <button @click="openDocumentModal(document)" class="btn btn-link">
-              {{ document.name }}
-            </button>
-
-            <!-- Open document in a new tab -->
-            <a
-              :href="document.url"
-              target="_blank"
-              class="btn btn-sm btn-outline-success"
-              aria-label="Open document in a new tab"
-            >
-              Open in New Tab
-            </a>
-
-            <!-- Download the document -->
-            <a
-              :href="document.url"
-              :download="document.name"
-              class="btn btn-sm btn-outline-success"
-              aria-label="Download
-              document"
-            >
-              Download
-            </a>
-          </li>
-        </ul>
-      </div>
-      <div v-else>No documents available.</div>
-
-      <b-modal
-        v-model="showDocumentModal"
-        title="View Document"
-        hide-footer
-        centered
-        size="lg"
-      >
-        <div v-if="selectedDocument">
-          <iframe
-            :src="selectedDocument.url"
-            width="100%"
-            height="500px"
-            frameborder="0"
-          ></iframe>
-        </div>
-        <div v-else>
-          <p>No document to display.</p>
-        </div>
-      </b-modal>
-
-      <!-- Spacer -->
-      <div style="margin-top: 20px"></div>
-
-      <!-- Broker Info -->
-      <h5 v-if="currentCustomer.broker">Broker Information</h5>
-      <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerFullName" style="font-weight: bold"
-          >Broker Name:
-        </label>
-        <span id="brokerFullName">
-          {{ currentCustomer.broker.first_name }}
-          {{ currentCustomer.broker.last_name }}
-        </span>
-      </div>
-      <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerEmail" style="font-weight: bold"
-          >Broker Email:
-        </label>
-        <span id="brokerEmail">{{ currentCustomer.broker.email }}</span>
-      </div>
-      <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerContact" style="font-weight: bold"
-          >Broker Contact:
-        </label>
-        <span id="brokerContact">{{
-          currentCustomer.broker.contact_number
-        }}</span>
-      </div>
-
-      <!-- Spacer -->
-      <div style="margin-top: 20px"></div>
-
-      <!-- Units Connected -->
-      <h5>Connected Units ({{ connectedUnitsCount }} units)</h5>
-      <!-- Display count -->
-      <div v-if="Object.keys(groupedSales).length">
-        <div v-for="(units, siteName) in groupedSales" :key="siteName">
-          <h6>Site: {{ siteName }}</h6>
+        <!-- Submitted Documents -->
+        <!-- <h5>Submitted Documents</h5>
+        <div v-if="currentCustomer.documents && currentCustomer.documents.length">
           <ul>
-            <li v-for="unit in units" :key="unit.id">
-              {{ unit.title }} (Room: {{ unit.unit_number }} - Status:
-              {{ unit.status }})
+            <li v-for="document in currentCustomer.documents" :key="document.url">
+              <span class="document-type">{{ document.type }}:</span>
+
+              <button @click="openDocumentModal(document)" class="btn btn-link">
+                {{ document.name }}
+              </button>
+
+              <a :href="document.url" target="_blank" class="btn btn-sm btn-outline-success"
+                aria-label="Open document in a new tab">
+                Open in New Tab
+              </a>
+
+              <a :href="document.url" :download="document.name" class="btn btn-sm btn-outline-success" aria-label="Download
+              document">
+                Download
+              </a>
             </li>
           </ul>
         </div>
-      </div>
-      <div v-else>No connected units available.</div>
-    </b-modal>
-  </div>
+        <div v-else>No documents available.</div> -->
+
+        <b-modal v-model="showDocumentModal" title="View Document" hide-footer centered size="lg">
+          <div v-if="selectedDocument">
+            <iframe :src="selectedDocument.url" width="100%" height="500px" frameborder="0"></iframe>
+          </div>
+          <div v-else>
+            <p>No document to display.</p>
+          </div>
+        </b-modal>
+
+        <!-- Spacer -->
+        <div style="margin-top: 20px"></div>
+
+        <!-- Broker Info -->
+        <h6 v-if="currentCustomer.broker" style="color: #a3a3a3;"><em>**Broker Information**</em></h6>
+        <div v-if="currentCustomer.broker">
+          <p style="margin-bottom: 5px;">
+            <strong>Broker Name: </strong>
+            {{ currentCustomer.broker.first_name }}
+            {{ currentCustomer.broker.last_name }}
+          </p>
+          <!-- <label for="brokerFullName" style="font-weight: bold">Broker Name:
+          </label>
+          <span id="brokerFullName">
+            {{ currentCustomer.broker.first_name }}
+            {{ currentCustomer.broker.last_name }}
+          </span> -->
+        </div>
+        <div v-if="currentCustomer.broker">
+          <p style="margin-bottom: 5px;">
+            <strong>Broker Email: </strong>
+            {{ currentCustomer.broker.email }}
+          </p>
+          <!-- <label for="brokerEmail" style="font-weight: bold">Broker Email:
+          </label>
+          <span id="brokerEmail">{{ currentCustomer.broker.email }}</span> -->
+        </div>
+        <div v-if="currentCustomer.broker">
+          <p style="margin-bottom: 5px;">
+            <strong>Broker Contact #: </strong>
+            {{
+              currentCustomer.broker.contact_number
+            }}
+          </p>
+          <!-- <label for="brokerContact" style="font-weight: bold">Broker Contact:
+          </label>
+          <span id="brokerContact">{{
+            currentCustomer.broker.contact_number
+            }}</span> -->
+        </div>
+
+        <!-- Spacer -->
+        <div style="margin-top: 20px"></div>
+
+        <!-- Units Connected -->
+        <h6 style="color: #a3a3a3;"><em>**Connected Units**</em></h6>
+        <!-- Display count -->
+        <div v-if="Object.keys(groupedSales).length">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Unit Name</th>
+                <th>Unit Number</th>
+                <th>Site</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="(units, siteName) in groupedSales" :key="siteName">
+      <tr v-for="unit in units" :key="unit.id">
+        <td>{{ unit.title }}</td>
+        <td>{{ unit.unit_number }}</td>
+        <td>{{ siteName }}</td>
+        <td>{{ unit.status }}</td>
+      </tr>
+    </template>
+</tbody>
+</table>
+</div>
+<div v-else>No connected units available.</div>
+<div
+              class="d-flex justify-content-end gap-3 mt-3"
+              style="padding: 15px"
+            >
+              <button
+                type="button"
+                class="btn-cancel"
+                @click="showEditModal = false"
+                style="width: 100px"
+              >
+                Close
+              </button>
+            </div>
+</div>
+</b-modal>
+</div>
 </template>
 
 <script>
@@ -404,14 +404,14 @@ export default {
     },
   },
   methods: {
-     changePage(page) {
-    this.currentPage = page;
-  },
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  },
+    changePage(page) {
+      this.currentPage = page;
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -625,13 +625,16 @@ body {
   justify-content: space-between;
   width: 100%;
   max-width: 1100px;
-  margin: 20px auto; /* Center the wrapper */
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
 .title-left {
   display: flex;
-  align-items: center; /* Align items vertically */
-  gap: 10px; /* Add space between the icon and title */
+  align-items: center;
+  /* Align items vertically */
+  gap: 10px;
+  /* Add space between the icon and title */
 }
 
 .title-icon {
@@ -643,9 +646,11 @@ body {
 
 .edit-title {
   color: #000000;
-  font-size: 16px; /* Adjust as needed */
+  font-size: 16px;
+  /* Adjust as needed */
   font-weight: bold;
-  margin: 0; /* Remove default margin */
+  margin: 0;
+  /* Remove default margin */
 }
 
 .toolbar {
@@ -708,7 +713,7 @@ body {
 }
 
 .customer-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: 10px;
 }
@@ -718,6 +723,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .customer-table th,
@@ -737,33 +743,33 @@ body {
 .customer-table th:nth-child(2),
 .customer-table td:nth-child(2) {
   /* Location column */
-  width: 20%;
+  width: 22%;
 }
 
 .customer-table th:nth-child(3),
 .customer-table td:nth-child(3) {
   /* Status column */
-  width: 25%;
+  width: 22%;
 }
 
 .customer-table th:nth-child(4),
 .customer-table td:nth-child(4) {
   /* Actions column */
-  width: 20%;
+  width: 22%;
 }
 
 .customer-table th:nth-child(5),
 .customer-table td:nth-child(5) {
   /* Actions column */
-  width: 10%;
+  width: 7%;
 }
 
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 25% 20% 25% 20% 10%;
+  grid-template-columns: 27% 22% 22% 22% 7%;
   /* Match the column widths */
-  padding: 0px 18px;
+  padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;
 }
@@ -771,7 +777,7 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
@@ -792,15 +798,20 @@ body {
 
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end;
+  /* Align to the right */
+  margin-top: 20px;
+  /* Add spacing from the content above */
+  gap: 10px;
+  /* Spacing between buttons */
+  padding-right: 20px;
+  /* Add padding to push it away from the edge */
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px;
+  /* Slightly smaller font */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -819,19 +830,26 @@ body {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+  background-color: #e9ecef;
+  /* Light gray */
 }
+
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end;
+  /* Align to the right */
+  margin-top: 20px;
+  /* Add spacing from the content above */
+  gap: 10px;
+  /* Spacing between buttons */
+  padding-right: 20px;
+  /* Add padding to push it away from the edge */
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px;
+  /* Slightly smaller font */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -850,7 +868,55 @@ body {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+  background-color: #e9ecef;
+  /* Light gray */
 }
 
+.modal-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.styled-table {
+  font-size: 14px; /* Adjust as needed */
+  width: 100%;
+}
+
+.styled-table thead tr {
+  background-color: #eff4fb;
+  color: #333;
+  font-weight: bold;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: center; /* Center alignment for all cells */
+  vertical-align: middle;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.styled-table td.text-center {
+  text-align: center;
+}
+
+.styled-table th {
+  cursor: pointer;
+  /* Optional if you add sortable columns */
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
 </style>
