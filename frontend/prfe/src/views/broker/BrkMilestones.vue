@@ -8,7 +8,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Milestones Summary</div>
+            <div class="edit-title"><strong>Milestones Summary</strong></div>
           </div>
         </div>
 
@@ -50,7 +50,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Site Sales Information</div>
+            <div class="edit-title"><strong>Site Sales Information</strong></div>
           </div>
         </div>
         <div v-if="siteSales.length === 0">
@@ -84,14 +84,14 @@
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title ">Milestones Achieved</div>
+              <div class="edit-title "><strong>Milestones Achieved</strong></div>
             </div>
           </div>
 
           <div class="outside-headers text-center">
             <span class="header-item">Name</span>
-            <span class="header-item" style="padding-left: 20%;">Reward</span>
-            <span class="header-item" style="padding-left: 20%;" >Description</span>
+            <span class="header-item">Reward</span>
+            <span class="header-item">Description</span>
           </div>
 
           <div v-if="achievedMilestones.length === 0">
@@ -131,13 +131,13 @@
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title">Next Milestones</div>
+              <div class="edit-title"><strong>Next Milestones</strong></div>
             </div>
           </div>
           <div class="outside-headers text-center">
             <p class="header-item">Name</p>
-            <p class="header-item" style="padding-left: 20%;">Reward</p>
-            <p class="header-item" style="padding-left: 20%;">Description</p>
+            <p class="header-item">Reward</p>
+            <p class="header-item">Description</p>
           </div>
 
           <div v-if="nextMilestones.length === 0">
@@ -474,18 +474,22 @@ body {
 }
 
 .outside-headers {
-  display: flex;
-  justify-content: space-between; /* Distribute items evenly */
-  padding: 10px 20px;
+  display: grid;
+  grid-template-columns: 25% 25% 50%; /* Match column widths */
+  padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
   font-weight: bold;
-  text-align: left;
+  text-align: left; /* Left-align for consistency with table */
 }
 
 .outside-headers .header-item {
-  padding: 5px 0;
-  width: 33.33%; /* Ensures that each header item takes up a third of the width */
+  display: flex;
+  justify-content: flex-start; /* Align text horizontally to the left */
+  align-items: center; /* Center vertically */
+  padding: 5px 0; /* Consistent with table cell padding */
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 

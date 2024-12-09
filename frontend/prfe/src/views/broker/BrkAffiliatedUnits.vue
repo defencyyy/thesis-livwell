@@ -7,7 +7,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Available Sites</div>
+            <div class="edit-title"><strong>Available Sites</strong></div>
           </div>
 
           <div class="view-switch">

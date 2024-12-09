@@ -8,7 +8,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Manage Customers</div>
+            <div class="edit-title"><strong>Manage Customers</strong></div>
           </div>
         </div>
         <div
