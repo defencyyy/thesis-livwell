@@ -404,36 +404,54 @@
         }}
       </button>
 
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+     <!-- Detailed Monthly Schedule (Visible when expanded) -->
+    <div v-if="showDetailedSchedule" class="detailed-schedule">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><center>Payment Type</center></th>
+            <th><center>Amount (₱)</center></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spot Downpayment</td>
+            <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Spread Downpayment</td>
+            <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+          </tr>
+          <!-- Loop through the months to display monthly payments -->
+          <tr v-for="month in payableMonths" :key="month">
+            <td>Month {{ month }} Payment</td>
+            <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Balance Upon Turnover</td>
+            <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+          </tr>
+          <!-- Amortization for 10, 15, 20, and 25 years -->
+          <tr>
+            <td>Monthly Amortization (10 years @ 6.5%)</td>
+            <td>₱{{ amortization10Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (15 years @ 6.5%)</td>
+            <td>₱{{ amortization15Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (20 years @ 6.5%)</td>
+            <td>₱{{ amortization20Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (25 years @ 6.5%)</td>
+            <td>₱{{ amortization25Years.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
@@ -702,13 +720,34 @@ export default {
       return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
     });
     },
-   
+    amortization10Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 10);
+  },
+  amortization15Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 15);
+  },
+  amortization20Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 20);
+  },
+  amortization25Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 25);
+  },
 },
   created() {
       this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
+    calculateAmortization(balance, years) {
+    const interestRate = 6.5 / 100; // 6.5% annual interest
+    const monthlyRate = interestRate / 12; // Monthly interest rate
+    const totalMonths = years * 12; // Total number of months
+    return (
+      balance *
+      (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+      (Math.pow(1 + monthlyRate, totalMonths) - 1)
+    );
+  },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
