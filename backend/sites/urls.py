@@ -10,5 +10,5 @@ urlpatterns = [
     path('archived/', ArchivedSiteView.as_view(), name='archived-sites-list'),
     path('archived/<int:pk>/', ArchivedSiteView.as_view(), name='archive-site'),
     path('<int:site_id>/floors/', SiteWithFloorCountsView.as_view(), name='site-floor-counts'),
-    path('developer/sites/<int:pk>/picture/', SitePictureUpdateView.as_view(), name='site-picture-update'),
+    path('picture/<int:pk>/', SitePictureUpdateView.as_view(), name='site-picture-update'),
 ]

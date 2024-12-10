@@ -1467,7 +1467,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/${siteId}/picture/`,
+          `http://localhost:8000/developer/sites/picture/${siteId}/`,
           formData,
           {
             headers: {
@@ -1495,18 +1495,18 @@ export default {
         // Set the image preview to the file's URL for preview
         this.imagePreview = URL.createObjectURL(file);
 
-        // Only update the current image if you want to save it
+        // Handle picture update depending on the mode (edit or add)
         if (mode === "edit") {
-          // Don't overwrite the current picture unless you're saving the change
-          this.newPictureFile = file; // Update for edit mode only when confirmed
+          // In edit mode, we store the file in newPictureFile for the update
+          this.newPictureFile = file;
         } else if (mode === "add") {
-          this.newSite.picture = file; // Set for add mode
+          // In add mode, we set the file to the newSite.picture
+          this.newSite.picture = file;
         }
       } else {
         this.imagePreview = null; // Clear preview if no file is selected
       }
     },
-
     // Save new site, including floors
     async addSite() {
       const formData = new FormData();
@@ -1546,12 +1546,12 @@ export default {
       }
 
       // Add Picture
-      if (this.newSite.picture) {
-        formData.append("picture", this.newSite.picture);
+      const pictureFile = this.newPictureFile || this.newSite.picture;
+      if (pictureFile) {
+        formData.append("picture", pictureFile);
       }
 
       try {
-        // Create the site (without the picture)
         const response = await axios.post(
           "http://localhost:8000/developer/sites/",
           formData,
@@ -1564,10 +1564,15 @@ export default {
         );
 
         if (response.status === 201) {
-          // If site is successfully created, upload the picture separately
-          const siteId = response.data.id;
-          if (this.newSite.picture) {
-            await this.uploadPicture(siteId, this.newSite.picture); // Update the picture
+          const parsedData =
+            typeof response.data === "string"
+              ? JSON.parse(response.data)
+              : response.data;
+          const siteId = parsedData.id;
+          console.log("New site created with ID:", siteId);
+
+          if (siteId && pictureFile) {
+            await this.uploadPicture(siteId, pictureFile);
           }
 
           // Reset form and reload sites
@@ -1580,6 +1585,7 @@ export default {
         console.error("Error adding site:", error.response || error);
       }
     },
+
     async manageSite() {
       const payload = {
         companyId: this.vuexCompanyId,
@@ -1597,7 +1603,7 @@ export default {
         vat_percentage: this.editSite.vat_percentage || "",
         reservation_fee: this.editSite.reservation_fee || "",
         other_charges: this.editSite.other_charges || "",
-        floors: this.editSite.floors || [], // Send floors data as JSON if it exists
+        floors: this.editSite.floors || [],
       };
 
       console.log("Payload being sent:", payload);
@@ -1605,20 +1611,28 @@ export default {
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
-          payload, // Sending as JSON
+          payload,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json", // Indicating JSON payload
+              "Content-Type": "application/json",
             },
           }
         );
 
-        if (response.status === 200) {
-          // If site updated successfully, check if picture changed
-          const siteId = response.data.id;
-          if (this.editSite.picture) {
-            await this.uploadPicture(siteId, this.editSite.picture); // Update the picture if changed
+        const parsedData =
+          typeof response.data === "string"
+            ? JSON.parse(response.data)
+            : response.data;
+        const siteData = parsedData.data;
+
+        if (siteData) {
+          const siteId = siteData.id;
+          console.log("Site updated with ID:", siteId);
+
+          const pictureFile = this.newPictureFile || this.newSite.picture;
+          if (siteId && pictureFile) {
+            await this.uploadPicture(siteId, pictureFile);
           }
 
           // Update the site in the local list
@@ -1626,7 +1640,7 @@ export default {
             (site) => site.id === this.editSite.id
           );
           if (index !== -1) {
-            this.sites[index] = response.data;
+            this.sites[index] = siteData;
           }
 
           this.showEditModal = false;
@@ -1634,13 +1648,11 @@ export default {
         }
       } catch (error) {
         console.error("Error updating site:", error.response || error);
-        console.log("Error details:", error);
       }
     },
+
     // Save the updated site details, including floors
     async saveSite() {
-      console.log("Floors data being sent:", this.currentSite.floors);
-
       const payload = {
         companyId: this.vuexCompanyId,
         name: this.currentSite.name,
@@ -1663,25 +1675,30 @@ export default {
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json", // Send as JSON
+              "Content-Type": "application/json",
             },
           }
         );
 
         if (response.status === 200) {
-          // If site is updated successfully, update the picture if changed
-          const siteId = response.data.id;
-          if (this.currentSite.picture) {
-            await this.uploadPicture(siteId, this.currentSite.picture); // Update the picture
+          const parsedData =
+            typeof response.data === "string"
+              ? JSON.parse(response.data)
+              : response.data;
+          const siteId = parsedData.id;
+
+          console.log("Updated site ID:", siteId);
+
+          const pictureFile = this.newPictureFile || this.newSite.picture;
+          if (siteId && pictureFile) {
+            await this.uploadPicture(siteId, pictureFile);
           }
 
           this.showFloorModal = false;
           this.fetchSites();
-          console.log("Site updated successfully!");
         }
       } catch (error) {
         console.error("Error saving site:", error.response || error);
-        console.log("Error details:", error);
         alert("Failed to save site. Please try again.");
       }
     },
