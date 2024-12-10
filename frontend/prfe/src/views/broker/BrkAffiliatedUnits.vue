@@ -458,7 +458,7 @@ body {
 
 /* Site name styling */
 .site-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-bottom: 5px; /* Space below the site name */
 }
@@ -493,6 +493,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  font-size: 14px;
   background: #fff;
 }
 
@@ -535,7 +536,7 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
