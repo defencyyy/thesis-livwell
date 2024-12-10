@@ -186,22 +186,22 @@
                           <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
                         </tr>
                         <!-- Amortization for 10, 15, 20, and 25 years -->
-          <tr>
-            <td>Monthly Amortization (10 years @ 6.5%)</td>
-            <td>₱{{ amortization10Years.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Monthly Amortization (15 years @ 6.5%)</td>
-            <td>₱{{ amortization15Years.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Monthly Amortization (20 years @ 6.5%)</td>
-            <td>₱{{ amortization20Years.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Monthly Amortization (25 years @ 6.5%)</td>
-            <td>₱{{ amortization25Years.toFixed(2) }}</td>
-          </tr>
+                        <tr>
+                          <td>Monthly Amortization (10 years @ 6.5%)</td>
+                          <td>₱{{ amortization10Years.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Monthly Amortization (15 years @ 6.5%)</td>
+                          <td>₱{{ amortization15Years.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Monthly Amortization (20 years @ 6.5%)</td>
+                          <td>₱{{ amortization20Years.toFixed(2) }}</td>
+                        </tr>
+                        <tr>
+                          <td>Monthly Amortization (25 years @ 6.5%)</td>
+                          <td>₱{{ amortization25Years.toFixed(2) }}</td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
