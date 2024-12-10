@@ -29,20 +29,30 @@ class SiteAdminForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Save the site instance first to generate a primary key
-        site = super().save(commit=commit)
+        site = super().save(commit=False)
 
         # Get the number of floors to add, defaulting to 0 if None
         num_floors = self.cleaned_data.get('add_multiple_floors', 0)
 
-        if num_floors:
-            # Determine the starting floor number based on existing floors
-            max_floor_number = site.floors.count() + 1
+        # Ensure num_floors is an integer (if it's None, set it to 0)
+        if num_floors is None:
+            num_floors = 0
 
-            # Create the specified number of floors
-            for i in range(num_floors):
-                Floor.objects.create(site=site, floor_number=max_floor_number)
-                max_floor_number += 1
+        # If we are adding multiple floors, create them
+        if num_floors > 0:
+            # Save the site first to ensure it has a primary key
+            if commit:
+                site.save()
 
+            # After saving the site, create the floors
+                max_floor_number = site.floors.count() + 1
+                for i in range(num_floors):
+                    Floor.objects.create(site=site, floor_number=max_floor_number)
+                    max_floor_number += 1
+
+         # Save the site instance if it hasn't been saved yet (in case commit was False)
+        if commit:
+            site.save()
         return site
         
 class SiteAdmin(admin.ModelAdmin):
