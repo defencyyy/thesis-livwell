@@ -13,7 +13,7 @@
               </p>
               <br />
 
-              <div class="form-outline mb-4">
+              <div class="form-outline mb-4 text-start">
                 <label class="form-label" for="username">Username</label>
                 <input
                   type="text"
@@ -24,7 +24,7 @@
                 />
               </div>
 
-              <div class="form-outline mb-4">
+              <div class="form-outline mb-4 text-start">
                 <label class="form-label" for="password">Password</label>
                 <input
                   type="password"
