@@ -545,7 +545,7 @@ export default {
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
       currentPage: 1, // Current page number
-      itemsPerPage: 5, // Number of customers per page
+      itemsPerPage: 15, // Number of customers per page
     };
   },
   mounted() {
