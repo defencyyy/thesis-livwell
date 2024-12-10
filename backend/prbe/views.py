@@ -748,7 +748,7 @@ def fetch_sales(request):
             )
 
         sales_data = []
-        for sale in sales:
+        for sale in sales: 
             # Add sale data to the list, including full names and titles
             sales_data.append({
                 'sale_id': sale.id,  # Include the sale ID
@@ -1041,14 +1041,29 @@ def check_sales_details(request, customer_id, site_id, unit_id):
 
     return JsonResponse(response_data)
 
-# Fetch document types - for dropdown
 def fetch_document_types(request):
     try:
-        document_types = DocumentType.objects.all()
+        # Get the company ID from the request (query parameter or user's session)
+        company_id = request.GET.get("company_id")
+
+        # Ensure company_id is provided and valid
+        if not company_id:
+            return JsonResponse({"success": False, "message": "Company ID is required"}, status=400)
+        
+        try:
+            company = Company.objects.get(id=company_id)
+        except Company.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Invalid Company ID"}, status=404)
+
+        # Filter document types by company
+        document_types = DocumentType.objects.filter(company=company)
+
+        # Prepare the response data
         document_types_data = [
             {"id": dt.id, "name": dt.name, "description": dt.description}
             for dt in document_types
         ]
+
         return JsonResponse({"success": True, "documentTypes": document_types_data})
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
@@ -1116,23 +1131,31 @@ def upload_document(request):
 # Fetch documents for a given customer and sale
 @csrf_exempt
 def fetch_customer_documents(request, customer_id, sales_id):
+    print("Fetch customer documents called.")  # Log when the function is called
     try:
         # Get the customer by ID
+        print(f"Fetching customer with ID: {customer_id}")
         customer = Customer.objects.get(id=customer_id)
 
         # Fetch documents for the customer and specific sale
+        print(f"Fetching documents for customer {customer_id} and sales {sales_id}")
         documents = Document.objects.filter(customer=customer, sales_id=sales_id)
+
+        # Log the fetched documents
+        print(f"Fetched documents: {documents}")
 
         # Prepare a list to return
         document_data = []
         for doc in documents:
-            document_data.append({
+            doc_info = {
                 'id': doc.id,
                 'document_type_id': doc.document_type.id,
                 'document_type_name': doc.document_type.name,
                 'file_name': os.path.basename(doc.file.name),
                 'uploaded_at': doc.uploaded_at.isoformat(),
-            })
+            }
+            document_data.append(doc_info)
+            print(f"Document data: {doc_info}")  # Print each document's details
 
         # Return JSON response
         return JsonResponse({
@@ -1141,16 +1164,19 @@ def fetch_customer_documents(request, customer_id, sales_id):
         })
 
     except Customer.DoesNotExist:
+        print(f"Customer with ID {customer_id} not found.")
         return JsonResponse({
             'success': False,
             'message': 'Customer not found.'
         }, status=404)
 
     except Exception as e:
+        print(f"Error occurred: {str(e)}")  # Print the error
         return JsonResponse({
             'success': False,
             'message': str(e),
         }, status=500)
+
 
 @csrf_exempt
 def mark_unit_as_sold(request, customer_id, sales_id):

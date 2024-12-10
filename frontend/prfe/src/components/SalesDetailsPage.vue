@@ -195,6 +195,7 @@
 
 <script>
 import { BNav, BNavItem } from "bootstrap-vue-3";
+import { mapState } from "vuex";
 
 export default {
   name: "SalesDetails",
@@ -225,12 +226,20 @@ export default {
     this.fetchSalesDetail(salesDetailUuid);
     this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
-
+  computed: {
+     ...mapState({
+      userId: (state) => state.userId || null,
+      userType: (state) => state.userType || null,
+      companyId: (state) => state.companyId || null,
+      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
+    }),
+  },
   methods: {
     setActiveTab(tab) {
       this.activeTab = tab;
     },
     async fetchDocuments() {
+      console.log("l");
       try {
         const response = await fetch(
           `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
@@ -267,7 +276,6 @@ export default {
           alert("Sales details not found");
         } else {
           this.salesDetail = data; // Store the sales details in data
-          console.log(this.salesDetail.company_name);
           this.applySpotCashDiscount(); // Call the function after the data is fetched
           this.applyTLPDiscount();
           this.updateNetUnitPrice();
@@ -360,7 +368,7 @@ export default {
     // Fetch Document Types
     async fetchDocumentTypes() {
       try {
-        const response = await fetch("http://localhost:8000/document-types/");
+        const response = await fetch(`http://localhost:8000/document-types/?company_id=${this.companyId}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success) {

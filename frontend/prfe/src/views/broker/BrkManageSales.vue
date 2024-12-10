@@ -1202,7 +1202,7 @@ export default {
     // Fetch document types from the API
     async fetchDocumentTypes() {
       try {
-        const response = await fetch("http://localhost:8000/document-types/");
+        const response = await fetch(`http://localhost:8000/document-types/?company_id=${this.companyId}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
