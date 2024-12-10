@@ -505,11 +505,13 @@ body {
   border: none; /* Removes the default button border */
   color: inherit; /* Inherits the text color */
   font-weight: bold; /* Makes text bold */
+  font-size: 14px;
 }
 
 .nav-tabs .nav-link.active {
   color: #000; /* Active tab color */
   border-bottom: 2px solid #0d6efd;
+  font-size: 14px;
 }
 
 .content {
