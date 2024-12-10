@@ -102,36 +102,6 @@
                         <a class="dropdown-item" href="#" @click.stop="openDocumentModal(sale)">Documents</a>
                         <a class="dropdown-item" href="#" @click.stop="DeleteSaleModal(sale)">Delete</a>
                     </div>
-<!-- 
-                    <div class="broker-actions d-flex gap-2">
-                      <button @click="openSalesAgreementModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
-                        <i class="fas fa-dollar-sign"></i>
-                      </button>
-                      <button @click="openDocumentModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
-                        <i class="fas fa-file-alt"></i>
-                      </button>
-                      <button @click="DeleteSaleModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
-                        <i class="fas fa-archive"></i>
-                      </button>
-                    </div> -->
                   </td>
                 </tr>
               </tbody>
