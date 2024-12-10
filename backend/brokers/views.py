@@ -29,6 +29,7 @@ class BrokerListView(APIView):
 
     def post(self, request):
         try:
+            # Fetch the developer associated with the current user
             developer = Developer.objects.get(id=request.user.id)
 
             if not hasattr(developer, 'company'):
@@ -36,6 +37,7 @@ class BrokerListView(APIView):
 
             company = developer.company
 
+            # Add the company to the request data
             data = request.data
             data['company'] = company.id
 
@@ -43,8 +45,13 @@ class BrokerListView(APIView):
 
             if serializer.is_valid():
                 broker = serializer.save()
-                broker.username = f"{broker.id}.{broker.first_name}{broker.last_name}".lower()
+
+                # Automatically generate the username by removing spaces from first and last name
+                first_name = broker.first_name.replace(' ', '')
+                last_name = broker.last_name.replace(' ', '')
+                broker.username = f"{broker.id}.{first_name}{last_name}".lower()  # Example: broker.id.first_name.last_name
                 broker.save()
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

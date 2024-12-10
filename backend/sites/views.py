@@ -14,7 +14,8 @@ import traceback
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
-import logging
+from rest_framework.parsers import MultiPartParser
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Set up logging
@@ -232,3 +233,49 @@ class SiteWithFloorCountsView(APIView):
             return Response({"success": True, "data": floor_data}, status=status.HTTP_200_OK)
         except Site.DoesNotExist:
             return Response({"error": "Site not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class SitePictureUpdateView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
+
+    def put(self, request, pk):
+        company = get_developer_company(request)
+        if not company:
+            print("DEBUG: Company not found for this developer.")  # Debug
+            return Response(
+                {"error": "Company not found for this developer."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Retrieve the site
+        try:
+            site = Site.objects.get(id=pk, company=company)
+        except Site.DoesNotExist:
+            print(f"DEBUG: Site with ID {pk} not found for company {company}.")  # Debug
+            return Response(
+                {"error": "Site not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Check if the request contains a picture
+        if 'picture' not in request.FILES:
+            print("DEBUG: No picture file uploaded.")  # Debug
+            return Response(
+                {"error": "No picture file uploaded."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Save the picture to the site
+        picture = request.FILES['picture']
+        print(f"DEBUG: Updating site {site.id} with new picture.")  # Debug
+        site.picture = picture
+        site.save()
+
+        # Return the updated site data (including picture)
+        serializer = SiteSerializer(site)
+        print(f"DEBUG: Site picture updated successfully, returning data: {serializer.data}")  # Debug
+        return Response(
+            {"success": True, "data": serializer.data},
+            status=status.HTTP_200_OK,
+        )

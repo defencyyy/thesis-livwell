@@ -69,10 +69,7 @@
             v-for="(broker, index) in paginatedBrokers"
             :key="broker.id || index"
             class="card border-0 rounded-1 mx-auto my-2"
-            style="
-             
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
+            style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
           >
             <div class="card-body">
               <table class="broker-table">
@@ -150,32 +147,32 @@
             </div>
           </div>
         </div>
-         <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
-        >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <span v-for="page in totalPages" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="{ active: page === currentPage }"
+              class="page-button"
+            >
+              {{ page }}
+            </button>
+          </span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
 
         <!-- Editing Brokers -->
         <b-modal
@@ -471,7 +468,7 @@ export default {
 
       return brokers;
     },
-     paginatedBrokers() {
+    paginatedBrokers() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
       return this.filteredBrokers.slice(startIndex, endIndex);
@@ -482,7 +479,6 @@ export default {
   },
 
   mounted() {
-    
     this.fetchBrokers();
     // Ensure user is logged in and has the correct role and companyId
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
@@ -490,7 +486,6 @@ export default {
     } else {
       this.fetchBrokers();
     }
-    
   },
 
   watch: {
@@ -717,6 +712,8 @@ export default {
           );
           console.log("Broker added:", response.data);
           alert("Broker added successfully!");
+
+          this.fetchBrokers();
           this.resetForm(); // Reset form after successful submission
         } catch (error) {
           console.error("Error adding broker:", error.response || error);
@@ -894,7 +891,6 @@ body {
 .dropdown-container {
   position: relative;
 }
-
 
 .dropdown {
   appearance: none;
@@ -1080,5 +1076,4 @@ body {
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef; /* Light gray */
 }
-
 </style>
