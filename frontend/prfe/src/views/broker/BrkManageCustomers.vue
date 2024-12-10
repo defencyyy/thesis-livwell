@@ -961,33 +961,32 @@ body {
 }
 
 .customer-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: 10px;
 }
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 35% 30% 10%; /* Match column widths */
-  padding: 10px 18px;
+  grid-template-columns: 25% 35% 30% 10%;
+  padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
-  font-weight: bold;
-  text-align: left; /* Left-align for consistency with table */
 }
 
-.outside-headers .header-item {
-  display: flex;
-  justify-content: flex-start; /* Align text horizontally to the left */
-  align-items: center; /* Center vertically */
-  padding: 5px 0; /* Consistent with table cell padding */
-  line-height: 1.2;
-  word-wrap: break-word;
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .customer-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
   text-align: left; /* Consistent with headers */
 }
 
