@@ -12,11 +12,12 @@
           </div>
         </div>
 
-
         <div v-if="loading" class="loading-message">Loading data...</div>
 
         <div v-if="error" class="error-message">{{ error }}</div>
+
         <div class = "dashboard-boxes" v-else>
+
           <div class = "box">
             <div class = "box-header">
               <div class = "icon-container">
@@ -26,6 +27,7 @@
             </div>
             <h2>{{ totalSales }}</h2>
           </div>
+
           <div class = "box">
             <div class = "box-header">
               <div class = "icon-container">
@@ -35,6 +37,7 @@
             </div>
             <h2>{{ totalCommissions }}</h2>
           </div>
+
           <div class = "box">
             <div class = "box-header">
               <div class = "icon-container">
@@ -44,6 +47,7 @@
             </div>
             <h2>{{ totalMilestones }}</h2>
           </div>
+
         </div>
 
         <br><br>
@@ -53,28 +57,30 @@
             <div class="edit-title"><strong>Site Sales Information</strong></div>
           </div>
         </div>
+
         <div v-if="siteSales.length === 0">
             No progress yet.
         </div>
+
         <div v-else class = "site-grid">
           <div
-                v-for="site in siteSales"
-                :key="site.id"
-                class="site-card"
-                @click="openModal(site)"
-              >
-              <img
-                  :src="site.picture ||  require('@/assets/home.png')"
-                  alt="Site Image"
-                  class = "site-image"
-                />
-              <h2 class="site-name">
-                {{ site.name }}
-              </h2>
-              <p class="site-totalsales">
-                <strong>Total Sales</strong><br>{{ site.total_sales }}
-              </p>
-            </div>
+            v-for="site in siteSales"
+            :key="site.id"
+            class="site-card"
+            @click="openModal(site)"
+          >
+            <img
+                :src="site.picture ||  require('@/assets/home.png')"
+                alt="Site Image"
+                class = "site-image"
+              />
+            <h2 class="site-name">
+              {{ site.name }}
+            </h2>
+            <p class="site-totalsales">
+              <strong>Total Sales</strong><br>{{ site.total_sales }}
+            </p>
+          </div>
         </div>
 
         <div class="milestones-section">
@@ -97,6 +103,7 @@
           <div v-if="achievedMilestones.length === 0">
             No milestones achieved yet.
           </div>
+
           <div
             v-else
             v-for="milestone in achievedMilestones"
@@ -134,14 +141,17 @@
               <div class="edit-title "><strong>Next Milestones</strong></div>
             </div>
           </div>
+         
           <div class="outside-headers">
             <span class="header-item">Name</span>
             <span class="header-item">Reward</span>
             <span class="header-item">Description</span>
           </div>
+          
           <div v-if="nextMilestones.length === 0">
             No pending milestones.
           </div>
+          
           <div
             v-else
             v-for="milestone in nextMilestones"
@@ -347,18 +357,13 @@ html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 
 .main-content {
@@ -382,7 +387,6 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
-  /* Center the wrapper */
 }
 
 .title-left {
@@ -405,16 +409,11 @@ body {
 
 .dashboard-boxes {
   display: grid;
-  /* Use grid for responsive layout */
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  /* Responsive grid */
   gap: 20px;
-  /* Add spacing between boxes */
   max-width: 1100px;
   width: 100%;
-  /* Set a max width */
   margin: 0 auto;
-  /* Center the container horizontally */
 }
 
 .box-header {
@@ -422,7 +421,6 @@ body {
   align-items: center;
   gap: 10px;
   margin: 0;
-  /* Space between icon and title */
 }
 
 .box h2 {
@@ -435,7 +433,6 @@ body {
 
 .box {
   position: relative;
-  /* Make the box a positioning context */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -456,7 +453,6 @@ body {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  /* Make the icon circular */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -473,19 +469,19 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 25% 50%; /* Match column widths */
+  grid-template-columns: 25% 25% 50%; 
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
   font-weight: bold;
-  text-align: left; /* Left-align for consistency with table */
+  text-align: left; 
 }
 
 .outside-headers .header-item {
   display: flex;
-  justify-content: flex-start; /* Align text horizontally to the left */
-  align-items: center; /* Center vertically */
-  padding: 5px 0; /* Consistent with table cell padding */
+  justify-content: flex-start; 
+  align-items: center; 
+  padding: 5px 0; 
   line-height: 1.2;
   word-wrap: break-word;
   font-size: 14px;
@@ -494,12 +490,12 @@ body {
 .next-milestone-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left; /* Consistent with headers */
+  text-align: left; 
   font-size: 14px;
 }
 
 .next-milestone-table td {
-  padding: 10px 0; /* Matches outside-headers padding */
+  padding: 10px 0; 
 }
 
 .next-milestone-table td:nth-child(1),
@@ -522,9 +518,7 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   max-width: 1100px;
-  /* Matches the max-width of the card */
   margin: 0 auto;
-  /* Centers the grid within the parent */
 }
 
 .site-card {
@@ -532,7 +526,6 @@ body {
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
 }
 
 .site-card:hover {
@@ -543,7 +536,6 @@ body {
   width: 100%;
   height: 150px;
   object-fit: cover;
-  /* Ensures the image is cropped to fit the area */
   border-radius: 12px;
   margin-bottom: 10px;
 }
@@ -558,16 +550,8 @@ body {
   color: #777;
 }
 
-/* juju end */
-
 .site-sales {
   margin-top: 20px;
-}
-
-.site-container {
-  display: flex;
-  justify-content: space-evenly;
-  flex-wrap: nowrap;
 }
 
 .site {
@@ -579,43 +563,6 @@ body {
 .site img {
   max-width: 100px;
   height: auto;
-}
-
-.no-progress {
-  margin-top: 20px;
-  font-weight: bold;
-}
-
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-  text-align: center;
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.2em;
-  cursor: pointer;
 }
 
 .loading-message {
