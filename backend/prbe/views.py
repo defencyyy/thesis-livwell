@@ -691,8 +691,6 @@ def update_customer(request, customer_id):
         # Return a 405 Method Not Allowed if it's not a PUT request
         return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
-
-
 def fetch_sites(request):
     # Filter sites that have available units
     sites = Site.objects.filter(unit__status='Available').distinct()

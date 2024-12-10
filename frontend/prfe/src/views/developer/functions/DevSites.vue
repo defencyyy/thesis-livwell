@@ -1387,23 +1387,7 @@ export default {
         }
       }
     },
-    handlePictureUpload(event, mode) {
-      const file = event.target.files[0];
-      if (file) {
-        // Set the image preview to the file's URL for preview
-        this.imagePreview = URL.createObjectURL(file);
 
-        // Only update the current image if you want to save it
-        if (mode === "edit") {
-          // Don't overwrite the current picture unless you're saving the change
-          this.newPictureFile = file; // Update for edit mode only when confirmed
-        } else if (mode === "add") {
-          this.newSite.picture = file; // Set for add mode
-        }
-      } else {
-        this.imagePreview = null; // Clear preview if no file is selected
-      }
-    },
     // Function to get the picture URL (for the current image)
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
@@ -1472,6 +1456,57 @@ export default {
       this.totalFloors = totalFloors;
     },
 
+    async uploadPicture(siteId, pictureFile) {
+      const formData = new FormData();
+      formData.append("picture", pictureFile);
+
+      // Debug: Log the formData content and pictureFile to make sure it's valid
+      console.log("Uploading picture for siteId:", siteId);
+      console.log("Form data content:", formData);
+      console.log("Picture file:", pictureFile);
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${siteId}/picture/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          console.log("Picture updated successfully:", response.data);
+          return response.data;
+        } else {
+          // Debug: Log unexpected status codes
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        // Debug: Log the error response and status
+        console.error("Error updating picture:", error.response || error);
+      }
+    },
+    handlePictureUpload(event, mode) {
+      const file = event.target.files[0];
+      if (file) {
+        // Set the image preview to the file's URL for preview
+        this.imagePreview = URL.createObjectURL(file);
+
+        // Only update the current image if you want to save it
+        if (mode === "edit") {
+          // Don't overwrite the current picture unless you're saving the change
+          this.newPictureFile = file; // Update for edit mode only when confirmed
+        } else if (mode === "add") {
+          this.newSite.picture = file; // Set for add mode
+        }
+      } else {
+        this.imagePreview = null; // Clear preview if no file is selected
+      }
+    },
+
     // Save new site, including floors
     async addSite() {
       const formData = new FormData();
@@ -1510,11 +1545,13 @@ export default {
         });
       }
 
+      // Add Picture
       if (this.newSite.picture) {
         formData.append("picture", this.newSite.picture);
       }
 
       try {
+        // Create the site (without the picture)
         const response = await axios.post(
           "http://localhost:8000/developer/sites/",
           formData,
@@ -1527,40 +1564,22 @@ export default {
         );
 
         if (response.status === 201) {
-          this.newSite = this.resetNewSite(); // Reset the new site form
+          // If site is successfully created, upload the picture separately
+          const siteId = response.data.id;
+          if (this.newSite.picture) {
+            await this.uploadPicture(siteId, this.newSite.picture); // Update the picture
+          }
+
+          // Reset form and reload sites
+          this.newSite = this.resetNewSite();
           this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
         }
       } catch (error) {
         console.error("Error adding site:", error.response || error);
-        this.$toast.error("Failed to add site. Please try again.");
       }
     },
-
-    // Helper function to reset the new site form
-    resetNewSite() {
-      return {
-        name: "",
-        status: "",
-        region: "",
-        province: "",
-        municipality: "",
-        barangay: "",
-        description: "",
-        picture: null,
-        number_of_floors: 0,
-        maximum_months: 0,
-        floors: [], // Ensure floors are cleared
-        commission: null,
-        spot_discount_percentage: null,
-        spot_discount_flat: null,
-        vat_percentage: null,
-        reservation_fee: null,
-        other_charges: null,
-      };
-    },
-
     async manageSite() {
       const payload = {
         companyId: this.vuexCompanyId,
@@ -1596,13 +1615,20 @@ export default {
         );
 
         if (response.status === 200) {
-          console.log("Site updated successfully:", response.data);
+          // If site updated successfully, check if picture changed
+          const siteId = response.data.id;
+          if (this.editSite.picture) {
+            await this.uploadPicture(siteId, this.editSite.picture); // Update the picture if changed
+          }
+
+          // Update the site in the local list
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
           );
           if (index !== -1) {
             this.sites[index] = response.data;
           }
+
           this.showEditModal = false;
           this.fetchSites();
         }
@@ -1643,6 +1669,12 @@ export default {
         );
 
         if (response.status === 200) {
+          // If site is updated successfully, update the picture if changed
+          const siteId = response.data.id;
+          if (this.currentSite.picture) {
+            await this.uploadPicture(siteId, this.currentSite.picture); // Update the picture
+          }
+
           this.showFloorModal = false;
           this.fetchSites();
           console.log("Site updated successfully!");
@@ -1653,6 +1685,29 @@ export default {
         alert("Failed to save site. Please try again.");
       }
     },
+    // Helper function to reset the new site form
+    resetNewSite() {
+      return {
+        name: "",
+        status: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        description: "",
+        picture: null,
+        number_of_floors: 0,
+        maximum_months: 0,
+        floors: [], // Ensure floors are cleared
+        commission: null,
+        spot_discount_percentage: null,
+        spot_discount_flat: null,
+        vat_percentage: null,
+        reservation_fee: null,
+        other_charges: null,
+      };
+    },
+
     // Open the edit modal and prepare the data
     openEditModal(selectedSite) {
       // Set the selected site to be edited
