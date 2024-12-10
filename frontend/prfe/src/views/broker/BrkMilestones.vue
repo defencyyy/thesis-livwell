@@ -88,7 +88,7 @@
             </div>
           </div>
 
-          <div class="outside-headers text-center">
+          <div class="outside-headers">
             <span class="header-item">Name</span>
             <span class="header-item">Reward</span>
             <span class="header-item">Description</span>
@@ -127,23 +127,21 @@
           </div>
       
           <!-- Next Milestones Table -->
-           <br><br>
+          <br><br>
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title"><strong>Next Milestones</strong></div>
+              <div class="edit-title "><strong>Next Milestones</strong></div>
             </div>
           </div>
-          <div class="outside-headers text-center">
-            <p class="header-item">Name</p>
-            <p class="header-item">Reward</p>
-            <p class="header-item">Description</p>
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Reward</span>
+            <span class="header-item">Description</span>
           </div>
-
           <div v-if="nextMilestones.length === 0">
             No pending milestones.
           </div>
-
           <div
             v-else
             v-for="milestone in nextMilestones"
@@ -490,13 +488,14 @@ body {
   padding: 5px 0; /* Consistent with table cell padding */
   line-height: 1.2;
   word-wrap: break-word;
+  font-size: 14px;
 }
-
 
 .next-milestone-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left; /* Consistent with headers */
+  font-size: 14px;
 }
 
 .next-milestone-table td {
@@ -630,7 +629,6 @@ body {
   color: red;
   font-size: 1.2em;
 }
-
 
 @media (max-width: 1440px) {
   .outside-headers .header-item {
