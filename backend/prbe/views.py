@@ -1131,18 +1131,14 @@ def upload_document(request):
 # Fetch documents for a given customer and sale
 @csrf_exempt
 def fetch_customer_documents(request, customer_id, sales_id):
-    print("Fetch customer documents called.")  # Log when the function is called
     try:
         # Get the customer by ID
-        print(f"Fetching customer with ID: {customer_id}")
         customer = Customer.objects.get(id=customer_id)
 
         # Fetch documents for the customer and specific sale
-        print(f"Fetching documents for customer {customer_id} and sales {sales_id}")
         documents = Document.objects.filter(customer=customer, sales_id=sales_id)
 
         # Log the fetched documents
-        print(f"Fetched documents: {documents}")
 
         # Prepare a list to return
         document_data = []
@@ -1155,7 +1151,6 @@ def fetch_customer_documents(request, customer_id, sales_id):
                 'uploaded_at': doc.uploaded_at.isoformat(),
             }
             document_data.append(doc_info)
-            print(f"Document data: {doc_info}")  # Print each document's details
 
         # Return JSON response
         return JsonResponse({
@@ -1164,7 +1159,6 @@ def fetch_customer_documents(request, customer_id, sales_id):
         })
 
     except Customer.DoesNotExist:
-        print(f"Customer with ID {customer_id} not found.")
         return JsonResponse({
             'success': False,
             'message': 'Customer not found.'
