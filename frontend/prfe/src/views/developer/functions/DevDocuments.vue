@@ -10,59 +10,54 @@
           <div class="edit-title">Document Types</div>
         </div>
 
-        <div style="width: 100%; max-width: 900px;" >
+        <div style="width: 100%; max-width: 900px">
           <!-- Headers outside the card -->
           <div class="outside-headers">
             <span class="header-item">Document Name</span>
             <span class="header-item">Description</span>
             <span class="header-item">Actions</span>
           </div>
-          
+
           <div
             v-for="docType in documentTypes"
             :key="docType.id"
             class="card border-0 rounded-1 mx-auto my-2"
-            style="
-             
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
+            style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
           >
             <div class="card-body">
               <table class="document-table">
                 <tbody>
                   <tr>
-                    <td>
-                      <span class="document-name">
-                        <td>{{ docType.name }}</td>
-                      </span>
+                    <td class="document-name">
+                      {{ docType.name }}
+                    </td>
+                    <td class="document-description">
+                      {{ docType.description || "N/A" }}
                     </td>
                     <td>
-                      <span class="document-description"><td>{{ docType.description || "N/A" }}</td></span>
-                    </td>
-                    <td>
-                    <button
-                      @click="editDocumentType(docType)"
-                      class="btn btn-warning btn-sm"
-                    >
-                      Edit
-                    </button>
-                    <!-- <button
+                      <button
+                        @click="editDocumentType(docType)"
+                        class="btn btn-warning btn-sm"
+                      >
+                        Edit
+                      </button>
+                      <!-- <button
                       @click="deleteDocumentType(docType.id)"
                       class="btn btn-danger btn-sm"
                     >
                       Delete
                     </button> -->
-                  </td>
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
           <div class="d-flex justify-content-end mt-3">
-              <button @click="showAddForm = true" class="btn-add">
-                Add Document
-              </button>
-            </div>
+            <button @click="showAddForm = true" class="btn-add">
+              Add Document
+            </button>
+          </div>
         </div>
 
         <!-- Add/Edit Document Type Modal -->
@@ -458,5 +453,4 @@ body {
   /* Adjust the border radius */
   padding: 10px;
 }
-
 </style>

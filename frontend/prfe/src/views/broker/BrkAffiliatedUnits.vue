@@ -7,7 +7,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Available Sites</div>
+            <div class="edit-title"><strong>Available Sites</strong></div>
           </div>
 
           <div class="view-switch">
@@ -206,7 +206,7 @@ export default {
       searchQuery: "", // New property for search input
       filteredSites: [],
       currentPage: 1, // Current page number
-      itemsPerPage: 5, // Number of customers per page
+      itemsPerPage: 15, // Number of customers per page
 
     };
   },
@@ -307,16 +307,13 @@ export default {
 </script>
 
 <style scoped>
-html{
+html,
+body {
   height: 100%;
   margin: 0;
   /* Removes default margin */
   padding: 0;
   /* Removes default padding */
-}
-
-body {
-  font-size: 16px; /* Base size */
 }
 
 .SideNav {
@@ -426,8 +423,12 @@ body {
 /* Ensure the container takes the full width available */
 .site-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust for responsive behavior */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
+  max-width: 1100px;
+  /* Matches the max-width of the card */
+  margin: 0 auto;
+  /* Centers the grid within the parent */
 }
 
 
@@ -457,7 +458,7 @@ body {
 
 /* Site name styling */
 .site-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-bottom: 5px; /* Space below the site name */
 }
@@ -492,6 +493,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  font-size: 14px;
   background: #fff;
 }
 
@@ -534,7 +536,7 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }

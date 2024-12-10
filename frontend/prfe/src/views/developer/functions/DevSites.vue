@@ -11,20 +11,30 @@
           </div>
 
           <div class="view-switch">
-            <div class="view-icon" :class="{ active: viewMode === 'grid' }" @click="viewMode = 'grid'">
+            <div
+              class="view-icon"
+              :class="{ active: viewMode === 'grid' }"
+              @click="viewMode = 'grid'"
+            >
               <i class="fa fa-th"></i>
               <!-- Grid Icon -->
             </div>
             <div class="separator"></div>
-            <div class="view-icon" :class="{ active: viewMode === 'table' }" @click="viewMode = 'table'">
+            <div
+              class="view-icon"
+              :class="{ active: viewMode === 'table' }"
+              @click="viewMode = 'table'"
+            >
               <i class="fa fa-list"></i>
               <!-- Table Icon -->
             </div>
           </div>
         </div>
 
-        <div class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
           <div class="card-body">
             <div class="row">
               <!-- Toolbar -->
@@ -32,7 +42,12 @@
                 <div class="left-section">
                   <!-- Search Bar -->
                   <div class="search-bar-container">
-                    <input type="text" v-model="searchQuery" placeholder="Search Site" class="search-bar" />
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search Site"
+                      class="search-bar"
+                    />
                     <i class="fa fa-search search-icon"></i>
                   </div>
 
@@ -42,7 +57,11 @@
                     <option value="status">Sort: Status</option>
                   </select>
 
-                  <select v-model="viewFilter" @change="toggleArchived" class="dropdown2">
+                  <select
+                    v-model="viewFilter"
+                    @change="toggleArchived"
+                    class="dropdown2"
+                  >
                     <option value="active">View: Active</option>
                     <option value="archived">View: Archived</option>
                   </select>
@@ -59,7 +78,10 @@
                   </button> -->
 
                   <!-- Add Site Button -->
-                  <button @click="showAddModal = true" class="btn-primary add-button">
+                  <button
+                    @click="showAddModal = true"
+                    class="btn-primary add-button"
+                  >
                     Add Site
                   </button>
                 </div>
@@ -70,11 +92,18 @@
 
         <!-- Grid View -->
         <div v-if="viewMode === 'grid'" class="site-grid">
-          <div v-for="(site, index) in filteredSites" :key="site.id || index" class="site-card"
-            @click="openEditModal(site)">
+          <div
+            v-for="(site, index) in filteredSites"
+            :key="site.id || index"
+            class="site-card"
+            @click="openEditModal(site)"
+          >
             <!-- Site Image -->
-            <img :src="getPictureUrl(site.picture) || require('@/assets/home.png')" alt="Site Image"
-              class="site-image" />
+            <img
+              :src="getPictureUrl(site.picture) || require('@/assets/home.png')"
+              alt="Site Image"
+              class="site-image"
+            />
 
             <!-- Site Name -->
             <h2 class="site-name">
@@ -99,20 +128,29 @@
           </div>
 
           <!-- Table inside the card -->
-          <div v-for="(site, index) in paginatedSites" :key="site.id || index" class="card border-0 rounded-1 mx-auto"
+          <div
+            v-for="(site, index) in paginatedSites"
+            :key="site.id || index"
+            class="card border-0 rounded-1 mx-auto"
             style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            ">
+            "
+          >
             <div class="card-body">
               <table class="site-table">
                 <tbody>
                   <tr>
                     <td>
                       <div class="site-info">
-                        <img :src="getPictureUrl(site.picture) ||
-                          require('@/assets/home.png')
-                          " alt="Site Image" class="table-image" />
+                        <img
+                          :src="
+                            getPictureUrl(site.picture) ||
+                            require('@/assets/home.png')
+                          "
+                          alt="Site Image"
+                          class="table-image"
+                        />
                         <span class="site-name">
                           {{ site.name || "Unknown" }}
                         </span>
@@ -138,22 +176,56 @@
                     <!-- Manage Floors Button -->
                     <td>
                       <!-- Three Dots Icon for each row -->
-                      <button class="btn btn-link" type="button" @click.stop="toggleDropdown(site)"
-                        style="border: none; background-color: transparent; color: #343a40; cursor: pointer; font-size: 18px;">
-                        <i class="fas fa-ellipsis-h"></i> <!-- Horizontal Three Dots Icon -->
+                      <button
+                        class="btn btn-link"
+                        type="button"
+                        @click.stop="toggleDropdown(site)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
+                        <i class="fas fa-ellipsis-h"></i>
+                        <!-- Horizontal Three Dots Icon -->
                       </button>
 
                       <!-- Dropdown Menu -->
-                      <div v-if="isDropdownVisible(site)" class="dropdown-menu show"
-                        style="position: absolute; right: 0;">
-                        <a class="dropdown-item" href="#" @click.stop="openEditModal(site)">Edit</a>
-                        <a class="dropdown-item" href="#" @click.stop="openFloorModal(site)">Manage Floors</a>
-                        <a class="dropdown-item" v-if="!site.archived" href="#"
-                          @click.stop="archiveSite(site)">Archive</a>
-                        <a class="dropdown-item" v-else href="#" @click.stop="unarchiveSite(site)">Unarchive</a>
+                      <div
+                        v-if="isDropdownVisible(site)"
+                        class="dropdown-menu show"
+                        style="position: absolute; right: 0"
+                      >
+                        <a
+                          class="dropdown-item"
+                          href="#"
+                          @click.stop="openEditModal(site)"
+                          >Edit</a
+                        >
+                        <a
+                          class="dropdown-item"
+                          href="#"
+                          @click.stop="openFloorModal(site)"
+                          >Manage Floors</a
+                        >
+                        <a
+                          class="dropdown-item"
+                          v-if="!site.archived"
+                          href="#"
+                          @click.stop="archiveSite(site)"
+                          >Archive</a
+                        >
+                        <a
+                          class="dropdown-item"
+                          v-else
+                          href="#"
+                          @click.stop="unarchiveSite(site)"
+                          >Unarchive</a
+                        >
                       </div>
                     </td>
-
                   </tr>
                 </tbody>
               </table>
@@ -163,20 +235,38 @@
 
         <!-- Pagination Controls -->
         <div class="pagination-controls">
-          <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="page-button">
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-button"
+          >
             Previous
           </button>
           <span v-for="page in totalPages" :key="page">
-            <button @click="goToPage(page)" :class="{ active: page === currentPage }" class="page-button">
+            <button
+              @click="goToPage(page)"
+              :class="{ active: page === currentPage }"
+              class="page-button"
+            >
               {{ page }}
             </button>
           </span>
-          <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="page-button">
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-button"
+          >
             Next
           </button>
         </div>
 
-        <b-modal v-model="showAddModal" hide-header hide-footer centered size="lg">
+        <b-modal
+          v-model="showAddModal"
+          hide-header
+          hide-footer
+          centered
+          size="lg"
+        >
           <div class="modal-title p-3">
             <h5 class="mb-0">New Site</h5>
           </div>
@@ -188,7 +278,13 @@
                   <!-- Site Name -->
                   <div class="form-group mb-3">
                     <label for="siteName" class="form-label">Site Name</label>
-                    <input type="text" v-model="newSite.name" id="siteName" class="form-control" required />
+                    <input
+                      type="text"
+                      v-model="newSite.name"
+                      id="siteName"
+                      class="form-control"
+                      required
+                    />
                   </div>
 
                   <!-- Location -->
@@ -196,9 +292,17 @@
                     <!-- Region Dropdown -->
                     <div class="col-md-6">
                       <label for="region" class="form-label">Region</label>
-                      <select v-model="selectedRegion" id="region" class="form-select"
-                        @change="loadProvinceData(selectedRegion)">
-                        <option v-for="region in regionOptions" :key="region" :value="region">
+                      <select
+                        v-model="selectedRegion"
+                        id="region"
+                        class="form-select"
+                        @change="loadProvinceData(selectedRegion)"
+                      >
+                        <option
+                          v-for="region in regionOptions"
+                          :key="region"
+                          :value="region"
+                        >
                           {{ region }}
                         </option>
                       </select>
@@ -207,9 +311,17 @@
                     <!-- Province Dropdown -->
                     <div class="col-md-6">
                       <label for="province" class="form-label">Province</label>
-                      <select v-model="selectedProvince" id="province" class="form-select"
-                        @change="loadMunicipalityData(selectedProvince)">
-                        <option v-for="province in provinceOptions" :key="province" :value="province">
+                      <select
+                        v-model="selectedProvince"
+                        id="province"
+                        class="form-select"
+                        @change="loadMunicipalityData(selectedProvince)"
+                      >
+                        <option
+                          v-for="province in provinceOptions"
+                          :key="province"
+                          :value="province"
+                        >
                           {{ province }}
                         </option>
                       </select>
@@ -218,10 +330,20 @@
 
                   <!-- Municipality Dropdown -->
                   <div class="form-group mb-3">
-                    <label for="municipality" class="form-label">Municipality</label>
-                    <select v-model="selectedMunicipality" id="municipality" class="form-select"
-                      @change="loadBarangayData(selectedMunicipality)">
-                      <option v-for="municipality in municipalityOptions" :key="municipality" :value="municipality">
+                    <label for="municipality" class="form-label"
+                      >Municipality</label
+                    >
+                    <select
+                      v-model="selectedMunicipality"
+                      id="municipality"
+                      class="form-select"
+                      @change="loadBarangayData(selectedMunicipality)"
+                    >
+                      <option
+                        v-for="municipality in municipalityOptions"
+                        :key="municipality"
+                        :value="municipality"
+                      >
                         {{ municipality }}
                       </option>
                     </select>
@@ -229,8 +351,17 @@
 
                   <div class="form-group mb-3">
                     <label for="barangay" class="form-label">Barangay</label>
-                    <select v-model="newSite.barangay" id="barangay" class="form-select" required>
-                      <option v-for="barangay in barangayOptions" :key="barangay" :value="barangay">
+                    <select
+                      v-model="newSite.barangay"
+                      id="barangay"
+                      class="form-select"
+                      required
+                    >
+                      <option
+                        v-for="barangay in barangayOptions"
+                        :key="barangay"
+                        :value="barangay"
+                      >
                         {{ barangay }}
                       </option>
                     </select>
@@ -238,14 +369,30 @@
 
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="postalCode" class="form-label">Postal Code</label>
-                      <input type="text" v-model="newSite.postalCode" id="postalCode" class="form-control" />
+                      <label for="postalCode" class="form-label"
+                        >Postal Code</label
+                      >
+                      <input
+                        type="text"
+                        v-model="newSite.postalCode"
+                        id="postalCode"
+                        class="form-control"
+                      />
                     </div>
 
                     <div class="col-md-6">
                       <label for="siteStatus" class="form-label">Status</label>
-                      <select v-model="newSite.status" id="siteStatus" class="form-select" required>
-                        <option v-for="status in statusOptions" :key="status" :value="status">
+                      <select
+                        v-model="newSite.status"
+                        id="siteStatus"
+                        class="form-select"
+                        required
+                      >
+                        <option
+                          v-for="status in statusOptions"
+                          :key="status"
+                          :value="status"
+                        >
                           {{ status }}
                         </option>
                       </select>
@@ -257,83 +404,169 @@
                 <div class="col-md-6">
                   <!-- Image Upload Section -->
                   <div class="form-group mb-3">
-                    <label for="sitePicture" class="form-label">Upload Photo</label>
-                    <input type="file" @change="handlePictureUpload" id="sitePicture" class="form-control"
-                      accept="image/*" />
+                    <label for="sitePicture" class="form-label"
+                      >Upload Photo</label
+                    >
+                    <input
+                      type="file"
+                      @change="handlePictureUpload"
+                      id="sitePicture"
+                      class="form-control"
+                      accept="image/*"
+                    />
                   </div>
 
                   <!-- Image Preview Section -->
                   <div v-if="imagePreview" class="text-center">
                     <h6>Image Preview</h6>
-                    <img :src="imagePreview" alt="Image Preview" class="img-fluid"
-                      style="max-height: 200px; object-fit: cover" />
+                    <img
+                      :src="imagePreview"
+                      alt="Image Preview"
+                      class="img-fluid"
+                      style="max-height: 200px; object-fit: cover"
+                    />
                   </div>
                 </div>
 
                 <!-- New Fields for Commission, Discounts, and Charges -->
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="commission" class="form-label">Commission (Total)</label>
-                    <input type="number" v-model="newSite.commission" id="commission" class="form-control"
-                      placeholder="Enter commission percentage" min="0" required />
+                    <label for="commission" class="form-label"
+                      >Commission (Total)</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.commission"
+                      id="commission"
+                      class="form-control"
+                      placeholder="Enter commission percentage"
+                      min="0"
+                      required
+                    />
                   </div>
 
                   <div class="col-md-6">
-                    <label for="spotDiscountPercentage" class="form-label">Spot Discount Percentage</label>
-                    <input type="number" v-model="newSite.spot_discount_percentage" id="spotDiscountPercentage"
-                      class="form-control" placeholder="Enter spot discount percentage" min="0" />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="spotDiscountFlat" class="form-label">Spot Discount Flat</label>
-                    <input type="number" v-model="newSite.spot_discount_flat" id="spotDiscountFlat" class="form-control"
-                      placeholder="Enter flat discount amount" min="0" />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="vatPercentage" class="form-label">VAT Percentage</label>
-                    <input type="number" v-model="newSite.vat_percentage" id="vatPercentage" class="form-control"
-                      placeholder="Enter VAT percentage" min="0" required />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="reservationFee" class="form-label">Reservation Fee</label>
-                    <input type="number" v-model="newSite.reservation_fee" id="reservationFee" class="form-control"
-                      placeholder="Enter reservation fee" min="0" />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="otherCharges" class="form-label">Other Charges</label>
-                    <input type="number" v-model="newSite.other_charges" id="otherCharges" class="form-control"
-                      placeholder="Enter other charges" min="0" />
+                    <label for="spotDiscountPercentage" class="form-label"
+                      >Spot Discount Percentage</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.spot_discount_percentage"
+                      id="spotDiscountPercentage"
+                      class="form-control"
+                      placeholder="Enter spot discount percentage"
+                      min="0"
+                    />
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="numberOfFloors" class="form-label">Number of Floors</label>
-                    <input type="number" v-model="newSite.number_of_floors" id="numberOfFloors" class="form-control"
-                      placeholder="Enter the number of floors" min="1" required />
+                    <label for="spotDiscountFlat" class="form-label"
+                      >Spot Discount Flat</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.spot_discount_flat"
+                      id="spotDiscountFlat"
+                      class="form-control"
+                      placeholder="Enter flat discount amount"
+                      min="0"
+                    />
                   </div>
 
                   <div class="col-md-6">
-                    <label for="maximumMonths" class="form-label">Maximum Months to Pay</label>
-                    <input type="number" v-model="newSite.maximum_months" id="maximumMonths" class="form-control"
-                      placeholder="Enter the maximum months to pay" min="1" required />
+                    <label for="vatPercentage" class="form-label"
+                      >VAT Percentage</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.vat_percentage"
+                      id="vatPercentage"
+                      class="form-control"
+                      placeholder="Enter VAT percentage"
+                      min="0"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="reservationFee" class="form-label"
+                      >Reservation Fee</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.reservation_fee"
+                      id="reservationFee"
+                      class="form-control"
+                      placeholder="Enter reservation fee"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="otherCharges" class="form-label"
+                      >Other Charges</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.other_charges"
+                      id="otherCharges"
+                      class="form-control"
+                      placeholder="Enter other charges"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="numberOfFloors" class="form-label"
+                      >Number of Floors</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.number_of_floors"
+                      id="numberOfFloors"
+                      class="form-control"
+                      placeholder="Enter the number of floors"
+                      min="1"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="maximumMonths" class="form-label"
+                      >Maximum Months to Pay</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSite.maximum_months"
+                      id="maximumMonths"
+                      class="form-control"
+                      placeholder="Enter the maximum months to pay"
+                      min="1"
+                      required
+                    />
                   </div>
                 </div>
               </div>
 
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
+              <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
+              >
                 <button type="submit" class="btn-add" style="width: 150px">
                   Add New Site
                 </button>
-                <button type="button" @click="showAddModal = false" class="btn-cancel">
+                <button
+                  type="button"
+                  @click="showAddModal = false"
+                  class="btn-cancel"
+                >
                   Cancel
                 </button>
               </div>
@@ -342,7 +575,14 @@
         </b-modal>
 
         <!-- Detail Modal -->
-        <b-modal v-model="showEditModal" title="Site Details / Edit" hide-header hide-footer centered size="lg">
+        <b-modal
+          v-model="showEditModal"
+          title="Site Details / Edit"
+          hide-header
+          hide-footer
+          centered
+          size="lg"
+        >
           <div class="modal-title p-3">
             <h5 class="mb-0">Site Details / Edit</h5>
           </div>
@@ -353,8 +593,16 @@
                 <div class="col-md-6">
                   <!-- Site Name (Read-Only) -->
                   <div class="form-group mb-3">
-                    <label for="editSiteName" class="form-label">Site Name</label>
-                    <input type="text" v-model="editSite.name" id="editSiteName" class="form-control" readonly />
+                    <label for="editSiteName" class="form-label"
+                      >Site Name</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editSite.name"
+                      id="editSiteName"
+                      class="form-control"
+                      readonly
+                    />
                   </div>
 
                   <!-- Location (Read-Only) -->
@@ -362,42 +610,89 @@
                     <!-- Region -->
                     <div class="col-md-6">
                       <label for="editRegion" class="form-label">Region</label>
-                      <input type="text" v-model="editSite.region" id="editRegion" class="form-control" readonly />
+                      <input
+                        type="text"
+                        v-model="editSite.region"
+                        id="editRegion"
+                        class="form-control"
+                        readonly
+                      />
                     </div>
 
                     <!-- Province -->
                     <div class="col-md-6">
-                      <label for="editProvince" class="form-label">Province</label>
-                      <input type="text" v-model="editSite.province" id="editProvince" class="form-control" readonly />
+                      <label for="editProvince" class="form-label"
+                        >Province</label
+                      >
+                      <input
+                        type="text"
+                        v-model="editSite.province"
+                        id="editProvince"
+                        class="form-control"
+                        readonly
+                      />
                     </div>
                   </div>
 
                   <!-- Municipality -->
                   <div class="form-group mb-3">
-                    <label for="editMunicipality" class="form-label">Municipality</label>
-                    <input type="text" v-model="editSite.municipality" id="editMunicipality" class="form-control"
-                      readonly />
+                    <label for="editMunicipality" class="form-label"
+                      >Municipality</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editSite.municipality"
+                      id="editMunicipality"
+                      class="form-control"
+                      readonly
+                    />
                   </div>
 
                   <!-- Barangay -->
                   <div class="form-group mb-3">
-                    <label for="editBarangay" class="form-label">Barangay</label>
-                    <input type="text" v-model="editSite.barangay" id="editBarangay" class="form-control" readonly />
+                    <label for="editBarangay" class="form-label"
+                      >Barangay</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editSite.barangay"
+                      id="editBarangay"
+                      class="form-control"
+                      readonly
+                    />
                   </div>
 
                   <!-- Postal Code -->
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="editPostalCode" class="form-label">Postal Code</label>
-                      <input type="text" v-model="editSite.postalCode" id="editPostalCode" class="form-control"
-                        readonly />
+                      <label for="editPostalCode" class="form-label"
+                        >Postal Code</label
+                      >
+                      <input
+                        type="text"
+                        v-model="editSite.postalCode"
+                        id="editPostalCode"
+                        class="form-control"
+                        readonly
+                      />
                     </div>
 
                     <!-- Status (Editable) -->
                     <div class="col-md-6">
-                      <label for="editSiteStatus" class="form-label">Status</label>
-                      <select v-model="editSite.status" id="editSiteStatus" class="form-select" required>
-                        <option v-for="status in statusOptions" :key="status" :value="status">
+                      <label for="editSiteStatus" class="form-label"
+                        >Status</label
+                      >
+                      <select
+                        v-model="editSite.status"
+                        id="editSiteStatus"
+                        class="form-select"
+                        required
+                      >
+                        <option
+                          v-for="status in statusOptions"
+                          :key="status"
+                          :value="status"
+                        >
                           {{ status }}
                         </option>
                       </select>
@@ -406,16 +701,30 @@
 
                   <!-- Maximum Months Field -->
                   <div class="form-group mb-3">
-                    <label for="editMaximumMonths" class="form-label">Maximum Months to Pay</label>
-                    <input type="number" v-model="editSite.maximum_months" id="editMaximumMonths" class="form-control"
-                      readonly />
+                    <label for="editMaximumMonths" class="form-label"
+                      >Maximum Months to Pay</label
+                    >
+                    <input
+                      type="number"
+                      v-model="editSite.maximum_months"
+                      id="editMaximumMonths"
+                      class="form-control"
+                      readonly
+                    />
                   </div>
 
                   <!-- Number of Floors (Read-Only) -->
                   <div class="form-group mb-3">
-                    <label for="editNumberOfFloors" class="form-label">Number of Floors</label>
-                    <input type="number" v-model="editSite.floors.length" id="editNumberOfFloors" class="form-control"
-                      readonly />
+                    <label for="editNumberOfFloors" class="form-label"
+                      >Number of Floors</label
+                    >
+                    <input
+                      type="number"
+                      v-model="editSite.floors.length"
+                      id="editNumberOfFloors"
+                      class="form-control"
+                      readonly
+                    />
                   </div>
                 </div>
 
@@ -423,10 +732,16 @@
                 <div class="col-md-6">
                   <!-- Display Current Picture (if any) -->
                   <div class="mb-3">
-                    <label for="current-picture" class="form-label">Current Picture</label>
+                    <label for="current-picture" class="form-label"
+                      >Current Picture</label
+                    >
                     <div v-if="editSite.picture">
-                      <img :src="getPictureUrl(editSite.picture)" alt="Current Site Picture"
-                        class="img-fluid rounded shadow-sm" style="max-width: 150px; max-height: 150px" />
+                      <img
+                        :src="getPictureUrl(editSite.picture)"
+                        alt="Current Site Picture"
+                        class="img-fluid rounded shadow-sm"
+                        style="max-width: 150px; max-height: 150px"
+                      />
                     </div>
                     <div v-else>
                       <p>No current picture available.</p>
@@ -435,17 +750,28 @@
 
                   <!-- Upload New Picture -->
                   <div class="mb-3">
-                    <label for="picture" class="form-label">Upload New Picture</label>
-                    <input type="file" class="form-control" id="picture" accept="image/*"
-                      @change="handlePictureUpload($event, 'edit')" />
+                    <label for="picture" class="form-label"
+                      >Upload New Picture</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="picture"
+                      accept="image/*"
+                      @change="handlePictureUpload($event, 'edit')"
+                    />
                   </div>
 
                   <!-- Preview of Uploaded Picture -->
                   <div class="mb-3">
                     <strong>Preview:</strong>
                     <div v-if="imagePreview">
-                      <img :src="imagePreview" alt="Site Picture Preview" class="img-fluid rounded shadow-sm"
-                        style="max-width: 150px; max-height: 150px" />
+                      <img
+                        :src="imagePreview"
+                        alt="Site Picture Preview"
+                        class="img-fluid rounded shadow-sm"
+                        style="max-width: 150px; max-height: 150px"
+                      />
                     </div>
                     <p v-else>No picture selected</p>
                   </div>
@@ -455,52 +781,107 @@
               <!-- Commission and Charges -->
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="editCommission" class="form-label">Commission (%)</label>
-                  <input type="number" v-model="editSite.commission" id="editCommission" class="form-control" min="0"
-                    required />
+                  <label for="editCommission" class="form-label"
+                    >Commission (%)</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.commission"
+                    id="editCommission"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="editSpotDiscountPercentage" class="form-label">Spot Discount (%)</label>
-                  <input type="number" v-model="editSite.spot_discount_percentage" id="editSpotDiscountPercentage"
-                    class="form-control" min="0" />
+                  <label for="editSpotDiscountPercentage" class="form-label"
+                    >Spot Discount (%)</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.spot_discount_percentage"
+                    id="editSpotDiscountPercentage"
+                    class="form-control"
+                    min="0"
+                  />
                 </div>
               </div>
 
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="editSpotDiscountFlat" class="form-label">Spot Discount (Flat)</label>
-                  <input type="number" v-model="editSite.spot_discount_flat" id="editSpotDiscountFlat"
-                    class="form-control" min="0" />
+                  <label for="editSpotDiscountFlat" class="form-label"
+                    >Spot Discount (Flat)</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.spot_discount_flat"
+                    id="editSpotDiscountFlat"
+                    class="form-control"
+                    min="0"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="editVatPercentage" class="form-label">VAT Percentage</label>
-                  <input type="number" v-model="editSite.vat_percentage" id="editVatPercentage" class="form-control"
-                    min="0" required />
+                  <label for="editVatPercentage" class="form-label"
+                    >VAT Percentage</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.vat_percentage"
+                    id="editVatPercentage"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
                 </div>
               </div>
 
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="editReservationFee" class="form-label">Reservation Fee</label>
-                  <input type="number" v-model="editSite.reservation_fee" id="editReservationFee" class="form-control"
-                    min="0" />
+                  <label for="editReservationFee" class="form-label"
+                    >Reservation Fee</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.reservation_fee"
+                    id="editReservationFee"
+                    class="form-control"
+                    min="0"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="editOtherCharges" class="form-label">Other Charges</label>
-                  <input type="number" v-model="editSite.other_charges" id="editOtherCharges" class="form-control"
-                    min="0" />
+                  <label for="editOtherCharges" class="form-label"
+                    >Other Charges</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.other_charges"
+                    id="editOtherCharges"
+                    class="form-control"
+                    min="0"
+                  />
                 </div>
               </div>
 
               <!-- Buttons -->
-              <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
-                <button type="submit" class="btn btn-success" style="width: 150px">
+              <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-success"
+                  style="width: 150px"
+                >
                   Save Changes
                 </button>
-                <button type="button" @click="cancelEdit" class="btn btn-secondary">
+                <button
+                  type="button"
+                  @click="cancelEdit"
+                  class="btn btn-secondary"
+                >
                   Cancel
                 </button>
               </div>
@@ -509,7 +890,13 @@
         </b-modal>
 
         <!-- Floor Modal -->
-        <b-modal v-model="showFloorModal" title="Manage Floors" hide-footer centered hide-header>
+        <b-modal
+          v-model="showFloorModal"
+          title="Manage Floors"
+          hide-footer
+          centered
+          hide-header
+        >
           <div class="modal-title p-3">
             <h5 class="mb-0">
               Site Name: {{ currentSite.name.toUpperCase() }}
@@ -526,24 +913,36 @@
 
             <!-- Add Floors -->
             <div class="mb-4">
-              <div class="d-flex align-items-center" style="justify-content: space-between;">
-              <input type="number" id="addFloors" placeholder="Enter number of floors (Max: 99)" v-model="newFloorCount"
-                class="form-control" min="1" max="99" style="width: 80%;"/>
+              <div
+                class="d-flex align-items-center"
+                style="justify-content: space-between"
+              >
+                <input
+                  type="number"
+                  id="addFloors"
+                  placeholder="Enter number of floors (Max: 99)"
+                  v-model="newFloorCount"
+                  class="form-control"
+                  min="1"
+                  max="99"
+                  style="width: 80%"
+                />
 
-                <button @click="addFloors" class="btn-add-floors" >
-                Add Floors
-              </button>
+                <button @click="addFloors" class="btn-add-floors">
+                  Add Floors
+                </button>
               </div>
             </div>
 
             <!-- Buttons -->
-            <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
+            <div
+              class="d-flex justify-content-end gap-2 mt-3"
+              style="padding-top: 15px"
+            >
               <button @click="saveSite" class="btn btn-add">
                 Save Changes
               </button>
-              <button @click="closeFloorModal" class="btn-cancel">
-                Close
-              </button>
+              <button @click="closeFloorModal" class="btn-cancel">Close</button>
             </div>
           </div>
         </b-modal>
@@ -878,7 +1277,6 @@ export default {
     },
     constructLocation(site) {
       const addressParts = [
-        site.region,
         site.province,
         site.municipality,
         site.barangay,
@@ -1010,6 +1408,7 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+
     // Open the floor modal
     openFloorModal(site) {
       this.currentSite = site;
@@ -1025,6 +1424,7 @@ export default {
       this.totalFloors = this.originalFloorCount;
       this.newFloorCount = 1; // Reset newFloorCount input field
     },
+
     addFloors() {
       if (!this.newFloorCount || this.newFloorCount < 1) {
         alert("Please enter a valid number of floors.");
@@ -1043,8 +1443,8 @@ export default {
       const currentMaxFloor =
         currentFloorCount > 0
           ? Math.max(
-            ...this.currentSite.floors.map((floor) => floor.floor_number)
-          )
+              ...this.currentSite.floors.map((floor) => floor.floor_number)
+            )
           : 0;
 
       // Add new floors
@@ -1070,45 +1470,6 @@ export default {
       const totalFloors =
         currentFloorCount + (parseInt(this.newFloorCount) || 0);
       this.totalFloors = totalFloors;
-    },
-
-    // Save the updated site details, including floors
-    async saveSite() {
-      const payload = {
-        companyId: this.vuexCompanyId,
-        name: this.currentSite.name,
-        description: this.currentSite.description || "",
-        region: this.currentSite.region,
-        province: this.currentSite.province,
-        municipality: this.currentSite.municipality,
-        barangay: this.currentSite.barangay,
-        status: this.currentSite.status,
-        maximum_months: this.currentSite.maximum_months || 0,
-        floors: this.currentSite.floors, // Send floors as an array
-      };
-
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
-          payload,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json", // Send as JSON
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          this.showFloorModal = false;
-          this.fetchSites();
-          console.log("Site updated successfully!");
-        }
-      } catch (error) {
-        console.error("Error saving site:", error.response || error);
-        // Display generic error message in case of failure
-        alert("Failed to save site. Please try again.");
-      }
     },
 
     // Save new site, including floors
@@ -1200,59 +1561,42 @@ export default {
       };
     },
 
-    // Save edited site, including floors
     async manageSite() {
-      const formData = new FormData();
-      formData.append("companyId", this.vuexCompanyId);
-      formData.append("name", this.editSite.name);
-      formData.append("region", this.editSite.region);
-      formData.append("province", this.editSite.province);
-      formData.append("municipality", this.editSite.municipality);
-      formData.append("barangay", this.editSite.barangay);
-      formData.append("status", this.editSite.status);
-      formData.append("description", this.editSite.description || "");
-      formData.append("maximum_months", this.editSite.maximum_months);
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.editSite.name,
+        region: this.editSite.region,
+        province: this.editSite.province,
+        municipality: this.editSite.municipality,
+        barangay: this.editSite.barangay,
+        status: this.editSite.status,
+        description: this.editSite.description || "",
+        maximum_months: this.editSite.maximum_months,
+        commission: this.editSite.commission || "",
+        spot_discount_percentage: this.editSite.spot_discount_percentage || "",
+        spot_discount_flat: this.editSite.spot_discount_flat || "",
+        vat_percentage: this.editSite.vat_percentage || "",
+        reservation_fee: this.editSite.reservation_fee || "",
+        other_charges: this.editSite.other_charges || "",
+        floors: this.editSite.floors || [], // Send floors data as JSON if it exists
+      };
 
-      // Add Payment Fields
-      formData.append("commission", this.editSite.commission || "");
-      formData.append(
-        "spot_discount_percentage",
-        this.editSite.spot_discount_percentage || ""
-      );
-      formData.append(
-        "spot_discount_flat",
-        this.editSite.spot_discount_flat || ""
-      );
-      formData.append("vat_percentage", this.editSite.vat_percentage || "");
-      formData.append("reservation_fee", this.editSite.reservation_fee || "");
-      formData.append("other_charges", this.editSite.other_charges || "");
-
-      if (this.editSite.floors && this.editSite.floors.length > 0) {
-        this.editSite.floors.forEach((floor, index) => {
-          formData.append(
-            `floors[${index}][floor_number]`,
-            floor.floor_number || ""
-          );
-        });
-      }
-
-      if (this.newPictureFile) {
-        formData.append("picture", this.newPictureFile);
-      }
+      console.log("Payload being sent:", payload);
 
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
-          formData,
+          payload, // Sending as JSON
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json", // Indicating JSON payload
             },
           }
         );
 
         if (response.status === 200) {
+          console.log("Site updated successfully:", response.data);
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
           );
@@ -1264,12 +1608,63 @@ export default {
         }
       } catch (error) {
         console.error("Error updating site:", error.response || error);
+        console.log("Error details:", error);
       }
     },
+    // Save the updated site details, including floors
+    async saveSite() {
+      console.log("Floors data being sent:", this.currentSite.floors);
 
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.currentSite.name,
+        description: this.currentSite.description || "",
+        region: this.currentSite.region,
+        province: this.currentSite.province,
+        municipality: this.currentSite.municipality,
+        barangay: this.currentSite.barangay,
+        status: this.currentSite.status,
+        maximum_months: this.currentSite.maximum_months || 0,
+        floors: this.currentSite.floors, // Send floors as an array
+      };
+
+      console.log("Payload being sent:", payload);
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json", // Send as JSON
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.showFloorModal = false;
+          this.fetchSites();
+          console.log("Site updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error saving site:", error.response || error);
+        console.log("Error details:", error);
+        alert("Failed to save site. Please try again.");
+      }
+    },
     // Open the edit modal and prepare the data
-    openEditModal(site) {
-      this.editSite = { ...site, floors: site.floors || [] };
+    openEditModal(selectedSite) {
+      // Set the selected site to be edited
+      this.selectedSite = selectedSite;
+
+      // Clone selectedSite to editSite (with cloned floors array if applicable)
+      this.editSite = {
+        ...this.selectedSite, // Shallow clone of selectedSite
+        floors: [...this.selectedSite.floors], // Clone the floors array to avoid reference issues
+      };
+
+      // Show the modal to edit the site
       this.showEditModal = true;
     },
 
@@ -1310,7 +1705,7 @@ export default {
     }
   },
   watch: {
-    showArchived() { },
+    showArchived() {},
   },
   created() {
     this.fetchStatusOptions(); // Fetch the status options when the component is created
@@ -1704,7 +2099,6 @@ body {
   /* Adjust the border radius */
   padding: 10px;
 }
-
 
 .pagination-controls {
   display: flex;
