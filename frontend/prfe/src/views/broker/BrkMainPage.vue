@@ -455,19 +455,14 @@ html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
   overflow: hidden;
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
   overflow: hidden;
 }
 
@@ -505,8 +500,8 @@ canvas {
 
 #salesBarChart {
   max-width: 100%;
-  width: 100%; /* Adjust the width to 100% of its container */
-  height: 500px; /* Increase the height of the chart */
+  width: 100%; 
+  height: 500px; 
   margin: 20px auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
@@ -519,9 +514,8 @@ canvas {
   margin-left: 250px;
   flex: 1;
   padding: 20px;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden; 
 }
-
 
 * {
   box-sizing: border-box;
@@ -529,16 +523,13 @@ canvas {
 
 .bar-chart-container,
 .piechart-container {
-  overflow: hidden; /* Ensures no overflow from charts */
+  overflow: hidden; 
 }
 
-
-
-/* Responsive Dashboard and Pie Chart */
 .dashboard-and-pie {
   display: flex;
   justify-content: space-between;
-  align-items: stretch; /* Ensure both children match height */
+  align-items: stretch; 
   gap: 20px;
   margin-bottom: 30px;
   margin-top: 30px;
@@ -546,16 +537,11 @@ canvas {
 
 .dashboard-boxes {
   display: grid;
-  /* Use grid for responsive layout */
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  /* Responsive grid */
   gap: 20px;
-  /* Add spacing between boxes */
   max-width: 1100px;
   width: 100%;
-  /* Set a max width */
   margin: 0 auto;
-  /* Center the container horizontally */
   margin-top: 10px;
 }
 
@@ -564,7 +550,6 @@ canvas {
   align-items: center;
   gap: 10px;
   margin: 0;
-  /* Space between icon and title */
 }
 
 .box h2 {
@@ -577,7 +562,6 @@ canvas {
 
 .box {
   position: relative;
-  /* Make the box a positioning context */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -598,7 +582,6 @@ canvas {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  /* Make the icon circular */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -620,9 +603,8 @@ canvas {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  overflow: hidden; /* Prevents horizontal scroll */
+  overflow: hidden; 
 }
-
 
 .left-content {
   display: flex;
@@ -640,30 +622,30 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -50px; /* Removed extra margin */
-  padding: 10px; /* Optional: Add some padding for aesthetic space */
+  margin-top: -50px; 
+  padding: 10px; 
   width: 400px;
   margin-left: -40px;
 }
 
 #salesPieChart {
-  width: 100% !important; /* Ensure it stretches horizontally */
-  height: 350px !important; /* Ensure it takes up the full height of the container */
+  width: 100% !important; 
+  height: 350px !important; 
   max-width: 100%;
-  max-height: 100%; /* Prevent the chart from exceeding the container's height */
+  max-height: 100%; 
   padding: 20px;
   text-align: center;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
-  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+  box-sizing: border-box; 
   margin-top: 70px;
   overflow: hidden;
 }
 
 .bar-chart-container {
-  position: relative; /* Position container relative for overlay positioning */
+  position: relative; 
   margin-top: 10px;
   width: 770px;
   height: 370px;
@@ -674,11 +656,11 @@ canvas {
   position: absolute;
   top: 10px;
   left: 10px;
-  right: 10px; /* Ensure dropdown stays within the container */
+  right: 10px; 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  pointer-events: none; /* Prevent overlay elements from blocking chart interactions */
+  pointer-events: none; 
   margin-bottom: 100px;
   margin-top: 30px;
 }
@@ -686,8 +668,8 @@ canvas {
 .chart-label {
   font-size: 14px;
   font-weight: bold;
-  color: #333; /* Ensure visibility against chart background */
-  pointer-events: auto; /* Allow interactions */
+  color: #333; 
+  pointer-events: auto;
   margin-left: 50px;
 }
 
@@ -699,7 +681,7 @@ canvas {
   border-radius: 2px;
   background-color: #fff;
   cursor: pointer;
-  pointer-events: auto; /* Allow interactions */
+  pointer-events: auto; 
   position: relative;
   top: -5px;
   right: 10px;

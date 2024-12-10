@@ -8,7 +8,7 @@ from prbe.admin import custom_admin_site  # Use custom admin site
 from django.utils.translation import gettext_lazy as _
 
 class DocumentTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'description', 'company',)
     search_fields = ('name',)
 
 class DocumentAdmin(admin.ModelAdmin):

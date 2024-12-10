@@ -5,12 +5,14 @@
     <SideNav />
     <div class="main-content">
       <div class="content">
+
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
             <div class="edit-title"><strong>Manage Customers</strong></div>
           </div>
         </div>
+
         <div
           class="card border-0 rounded-1 mx-auto"
           style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -89,6 +91,7 @@
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
+
             <div class="card-body">
               <table class="customer-table">
                 <tbody>
@@ -113,7 +116,6 @@
                         style="border: none; background-color: transparent; color: #343a40; cursor: pointer; font-size: 18px;">
                         <i class="fas fa-ellipsis-h"></i> <!-- Horizontal Three Dots Icon -->
                       </button>
-
                       <div v-if="isDropdownVisible(customer)" class="dropdown-menu show"
                         style="position: absolute; right: 0;">
                         <a class="dropdown-item" href="#" @click.stop="openEditModal(customer)">Edit</a>
@@ -126,32 +128,34 @@
             </div>
           </div>
         </div>
-          <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
-        >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
+        
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <span v-for="page in totalPages" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="{ active: page === currentPage }"
+              class="page-button"
+            >
+              {{ page }}
+            </button>
+          </span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
+
         <!-- Modal for Adding Customer -->
         <b-modal v-model="showModal" hide-header hide-footer centered>
           <div class="modal-title p-3">
@@ -390,6 +394,8 @@
             </div>
           </div>
         </b-modal>
+
+        <!-- Delete -->
         <b-modal
           v-model="showDeleteModal"
           title="Delete Confirmation"
@@ -422,6 +428,7 @@
             </button>
           </div>
         </b-modal>
+
         <b-modal
           v-model="showNotification"
           :title="notificationTitle"
@@ -774,18 +781,13 @@ html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 
 .SideNav {
@@ -829,7 +831,6 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
-  /* Center the wrapper */
 }
 
 .title-left {
@@ -856,42 +857,24 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-left: 20px;
-  /* Space on the left side */
   padding-right: 20px;
-  /* Space on the right side */
-}
-
-.toggle-button {
-  margin-left: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  color: #333;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.toggle-button:hover {
-  background-color: #e0e0e0;
 }
 
 .left-section {
   display: flex;
   align-items: center;
   gap: 10px;
-  /* Space between search bar and dropdown */
 }
 
 .search-bar-container {
   position: relative;
   width: 100%;
   max-width: 400px;
-  /* Adjust the width as needed */
 }
 
 .search-bar {
   width: 400px;
   padding: 8px 12px 8px 40px;
-  /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -901,18 +884,15 @@ body {
   position: absolute;
   top: 50%;
   left: 10px;
-  /* Position the icon inside the input */
   transform: translateY(-50%);
   color: #777;
   font-size: 16px;
   pointer-events: none;
-  /* Prevent the icon from blocking clicks in the input */
 }
 
 .dropdown {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -945,9 +925,7 @@ body {
   margin-bottom: 15px;
   margin-top: 0;
   max-width: 1100px;
-  /* Ensures the card and grid align */
   margin-left: auto;
-  /* Centers the card */
   margin-right: auto;
 }
 
@@ -1007,36 +985,30 @@ body {
 
 .btn-add {
   background-color: #0560fd;
-  /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
-  /* Adjust the border radius */
   padding: 10px;
 }
 
 .btn-cancel {
   background-color: #343a40;
-  /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
-  /* Adjust the border radius */
   padding: 10px;
 }
 
-/* Flex container for button alignment */
 .button-container {
   display: flex;
-  justify-content: flex-end; /* Align button to the right */
-}
+  justify-content: flex-end; 
+} 
 
-/* Button styling */
 .btn-cancel-right {
-  background-color: #343a40; /* Button primary color */
+  background-color: #343a40; 
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
+  border-radius: 3px; 
   padding: 10px;
   cursor: pointer;
 }
@@ -1048,15 +1020,15 @@ input[type="file"] {
 
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end; 
+  margin-top: 20px; 
+  gap: 10px; 
+  padding-right: 20px; 
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px; 
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -1075,8 +1047,7 @@ input[type="file"] {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+  background-color: #e9ecef; 
 }
-
 
 </style>

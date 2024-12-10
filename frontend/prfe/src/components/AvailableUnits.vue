@@ -13,7 +13,7 @@
       <div class="title-wrapper">
         <div class="title-left">
           <div class="title-icon"></div>
-          <div class="edit-title">Available Units for Site {{ siteName }} </div>
+          <div class="edit-title"><strong> Available Units for Site {{ siteName }}</strong></div>
         </div>
       </div>
 
@@ -404,36 +404,54 @@
         }}
       </button>
 
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+     <!-- Detailed Monthly Schedule (Visible when expanded) -->
+    <div v-if="showDetailedSchedule" class="detailed-schedule">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><center>Payment Type</center></th>
+            <th><center>Amount (₱)</center></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spot Downpayment</td>
+            <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Spread Downpayment</td>
+            <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+          </tr>
+          <!-- Loop through the months to display monthly payments -->
+          <tr v-for="month in payableMonths" :key="month">
+            <td>Month {{ month }} Payment</td>
+            <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Balance Upon Turnover</td>
+            <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+          </tr>
+          <!-- Amortization for 10, 15, 20, and 25 years -->
+          <tr>
+            <td>Monthly Amortization (10 years @ 6.5%)</td>
+            <td>₱{{ amortization10Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (15 years @ 6.5%)</td>
+            <td>₱{{ amortization15Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (20 years @ 6.5%)</td>
+            <td>₱{{ amortization20Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (25 years @ 6.5%)</td>
+            <td>₱{{ amortization25Years.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
@@ -702,13 +720,34 @@ export default {
       return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
     });
     },
-   
+    amortization10Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 10);
+  },
+  amortization15Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 15);
+  },
+  amortization20Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 20);
+  },
+  amortization25Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 25);
+  },
 },
   created() {
       this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
+    calculateAmortization(balance, years) {
+    const interestRate = 6.5 / 100; // 6.5% annual interest
+    const monthlyRate = interestRate / 12; // Monthly interest rate
+    const totalMonths = years * 12; // Total number of months
+    return (
+      balance *
+      (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+      (Math.pow(1 + monthlyRate, totalMonths) - 1)
+    );
+  },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -1013,9 +1052,7 @@ html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
 .SideNav {
@@ -1039,20 +1076,16 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 .main-content {
   display: flex;
   flex-direction: column;
   margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
 }
+
 .content {
   flex: 1;
   padding: 20px;
@@ -1071,7 +1104,6 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
-  /* Center the wrapper */
 }
 
 .title-left {
@@ -1097,9 +1129,7 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   max-width: 1100px;
-  /* Matches the max-width of the card */
   margin: 0 auto;
-  /* Centers the grid within the parent */
 }
 
 .site-card {
@@ -1107,7 +1137,6 @@ body {
   padding: 16px;
   text-align: center;
   cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
 }
 
@@ -1121,22 +1150,18 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-left: 20px;
-  /* Space on the left side */
   padding-right: 20px;
-  /* Space on the right side */
 }
 
 .left-section {
   display: flex;
   align-items: center;
   gap: 20px;
-  /* Space between search bar and dropdown */
 }
 
 .dropdown-select {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -1147,15 +1172,15 @@ body {
 }
 
 .carousel-inner img {
-  max-height: 400px; /* Adjust as needed */
+  max-height: 400px; 
   object-fit: cover;
 }
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background-color: transparent; /* Remove the background color */
-  color: inherit; /* Remove the default text color change */
-  border: none; /* Remove any border if present */
+  background-color: transparent; 
+  color: inherit; 
+  border: none; 
 }
 
 .property-price {
@@ -1164,7 +1189,7 @@ body {
 }
 
 .property-price1 {
-  margin-top: 5px; /* Adjust spacing as needed */
+  margin-top: 5px; 
   font-size: 1.5rem;
   font-weight: bold;
   text-align: left;
@@ -1172,7 +1197,7 @@ body {
 
 .price-header {
   font-weight: bold;
-  color: #6c757d; /* Example muted color */
+  color: #6c757d; 
 }
 
 .property-header {
@@ -1181,24 +1206,23 @@ body {
 }
 
 .row.mb-3.ps-5 .d-flex {
-  gap: 30px; /* Adjust as needed for closer spacing */
+  gap: 30px; 
 }
 
 .form-select {
   margin-left: 5px;
 }
 
-
 .line {
-    border-top: 2px solid #000; /* Adjust thickness and color */
-    width: 100%; /* Full-width */
-    margin: 0 auto; /* Center it */
+    border-top: 2px solid #000;
+    width: 100%; 
+    margin: 0 auto; 
 }
 
 .text-center1 {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align the content to the left */
+  align-items: flex-start; 
 }
 
 .payment-summary {
@@ -1228,14 +1252,14 @@ body {
 
 .button-container {
   display: flex;
-  justify-content: flex-end; /* Align button to the right */
+  justify-content: flex-end;
 }
 
 .btn-cancel-right {
-  background-color: #343a40; /* Button primary color */
+  background-color: #343a40; 
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
+  border-radius: 3px; 
   padding: 10px;
   cursor: pointer;
 }
@@ -1249,11 +1273,10 @@ body {
 }
 
 .btn-add:hover {
-  background-color: #3e9c73;  /* Slightly darker green */
+  background-color: #3e9c73;  
   color: #fff;
   border: none;
 }
-
 
 .btn-cancel {
   background-color: #343a40;
@@ -1264,7 +1287,7 @@ body {
 }
 
 .btn-cancel:hover {
-  background-color: #495057;  /* Slightly lighter gray */
+  background-color: #495057;  
   color: #fff;
   border: none;
 }
@@ -1273,28 +1296,6 @@ body {
   text-align: right;
 }
 
-/* juju */
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000; /* Ensure it appears on top of other content */
-}
-
-.popup-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  width: 300px; /* Set a fixed width */
-}
 .ok-btn {
   background: #007bff;
   color: white;
@@ -1312,12 +1313,14 @@ body {
   padding: 20px;
   text-align: center;
 }
+
 .units-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin: 0 auto;
 }
+
 .unit-card {
   border: 1px solid #ccc;
   margin: 10px;
@@ -1326,47 +1329,35 @@ body {
   cursor: pointer;
   border-radius: 8px;
 }
+
 .unit-card:hover {
   background-color: #e8e8e8;
   transition: ease 0.3s;
 }
 
-/* Modal Content */
-.modal-content {
-  background: #fff;
-  width: 90%;
-  max-width: 700px;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  overflow-y: auto;
-  max-height: 90vh;
-}
-
 .success-message {
-  position: fixed; /* Position it relative to the screen */
-  top: 50%; /* Center the message */
+  position: fixed; 
+  top: 50%; 
   left: 50%;
-  transform: translate(-50%, -50%); /* Adjust to truly center */
+  transform: translate(-50%, -50%); 
   background-color: rgba(
     0,
     128,
     0,
     0.8
-  ); /* Green background, slightly transparent */
+  ); 
   color: white;
   padding: 20px;
   border-radius: 5px;
   font-size: 18px;
-  z-index: 1100; /* Make sure it's on top of the modal */
-  display: none; /* Initially hidden */
+  z-index: 1100; 
+  display: none; 
 }
 
 .success-message.show {
-  display: block; /* Show the success message when it's needed */
+  display: block; 
 }
 
-/* Image Gallery */
 .image-gallery {
   display: flex;
   gap: 10px;
@@ -1381,7 +1372,6 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Unit Details */
 .unit-details {
   margin-bottom: 20px;
 }
@@ -1392,7 +1382,6 @@ body {
   margin: 10px 0;
 }
 
-/* Form Group */
 .form-group {
   margin-bottom: 15px;
   margin-left: 30px;
@@ -1400,40 +1389,38 @@ body {
 
 .form-group select:focus {
   outline: none;
-  border-color: #007bff; /* Highlight border on focus */
+  border-color: #007bff; 
 }
 
-/* Dropdown Hover Text */
 .form-group select:hover {
-  color: black; /* Change text color to black on hover for better visibility */
+  color: black; 
 }
 
 .form-group input[type="number"] {
-  width: 70%; /* Make the input take up full width */
-  padding: 10px; /* Add padding for a better click area */
-  font-size: 16px; /* Match font size with the label */
-  border: 1px solid #ccc; /* Light border for input */
-  border-radius: 8px; /* Add rounded corners */
-  color: #333; /* Text color */
-  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+  width: 70%; 
+  padding: 10px; 
+  font-size: 16px; 
+  border: 1px solid #ccc; 
+  border-radius: 8px; 
+  color: #333; 
+  transition: all 0.3s ease; 
 }
 
 .form-group input[type="number"]:hover {
-  border-color: #007bff; /* Change border color on hover */
+  border-color: #007bff; 
 }
 
 .form-group input[type="number"]:focus {
-  border-color: #0056b3; /* Darker border color on focus */
-  outline: none; /* Remove default outline */
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+  border-color: #0056b3; 
+  outline: none; 
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); 
 }
 
 .form-group input[type="number"]::placeholder {
-  color: #888; /* Lighter text for placeholder */
-  font-style: italic; /* Italicize placeholder text */
+  color: #888; 
+  font-style: italic; 
 }
 
-/* Style for File Input Button */
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -1449,9 +1436,6 @@ label {
   margin-left: 30px;
 }
 
-/* Dropdown Styling */
-
-/* Payment Plan Section */
 .payment-plan {
   margin-top: 20px;
 }
@@ -1462,7 +1446,6 @@ label {
   margin-bottom: 10px;
 }
 
-
 button {
   padding: 10px 15px;
   font-size: 14px;
@@ -1471,6 +1454,7 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 button:hover {
   background-color: #0056b3;
 }
@@ -1495,12 +1479,12 @@ button:hover {
 
 .filters {
   display: flex;
-  align-items: center;   /* Align vertically */
-  gap: 20px;             /* Add space between elements */
+  align-items: center;   
+  gap: 20px;             
 }
 
 .filters label {
-  margin-right: 5px;     /* Small space between label and select */
+  margin-right: 5px;     
 }
 
 .filters select {
@@ -1509,28 +1493,27 @@ button:hover {
   border-radius: 5px;
 }
 
-/* Style the list for better appearance */
 .unit-list {
-  list-style: none;      /* Remove default bullets */
+  list-style: none;      
   padding: 0;
 }
 
 .unit-list li {
   padding: 10px;
-  border-bottom: 1px solid #ddd; /* Add separator between units */
+  border-bottom: 1px solid #ddd; 
 }
 
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end; 
+  margin-top: 20px; 
+  gap: 10px; 
+  padding-right: 20px; 
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px; 
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -1549,7 +1532,7 @@ button:hover {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+  background-color: #e9ecef; 
 }
 
 </style>

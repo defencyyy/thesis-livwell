@@ -52,7 +52,7 @@ class Site(models.Model):
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     
     # Maximum months (e.g., for loan term)
-    maximum_months = models.PositiveIntegerField(default=360, help_text="Maximum months for payment term (e.g., 360 for 30 years)")
+    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for payment term (e.g., 60 months for 5 years max)")
 
     def __str__(self):
         return self.name
