@@ -20,9 +20,10 @@
                     v-if="company.logo"
                     :src="getLogoUrl(company.logo)"
                     alt="Company Logo"
-                    class="img-fluid rounded-circle shadow-sm"
-                    style="width: 200px; height: 200px; object-fit: cover"
+                    class="img-fluid shadow-sm rounded"
+                    style="width: 100%; height: 100%; object-fit: cover"
                   />
+
                   <span v-else>No Logo Available</span>
                 </div>
                 <h5 class="mt-4" style="font-weight: bold">
