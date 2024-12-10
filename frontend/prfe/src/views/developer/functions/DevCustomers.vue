@@ -267,33 +267,25 @@
             </thead>
             <tbody>
               <template v-for="(units, siteName) in groupedSales" :key="siteName">
-      <tr v-for="unit in units" :key="unit.id">
-        <td>{{ unit.title }}</td>
-        <td>{{ unit.unit_number }}</td>
-        <td>{{ siteName }}</td>
-        <td>{{ unit.status }}</td>
-      </tr>
-    </template>
-</tbody>
-</table>
-</div>
-<div v-else>No connected units available.</div>
-<div
-              class="d-flex justify-content-end gap-3 mt-3"
-              style="padding: 15px"
-            >
-              <button
-                type="button"
-                class="btn-cancel"
-                @click="showEditModal = false"
-                style="width: 100px"
-              >
-                Close
-              </button>
-            </div>
-</div>
-</b-modal>
-</div>
+                <tr v-for="unit in units" :key="unit.id">
+                  <td>{{ unit.title }}</td>
+                  <td>{{ unit.unit_number }}</td>
+                  <td>{{ siteName }}</td>
+                  <td>{{ unit.status }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div v-else>No connected units available.</div>
+        <div class="d-flex justify-content-end gap-3 mt-3" style="padding: 15px">
+          <button type="button" class="btn-cancel" @click="showEditModal = false" style="width: 100px">
+            Close
+          </button>
+        </div>
+      </div>
+    </b-modal>
+  </div>
 </template>
 
 <script>
@@ -879,7 +871,8 @@ body {
 }
 
 .styled-table {
-  font-size: 14px; /* Adjust as needed */
+  font-size: 14px;
+  /* Adjust as needed */
   width: 100%;
 }
 
@@ -893,7 +886,8 @@ body {
 .styled-table td {
   padding: 12px 15px;
   border-bottom: 1px solid #ddd;
-  text-align: center; /* Center alignment for all cells */
+  text-align: center;
+  /* Center alignment for all cells */
   vertical-align: middle;
 }
 
