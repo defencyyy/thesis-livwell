@@ -3,9 +3,18 @@ from .models import Site, Company
 from .models import Floor
 
 class FloorSerializer(serializers.ModelSerializer):
+    total_units = serializers.SerializerMethodField()
+    available_units = serializers.SerializerMethodField()
+    
     class Meta:
         model = Floor
-        fields = ['id', 'floor_number']
+        fields = ['id', 'floor_number', 'total_units', 'available_units']
+
+    def get_total_units(self, obj):
+        return obj.units.count()
+
+    def get_available_units(self, obj):
+        return obj.units.filter(status='Available').count()
 
 class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
@@ -104,7 +113,7 @@ class SiteSerializer(serializers.ModelSerializer):
     def validate_picture(self, value):
         """Optional: Ensure the picture file is not too large and is a valid image type."""
         if value:
-            max_size = 5 * 1024 * 1024  # 5 MB max size
+            max_size = 10 * 1024 * 1024  # 5 MB max size
             allowed_types = ['image/jpeg', 'image/png', 'image/jpg']
             
             if value.size > max_size:
