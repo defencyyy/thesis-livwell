@@ -15,19 +15,6 @@
           </div>
         </div>
 
-        <!-- Search & Filter -->
-        <!-- <div class="filter-section">
-        <input
-          v-model="searchQuery"
-          placeholder="Search Brokers"
-          class="search-bar"
-        />
-        <select v-model="brokersPerPage" class="page-limit-selector">
-          <option v-for="limit in [5, 10, 15, 20]" :key="limit" :value="limit">
-            Show {{ limit }} per page
-          </option>
-        </select>
-      </div> -->
         <div
           class="card border-0 rounded-1 mx-auto"
           style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -93,10 +80,7 @@
                   <tr>
                     <td>
                       <!-- User Icon as Profile Picture -->
-                      <i
-                        class="fas fa-user broker-icon"
-                        style="font-size: 30px; color: #343a40"
-                      ></i>
+                      <i class="fas fa-user-tie broker-icon"></i>
                       <span class="broker-name">
                         {{ broker.first_name }} {{ broker.last_name }}
                       </span>
@@ -911,6 +895,7 @@ body {
   position: relative;
 }
 
+
 .dropdown {
   appearance: none;
   padding: 8px 12px;
@@ -961,20 +946,16 @@ body {
 }
 
 .broker-icon {
-  width: 20px;
-  /* Small size for the table */
-  height: 20px;
-  /* Make the image smaller */
+  font-size: 18px;
   object-fit: cover;
   /* Crop the image if necessary */
   margin-right: 10px;
   /* Adds some spacing between the image and the name */
-  border-radius: 50%;
-  /* Makes the image circular */
+  color: #343a40;
 }
 
 .broker-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: 10px;
 }
@@ -984,6 +965,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .broker-table th,
@@ -995,41 +977,36 @@ body {
   /* Remove borders from all cells */
 }
 
-.broker-table th {
-  background-color: #f9f9f9;
-  font-weight: bold;
-}
-
 .broker-table th:nth-child(2),
 .broker-table td:nth-child(2) {
   /* Location column */
-  width: 20%;
+  width: 25%;
 }
 
 .broker-table th:nth-child(3),
 .broker-table td:nth-child(3) {
   /* Status column */
-  width: 25%;
+  width: 19%;
 }
 
 .broker-table th:nth-child(4),
 .broker-table td:nth-child(4) {
   /* Actions column */
-  width: 20%;
+  width: 19%;
 }
 
 .broker-table th:nth-child(5),
 .broker-table td:nth-child(5) {
   /* Actions column */
-  width: 10%;
+  width: 7%;
 }
 
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 25% 20% 25% 20% 10%;
+  grid-template-columns: 30% 25% 19% 19% 7%;
   /* Match the column widths */
-  padding: 0px 18px;
+  padding: 0px 15px;
   margin: 20px auto 10px;
   width: 100%;
   max-width: 1100px;
@@ -1038,7 +1015,7 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
@@ -1058,6 +1035,7 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel {
@@ -1068,6 +1046,7 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .pagination-controls {
