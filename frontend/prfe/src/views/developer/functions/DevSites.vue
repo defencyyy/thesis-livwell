@@ -1408,6 +1408,7 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+
     // Open the floor modal
     openFloorModal(site) {
       this.currentSite = site;
@@ -1423,6 +1424,7 @@ export default {
       this.totalFloors = this.originalFloorCount;
       this.newFloorCount = 1; // Reset newFloorCount input field
     },
+
     addFloors() {
       if (!this.newFloorCount || this.newFloorCount < 1) {
         alert("Please enter a valid number of floors.");
@@ -1468,45 +1470,6 @@ export default {
       const totalFloors =
         currentFloorCount + (parseInt(this.newFloorCount) || 0);
       this.totalFloors = totalFloors;
-    },
-
-    // Save the updated site details, including floors
-    async saveSite() {
-      const payload = {
-        companyId: this.vuexCompanyId,
-        name: this.currentSite.name,
-        description: this.currentSite.description || "",
-        region: this.currentSite.region,
-        province: this.currentSite.province,
-        municipality: this.currentSite.municipality,
-        barangay: this.currentSite.barangay,
-        status: this.currentSite.status,
-        maximum_months: this.currentSite.maximum_months || 0,
-        floors: this.currentSite.floors, // Send floors as an array
-      };
-
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
-          payload,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json", // Send as JSON
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          this.showFloorModal = false;
-          this.fetchSites();
-          console.log("Site updated successfully!");
-        }
-      } catch (error) {
-        console.error("Error saving site:", error.response || error);
-        // Display generic error message in case of failure
-        alert("Failed to save site. Please try again.");
-      }
     },
 
     // Save new site, including floors
@@ -1598,59 +1561,42 @@ export default {
       };
     },
 
-    // Save edited site, including floors
     async manageSite() {
-      const formData = new FormData();
-      formData.append("companyId", this.vuexCompanyId);
-      formData.append("name", this.editSite.name);
-      formData.append("region", this.editSite.region);
-      formData.append("province", this.editSite.province);
-      formData.append("municipality", this.editSite.municipality);
-      formData.append("barangay", this.editSite.barangay);
-      formData.append("status", this.editSite.status);
-      formData.append("description", this.editSite.description || "");
-      formData.append("maximum_months", this.editSite.maximum_months);
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.editSite.name,
+        region: this.editSite.region,
+        province: this.editSite.province,
+        municipality: this.editSite.municipality,
+        barangay: this.editSite.barangay,
+        status: this.editSite.status,
+        description: this.editSite.description || "",
+        maximum_months: this.editSite.maximum_months,
+        commission: this.editSite.commission || "",
+        spot_discount_percentage: this.editSite.spot_discount_percentage || "",
+        spot_discount_flat: this.editSite.spot_discount_flat || "",
+        vat_percentage: this.editSite.vat_percentage || "",
+        reservation_fee: this.editSite.reservation_fee || "",
+        other_charges: this.editSite.other_charges || "",
+        floors: this.editSite.floors || [], // Send floors data as JSON if it exists
+      };
 
-      // Add Payment Fields
-      formData.append("commission", this.editSite.commission || "");
-      formData.append(
-        "spot_discount_percentage",
-        this.editSite.spot_discount_percentage || ""
-      );
-      formData.append(
-        "spot_discount_flat",
-        this.editSite.spot_discount_flat || ""
-      );
-      formData.append("vat_percentage", this.editSite.vat_percentage || "");
-      formData.append("reservation_fee", this.editSite.reservation_fee || "");
-      formData.append("other_charges", this.editSite.other_charges || "");
-
-      if (this.editSite.floors && this.editSite.floors.length > 0) {
-        this.editSite.floors.forEach((floor, index) => {
-          formData.append(
-            `floors[${index}][floor_number]`,
-            floor.floor_number || ""
-          );
-        });
-      }
-
-      if (this.newPictureFile) {
-        formData.append("picture", this.newPictureFile);
-      }
+      console.log("Payload being sent:", payload);
 
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
-          formData,
+          payload, // Sending as JSON
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json", // Indicating JSON payload
             },
           }
         );
 
         if (response.status === 200) {
+          console.log("Site updated successfully:", response.data);
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
           );
@@ -1662,12 +1608,63 @@ export default {
         }
       } catch (error) {
         console.error("Error updating site:", error.response || error);
+        console.log("Error details:", error);
       }
     },
+    // Save the updated site details, including floors
+    async saveSite() {
+      console.log("Floors data being sent:", this.currentSite.floors);
 
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.currentSite.name,
+        description: this.currentSite.description || "",
+        region: this.currentSite.region,
+        province: this.currentSite.province,
+        municipality: this.currentSite.municipality,
+        barangay: this.currentSite.barangay,
+        status: this.currentSite.status,
+        maximum_months: this.currentSite.maximum_months || 0,
+        floors: this.currentSite.floors, // Send floors as an array
+      };
+
+      console.log("Payload being sent:", payload);
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json", // Send as JSON
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.showFloorModal = false;
+          this.fetchSites();
+          console.log("Site updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error saving site:", error.response || error);
+        console.log("Error details:", error);
+        alert("Failed to save site. Please try again.");
+      }
+    },
     // Open the edit modal and prepare the data
-    openEditModal(site) {
-      this.editSite = { ...site, floors: site.floors || [] };
+    openEditModal(selectedSite) {
+      // Set the selected site to be edited
+      this.selectedSite = selectedSite;
+
+      // Clone selectedSite to editSite (with cloned floors array if applicable)
+      this.editSite = {
+        ...this.selectedSite, // Shallow clone of selectedSite
+        floors: [...this.selectedSite.floors], // Clone the floors array to avoid reference issues
+      };
+
+      // Show the modal to edit the site
       this.showEditModal = true;
     },
 

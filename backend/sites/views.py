@@ -10,6 +10,12 @@ from django.db import transaction
 from developers.models import Developer
 from .models import Site, Floor
 from .serializers import SiteSerializer
+import traceback
+from rest_framework.response import Response
+from rest_framework import status
+from django.db import transaction
+import logging
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -93,53 +99,66 @@ class SiteDetailView(APIView):
 
         site = get_object_or_404(Site, pk=pk, company=company)
 
-        data = request.data.copy()
-        data['company'] = company.id
+        try:
+            data = request.data.copy()
+            data['company'] = company.id
 
-        # Extract floor data
-        floors_data = data.pop('floors', [])
+            logger.debug(f"Received data for site {pk}: {data}")
 
-        # Serialize the site data
-        serializer = SiteSerializer(site, data=data, partial=True)
+            # Extract floor data
+            floors_data = data.pop('floors', None)  # If no floors, this will be None
+            logger.debug(f"Floors data extracted: {floors_data}")
 
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    # Save site data
-                    site = serializer.save()
+            # Serialize the site data
+            serializer = SiteSerializer(site, data=data, partial=True)
 
-                    # Process floors data: add or update floors
-                    for floor_data in floors_data:
-                        # Exclude non-model fields
-                        floor_data_cleaned = {
-                            key: value for key, value in floor_data.items()
-                            if key in ['floor_number']
-                        }
+            if serializer.is_valid():
+                try:
+                    with transaction.atomic():
+                        # Save site data
+                        site = serializer.save()
 
-                        floor_number = floor_data_cleaned.get('floor_number')
+                        # If floors data exists, process it
+                        if floors_data:
+                            for floor_data in floors_data:
+                                # Exclude non-model fields
+                                floor_data_cleaned = {
+                                    key: value for key, value in floor_data.items()
+                                    if key in ['floor_number']
+                                }
+                                logger.debug(f"Processing floor data: {floor_data_cleaned}")
 
-                        # Check if floor already exists
-                        existing_floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
+                                floor_number = floor_data_cleaned.get('floor_number')
 
-                        if existing_floor:
-                            # Update the existing floor
-                            for field, value in floor_data_cleaned.items():
-                                setattr(existing_floor, field, value)
-                            existing_floor.save()
-                        else:
-                            # Create a new floor if it doesn't exist
-                            Floor.objects.create(site=site, **floor_data_cleaned)
+                                # Check if floor already exists
+                                existing_floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
 
-                    return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+                                if existing_floor:
+                                    # Update the existing floor
+                                    for field, value in floor_data_cleaned.items():
+                                        setattr(existing_floor, field, value)
+                                    existing_floor.save()
+                                    logger.debug(f"Updated existing floor {floor_number} for site {site.id}")
+                                else:
+                                    # Create a new floor if it doesn't exist
+                                    Floor.objects.create(site=site, **floor_data_cleaned)
+                                    logger.debug(f"Created new floor {floor_number} for site {site.id}")
 
-            except Exception as e:
-                logger.error(f"Error updating site and floors: {e}")
-                return Response({"success": False, "error": "An error occurred while updating."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
-        else:
-            logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
-            return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                except Exception as e:
+                    logger.error(f"Error updating site and floors: {e}")
+                    logger.debug(f"Traceback: {traceback.format_exc()}")
+                    return Response({"success": False, "error": "An error occurred while updating."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+            else:
+                logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
+                return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            logger.debug(f"Traceback: {traceback.format_exc()}")
+            return Response({"success": False, "error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         company = get_developer_company(request)
