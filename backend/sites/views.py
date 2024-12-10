@@ -5,10 +5,17 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from django.db import transaction
 from developers.models import Developer
 from .models import Site, Floor
 from .serializers import SiteSerializer
+import traceback
+from rest_framework.response import Response
+from rest_framework import status
 from django.db import transaction
+import logging
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -53,7 +60,6 @@ class SiteListView(APIView):
         floors_data = data.pop('floors', [])
         serializer = SiteSerializer(data=data)
         
-
         if serializer.is_valid():
             site = serializer.save()
 
@@ -93,64 +99,66 @@ class SiteDetailView(APIView):
 
         site = get_object_or_404(Site, pk=pk, company=company)
 
-        data = request.data.copy()
-        data['company'] = company.id
+        try:
+            data = request.data.copy()
+            data['company'] = company.id
 
-        # Log the received data for debugging
-        logger.debug(f"Received data for site update (PK: {pk}): {data}")
+            logger.debug(f"Received data for site {pk}: {data}")
 
-        # Extract floor data
-        floors_data = data.pop('floors', [])
-        
-        # Log the floors data
-        logger.debug(f"Floors data received: {floors_data}")
+            # Extract floor data
+            floors_data = data.pop('floors', None)  # If no floors, this will be None
+            logger.debug(f"Floors data extracted: {floors_data}")
 
-        # Serialize the site data
-        serializer = SiteSerializer(site, data=data, partial=True)
+            # Serialize the site data
+            serializer = SiteSerializer(site, data=data, partial=True)
 
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    # Save site data
-                    site = serializer.save()
+            if serializer.is_valid():
+                try:
+                    with transaction.atomic():
+                        # Save site data
+                        site = serializer.save()
 
-                    # Process floors data: add or update floors
-                    for floor_data in floors_data:
-                        floor_number = floor_data.get('floor_number')
+                        # If floors data exists, process it
+                        if floors_data:
+                            for floor_data in floors_data:
+                                # Exclude non-model fields
+                                floor_data_cleaned = {
+                                    key: value for key, value in floor_data.items()
+                                    if key in ['floor_number']
+                                }
+                                logger.debug(f"Processing floor data: {floor_data_cleaned}")
 
-                        # Log the floor being processed
-                        logger.debug(f"Processing floor data: {floor_data} | floor_number: {floor_number}")
+                                floor_number = floor_data_cleaned.get('floor_number')
 
-                        # Check if floor already exists
-                        existing_floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
+                                # Check if floor already exists
+                                existing_floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
 
-                        if existing_floor:
-                            # Log existing floor data
-                            logger.debug(f"Existing floor found: {existing_floor}")
-                            
-                            # Update the existing floor
-                            for field, value in floor_data.items():
-                                setattr(existing_floor, field, value)
-                                logger.debug(f"Updating floor field: {field} = {value}")
-                            
-                            existing_floor.save()
-                            logger.debug(f"Updated floor {floor_number}")
+                                if existing_floor:
+                                    # Update the existing floor
+                                    for field, value in floor_data_cleaned.items():
+                                        setattr(existing_floor, field, value)
+                                    existing_floor.save()
+                                    logger.debug(f"Updated existing floor {floor_number} for site {site.id}")
+                                else:
+                                    # Create a new floor if it doesn't exist
+                                    Floor.objects.create(site=site, **floor_data_cleaned)
+                                    logger.debug(f"Created new floor {floor_number} for site {site.id}")
 
-                        else:
-                            # Create a new floor if it doesn't exist
-                            logger.debug(f"Creating new floor with number: {floor_number}")
-                            Floor.objects.create(site=site, **floor_data)
-                            logger.debug(f"Created new floor {floor_number}")
+                        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
-                    return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+                except Exception as e:
+                    logger.error(f"Error updating site and floors: {e}")
+                    logger.debug(f"Traceback: {traceback.format_exc()}")
+                    return Response({"success": False, "error": "An error occurred while updating."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            except Exception as e:
-                logger.error(f"Error updating site and floors: {e}")
-                return Response({"success": False, "error": "An error occurred while updating."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
+                return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        else:
-            logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
-            return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            logger.debug(f"Traceback: {traceback.format_exc()}")
+            return Response({"success": False, "error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         company = get_developer_company(request)
@@ -166,6 +174,7 @@ class SiteDetailView(APIView):
         site.save()
         return Response({"success": True, "message": "Site archived successfully."}, status=status.HTTP_200_OK)
 
+
 class StatusOptionsView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -174,14 +183,12 @@ class StatusOptionsView(APIView):
         status_options = dict(Site.STATUS_CHOICES) 
         return Response({"status_options": status_options}, status=200)
 
+
 class ArchivedSiteView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """
-        List all archived sites for the logged-in developer's company.
-        """
         company = get_developer_company(request)
         if not company:
             return Response(
@@ -189,7 +196,10 @@ class ArchivedSiteView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        archived_sites = Site.objects.filter(company=company, archived=True)
+        # Use Q for more efficient querying
+        archived_sites = Site.objects.filter(
+            Q(company=company) & Q(archived=True)
+        )
         serializer = SiteSerializer(archived_sites, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -212,6 +222,7 @@ class ArchivedSiteView(APIView):
                 {"error": "Site not found or not archived."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
 
 class SiteWithFloorCountsView(APIView):
     def get(self, request, site_id):

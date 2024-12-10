@@ -158,9 +158,9 @@
                     </td>
                     <td>{{ site.location || "Location unavailable" }}</td>
                     <td>{{ site.status || "Status unavailable" }}</td>
-                    <td>
-                      <!-- Edit Button -->
-                      <button
+
+                    <!-- Edit Button -->
+                    <!-- <button
                         @click.stop="openEditModal(site)"
                         style="
                           border: none;
@@ -171,11 +171,15 @@
                         "
                       >
                         <i class="fas fa-edit"></i>
-                      </button>
+                      </button> -->
 
-                      <!-- Manage Floors Button -->
+                    <!-- Manage Floors Button -->
+                    <td>
+                      <!-- Three Dots Icon for each row -->
                       <button
-                        @click.stop="openFloorModal(site)"
+                        class="btn btn-link"
+                        type="button"
+                        @click.stop="toggleDropdown(site)"
                         style="
                           border: none;
                           background-color: transparent;
@@ -184,32 +188,43 @@
                           font-size: 18px;
                         "
                       >
-                        <i class="fas fa-layer-group"></i>
+                        <i class="fas fa-ellipsis-h"></i>
+                        <!-- Horizontal Three Dots Icon -->
                       </button>
 
-                      <!-- Archive/Unarchive Buttons -->
-                      <button
-                        v-if="!site.archived"
-                        @click.stop="archiveSite(site)"
-                        class="btn btn-sm btn-warning"
-                        style="
-                          border: none;
-                          background-color: transparent;
-                          color: #343a40;
-                          cursor: pointer;
-                          font-size: 18px;
-                        "
+                      <!-- Dropdown Menu -->
+                      <div
+                        v-if="isDropdownVisible(site)"
+                        class="dropdown-menu show"
+                        style="position: absolute; right: 0"
                       >
-                        <i class="fas fa-archive"></i>
-                      </button>
-
-                      <button
-                        v-else
-                        @click.stop="unarchiveSite(site)"
-                        class="btn btn-sm btn-success"
-                      >
-                        <i class="fas fa-undo"></i> Unarchive
-                      </button>
+                        <a
+                          class="dropdown-item"
+                          href="#"
+                          @click.stop="openEditModal(site)"
+                          >Edit</a
+                        >
+                        <a
+                          class="dropdown-item"
+                          href="#"
+                          @click.stop="openFloorModal(site)"
+                          >Manage Floors</a
+                        >
+                        <a
+                          class="dropdown-item"
+                          v-if="!site.archived"
+                          href="#"
+                          @click.stop="archiveSite(site)"
+                          >Archive</a
+                        >
+                        <a
+                          class="dropdown-item"
+                          v-else
+                          href="#"
+                          @click.stop="unarchiveSite(site)"
+                          >Unarchive</a
+                        >
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -880,17 +895,17 @@
           title="Manage Floors"
           hide-footer
           centered
-          size="lg"
+          hide-header
         >
           <div class="modal-title p-3">
             <h5 class="mb-0">
-              <strong>Site Name:</strong> {{ currentSite.name }}
+              Site Name: {{ currentSite.name.toUpperCase() }}
             </h5>
           </div>
-          <div class="p-3">
+
+          <div class="modal-body">
             <!-- Floor Information -->
             <div class="mb-4">
-              <strong>Floor Information</strong>
               <p>
                 <strong>Total Floors:</strong> {{ currentSite.floors.length }}
               </p>
@@ -898,38 +913,36 @@
 
             <!-- Add Floors -->
             <div class="mb-4">
-              <h6>Add Floors</h6>
-              <div class="d-flex gap-2">
+              <div
+                class="d-flex align-items-center"
+                style="justify-content: space-between"
+              >
                 <input
                   type="number"
+                  id="addFloors"
+                  placeholder="Enter number of floors (Max: 99)"
                   v-model="newFloorCount"
                   class="form-control"
-                  placeholder="Enter number of floors"
                   min="1"
                   max="99"
+                  style="width: 80%"
                 />
-                <button @click="addFloors" class="btn btn-primary">
+
+                <button @click="addFloors" class="btn-add-floors">
                   Add Floors
                 </button>
               </div>
-              <small class="text-muted">
-                Enter the number of floors to add (Max 99).
-              </small>
-            </div>
-
-            <!-- Total Floors After Adding -->
-            <div class="mb-4">
-              <h6>Total Floors: {{ totalFloors }}</h6>
             </div>
 
             <!-- Buttons -->
-            <div class="d-flex justify-content-end gap-2">
-              <button @click="closeFloorModal" class="btn btn-secondary">
-                Close
+            <div
+              class="d-flex justify-content-end gap-2 mt-3"
+              style="padding-top: 15px"
+            >
+              <button @click="saveSite" class="btn btn-add">
+                Save Changes
               </button>
-              <button @click="saveSite" class="btn btn-primary">
-                Save Floors
-              </button>
+              <button @click="closeFloorModal" class="btn-cancel">Close</button>
             </div>
           </div>
         </b-modal>
@@ -957,6 +970,7 @@ export default {
       viewMode: "table",
       sortBy: "name",
       searchQuery: "",
+      visibleDropdown: null,
       viewFilter: "active", // Tracks the selected view filter
       showAddModal: false,
       showEditModal: false,
@@ -1084,6 +1098,13 @@ export default {
     },
   },
   methods: {
+    toggleDropdown(site) {
+      this.visibleDropdown = this.visibleDropdown === site ? null : site; // Toggle visibility
+    },
+    isDropdownVisible(site) {
+      return this.visibleDropdown === site; // Check if dropdown should be shown for this site
+    },
+
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -1256,7 +1277,6 @@ export default {
     },
     constructLocation(site) {
       const addressParts = [
-        site.region,
         site.province,
         site.municipality,
         site.barangay,
@@ -1388,6 +1408,7 @@ export default {
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+
     // Open the floor modal
     openFloorModal(site) {
       this.currentSite = site;
@@ -1403,6 +1424,7 @@ export default {
       this.totalFloors = this.originalFloorCount;
       this.newFloorCount = 1; // Reset newFloorCount input field
     },
+
     addFloors() {
       if (!this.newFloorCount || this.newFloorCount < 1) {
         alert("Please enter a valid number of floors.");
@@ -1448,45 +1470,6 @@ export default {
       const totalFloors =
         currentFloorCount + (parseInt(this.newFloorCount) || 0);
       this.totalFloors = totalFloors;
-    },
-
-    // Save the updated site details, including floors
-    async saveSite() {
-      const payload = {
-        companyId: this.vuexCompanyId,
-        name: this.currentSite.name,
-        description: this.currentSite.description || "",
-        region: this.currentSite.region,
-        province: this.currentSite.province,
-        municipality: this.currentSite.municipality,
-        barangay: this.currentSite.barangay,
-        status: this.currentSite.status,
-        maximum_months: this.currentSite.maximum_months || 0,
-        floors: this.currentSite.floors, // Send floors as an array
-      };
-
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
-          payload,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "application/json", // Send as JSON
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          this.showFloorModal = false;
-          this.fetchSites();
-          console.log("Site updated successfully!");
-        }
-      } catch (error) {
-        console.error("Error saving site:", error.response || error);
-        // Display generic error message in case of failure
-        alert("Failed to save site. Please try again.");
-      }
     },
 
     // Save new site, including floors
@@ -1578,59 +1561,42 @@ export default {
       };
     },
 
-    // Save edited site, including floors
     async manageSite() {
-      const formData = new FormData();
-      formData.append("companyId", this.vuexCompanyId);
-      formData.append("name", this.editSite.name);
-      formData.append("region", this.editSite.region);
-      formData.append("province", this.editSite.province);
-      formData.append("municipality", this.editSite.municipality);
-      formData.append("barangay", this.editSite.barangay);
-      formData.append("status", this.editSite.status);
-      formData.append("description", this.editSite.description || "");
-      formData.append("maximum_months", this.editSite.maximum_months);
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.editSite.name,
+        region: this.editSite.region,
+        province: this.editSite.province,
+        municipality: this.editSite.municipality,
+        barangay: this.editSite.barangay,
+        status: this.editSite.status,
+        description: this.editSite.description || "",
+        maximum_months: this.editSite.maximum_months,
+        commission: this.editSite.commission || "",
+        spot_discount_percentage: this.editSite.spot_discount_percentage || "",
+        spot_discount_flat: this.editSite.spot_discount_flat || "",
+        vat_percentage: this.editSite.vat_percentage || "",
+        reservation_fee: this.editSite.reservation_fee || "",
+        other_charges: this.editSite.other_charges || "",
+        floors: this.editSite.floors || [], // Send floors data as JSON if it exists
+      };
 
-      // Add Payment Fields
-      formData.append("commission", this.editSite.commission || "");
-      formData.append(
-        "spot_discount_percentage",
-        this.editSite.spot_discount_percentage || ""
-      );
-      formData.append(
-        "spot_discount_flat",
-        this.editSite.spot_discount_flat || ""
-      );
-      formData.append("vat_percentage", this.editSite.vat_percentage || "");
-      formData.append("reservation_fee", this.editSite.reservation_fee || "");
-      formData.append("other_charges", this.editSite.other_charges || "");
-
-      if (this.editSite.floors && this.editSite.floors.length > 0) {
-        this.editSite.floors.forEach((floor, index) => {
-          formData.append(
-            `floors[${index}][floor_number]`,
-            floor.floor_number || ""
-          );
-        });
-      }
-
-      if (this.newPictureFile) {
-        formData.append("picture", this.newPictureFile);
-      }
+      console.log("Payload being sent:", payload);
 
       try {
         const response = await axios.put(
           `http://localhost:8000/developer/sites/${this.editSite.id}/`,
-          formData,
+          payload, // Sending as JSON
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json", // Indicating JSON payload
             },
           }
         );
 
         if (response.status === 200) {
+          console.log("Site updated successfully:", response.data);
           const index = this.sites.findIndex(
             (site) => site.id === this.editSite.id
           );
@@ -1642,12 +1608,63 @@ export default {
         }
       } catch (error) {
         console.error("Error updating site:", error.response || error);
+        console.log("Error details:", error);
       }
     },
+    // Save the updated site details, including floors
+    async saveSite() {
+      console.log("Floors data being sent:", this.currentSite.floors);
 
+      const payload = {
+        companyId: this.vuexCompanyId,
+        name: this.currentSite.name,
+        description: this.currentSite.description || "",
+        region: this.currentSite.region,
+        province: this.currentSite.province,
+        municipality: this.currentSite.municipality,
+        barangay: this.currentSite.barangay,
+        status: this.currentSite.status,
+        maximum_months: this.currentSite.maximum_months || 0,
+        floors: this.currentSite.floors, // Send floors as an array
+      };
+
+      console.log("Payload being sent:", payload);
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/${this.currentSite.id}/`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json", // Send as JSON
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.showFloorModal = false;
+          this.fetchSites();
+          console.log("Site updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error saving site:", error.response || error);
+        console.log("Error details:", error);
+        alert("Failed to save site. Please try again.");
+      }
+    },
     // Open the edit modal and prepare the data
-    openEditModal(site) {
-      this.editSite = { ...site, floors: site.floors || [] };
+    openEditModal(selectedSite) {
+      // Set the selected site to be edited
+      this.selectedSite = selectedSite;
+
+      // Clone selectedSite to editSite (with cloned floors array if applicable)
+      this.editSite = {
+        ...this.selectedSite, // Shallow clone of selectedSite
+        floors: [...this.selectedSite.floors], // Clone the floors array to avoid reference issues
+      };
+
+      // Show the modal to edit the site
       this.showEditModal = true;
     },
 
@@ -1860,6 +1877,7 @@ body {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
   height: 38px;
   /* Explicitly set height */
@@ -1870,9 +1888,15 @@ body {
   max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 .dropdown2 {
+  appearance: none;
   padding: 8px 12px;
   height: 38px;
   /* Explicitly set height */
@@ -1883,6 +1907,11 @@ body {
   max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 /* Button Styles */
@@ -1965,7 +1994,7 @@ body {
 }
 
 .site-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -1977,6 +2006,7 @@ body {
 .site-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
   text-align: left;
   background: #fff;
 }
@@ -1998,7 +2028,7 @@ body {
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
   /* Location column */
-  width: 35%;
+  width: 43%;
   padding-right: 60px;
 }
 
@@ -2011,13 +2041,13 @@ body {
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
   /* Actions column */
-  width: 20%;
+  width: 7%;
 }
 
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 25% 35% 20% 20%;
+  grid-template-columns: 30% 43% 20% 7%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
@@ -2027,7 +2057,7 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
@@ -2049,6 +2079,17 @@ body {
   padding: 10px;
 }
 
+.btn-add-floors {
+  background-color: #8b8b8b;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 12px;
+}
+
 .btn-cancel {
   background-color: #343a40;
   /* Button primary color */
@@ -2061,15 +2102,20 @@ body {
 
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end;
+  /* Align to the right */
+  margin-top: 20px;
+  /* Add spacing from the content above */
+  gap: 10px;
+  /* Spacing between buttons */
+  padding-right: 20px;
+  /* Add padding to push it away from the edge */
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px;
+  /* Slightly smaller font */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -2088,6 +2134,7 @@ body {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+  background-color: #e9ecef;
+  /* Light gray */
 }
 </style>

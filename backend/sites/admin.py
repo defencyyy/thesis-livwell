@@ -33,7 +33,7 @@ class SiteAdminForm(forms.ModelForm):
 
         # Get the number of floors to add, defaulting to 0 if None
         num_floors = self.cleaned_data.get('add_multiple_floors', 0)
-        
+
         # Ensure num_floors is an integer (if it's None, set it to 0)
         if num_floors is None:
             num_floors = 0
@@ -45,17 +45,16 @@ class SiteAdminForm(forms.ModelForm):
                 site.save()
 
             # After saving the site, create the floors
-            max_floor_number = site.floors.count() + 1
-            for i in range(num_floors):
-                Floor.objects.create(site=site, floor_number=max_floor_number)
-                max_floor_number += 1
+                max_floor_number = site.floors.count() + 1
+                for i in range(num_floors):
+                    Floor.objects.create(site=site, floor_number=max_floor_number)
+                    max_floor_number += 1
 
-        # Save the site instance if it hasn't been saved yet (in case commit was False)
+         # Save the site instance if it hasn't been saved yet (in case commit was False)
         if commit:
             site.save()
         return site
-
-
+        
 class SiteAdmin(admin.ModelAdmin):
     form = SiteAdminForm  # Use the custom form for the SiteAdmin
     
