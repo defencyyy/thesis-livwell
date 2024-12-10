@@ -77,6 +77,7 @@ class UnitType(models.Model):
     ]
 
     name = models.CharField(max_length=50, unique=True)
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
     is_custom = models.BooleanField(default=True)
     is_archived = models.BooleanField(default=False) 
 
@@ -84,10 +85,15 @@ class UnitType(models.Model):
         # Prevent modification of default unit types
         if not self.is_custom and self.pk:
             raise ValueError("Default unit types cannot be modified.")
+        
+        # Set `is_default` based on the name if it's one of the default choices
+        if self.name in self.DEFAULT_CHOICES:
+            self.is_default = True
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
+
 
 class Unit(models.Model):
     STATUS_CHOICES = [

@@ -14,8 +14,6 @@ from .models import Unit, UnitImage, UnitTemplate, UnitType
 from sites.models import Floor
 from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer, UnitTypeSerializer
 
-
-
 # Utility to retrieve the company associated with the request user
 def get_company(request):
     company = request.user.company
@@ -212,23 +210,36 @@ class UnitTypeListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        unit_types = UnitType.objects.all()
-        serializer = UnitTypeSerializer(unit_types, many=True)
+        company = get_company(request)  # Reuse the company logic
+        # Get all unit types where is_custom is False (default types)
+        unit_types = UnitType.objects.filter(is_custom=False)
+        
+        # Include company-specific custom unit types if the user belongs to a company
+        if company:
+            unit_types = unit_types | UnitType.objects.filter(company=company, is_custom=True)
+        
+        serializer = UnitTypeSerializer(unit_types.distinct(), many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
+        
     def post(self, request):
-        serializer = UnitTypeSerializer(data=request.data)
+        company = get_company(request)  # Reuse the company logic
+        data = request.data.copy()
+        data['company'] = company.id  # Ensure the company is associated when creating the unit type
+        
+        serializer = UnitTypeSerializer(data=data)
         if serializer.is_valid():
             unit_type = serializer.save()
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UnitTypeDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
-        unit_type = UnitType.objects.filter(pk=pk).first()
+        company = get_company(request)  # Reuse the company logic
+        unit_type = UnitType.objects.filter(pk=pk, company=company).first()  # Filter by company
         if not unit_type:
             return Response({"error": "UnitType not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -236,7 +247,8 @@ class UnitTypeDetailView(APIView):
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        unit_type = UnitType.objects.filter(pk=pk).first()
+        company = get_company(request)  # Reuse the company logic
+        unit_type = UnitType.objects.filter(pk=pk, company=company).first()  # Filter by company
         if not unit_type:
             return Response({"error": "UnitType not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -248,7 +260,8 @@ class UnitTypeDetailView(APIView):
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        unit_type = UnitType.objects.filter(pk=pk).first()
+        company = get_company(request)  # Reuse the company logic
+        unit_type = UnitType.objects.filter(pk=pk, company=company).first()  # Filter by company
         if not unit_type:
             return Response({"error": "UnitType not found"}, status=status.HTTP_404_NOT_FOUND)
 

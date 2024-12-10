@@ -104,18 +104,18 @@
               />
             </div>
             <div
-                class="d-flex justify-content-end gap-2 mt-3"
-                style="padding-top: 15px"
-              >
-                <button type="submit" class="btn-add">Update</button>
-                <button
+              class="d-flex justify-content-end gap-2 mt-3"
+              style="padding-top: 15px"
+            >
+              <button type="submit" class="btn-add">Update</button>
+              <button
                 type="button"
                 class="btn-cancel"
                 @click="isEditModalOpen = false"
               >
                 Cancel
-                </button>
-              </div>
+              </button>
+            </div>
           </form>
         </b-modal>
 
@@ -201,7 +201,11 @@
                           <button
                             v-if="!unitType.is_custom && !showArchived"
                             disabled
-                            style="background-color: #fff; color: black; border:none;"
+                            style="
+                              background-color: #fff;
+                              color: black;
+                              border: none;
+                            "
                           >
                             Un-Editable
                           </button>
@@ -275,6 +279,7 @@ import axios from "axios";
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { BModal } from "bootstrap-vue-3";
+import { mapState } from "vuex"; // Import mapState from Vuex
 
 export default {
   components: { SideNav, AppHeader, BModal },
@@ -299,6 +304,7 @@ export default {
     };
   },
   computed: {
+    ...mapState(["companyId"]),
     // Filter and sort unit types based on the search query and archived status
     filteredUnitTypes() {
       // Filter by name and archived status
@@ -383,6 +389,7 @@ export default {
       const data = {
         name: this.newUnitType.name,
         is_custom: true,
+        company_id: this.companyId, // Pass companyId from Vuex
       };
 
       try {
