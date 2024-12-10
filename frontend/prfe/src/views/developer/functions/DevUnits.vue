@@ -87,7 +87,7 @@
                     <div class = "search-bar-container">
                       <input type = "text"
                       v-model = "searchQuery" 
-                      placeholder="Search by site name"
+                      placeholder="Search Site Name"
                       class = "search-bar">
                       <i class="fa fa-search search-icon"></i>
                     </div>
@@ -133,7 +133,7 @@
                 <p class="site-location">
                   {{ site.location || "Location unavailable" }}
                 </p>
-                <div class="site-stats">
+                <!-- <div class="site-stats">
                   <p>
                     Floors:
                     {{ site.floors.length > 0 ? site.floors.length : "None" }}
@@ -153,7 +153,7 @@
                 </div>
                 <button @click.stop="openFloorManagement(site)" class = "button-bottom-right">
                   Manage Floors
-                </button>
+                </button> -->
               </div>
             </div>
 
@@ -169,40 +169,40 @@
               </div>
               <div v-for="site in filteredSites" :key="site.id" class="card">
                 <div class="card-body">
-                  <table>
+                  <table class="site-table">
                     <tbody>
                       <tr>
                         <td>{{ site.name || "Unknown" }}</td>
                         <td>{{ site.location || "Location unavailable" }}</td>
                         <td>{{ site.status || "Status unavailable" }}</td>
                         <td>
-                          <p>
+                        
                             {{
                               site.floors?.length > 0
                                 ? site.floors.length
                                 : "None"
                             }}
-                          </p>
+                        
                         </td>
                         <td>
-                          <p>
+                          
                             {{
                               site.total_units > 0 ? site.total_units : "None"
                             }}
-                          </p>
+                          
                         </td>
                         <td>
-                          <p>
+                        
                             {{
                               site.available_units > 0
                                 ? site.available_units
                                 : "None"
                             }}
-                          </p>
+                        
                         </td>
                         <td>
-                          <button @click.stop="openFloorManagement(site)">
-                            Manage Floors
+                          <button @click.stop="openFloorManagement(site)" class="btn-manage">
+                            Manage
                           </button>
                         </td>
                       </tr>
@@ -213,9 +213,9 @@
             </div>
           </div>
 
-          <hr />
+          <!-- <hr /> -->
         </div>
-          <div class="filters">
+          <!-- <div class="filters">
             <b-form-group label="Select Site:">
               <b-form-select
                 v-model="selectedSite"
@@ -238,9 +238,9 @@
             <b-button @click="searchUnits" :disabled="!selectedSite">
               Search
             </b-button>
-          </div>
+          </div> -->
 
-        <div v-if="units.length > 0">
+        <!-- <div v-if="units.length > 0">
           <h2>Units</h2>
           <table>
             <thead>
@@ -265,10 +265,9 @@
           </table>
         </div>
 
-        <!-- Display a message if no units are found -->
         <div v-else>
           <h2>No Units Found</h2>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -278,17 +277,17 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
-import { BFormGroup, BFormSelect, BFormInput, BButton } from "bootstrap-vue-3";
+// import { BFormGroup, BFormSelect, BFormInput, BButton } from "bootstrap-vue-3";
 
 export default {
   name: "DevFuncUnits",
   components: {
     SideNav,
     AppHeader,
-    BFormGroup,
-    BFormSelect,
-    BFormInput,
-    BButton,
+    // BFormGroup,
+    // BFormSelect,
+    // BFormInput,
+    // BButton,
   },
   data() {
     return {
@@ -617,29 +616,24 @@ body {
 
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
   height: 38px;
   /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
-  width: 80%;
+  width: 100%;
   max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
-.dropdown2 {
-  padding: 8px 12px;
-  height: 38px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  font-size: 14px;
-  width: 90%;
-  max-width: 150px;
-  background-color: white;
-  color: #333;
-}
 
 .btn-primary.add-button {
   padding: 8px 12px;
@@ -699,12 +693,8 @@ body {
   margin-right: 10px;
 }
 
-.site-info {
-  flex-direction: row;
-}
-
 .site-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -718,6 +708,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .site-table th,
@@ -735,24 +726,38 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  width: 35%;
-  padding-right: 60px;
+  width: 25%;
+  padding-right: 10px;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  width: 20%;
+  width: 12%;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  width: 20%;
+  width: 12%;
+}
+
+.site-table th:nth-child(5),
+.site-table td:nth-child(5) {
+  width: 12%;
+}
+
+.site-table th:nth-child(6),
+.site-table td:nth-child(6) {
+  width: 12%;
+}
+.site-table th:nth-child(7),
+.site-table td:nth-child(7) {
+  width: 7%;
 }
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 35% 20% 20%;
-  padding: 0px 18px;
+  grid-template-columns: 20% 25% 12% 12% 12% 12% 7%;
+  padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;
 }
@@ -760,9 +765,20 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
+}
+
+.btn-manage {
+  background-color: #8b8b8b;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 8px;
+  font-size: 12px;
 }
 
 .form-group .form-label,
