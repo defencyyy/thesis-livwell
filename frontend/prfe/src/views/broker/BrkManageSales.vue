@@ -13,7 +13,7 @@
          <div
           class="card border-0 rounded-1 mx-auto"
           style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-        >
+          >
           <div class="card-body">
             <div class="row">
               <!-- Toolbar -->
@@ -37,7 +37,7 @@
         </div>
   
         <!-- Sales Table -->
-        <div style = "margin-top: 50px;">
+        <div>
           <div class="outside-headers">
             <span class="header-item">Customer Name</span>
             <span class="header-item">Customer Code</span>
@@ -66,7 +66,7 @@
               <tbody>
                 <tr>
                   <td>
-                    <span>
+                    <span class = "customer-name">
                       {{ sale.customer_name }}
                     </span>
                   </td>
@@ -91,34 +91,16 @@
                     </span>
                   </td>
                   <td>
-                    <div class="broker-actions d-flex gap-2">
-                      <button @click="openSalesAgreementModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
-                        <i class="fas fa-dollar-sign"></i>
-                      </button>
-                      <button @click="openDocumentModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
-                        <i class="fas fa-file-alt"></i>
-                      </button>
-                      <button @click="DeleteSaleModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
-                        <i class="fas fa-archive"></i>
-                      </button>
+                    <button class="btn btn-link" type="button" @click.stop="toggleDropdown(sale)"
+                        style="border: none; background-color: transparent; color: #343a40; cursor: pointer; font-size: 18px;">
+                        <i class="fas fa-ellipsis-h"></i> <!-- Horizontal Three Dots Icon -->
+                    </button>
+
+                    <div v-if="isDropdownVisible(sale)" class="dropdown-menu show"
+                        style="position: absolute; right: 0;">
+                        <a class="dropdown-item" href="#" @click.stop="openSalesAgreementModal(sale)">Sales Agreement</a>
+                        <a class="dropdown-item" href="#" @click.stop="openDocumentModal(sale)">Documents</a>
+                        <a class="dropdown-item" href="#" @click.stop="DeleteSaleModal(sale)">Delete</a>
                     </div>
                   </td>
                 </tr>
@@ -764,6 +746,7 @@ export default {
   },
   data() {
     return {
+      visibleDropdown: null,
       sales: [], // List of sales data
       showModal: false,
       showDocumentModal: false, // Controls the visibility of the document modal
@@ -841,6 +824,12 @@ export default {
     },
   },
   methods: {
+    toggleDropdown(sale) {
+      this.visibleDropdown = this.visibleDropdown === sale ? null : sale; // Toggle visibility
+    },
+    isDropdownVisible(sale) {
+      return this.visibleDropdown === sale; // Check if dropdown should be shown for this site
+    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -1403,7 +1392,7 @@ html, body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 20% 15% 15% 15% 20% 15%;
+  grid-template-columns: 25% 15% 15% 15% 20% 10%;
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -1412,7 +1401,7 @@ html, body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
   white-space: nowrap;
@@ -1429,8 +1418,13 @@ html, body {
   margin-right: auto;
 }
 
+.customer-name {
+  font-weight: bold;
+}
+
 .sales-table {
   width: 100%;
+  font-size: 14px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -1441,7 +1435,7 @@ html, body {
 
 .sales-table td:nth-child(1),
 .outside-headers .header-item:nth-child(1) {
-  width: 20%;
+  width: 25%;
 }
 
 .sales-table td:nth-child(2),
@@ -1466,7 +1460,7 @@ html, body {
 
 .sales-table td:nth-child(6),
 .outside-headers .header-item:nth-child(6) {
-  width: 15%;
+  width: 10%;
 }
 
 

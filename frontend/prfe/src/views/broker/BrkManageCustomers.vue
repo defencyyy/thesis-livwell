@@ -109,31 +109,15 @@
                       </span>
                     </td>
                     <td>
-                      <div class="broker-actions d-flex gap-2">
-                        <button
-                          @click="openEditModal(customer)"
-                          style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          "
-                        >
-                          <i class="fas fa-edit"></i>
-                        </button>
-                        <button
-                          @click="DeleteSaleModal(customer)"
-                          style="
-                            border: none;
-                            background-color: transparent;
-                            color: #343a40;
-                            cursor: pointer;
-                            font-size: 18px;
-                          "
-                        >
-                          <i class="fas fa-archive"></i>
-                        </button>
+                      <button class="btn btn-link" type="button" @click.stop="toggleDropdown(customer)"
+                        style="border: none; background-color: transparent; color: #343a40; cursor: pointer; font-size: 18px;">
+                        <i class="fas fa-ellipsis-h"></i> <!-- Horizontal Three Dots Icon -->
+                      </button>
+
+                      <div v-if="isDropdownVisible(customer)" class="dropdown-menu show"
+                        style="position: absolute; right: 0;">
+                        <a class="dropdown-item" href="#" @click.stop="openEditModal(customer)">Edit</a>
+                        <a class="dropdown-item" href="#" @click.stop="DeleteSaleModal(customer)">Delete</a>
                       </div>
                     </td>
                   </tr>
@@ -525,6 +509,7 @@ export default {
   },
   data() {
     return {
+      visibleDropdown: null,
       showModal: false, // Controls the visibility of the Add Customer modal
       showEditModal: false, // Edit customer modal visibility
       showDeleteModal: false, // To toggle the delete modal visibility
@@ -545,13 +530,19 @@ export default {
       searchQuery: "", // New property for search input
       filteredCustomers: [], // Holds the filtered list based on search query
       currentPage: 1, // Current page number
-      itemsPerPage: 5, // Number of customers per page
+      itemsPerPage: 15, // Number of customers per page
     };
   },
   mounted() {
     this.fetchCustomers();
   },
   methods: {
+    toggleDropdown(customer) {
+      this.visibleDropdown = this.visibleDropdown === customer ? null : customer; // Toggle visibility
+    },
+    isDropdownVisible(customer) {
+      return this.visibleDropdown === customer; // Check if dropdown should be shown for this site
+    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -961,33 +952,32 @@ body {
 }
 
 .customer-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: 10px;
 }
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 35% 30% 10%; /* Match column widths */
-  padding: 10px 18px;
+  grid-template-columns: 25% 35% 30% 10%;
+  padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
-  font-weight: bold;
-  text-align: left; /* Left-align for consistency with table */
 }
 
-.outside-headers .header-item {
-  display: flex;
-  justify-content: flex-start; /* Align text horizontally to the left */
-  align-items: center; /* Center vertically */
-  padding: 5px 0; /* Consistent with table cell padding */
-  line-height: 1.2;
-  word-wrap: break-word;
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .customer-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
   text-align: left; /* Consistent with headers */
 }
 
