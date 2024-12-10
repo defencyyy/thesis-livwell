@@ -129,46 +129,10 @@
           </div>
         </div> -->
 
-        </div>
-
-    <!-- Bottom: Bar Chart -->
-    <div v-if="salesStatus.sold > 0" class="bar-chart-container">
-      <!-- Bar Chart -->
-      <canvas id="salesBarChart"></canvas>
-
-      <!-- Overlay for Label and Dropdown -->
-      <div class="chart-overlay">
-        <!-- Upper Left: Label -->
-        <p class="chart-label">Sales Data for {{ selectedYear }}</p>
-
-        <!-- Upper Right: Dropdown -->
-        <div class="dropdown-container">
-          <select
-            id="year-select"
-            v-model="selectedYear"
-            @change="fetchSalesByMonth"
-            :disabled="loading"
-            style="color: black;"
-            
-          >
-            <option v-if="loading" value="" disabled>Loading years...</option>
-            <option v-for="year in availableYears" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
-        </div>
-      </div>
-    
-    </div>
-    <div v-else>
-      <p>No sales data available for the selected year.</p>
-    </div>
-
       </div>
     </div>
   </div>
 </template>
-
 
 
 
@@ -487,6 +451,7 @@ renderBarChart() {
 };
 </script>
 
+
 <style scoped>
 html,
 body {
@@ -729,17 +694,18 @@ canvas {
 }
 
 .dropdown-container select {
-  padding: 12px 10px;
+  padding: 6px 10px;
   font-size: 14px;
   font-weight: bold;
   border: none;
   border-radius: 2px;
-  background-color: #fff;
+  background-color: #d5d5d5;
   cursor: pointer;
   pointer-events: auto; /* Allow interactions */
   position: relative;
   top: -5px;
   right: 10px;
+  color: #000;
 }
 
 .bar-chart-header {
@@ -863,38 +829,4 @@ canvas {
   }
 }
 
-.bar-chart-container {
-  position: relative; /* Position container relative for overlay positioning */
-  margin-top: 30px;
-}
-
-.chart-overlay {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px; /* Ensure dropdown stays within the container */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none; /* Prevent overlay elements from blocking chart interactions */
-}
-
-.chart-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333; /* Ensure visibility against chart background */
-  pointer-events: auto; /* Allow interactions */
-}
-
-.dropdown-container select {
- 
-  padding: 5px;
-  font-size: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #fff;
-  cursor: pointer;
-  pointer-events: auto; /* Allow interactions */
-  
-}
 </style>

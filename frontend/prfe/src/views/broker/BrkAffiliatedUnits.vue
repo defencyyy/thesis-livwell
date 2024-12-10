@@ -669,7 +669,7 @@ body {
   padding: 5px 10px;
   font-size: 12px; /* Slightly smaller font */
   border: 1px solid #ddd;
-  background-color: #fff;
+  background-color: #006eff;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s;
@@ -677,7 +677,7 @@ body {
 
 .page-button.active {
   background-color: #007bff;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .page-button:disabled {

@@ -30,22 +30,24 @@
                   <tr>
                     <td class="document-name">
                       {{ docType.name }}
-                    <td class="document-name">
-                      {{ docType.name }}
                     </td>
-                    <td class="document-description">
-                      {{ docType.description || "N/A" }}
                     <td class="document-description">
                       {{ docType.description || "N/A" }}
                     </td>
                     <td>
-                        <button
-                          @click="editDocumentType(docType)"
-                          class="btn btn-warning btn-sm"
-                        >
-                          Edit
-                        </button>
-                        </td>
+                      <button
+                        @click="editDocumentType(docType)"
+                        class="btn btn-warning btn-sm"
+                      >
+                        Edit
+                      </button>
+                      <!-- <button
+                      @click="deleteDocumentType(docType.id)"
+                      class="btn btn-danger btn-sm"
+                    >
+                      Delete
+                    </button> -->
+                    </td>
                   </tr>
                 </tbody>
               </table>
