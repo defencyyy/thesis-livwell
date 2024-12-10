@@ -10,10 +10,11 @@
             <div class="edit-title"><strong>Manage Customer Sales</strong></div>
           </div>
         </div>
-         <div
-          class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-          >
+
+        <div
+        class="card border-0 rounded-1 mx-auto"
+        style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
           <div class="card-body">
             <div class="row">
               <!-- Toolbar -->
@@ -45,9 +46,9 @@
             <span class="header-item">Unit Title</span>
             <span class="header-item">Status</span>
             <span class="header-item">Action</span>
-
           </div>
         </div> 
+
         <div v-if="sales.length === 0">
             No sales found.
         </div>
@@ -108,32 +109,33 @@
             </table>
           </div>
         </div>
+
          <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
-        >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
+        <div class="pagination-controls">
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="page-button"
+          >
+            Previous
+          </button>
+          <span v-for="page in totalPages" :key="page">
+            <button
+              @click="goToPage(page)"
+              :class="{ active: page === currentPage }"
+              class="page-button"
+            >
+              {{ page }}
+            </button>
+          </span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="page-button"
+          >
+            Next
+          </button>
+        </div>
 
         <!-- Sales Agreement Modal -->
         <b-modal v-model="showModal" title = "Sales Agreement" size="lg" centered hide-footer >
@@ -203,7 +205,6 @@
               </div>
 
               <div class="info-box">
-                <!-- <h6 class="fw-bold">Other Charges</h6> -->
                 <ul class="list-unstyled mb-0">
                   <li v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</li>
                   <li><strong>Total Amount Payable:</strong> ₱{{totalAmountPayable}}</li>
@@ -224,17 +225,17 @@
               class="d-flex justify-content-end gap-2 mt-30"
               style="padding-top: 15px"
               >
-              <button
-                v-if="
-                  selectedSale.status !== 'Pending Sold' &&
-                  selectedSale.status !== 'Sold'
-                "
-                @click="markUnitAsSold"
-                class = "btn-add"
-              >
-                Mark Unit as Sold
-              </button>
-              <button @click="closeModal" class = "btn-cancel">Close</button>
+                <button
+                  v-if="
+                    selectedSale.status !== 'Pending Sold' &&
+                    selectedSale.status !== 'Sold'
+                  "
+                  @click="markUnitAsSold"
+                  class = "btn-add"
+                >
+                  Mark Unit as Sold
+                </button>
+                <button @click="closeModal" class = "btn-cancel">Close</button>
               </div>
               </div>
               
@@ -262,6 +263,7 @@
                 </div>
 
                 <div class="line mb-4"></div>
+
                 <!-- Spot Discount -->
                 <div class="form-group">
                   <label for="spotDiscount"><strong>Spot Discount</strong></label>
@@ -296,6 +298,7 @@
                     max="maxtlpDiscount"
                   />
                 </div>
+
                 <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
 
                 <!-- Net Unit Price -->
@@ -407,6 +410,7 @@
                   <p>
                     <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
                   </p>
+
                   <!-- Balance Upon Turnover -->
                   <p>
                     <strong>Balance Upon Turnover:</strong> ₱{{
@@ -443,6 +447,7 @@
                       }}
                     </p>
                   </div>
+
                   <!-- Expandable Detailed Schedule Section -->
                   <button @click="toggleDetailedSchedule" class="toggle-button">
                     {{
@@ -484,7 +489,9 @@
                   </div>
                 </div>
                 <br>
+
                 <div class="line mb-4"></div>
+
                 <!-- Required Documents Section (Always Displayed) -->
                 <div class="form-group">
                   <div class="col-12 text-center mb-3 text-center">
@@ -554,6 +561,7 @@
                 </button>
               </div>
             </div>
+
             <div v-else>
               <form @submit.prevent="uploadDocuments">
                 <div class="document-upload-form">
@@ -623,6 +631,7 @@
             </div>
           </div>
         </b-modal>
+
         <!-- Delete -->
          <b-modal
           v-model="showDeleteModal"
@@ -1463,48 +1472,39 @@ html, body {
   width: 10%;
 }
 
-
-/* Flex container for button alignment */
 .button-container {
   display: flex;
-  justify-content: flex-end; /* Align button to the right */
+  justify-content: flex-end; 
 }
 
-/* Button styling */
 .btn-cancel-right {
-  background-color: #343a40; /* Button primary color */
+  background-color: #343a40; 
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
+  border-radius: 3px; 
   padding: 10px;
   cursor: pointer;
 }
 
 .btn-add {
   background-color: #42b983;
-  /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
-  /* Adjust the border radius */
   padding: 10px;
 }
 
 .btn-cancel {
   background-color: #343a40;
-  /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
-  /* Adjust the border radius */
   padding: 10px;
 }
 
-/* Dropdown Styling */
 .dropdown {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -1520,84 +1520,16 @@ html, body {
 }
 
 .info-box {
-  background-color: #f8f9fa; /* Light gray background */
-  border-radius: 8px; /* Rounded corners */
-  padding: 15px; /* Padding for spacing */
-  margin-bottom: 15px; /* Spacing between boxes */
+  background-color: #f8f9fa; 
+  border-radius: 8px; 
+  padding: 15px; 
+  margin-bottom: 15px; 
 }
 
 .line {
-    border-top: 2px solid  #6c757d;; /* Adjust thickness and color */
-    width: 100%; /* Full-width */
-    margin: 0 auto; /* Center it */
-}
-
-/* juju end */
-
-/* Modal Background */
-.modal {
-  width: 80%; 
-  max-width: 800px; /* Ensure a max-width to prevent excessive stretching */
-  height: 70%; 
-  max-height: 600px; /* Optional */
-  background-color: #fff; 
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
-  border-radius: 10px; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 50%; 
-  left: 50%; 
-  transform: translate(-50%, -50%);
-}
-
-.modal-content {
-  width: 100%; /* Adjust to parent width */
-  padding: 20px;
-  overflow-y: auto;
-  text-align: left;
-  height: 100%; /* Allow content to use the full height */
-}
-
-/* Headings */
-.modal-content h2 {
-  color: #333;
-  margin-bottom: 10px;
-  text-align: left; /* Ensure headings are aligned to the left */
-}
-
-/* Paragraph Styling */
-.modal-content p {
-  font-size: 14px;
-  margin: 8px 0;
-  text-align: left; /* Align paragraphs to the left */
-}
-
-/* Buttons */
-.button {
-  background: #ddd;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 10px;
-  transition: all 0.3s;
-  text-align: center; /* Center-align button text */
-}
-
-/* Scrollable Content */
-.modal-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 3px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-  background: #555;
+    border-top: 2px solid  #6c757d;; 
+    width: 100%; 
+    margin: 0 auto; 
 }
 
 .payment-summary {
@@ -1649,6 +1581,7 @@ table {
 .sched-table td {
   text-align: right;
 }
+
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -1668,8 +1601,8 @@ table {
 }
 
 .spinner {
-  border: 4px solid #f3f3f3; /* Light grey background */
-  border-top: 4px solid #3498db; /* Blue color for the spinning part */
+  border: 4px solid #f3f3f3; 
+  border-top: 4px solid #3498db; 
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -1690,74 +1623,68 @@ table {
   margin-bottom: 10px;
 }
 
-/* Form Group Styling */
 .form-group {
   margin-bottom: 15px;
 }
 
-/* Dropdown Styling */
 .form-group select {
-  background-color: white; /* Set the background to white */
-  color: black; /* Set the text color to white */
+  background-color: white; 
+  color: black; 
   padding: 8px;
-  border: 1px solid #ccc; /* Add a subtle border for visibility */
+  border: 1px solid #ccc; 
   border-radius: 5px;
   font-size: 14px;
-  width: 100%; /* Make it responsive */
+  width: 100%; 
   cursor: pointer;
 }
 
 .form-group select:focus {
   outline: none;
-  border-color: #007bff; /* Highlight border on focus */
+  border-color: #007bff; 
 }
 
-/* Dropdown Hover Text */
 .form-group select:hover {
-  color: black; /* Change text color to black on hover for better visibility */
+  color: black; 
 }
 
-/* Style for File Input Button */
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
 
 .form-group input[type="number"] {
-  width: 70%; /* Make the input take up full width */
-  padding: 10px; /* Add padding for a better click area */
-  font-size: 16px; /* Match font size with the label */
-  border: 1px solid #ccc; /* Light border for input */
-  border-radius: 8px; /* Add rounded corners */
-  color: #333; /* Text color */
-  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+  width: 70%; 
+  padding: 10px; 
+  font-size: 16px; 
+  border: 1px solid #ccc; 
+  border-radius: 8px; 
+  color: #333; 
+  transition: all 0.3s ease; 
 }
 
 .form-group input[type="number"]:hover {
-  border-color: #007bff; /* Change border color on hover */
+  border-color: #007bff; 
 }
 
 .form-group input[type="number"]:focus {
-  border-color: #0056b3; /* Darker border color on focus */
-  outline: none; /* Remove default outline */
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+  border-color: #0056b3; 
+  outline: none; 
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); 
 }
 
 .form-group input[type="number"]::placeholder {
-  color: #888; /* Lighter text for placeholder */
-  font-style: italic; /* Italicize placeholder text */
+  color: #888; 
+  font-style: italic; 
 }
 .search-bar-container {
   position: relative;
   width: 100%;
   max-width: 400px;
-  /* Adjust the width as needed */
 }
 
 .search-bar {
   width: 400px;
   padding: 8px 12px 8px 40px;
-  /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -1767,25 +1694,22 @@ input[type="file"] {
   position: absolute;
   top: 50%;
   left: 10px;
-  /* Position the icon inside the input */
   transform: translateY(-50%);
   color: #777;
   font-size: 16px;
   pointer-events: none;
-  /* Prevent the icon from blocking clicks in the input */
 }
 
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end;
+  margin-top: 20px; 
+  padding-right: 20px; 
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px; 
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -1804,7 +1728,7 @@ input[type="file"] {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+  background-color: #e9ecef; 
 }
 
 
