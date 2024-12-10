@@ -186,7 +186,12 @@ class UnitDetailView(APIView):
         if image_files:
             for image in image_files:
                 try:
-                    UnitImage.objects.create(unit=unit, image=image)
+                    unit_image = UnitImage.objects.create(
+                        unit=unit,
+                        image=image,
+                        image_type="Unit",
+                        primary=False, 
+                    )
                 except Exception as e:
                     return Response({"error": f"Error updating image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
