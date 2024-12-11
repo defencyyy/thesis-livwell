@@ -31,6 +31,19 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
+                  <!-- Sort Dropdown -->
+                  <select
+                    v-model="sortBy"
+                    @change="sortCustomers"
+                    class="dropdown"
+                  >
+                    <option value="All">All</option>
+                    <option value="Sold">Sold</option>
+                    <option value="Pending Sold">Pending Sold</option>
+                    <option value="Reserved">Reserved</option>
+                    <option value="Pending Reservation">Pending Reservation</option>
+                    <!-- New sorting option -->
+                  </select>
                 </div>
               </div>
             </div>
@@ -746,37 +759,31 @@ export default {
       return localStorage.getItem("company_id");
     },
      // Filter and sort customers dynamically
-  sortedAndFilteredCustomers() {
-    const query = this.searchQuery.toLowerCase();
-    const filtered = this.sales.filter((customer) => {
-      const customerName = customer.customer_name.toLowerCase();
-      const customerCode = customer.customer_code
-        ? customer.customer_code.toLowerCase()
-        : "";
-      return (
-        !query ||
-        customerName.includes(query) ||
-        customerCode.includes(query)
-      );
-    });
+sortedAndFilteredCustomers() {
+  const query = this.searchQuery.toLowerCase();
+  const filtered = this.sales.filter((customer) => {
+    const customerName = customer.customer_name.toLowerCase();
+    const customerCode = customer.customer_code ? customer.customer_code.toLowerCase() : "";
+    return !query || customerName.includes(query) || customerCode.includes(query);
+  });
 
-    // Sort based on selected option
-    return filtered.sort((a, b) => {
-      switch (this.sortBy) {
-        case "name_asc":
-          return a.customer_name.localeCompare(b.customer_name);
-        case "name_desc":
-          return b.customer_name.localeCompare(a.customer_name);
-        case "customer_code_asc":
-          return a.customer_code.localeCompare(b.customer_code);
-        case "customer_code_desc":
-          return b.customer_code.localeCompare(a.customer_code);
-        default:
-          return 0; // Default case: no sorting
-      }
-    });
-  },
+  // Filter by the selected status
+  if (this.sortBy && this.sortBy !== 'All') {
+    return filtered.filter((sale) => sale.status === this.sortBy);
+  }
 
+  // Sort by status if needed
+  return filtered.sort((a, b) => {
+    const statusOrder = {
+      'Sold': 1,
+      'Pending Sold': 2,
+      'Reserved': 3,
+      'Pending Reservation': 4
+    };
+    const statusComparison = statusOrder[a.status] - statusOrder[b.status];
+    return statusComparison !== 0 ? statusComparison : 0;
+  });
+},
   // Paginate filtered and sorted customers
   paginatedCustomers() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -852,6 +859,8 @@ export default {
       filteredCustomers: [], // Holds the filtered list based on search query
       currentPage: 1, // Current page number
       itemsPerPage: 15, // Number of customers per page
+      sortBy: "All", // Selected sorting option (default is "Name (A-Z)")
+
     };
   },
   mounted() {
@@ -930,6 +939,7 @@ export default {
           if (data.success) {
             this.sales = data.sales; // This should now have customer name, site name, and unit title
             this.filteredCustomers = this.sales; // Initialize filteredCustomers with all customers
+            this.sortCustomers();
           } else {
             console.error(data.message || "Failed to fetch sales data.");
           }
@@ -1861,5 +1871,22 @@ input[type="file"] {
     padding: 4px 8px;
   }
 }
+.dropdown {
+  padding: 8px 12px;
+  height: 38px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+}
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 
 </style>
