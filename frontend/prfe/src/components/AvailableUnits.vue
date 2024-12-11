@@ -457,9 +457,7 @@
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
     >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
+      <button @click="redirectToReservePage">Reserve</button>
     </div>
 
     <!-- Success Message Pop-up -->
@@ -738,6 +736,31 @@ export default {
   },
 
   methods: {
+redirectToReservePage() {
+  this.$router.push({
+    name: "ReservePage",
+    query: {
+      unitId: this.selectedUnit.id,
+      siteId: this.siteId,
+      siteName: this.siteName,
+      companyId: this.selectedUnit.company_id, // Passing company_id
+      brokerId: parseInt(this.$store.getters.getUserId, 10), // Passing broker_id
+      commission: this.selectedUnit.commission,
+      reservationFee:this.selectedUnit.reservation_fee,
+    }
+  });
+  console.log('Redirecting to ReservePage with the following data:');
+  console.log({
+    unitId: this.selectedUnit.id,
+    siteId: this.siteId,
+    siteName: this.siteName,
+    companyId: this.selectedUnit.company_id,
+    brokerId: parseInt(this.$store.getters.getUserId, 10),
+    commission: this.selectedUnit.commission,
+    reservationFee:this.selectedUnit.reservation_fee,
+
+  });
+},
     calculateAmortization(balance, years) {
     const interestRate = 6.5 / 100; // 6.5% annual interest
     const monthlyRate = interestRate / 12; // Monthly interest rate
