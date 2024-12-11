@@ -609,17 +609,6 @@ redirectToReservePage() {
       reservationFee:this.selectedUnit.reservation_fee,
     }
   });
-  console.log('Redirecting to ReservePage with the following data:');
-  console.log({
-    unitId: this.selectedUnit.id,
-    siteId: this.siteId,
-    siteName: this.siteName,
-    companyId: this.selectedUnit.company_id,
-    brokerId: parseInt(this.$store.getters.getUserId, 10),
-    commission: this.selectedUnit.commission,
-    reservationFee:this.selectedUnit.reservation_fee,
-
-  });
 },
     calculateAmortization(balance, years) {
     const interestRate = 6.5 / 100; // 6.5% annual interest
