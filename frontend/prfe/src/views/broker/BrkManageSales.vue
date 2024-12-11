@@ -45,7 +45,7 @@
             <span class="header-item">Site Name</span>
             <span class="header-item">Unit Title</span>
             <span class="header-item">Status</span>
-            <span class="header-item">Action</span>
+            <span class="header-item">Actions</span>
           </div>
         </div> 
 
