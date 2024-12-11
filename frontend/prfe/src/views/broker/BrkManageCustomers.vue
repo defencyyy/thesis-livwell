@@ -112,14 +112,31 @@
                       </span>
                     </td>
                     <td>
-                      <button class="btn btn-link" type="button" @click.stop="toggleDropdown(customer)"
-                        style="border: none; background-color: transparent; color: #343a40; cursor: pointer; font-size: 18px;">
-                        <i class="fas fa-ellipsis-h"></i> <!-- Horizontal Three Dots Icon -->
-                      </button>
-                      <div v-if="isDropdownVisible(customer)" class="dropdown-menu show"
-                        style="position: absolute; right: 0;">
-                        <a class="dropdown-item" href="#" @click.stop="openEditModal(customer)">Edit</a>
-                        <a class="dropdown-item" href="#" @click.stop="DeleteSaleModal(customer)">Delete</a>
+                      <div class="broker-actions d-flex gap-2">
+                        <button
+                          @click="openEditModal(customer)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button
+                          @click="DeleteSaleModal(customer)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-archive"></i>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -516,7 +533,6 @@ export default {
   },
   data() {
     return {
-      visibleDropdown: null,
       showModal: false, // Controls the visibility of the Add Customer modal
       showEditModal: false, // Edit customer modal visibility
       showDeleteModal: false, // To toggle the delete modal visibility
@@ -544,12 +560,6 @@ export default {
     this.fetchCustomers();
   },
   methods: {
-    toggleDropdown(customer) {
-      this.visibleDropdown = this.visibleDropdown === customer ? null : customer; // Toggle visibility
-    },
-    isDropdownVisible(customer) {
-      return this.visibleDropdown === customer; // Check if dropdown should be shown for this site
-    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
