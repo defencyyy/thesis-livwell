@@ -4,11 +4,22 @@
     <div class="main-content">
     <AppHeader />
     <div class="content">
-        <h1>Reserve a Unit</h1>
+      <router-link v-if="siteId" :to="{ name: 'AvailableUnits', params: { siteId: siteId } }" class="text-start">
+      <div class="back-container">
+        <i class="fas fa-arrow-left"></i> Back to Units
+      </div>
+    </router-link>
+    <!-- Optionally display a fallback message if siteId is not set -->
+    <div v-else>
+      Loading Units ...
+    </div>   
+
+
+      <h1>Reserve a Unit</h1>
    <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
         <!-- Customer Name Dropdown -->
         <div class="form-group">
-          <label for="customerName">Customer Name</label>
+          <label for="customerName">Customer Name {{ this.siteId }}</label>
           <select
             v-model="reservationForm.customerName"
             id="customerName"
@@ -175,17 +186,7 @@ mounted() {
    this.companyId = companyId;
    this.brokerId = brokerId;
     this.commission = commission;
-    this.reservationFee = reservationFee;
-   
-   
-   console.log("Unit ID:", unitId);
-   console.log("Site ID:", siteId);
-   console.log("Site Name:", siteName);
-   console.log("Company ID:", companyId);
-   console.log("Broker ID:", brokerId);
-    console.log("Commission ID:", commission);
-    console.log("res", reservationFee);
-   
+  this.reservationFee = reservationFee;   
    this.fetchCustomers();
 },
 methods: {
@@ -398,7 +399,10 @@ label {
   font-weight: bold;
   margin-bottom: 5px;
 }
-
+.text-start{
+  color: black;
+  text-decoration: none !important;
+}
 .error {
   color: red;
 }
