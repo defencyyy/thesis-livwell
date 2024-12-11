@@ -92,16 +92,34 @@
                     </span>
                   </td>
                   <td>
-                    <button class="btn btn-link" type="button" @click.stop="toggleDropdown(sale)"
-                        style="border: none; background-color: transparent; color: #343a40; cursor: pointer; font-size: 18px;">
-                        <i class="fas fa-ellipsis-h"></i> <!-- Horizontal Three Dots Icon -->
-                    </button>
-
-                    <div v-if="isDropdownVisible(sale)" class="dropdown-menu show"
-                        style="position: absolute; right: 0;">
-                        <a class="dropdown-item" href="#" @click.stop="openSalesAgreementModal(sale)">Sales Agreement</a>
-                        <a class="dropdown-item" href="#" @click.stop="openDocumentModal(sale)">Documents</a>
-                        <a class="dropdown-item" href="#" @click.stop="DeleteSaleModal(sale)">Delete</a>
+                    <div class="broker-actions d-flex gap-2">
+                      <button @click="openSalesAgreementModal(sale)" style="
+                      border: none;
+                      background-color: transparent;
+                      color: #343a40;
+                      cursor: pointer;
+                      font-size: 18px;
+                      ">
+                        <i class="fas fa-dollar-sign"></i>
+                      </button>
+                      <button @click="openDocumentModal(sale)" style="
+                      border: none;
+                      background-color: transparent;
+                      color: #343a40;
+                      cursor: pointer;
+                      font-size: 18px;
+                      ">
+                        <i class="fas fa-file-alt"></i>
+                      </button>
+                      <button @click="DeleteSaleModal(sale)" style="
+                      border: none;
+                      background-color: transparent;
+                      color: #343a40;
+                      cursor: pointer;
+                      font-size: 18px;
+                      ">
+                        <i class="fas fa-archive"></i>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -755,7 +773,6 @@ export default {
   },
   data() {
     return {
-      visibleDropdown: null,
       sales: [], // List of sales data
       showModal: false,
       showDocumentModal: false, // Controls the visibility of the document modal
@@ -833,12 +850,6 @@ export default {
     },
   },
   methods: {
-    toggleDropdown(sale) {
-      this.visibleDropdown = this.visibleDropdown === sale ? null : sale; // Toggle visibility
-    },
-    isDropdownVisible(sale) {
-      return this.visibleDropdown === sale; // Check if dropdown should be shown for this site
-    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
