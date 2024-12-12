@@ -55,6 +55,7 @@
                   <select v-model="sortBy" class="dropdown">
                     <option value="name">Sort: Name</option>
                     <option value="status">Sort: Status</option>
+                    <option value="creation">Sort: Date Created</option>
                   </select>
 
                   <select
@@ -1131,14 +1132,21 @@ export default {
             site?.name?.toLowerCase().includes(this.searchQuery.toLowerCase()) // Optional chaining for safety
         )
         .sort((a, b) => {
-          const aName = a?.name || ""; // Default to empty string if undefined or null
+          const aName = a?.name || "";
           const bName = b?.name || "";
           const aStatus = a?.status || "";
           const bStatus = b?.status || "";
+          const aCreatedAt = new Date(a?.created_at) || new Date(0); // Default to epoch if undefined
+          const bCreatedAt = new Date(b?.created_at) || new Date(0);
 
-          return this.sortBy === "name"
-            ? aName.localeCompare(bName)
-            : aStatus.localeCompare(bStatus);
+          if (this.sortBy === "name") {
+            return aName.localeCompare(bName);
+          } else if (this.sortBy === "status") {
+            return aStatus.localeCompare(bStatus);
+          } else if (this.sortBy === "creation") {
+            return aCreatedAt - bCreatedAt; // Sort by date (ascending)
+          }
+          return 0; // Default case
         });
     },
     numberOfSections() {
