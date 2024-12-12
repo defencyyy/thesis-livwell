@@ -156,8 +156,8 @@
           </div>
 
           </div>
-
-          <div class="title-wrapper">
+          <div v-if="selectedPaymentPlan === 'Deferred Payment'">
+            <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
               <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
@@ -252,6 +252,8 @@
               </table>
             </div>
           </div>
+          </div>
+    
 
           
         </div>
@@ -624,7 +626,7 @@ p {
 
 .detailed-schedule {
   flex: 1; /* Flex item for dynamic width */
-  height: 450px;
+  height: 640px;
   min-width: 300px;
 }
 
