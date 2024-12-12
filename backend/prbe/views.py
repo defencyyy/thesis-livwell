@@ -16,11 +16,12 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.db.models import Sum
-from datetime import timedelta
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractYear
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.core.cache import cache  # For caching tokens temporarily
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 import random
 import string
@@ -280,41 +281,64 @@ def update_broker_view(request, broker_id):
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
 
+            # Get the company the broker belongs to
+            company_id = broker.company.id  # Assuming the broker has a company ForeignKey
             current_password = data.get('current_password')
+            
             if current_password and not broker.check_password(current_password):
                 return JsonResponse({"success": False, "message": "Current password is incorrect."}, status=400)
 
             if 'password' in data and data['password'] is not None:
                 password = data['password']
-
                 password_error = validate_password_strength(password)
                 if password_error:
                     return JsonResponse({"success": False, "message": password_error}, status=400)
-
                 broker.password = make_password(password)
 
             if 'username' in data and data['username'] is not None:
-                broker.username = data['username']
+                username = data['username']
+
+                # Check if another broker in the same company has the same username
+                if Broker.objects.filter(username=username, company_id=company_id).exclude(id=broker.id).exists():
+                    return JsonResponse({"success": False, "message": "The username is already taken within your company. Please choose a different one."}, status=400)
+
+                # Check if a developer in the same company has the same username
+                if Developer.objects.filter(username=username, company_id=company_id).exists():
+                    return JsonResponse({"success": False, "message": "The username is already taken by a developer in your company. Please choose a different one."}, status=400)
+
+                broker.username = username
+            
             if 'email' in data and data['email'] is not None:
-                broker.email = data['email']
+                email = data['email']
+                try:
+                    validate_email(email)
+                    if Broker.objects.filter(email=email).exclude(id=broker.id).exists():
+                        return JsonResponse({"success": False, "message": "The email is already taken. Please choose a different one."}, status=400)
+                    broker.email = email
+                except ValidationError:
+                    return JsonResponse({"success": False, "message": "Invalid email format."}, status=400)
+
             if 'contact_number' in data and data['contact_number'] is not None:
-                broker.contact_number = data['contact_number']
+                contact_number = data['contact_number']
+                # Add a validation for phone number format if needed
+                if not re.match(r'^\+?[1-9]\d{1,14}$', contact_number):
+                    return JsonResponse({"success": False, "message": "Invalid contact number format."}, status=400)
+                broker.contact_number = contact_number
 
             broker.save()
             return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
 
         except Exception as e:
             error_message = str(e).lower()
-            
-            # Check for specific fields causing the unique constraint violation
+
+            # Handle specific database errors like unique constraints
             if 'username' in error_message and 'already exists' in error_message:
-                return JsonResponse({"success": False, "message": "The username is already taken. Please choose a different one."}, status=400)
+                return JsonResponse({"success": False, "message": "The username is already staken. Please choose a different one."}, status=400)
             elif 'email' in error_message and 'already exists' in error_message:
                 return JsonResponse({"success": False, "message": "The email is already taken. Please choose a different one."}, status=400)
             elif 'unique constraint' in error_message:
                 return JsonResponse({"success": False, "message": "The provided data violates a unique constraint."}, status=400)
 
-            print(f"Error updating broker: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
