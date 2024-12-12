@@ -150,7 +150,6 @@
                     <td>{{ site.location || "Location unavailable" }}</td>
                     <td>{{ site.status || "Status unavailable" }}</td>
 
-                    <!-- Manage Floors Button -->
                     <td>
                       <!-- Three Dots Icon for each row -->
                       <button
@@ -181,12 +180,7 @@
                           @click.stop="openEditModal(site)"
                           >Edit</a
                         >
-                        <a
-                          class="dropdown-item"
-                          href="#"
-                          @click.stop="openFloorModal(site)"
-                          >Manage Floors</a
-                        >
+
                         <a
                           class="dropdown-item"
                           v-if="!site.archived"
@@ -416,7 +410,7 @@
                       v-model="newSite.commission"
                       id="commission"
                       class="form-control"
-                      placeholder="Enter commission percentage"
+                      placeholder="Enter commission"
                       min="0"
                       required
                     />
@@ -529,6 +523,42 @@
                     />
                   </div>
                 </div>
+                <!-- New Fields for Numbering Type and Section Label -->
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="numberingType" class="form-label"
+                      >Numbering Type</label
+                    >
+                    <select
+                      v-model="newSite.numbering_type"
+                      id="numberingType"
+                      class="form-select"
+                      required
+                    >
+                      <option value="numeric">Numeric (1, 2, 3,...)</option>
+                      <option value="alphabetic">
+                        Alphabetic (A, B, C,...)
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="sectionLabel" class="form-label"
+                      >Section Label</label
+                    >
+                    <select
+                      v-model="newSite.section_label"
+                      id="sectionLabel"
+                      class="form-select"
+                      required
+                    >
+                      <option value="floor">Floor</option>
+                      <option value="block">Block</option>
+                      <option value="unit">Unit</option>
+                      <option value="unit">Section</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <!-- Buttons -->
@@ -551,7 +581,7 @@
           </div>
         </b-modal>
 
-        <!-- Edit Site and Manage Sections Modal -->
+        <!-- View and Edit Site Modal -->
         <b-modal
           v-model="showEditModal"
           title="Site Details / Edit"
@@ -689,20 +719,6 @@
                       readonly
                     />
                   </div>
-
-                  <!-- Number of Sections (Editable) -->
-                  <div class="form-group mb-3">
-                    <label for="editNumberOfSections" class="form-label"
-                      >Number of Sections</label
-                    >
-                    <input
-                      type="number"
-                      v-model="editSite.sections.length"
-                      id="editNumberOfSections"
-                      class="form-control"
-                      readonly
-                    />
-                  </div>
                 </div>
 
                 <!-- Right Side (Image Upload with Preview) -->
@@ -759,7 +775,7 @@
               <div class="row mb-3">
                 <div class="col-md-6">
                   <label for="editCommission" class="form-label"
-                    >Commission (%)</label
+                    >Commission (Total)</label
                   >
                   <input
                     type="number"
@@ -838,6 +854,52 @@
                     id="editOtherCharges"
                     class="form-control"
                     min="0"
+                  />
+                </div>
+              </div>
+              <!-- Number of Sections (Editable) -->
+              <div class="form-group mb-3">
+                <label for="numberOfSections" class="form-label"
+                  >Number of Sections</label
+                >
+                <input
+                  type="number"
+                  v-model="editSite.number_of_sections"
+                  id="numberOfSections"
+                  class="form-control"
+                  placeholder="Enter the number of sections"
+                  min="1"
+                  required
+                />
+              </div>
+
+              <!-- Section Label and Numbering Type (Disabled) -->
+              <div class="row mb-3">
+                <!-- Section Label (Readonly) -->
+                <div class="col-md-6">
+                  <label for="editSectionLabel" class="form-label"
+                    >Section Label</label
+                  >
+                  <input
+                    type="text"
+                    v-model="editSite.section_label"
+                    id="editSectionLabel"
+                    class="form-control"
+                    readonly
+                  />
+                </div>
+
+                <!-- Numbering Type (Readonly) -->
+                <div class="col-md-6">
+                  <label for="editNumberingType" class="form-label"
+                    >Numbering Type</label
+                  >
+                  <input
+                    type="text"
+                    v-model="editSite.numbering_type"
+                    id="editNumberingType"
+                    class="form-control"
+                    readonly
                   />
                 </div>
               </div>
@@ -932,8 +994,10 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        maximum_months: 240,
-        number_of_sections: 15, // Updated from number_of_floors
+        maximum_months: 24,
+        number_of_sections: 15,
+        numbering_type: "numeric",
+        section_label: "floor",
         commission: 200000,
         spot_discount_percentage: 0,
         spot_discount_flat: 0,
@@ -941,6 +1005,7 @@ export default {
         reservation_fee: 50000,
         other_charges: 0,
       },
+      showSectionModal: false, // Updated from showFloorModal
       editSite: {
         id: "",
         name: "",
@@ -951,9 +1016,13 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        sections: [], // Updated from floors
+        // Section
+        sections: [],
+        section_label: "",
+        number_of_sections: 0,
+        numbering_type: "",
+        // Payment
         maximum_months: 0,
-        number_of_sections: 0, // Updated from number_of_floors
         commission: 0,
         spot_discount_percentage: 0,
         spot_discount_flat: 0,
@@ -961,7 +1030,6 @@ export default {
         reservation_fee: 0,
         other_charges: 0,
       },
-      showSectionModal: false, // Updated from showFloorModal
       currentSite: {
         id: "",
         name: "",
@@ -972,8 +1040,13 @@ export default {
         barangay: "",
         description: "",
         picture: "",
-        sections: [], // Updated from floors
-        number_of_sections: 0, // Updated from number_of_floors
+        // Section
+        sections: [],
+        section_label: "",
+        number_of_sections: 0,
+        numbering_type: "",
+        // Payment
+        maximum_months: 0,
         commission: 0,
         spot_discount_percentage: 0,
         spot_discount_flat: 0,
@@ -1000,7 +1073,6 @@ export default {
       itemsPerPage: 15,
     };
   },
-
   computed: {
     ...mapState({
       userId: (state) => state.userId,
@@ -1035,6 +1107,10 @@ export default {
             : aStatus.localeCompare(bStatus);
         });
     },
+    numberOfSections() {
+      // Return the length of sections array of the selected site
+      return this.currentSite.sections.length;
+    },
     paginatedSites() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
@@ -1051,27 +1127,9 @@ export default {
     isDropdownVisible(site) {
       return this.visibleDropdown === site; // Check if dropdown should be shown for this site
     },
-
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
-      }
-    },
-    async fetchSiteDetails() {
-      try {
-        const response = await axios.get(
-          `http://localhost:8000/developer/sites/${this.siteId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        if (response.data.success) {
-          this.currentSite = response.data.data; // This should include floors
-        }
-      } catch (error) {
-        console.error("Error fetching site details:", error);
       }
     },
     async fetchSites() {
@@ -1090,7 +1148,7 @@ export default {
             name: site.name || "Unknown Site",
             location: this.constructLocation(site), // Dynamically build location
             isArchived: site.isArchived ?? false,
-            floors: site.floors || [], // Ensure floors is always an array
+            sections: site.sections || [], // Ensure floors is always an array
           }));
         }
       } catch (error) {
@@ -1222,124 +1280,11 @@ export default {
     toggleView() {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
-    constructLocation(site) {
-      const addressParts = [
-        site.province,
-        site.municipality,
-        site.barangay,
-        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
-      ];
-      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
-    },
-    async loadRegionData() {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/sites/locations/"
-        );
-        console.log("Region Data fetched:", response.data);
-        this.regionData = response.data; // Store region data for further processing
-
-        // Sort region options: non-numeric values at the top, followed by numeric ones in ascending order
-        this.regionOptions = Object.keys(this.regionData).sort((a, b) => {
-          // Check if the keys are numeric
-          const isANumeric = !isNaN(parseInt(a));
-          const isBNumeric = !isNaN(parseInt(b));
-
-          // If both are numeric or both are non-numeric, sort numerically or lexicographically
-          if (isANumeric && isBNumeric) {
-            return parseInt(a) - parseInt(b); // Numeric sorting
-          } else if (!isANumeric && !isBNumeric) {
-            return a.localeCompare(b); // Non-numeric sorting (lexicographically)
-          } else {
-            // If one is numeric and the other is non-numeric, non-numeric goes first
-            return isANumeric ? 1 : -1;
-          }
-        });
-      } catch (error) {
-        console.error("Error loading region data:", error);
-      }
-    },
-
-    loadProvinceData(regionCode) {
-      if (!regionCode) {
-        console.error("No region selected.");
-        return;
-      }
-
-      const region = this.regionData[regionCode]; // Get the region using selectedRegion
-      if (region) {
-        this.provinceOptions = Object.keys(region.province_list); // Map available provinces from province_list
-
-        // Set the region to newSite
-        this.newSite.region = regionCode;
-
-        // Clear previous municipality and barangay options
-        this.municipalityOptions = [];
-        this.barangayOptions = [];
-        this.newSite.province = ""; // Reset province in newSite
-        this.newSite.municipality = ""; // Reset municipality in newSite
-        this.newSite.barangay = ""; // Reset barangay in newSite
-      } else {
-        console.error("Invalid region selected.");
-      }
-    },
-
-    loadMunicipalityData(provinceName) {
-      if (!this.newSite.region) {
-        console.error("No region selected.");
-        return;
-      }
-      if (!provinceName) {
-        console.error("No province selected.");
-        return;
-      }
-
-      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
-      if (region) {
-        const province = region.province_list[provinceName]; // Get the province using provinceName
-        if (province) {
-          this.municipalityOptions = Object.keys(province.municipality_list); // Map available municipalities from municipality_list
-
-          // Set the province to newSite
-          this.newSite.province = provinceName;
-
-          // Clear barangay options when a new province is selected
-          this.barangayOptions = [];
-          this.newSite.municipality = ""; // Reset municipality in newSite
-          this.newSite.barangay = ""; // Reset barangay in newSite
-        } else {
-          this.municipalityOptions = []; // Clear if no province found
-          this.barangayOptions = []; // Clear barangay options if no province is found
-        }
-      }
-    },
-
-    loadBarangayData(municipalityName) {
-      if (!municipalityName) {
-        console.error("No municipality selected.");
-        return;
-      }
-
-      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
-      if (region) {
-        const province = region.province_list[this.newSite.province]; // Get the province using newSite.province
-        if (province) {
-          const municipality = province.municipality_list[municipalityName]; // Get municipality using municipalityName
-          if (municipality) {
-            this.barangayOptions = municipality.barangay_list || []; // Map available barangays from barangay_list
-
-            // Set the municipality to newSite
-            this.newSite.municipality = municipalityName;
-          }
-        }
-      }
-    },
 
     // Function to get the picture URL (for the current image)
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
-
     async uploadPicture(siteId, pictureFile) {
       const formData = new FormData();
       formData.append("picture", pictureFile);
@@ -1404,6 +1349,8 @@ export default {
       formData.append("status", this.newSite.status);
       formData.append("number_of_sections", this.newSite.number_of_sections); // Updated field
       formData.append("maximum_months", this.newSite.maximum_months);
+      formData.append("numbering_type", this.newSite.numbering_type); // Added field
+      formData.append("section_label", this.newSite.section_label); // Added field
 
       // Add Payment Fields
       formData.append("commission", this.newSite.commission || "");
@@ -1469,23 +1416,21 @@ export default {
         console.error("Error adding site:", error.response || error);
       }
     },
-
     async updateSite() {
       const formData = new FormData();
 
-      // Site fields (Editable ones)
+      // Site fields
       formData.append("companyId", this.vuexCompanyId);
-      formData.append("name", this.editSite.name); // Editable site name
+      formData.append("name", this.editSite.name);
       formData.append("description", this.editSite.description || "");
       formData.append("region", this.editSite.region);
       formData.append("province", this.editSite.province);
       formData.append("municipality", this.editSite.municipality);
       formData.append("barangay", this.editSite.barangay);
       formData.append("status", this.editSite.status);
-      formData.append("number_of_sections", this.editSite.number_of_sections); // Editable section count
-      formData.append("maximum_months", this.editSite.maximum_months);
 
       // Payment Fields
+      formData.append("maximum_months", this.editSite.maximum_months);
       formData.append("commission", this.editSite.commission || "");
       formData.append(
         "spot_discount_percentage",
@@ -1498,14 +1443,17 @@ export default {
       formData.append("vat_percentage", this.editSite.vat_percentage || "");
       formData.append("reservation_fee", this.editSite.reservation_fee || "");
       formData.append("other_charges", this.editSite.other_charges || "");
-
-      // Sections (Editable)
+      // Sections
+      formData.append("number_of_sections", this.editSite.number_of_sections); // Editable section count
+      formData.append("section_label", this.editSite.section_label || ""); // for updateSite
+      formData.append("numbering_type", this.editSite.numbering_type || ""); // Added field
       if (this.editSite.sections && this.editSite.sections.length > 0) {
         this.editSite.sections.forEach((section, index) => {
           formData.append(
             `sections[${index}][sectionNumber]`,
             section.sectionNumber || ""
           );
+          // You can add more fields for each section if necessary
         });
       }
 
@@ -1549,7 +1497,17 @@ export default {
         console.error("Error editing site:", error.response || error);
       }
     },
-
+    addSections() {
+      const newSections = [];
+      for (let i = 0; i < this.newSectionCount; i++) {
+        newSections.push({
+          sectionNumber: this.editSite.sections.length + i + 1, // Automatically generate section numbers
+          sectionLabel: this.editSite.section_label, // Include the section label for each new section
+        });
+      }
+      this.editSite.sections.push(...newSections);
+      this.editSite.number_of_sections = this.editSite.sections.length; // Update the section count
+    },
     // Helper function to reset the new site form
     resetNewSite() {
       return {
@@ -1561,9 +1519,9 @@ export default {
         barangay: "",
         description: "",
         picture: null,
-        number_of_floors: 0,
+        number_of_sections: 0,
         maximum_months: 0,
-        floors: [], // Ensure floors are cleared
+        sections: [], // Ensure floors are cleared
         commission: null,
         spot_discount_percentage: null,
         spot_discount_flat: null,
@@ -1572,19 +1530,24 @@ export default {
         other_charges: null,
       };
     },
-
     // Open the edit modal and prepare the data
     openEditModal(selectedSite) {
-      // Set the selected site to be edited
+      console.log("Selected Site:", selectedSite); // Debugging line to see the selected site
       this.selectedSite = selectedSite;
 
-      // Clone selectedSite to editSite (with cloned floors array if applicable)
+      // Get the length of the sections array
+      const numberOfSections = this.selectedSite.sections.length;
+
+      console.log("Number of Sections:", numberOfSections); // Log the number of sections
+
       this.editSite = {
-        ...this.selectedSite, // Shallow clone of selectedSite
-        floors: [...this.selectedSite.floors], // Clone the floors array to avoid reference issues
+        ...this.selectedSite,
+        sections: [...this.selectedSite.sections], // Clone sections array to avoid mutation
+        number_of_sections: numberOfSections, // Set the length of sections in the editSite object
       };
 
-      // Show the modal to edit the site
+      console.log("Edit Site after cloning sections:", this.editSite);
+
       this.showEditModal = true;
     },
 
@@ -1593,13 +1556,11 @@ export default {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
-
     // Reset the picture preview
     resetPicturePreview() {
       this.newPictureFile = null;
       this.imagePreview = null;
     },
-
     async fetchStatusOptions() {
       try {
         const response = await axios.get(
@@ -1615,9 +1576,116 @@ export default {
         console.error("Error fetching status options:", error);
       }
     },
+    constructLocation(site) {
+      const addressParts = [
+        site.province,
+        site.municipality,
+        site.barangay,
+        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
+      ];
+      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
+    },
+    async loadRegionData() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/locations/"
+        );
+        this.regionData = response.data; // Store region data for further processing
+
+        // Sort region options: non-numeric values at the top, followed by numeric ones in ascending order
+        this.regionOptions = Object.keys(this.regionData).sort((a, b) => {
+          // Check if the keys are numeric
+          const isANumeric = !isNaN(parseInt(a));
+          const isBNumeric = !isNaN(parseInt(b));
+
+          // If both are numeric or both are non-numeric, sort numerically or lexicographically
+          if (isANumeric && isBNumeric) {
+            return parseInt(a) - parseInt(b); // Numeric sorting
+          } else if (!isANumeric && !isBNumeric) {
+            return a.localeCompare(b); // Non-numeric sorting (lexicographically)
+          } else {
+            // If one is numeric and the other is non-numeric, non-numeric goes first
+            return isANumeric ? 1 : -1;
+          }
+        });
+      } catch (error) {
+        console.error("Error loading region data:", error);
+      }
+    },
+    loadProvinceData(regionCode) {
+      if (!regionCode) {
+        console.error("No region selected.");
+        return;
+      }
+
+      const region = this.regionData[regionCode]; // Get the region using selectedRegion
+      if (region) {
+        this.provinceOptions = Object.keys(region.province_list); // Map available provinces from province_list
+
+        // Set the region to newSite
+        this.newSite.region = regionCode;
+
+        // Clear previous municipality and barangay options
+        this.municipalityOptions = [];
+        this.barangayOptions = [];
+        this.newSite.province = ""; // Reset province in newSite
+        this.newSite.municipality = ""; // Reset municipality in newSite
+        this.newSite.barangay = ""; // Reset barangay in newSite
+      } else {
+        console.error("Invalid region selected.");
+      }
+    },
+    loadMunicipalityData(provinceName) {
+      if (!this.newSite.region) {
+        console.error("No region selected.");
+        return;
+      }
+      if (!provinceName) {
+        console.error("No province selected.");
+        return;
+      }
+
+      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
+      if (region) {
+        const province = region.province_list[provinceName]; // Get the province using provinceName
+        if (province) {
+          this.municipalityOptions = Object.keys(province.municipality_list); // Map available municipalities from municipality_list
+
+          // Set the province to newSite
+          this.newSite.province = provinceName;
+
+          // Clear barangay options when a new province is selected
+          this.barangayOptions = [];
+          this.newSite.municipality = ""; // Reset municipality in newSite
+          this.newSite.barangay = ""; // Reset barangay in newSite
+        } else {
+          this.municipalityOptions = []; // Clear if no province found
+          this.barangayOptions = []; // Clear barangay options if no province is found
+        }
+      }
+    },
+    loadBarangayData(municipalityName) {
+      if (!municipalityName) {
+        console.error("No municipality selected.");
+        return;
+      }
+
+      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
+      if (region) {
+        const province = region.province_list[this.newSite.province]; // Get the province using newSite.province
+        if (province) {
+          const municipality = province.municipality_list[municipalityName]; // Get municipality using municipalityName
+          if (municipality) {
+            this.barangayOptions = municipality.barangay_list || []; // Map available barangays from barangay_list
+
+            // Set the municipality to newSite
+            this.newSite.municipality = municipalityName;
+          }
+        }
+      }
+    },
   },
   mounted() {
-    console.log("Component mounted, fetching sites...");
     this.fetchSites();
     this.loadRegionData();
     if (this.showArchived) {

@@ -26,19 +26,31 @@ class Site(models.Model):
         ('completed', 'Completed'),
         ('sold_out', 'Sold Out'),
     ]
+    FLOOR_TYPE_CHOICES = [
+        ('numeric', '1, 2, 3'), 
+        ('alphabetic', 'A, B, C'),
+    ]
+    LABEL_CHOICES = [
+        ('section', 'Section'),
+        ('floor', 'Floor'),
+        ('block', 'Block'),
+        ('level', 'Level'),
+    ]
 
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     picture = models.ImageField(upload_to=logo_upload_path, blank=True, null=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, default="No description provided")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preselling')
     archived = models.BooleanField(default=False)
     region = models.CharField(max_length=100)
     province = models.CharField(max_length=100)
     municipality = models.CharField(max_length=100)
-    barangay = models.CharField(max_length=100, blank=True, null=True)
+    barangay = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    numbering_type = models.CharField(max_length=10, choices=FLOOR_TYPE_CHOICES, default='numeric')
+    section_label = models.CharField(max_length=10, choices=LABEL_CHOICES, default='floor')
 
     # Pricing Defaults
     commission = models.DecimalField(
@@ -52,7 +64,7 @@ class Site(models.Model):
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     
     # Maximum months (e.g., for loan term)
-    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for payment term (e.g., 60 months for 5 years max)")
+    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment term (e.g., 60 months for 5 years max)")
 
     def __str__(self):
         return self.name
@@ -134,11 +146,44 @@ class Site(models.Model):
         return len(created_units)
 
 class Section(models.Model):
-    # This model represents sections such as floors (condos), blocks (subdivisions), or levels (parking).
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="sections")
-    name = models.CharField(max_length=50) 
+    name = models.CharField(max_length=50)
     number = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"Section {self.name} - {self.site.name}"
-        
+        return f"{self.site.section_label.capitalize()} {self.name} - {self.site.name}"
+
+    def generate_next_section_name(self):
+        # Get the site settings for section naming
+        site = self.site
+        last_section = Section.objects.filter(site=site).order_by('-number').first()
+
+        # Generate the name based on numbering type (numeric or alphabetic)
+        if site.numbering_type == 'numeric':
+            return self.generate_numeric_section_name(last_section)
+        elif site.numbering_type == 'alphabetic':
+            return self.generate_alphabetic_section_name(last_section)
+
+    def generate_numeric_section_name(self, last_section):
+        # Numeric sequence: 1, 2, 3...
+        if not last_section:
+            return f"1"
+        next_number = last_section.number + 1
+        return str(next_number)
+
+    def generate_alphabetic_section_name(self, last_section):
+        # Alphabetic sequence: A, B, C...
+        if not last_section:
+            return "A"  # First section
+        last_name = last_section.name
+        next_char = chr(ord(last_name[-1]) + 1)  # Increment letter (A -> B)
+        if next_char > 'Z':
+            next_char = 'A'  # Reset to 'A' after 'Z' (you can also add logic for 2A, 2B if needed)
+            next_number = last_section.number + 1
+            return f"{next_number}{next_char}"
+        return next_char
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.generate_next_section_name()  # Automatically generate section name
+        super().save(*args, **kwargs)

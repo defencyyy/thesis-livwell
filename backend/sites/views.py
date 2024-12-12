@@ -28,7 +28,7 @@ def get_developer_company(request):
 
 def list_sections(request, site_id):
     site = get_object_or_404(Site, id=site_id)
-    sections = site.sections.all()  # Accessing via the related name "floors"
+    sections = site.sections.all()
     return render(request, "sections/list.html", {"sections": sections, "site": site})
 
 class SiteListView(APIView):

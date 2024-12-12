@@ -7,7 +7,7 @@ class SectionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Section
-        fields = ['id', 'number', 'total_units', 'available_units']
+        fields = ['id', 'number', 'name', 'total_units', 'available_units']
 
     def get_total_units(self, obj):
         return obj.units.count()
@@ -16,9 +16,11 @@ class SectionSerializer(serializers.ModelSerializer):
         return obj.units.filter(status='Available').count()
 
 class SiteSerializer(serializers.ModelSerializer):
-    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
+    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
     sections = serializers.SerializerMethodField()
-    number_of_sections = serializers.IntegerField(write_only=True, required=False)  # New field to add sections
+    number_of_sections = serializers.IntegerField(write_only=True, required=False)
+    numbering_type = serializers.CharField(read_only=True, required=False)
+    section_label = serializers.CharField(read_only=True, required=False)
 
     class Meta:
         model = Site
@@ -33,17 +35,15 @@ class SiteSerializer(serializers.ModelSerializer):
             'municipality',
             'barangay',
             'postal_code',
-            'picture',
             'status',
             'created_at',
             'archived',
             'sections',
-            'number_of_sections',  # Include new field
-            'total_units', 
-            'location',
-            'available_units',
+            'number_of_sections',
+            'numbering_type', 
+            'section_label',  
             'maximum_months',
-            'commission',  
+            'commission',
             'spot_discount_percentage',
             'spot_discount_flat',
             'vat_percentage',
@@ -53,15 +53,20 @@ class SiteSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def create(self, validated_data):
-        # Extract the number of sections
         number_of_sections = validated_data.pop('number_of_sections', 0)
-        
-        # Create the site
+        numbering_type = validated_data.pop('numbering_type', 'numeric')
+        section_label = validated_data.pop('section_label', 'floor')
+
         site = super().create(validated_data)
 
         # Create sections based on the number_of_sections
         for i in range(1, number_of_sections + 1):
             Section.objects.create(site=site, number=i)
+
+        # Optionally, you can assign numbering_type and section_label to your site model if necessary.
+        site.numbering_type = numbering_type
+        site.section_label = section_label
+        site.save()
 
         return site
 
