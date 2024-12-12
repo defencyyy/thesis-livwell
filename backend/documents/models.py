@@ -29,6 +29,7 @@ def document_file_upload_path(instance, filename):
 
 # DocumentType model for dynamically adding document types
 class DocumentType(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=50, unique=True)  # e.g., 'Contract', 'Deed', 'Brochure'
     description = models.TextField(blank=True, null=True)  # Optional description of the document type
 

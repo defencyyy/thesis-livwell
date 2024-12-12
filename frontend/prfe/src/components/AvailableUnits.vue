@@ -404,177 +404,61 @@
         }}
       </button>
 
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+     <!-- Detailed Monthly Schedule (Visible when expanded) -->
+    <div v-if="showDetailedSchedule" class="detailed-schedule">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><center>Payment Type</center></th>
+            <th><center>Amount (₱)</center></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spot Downpayment</td>
+            <td>₱{{ spotDownpayment.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Spread Downpayment</td>
+            <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
+          </tr>
+          <!-- Loop through the months to display monthly payments -->
+          <tr v-for="month in payableMonths" :key="month">
+            <td>Month {{ month }} Payment</td>
+            <td>₱{{ payablePerMonth.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Balance Upon Turnover</td>
+            <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
+          </tr>
+          <!-- Amortization for 10, 15, 20, and 25 years -->
+          <tr>
+            <td>Monthly Amortization (10 years @ 6.5%)</td>
+            <td>₱{{ amortization10Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (15 years @ 6.5%)</td>
+            <td>₱{{ amortization15Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (20 years @ 6.5%)</td>
+            <td>₱{{ amortization20Years.toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>Monthly Amortization (25 years @ 6.5%)</td>
+            <td>₱{{ amortization25Years.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
     >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
+      <button @click="redirectToReservePage">Reserve</button>
     </div>
-
-    <!-- Success Message Pop-up -->
-
-    <b-modal
-      v-model="showSuccessMessage"
-      title="Reservation Submitted"
-      @hide="closePopup"
-      centered
-      hide-footer
-      :visible="successMessage"
-      >
-        <p>{{ successMessage }}</p>
-        <div class = "buttons-container">
-          <button @click="closePopup" class="btn btn-primary">OK</button>
-        </div>
-    </b-modal>
-    
-    <!-- Reserve Unit Modal -->
-    <b-modal
-      v-model="isReserveModalVisible"
-      @hide="closeReserveModal"
-      hide-footer
-      title="Reserve Unit"
-    >
-      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
-        <!-- Customer Name Dropdown -->
-        <div class="form-group">
-          <label for="customerName">Customer Name</label>
-          <select
-            v-model="reservationForm.customerName"
-            id="customerName"
-            class = "form-select"
-            style="margin-left: 1px;"
-            required
-          >
-            <option value="" disabled selected>Select Customer</option>
-            <option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
-            >
-              {{ customer.name }} ({{ customer.customer_code }})
-            </option>
-          </select>
-        </div>
-        <!-- File Upload -->
-        <div class="form-group">
-          <label for="fileUpload">Upload File (Required)</label>
-          <input
-            type="file"
-            @change="handleFileUpload"
-            id="fileUpload"
-            class = "form-control"
-            required
-          />
-        </div>
-        <!-- Payment Amount -->
-        <div class="form-group">
-          <label for="paymentAmount">Payment Amount</label>
-          <input
-            type="number"
-            v-model="reservationForm.paymentAmount"
-            id="paymentAmount"
-            required
-          />
-        </div>
-        <!-- Payment Method -->
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select
-            v-model="reservationForm.paymentMethod"
-            id="paymentMethod"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          >
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="cash">Cash</option>
-            <option value="online_payment">Online Payment</option>
-          </select>
-        </div>
-        <!-- Payment Date -->
-        <div class="form-group">
-          <label for="paymentDate">Date of Payment</label>
-          <input
-            type="date"
-            v-model="reservationForm.paymentDate"
-            id="paymentDate"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Payment Reference (only if payment method is not cash) -->
-        <div
-          class="form-group"
-          v-if="reservationForm.paymentMethod !== 'cash'"
-        >
-          <label for="paymentReference">Payment Reference Number</label>
-          <input
-            type="text"
-            v-model="reservationForm.paymentReference"
-            id="paymentReference"
-            class = "form-control"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Submit Button -->
-        <div
-          class="d-flex justify-content-end gap-2 mt-30"
-          style="padding-top: 15px"
-        >
-        <button type="submit" class="btn-add">
-            Submit Reservation
-        </button>
-        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
-        </div>
-      </form>
-      <!-- Error Message Modal -->
-      <b-modal 
-        v-model="isErrorModalVisible" 
-        hide-footer 
-        title="Error"
-        @hide="handleErrorModalClose"
-      >
-        <p>{{ errorMessage }}</p>
-        <div class="button-container">
-          <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
-        </div>
-      </b-modal>
-      </b-modal>
      </b-modal>
   </div>
   </div>
@@ -605,15 +489,7 @@ export default {
         images: null, // Initially null
       },
       showDetailedSchedule: false, // To toggle detailed payment schedule
-      isReserveModalVisible: false,
-      reservationForm: {
-        customerName: "",
-        paymentAmount: "",
-        paymentMethod: "",
-        paymentDate: "",
-        paymentReference: "",
-        file: null, // This will hold the file
-      },
+
       customers: [],
       successMessage: "", // Success message
       errorMessage: "", // Error message
@@ -702,13 +578,48 @@ export default {
       return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
     });
     },
-   
+    amortization10Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 10);
+  },
+  amortization15Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 15);
+  },
+  amortization20Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 20);
+  },
+  amortization25Years() {
+    return this.calculateAmortization(this.balanceUponTurnover, 25);
+  },
 },
   created() {
       this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
+redirectToReservePage() {
+  this.$router.push({
+    name: "ReservePage",
+    query: {
+      unitId: this.selectedUnit.id,
+      siteId: this.siteId,
+      siteName: this.siteName,
+      companyId: this.selectedUnit.company_id, // Passing company_id
+      brokerId: parseInt(this.$store.getters.getUserId, 10), // Passing broker_id
+      commission: this.selectedUnit.commission,
+      reservationFee:this.selectedUnit.reservation_fee,
+    }
+  });
+},
+    calculateAmortization(balance, years) {
+    const interestRate = 6.5 / 100; // 6.5% annual interest
+    const monthlyRate = interestRate / 12; // Monthly interest rate
+    const totalMonths = years * 12; // Total number of months
+    return (
+      balance *
+      (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+      (Math.pow(1 + monthlyRate, totalMonths) - 1)
+    );
+  },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -908,101 +819,6 @@ export default {
           100) *
         this.totalAmountPayable; // Correct sum of percentages
     },
-
-    async submitReservation() {
-      // Check if all required fields are filled, including the file
-      if (
-        !this.reservationForm.customerName ||
-        !this.reservationForm.paymentAmount ||
-        !this.reservationForm.paymentMethod ||
-        !this.reservationForm.paymentDate ||
-        !this.reservationForm.file ||
-        (this.reservationForm.paymentMethod !== "cash" &&
-          !this.reservationForm.paymentReference)
-      ) {
-        this.errorMessage ="All fields are required except the payment reference (if payment method is 'cash').";
-        this.isErrorModalVisible = true;
-        return;
-      }
-      if (this.reservationForm.paymentAmount < this.reservationFee) {
-        this.errorMessage = "Payment Amount Insufficient";
-        this.isErrorModalVisible = true;
-        return;
-      }
-      const data = {
-        customer_name: this.reservationForm.customerName,
-        site_id: parseInt(this.siteId, 10), // Convert to integer
-        unit_id: this.selectedUnit.id,
-        commission:this.selectedUnit.commission,
-        broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
-        company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
-        payment_amount: this.reservationForm.paymentAmount,
-        payment_method: this.reservationForm.paymentMethod,
-        payment_reference: this.reservationForm.paymentReference || null, // Payment reference is optional if payment is "cash"
-        reservation_file: this.reservationForm.file
-          ? this.reservationForm.file.name
-          : null, // Ensure file is present
-      };
-      console.log(this.selectedUnit.commission);
-
-      console.log("Data being sent to the API:", data);
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/reserve-unit/",
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json", // Sending JSON data
-            },
-          }
-        );
-
-        // Set the success message to display in the pop-up
-        this.successMessage = "Reservation submitted successfully!";
-
-        setTimeout(() => {
-          this.showSuccessMessage = true; // Trigger to show success message
-        }, 500);
-
-        // Close the modal after success
-        this.closeReserveModal();
-
-        // Reset the reservation form
-        this.reservationForm = {
-          customerName: "",
-          paymentAmount: "",
-          paymentMethod: "",
-          paymentDate: "",
-          paymentReference: "",
-          file: null,
-        };
-
-        console.log("Sale created:", response.data);
-      } catch (error) {
-        console.error("Error submitting reservation:", error);
-        this.errorMessage =
-          "There was an error submitting the reservation. Please try again."; // Display error message
-      }
-    },
-
-    closePopup() {
-      this.successMessage = ""; // Hide the success message pop-up
-      this.$router.push({ name: "AffiliatedUnits" }); // Redirect to the 'AffiliatedUnits' page
-    },
-     // Trigger the error modal
-  showErrorModal(message) {
-    this.errorMessage = message; // Set the error message
-    this.isErrorModalVisible = true; // Open the error modal
-  },
-  // Handle closing of the modal
-  handleErrorModalClose() {
-    this.isErrorModalVisible = false; // Ensure modal closes
-    this.errorMessage = ''; // Clear the error message
-  },
-  closeErrorModal() {
-    this.handleErrorModalClose();
-  },
   },
 };
 </script>

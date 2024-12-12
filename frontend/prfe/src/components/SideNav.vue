@@ -123,7 +123,7 @@ export default {
             icon: "fas fa-chart-pie",
           },
           {
-            name: "Units",
+            name: "Reserve Units",
             link: "/broker/affiliated-units",
             icon: "fas fa-home",
           },

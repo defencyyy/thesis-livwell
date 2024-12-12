@@ -38,6 +38,8 @@ import BrkManageSales from "@/views/broker/BrkManageSales.vue";
 import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path as necessary
 import SalesDetailsPage from "@/components/SalesDetailsPage.vue";
 import BrkTest from "@/views/broker/BrkTest.vue";
+import ReservePage from "@/components/ReservePage.vue";
+
 
 const routes = [
   { path: "/home", name: "Home", component: Home },
@@ -197,6 +199,11 @@ const routes = [
     name: "BrkMilestones",
     component: BrkMilestones,
     meta: { requiresAuth: true, role: "broker" },
+  },
+   {
+    path: "/reserve",
+    name: "ReservePage",
+    component: ReservePage,
   },
 
   {
