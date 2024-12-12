@@ -171,22 +171,22 @@
               <div class="payment-schedule-summary">
                 <div class="summary-item">
                   <span class="label">Spot Downpayment:</span>
-                  <span class="value">₱0.00</span>
+                  <span class="value">₱{{ spotDownpayment.toFixed(2) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">₱N/A</span>
+                  <span class="value">₱{{ spreadDownpayment.toFixed(2) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item highlight">
                   <span class="label">Monthly Payment:</span>
-                  <span class="value">₱50,000 / month for 360 months</span>
+                  <span class="value">₱{{payablePerMonth.toFixed(2)}}/ month for {{ payableMonths }} months</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Balance Upon Turnover:</span>
-                  <span class="value">₱3,000,000</span>
+                  <span class="value"> ₱{{balanceUponTurnover.toFixed(2)}}</span>
                 </div>
                 <button @click="toggleDetailedSchedule" class="btn btn-primary">
                   {{
