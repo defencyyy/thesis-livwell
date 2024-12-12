@@ -394,7 +394,8 @@
                         </p>
 
                       </div>
-                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3 align-field">
+                      <br><br>
+                      <div v-if="selectedPaymentPlan === 'Deffered Payment'">
                         <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
                         <input
                           type="number"
@@ -462,6 +463,8 @@
                           <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
                         </p>
                       </div>
+
+                      <br>
                       <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
                         <label for="months" class="form-label text-start">Months to Pay</label>
                         <input
