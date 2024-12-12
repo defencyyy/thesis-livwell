@@ -13,7 +13,7 @@
       <div class="title-wrapper">
         <div class="title-left">
           <div class="title-icon"></div>
-          <div class="edit-title"><strong> Available Units for Site {{ siteName }}</strong></div>
+          <div class="edit-title"><strong>Available Units for Site {{ siteName }}</strong> </div>
         </div>
       </div>
 
@@ -203,263 +203,13 @@
       </div>
     </div>
     <br>
-    <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-      <h5 class="property-header">Payment Plan</h5><br>
-    </div>
-    <div class="row mb-3 ps-5">
-      <div class="col-12 d-flex justify-content-around align-items-center">
-        <!-- Left Section: Property Price -->
-        <div class="text-center">
-          <h5 class="muted price-header">Property Price</h5>
-          <p class="property-price1">₱ {{ selectedUnit.price }}</p>
-        </div>
-        <!-- Right Section: Payment Plan -->
-        <div class="text-center1">
-          <h5 class="price-header">Payment Plan</h5>
-          <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
-            <option value="Spot Cash">Spot Cash</option>
-            <option value="Deffered Payment">Deffered Payment</option>
-          </select>
-        </div>
 
-      </div>
-    </div>
-
-    <!-- Spot Discount -->
-    <div class="form-group">
-      <label for="spotDiscount">Spot Discount</label>
-       <input
-       type="number"
-        id="spotDiscount"
-        v-model="spotCashDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        :min="0"
-        :max="maxSpotCashDiscount" 
-        />
-    </div>
-    
-    <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    
-    <p class = "description-align">
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
-
-    <!-- TLP Discount -->
-    <div class="form-group">
-      <label for="tlpDiscount">TLP Discount (Optional)</label>
-      <input
-      type="number"
-      id="tlpDiscount"
-      v-model="tlpDiscount"
-      @input="updatePaymentDetails"
-      class="form-control"
-      min="0"
-      max="maxtlpDiscount"
-      />
-    </div>
-
-    <p class = "description-align"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-    <!-- Net Unit Price -->
-    <p class = "description-align"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-    <!-- Other Charges -->
-    <div class="form-group">
-      <label for="otherChargesPercentage">Other Charges (%)</label>
-      <input
-        type="number"
-        id="otherChargesPercentage"
-        v-model="otherChargesPercentage"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="maxotherChargesPercentage"
-        step="0.1"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-    <!-- VAT Calculation -->
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-
-    <!-- Total Amount Payable -->
-    <p class = "description-align">
-      <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-    </p>
-
-    <div
-    v-if="selectedPaymentPlan === 'Deffered Payment'"
-    class="form-group"
-    >
-      <label for="spotDownpayment">Spot Downpayment</label>
-      <input
-        type="number"
-        id="spotDownpayment"
-        v-model="spotDownpaymentPercentage"
-        @input="updatePaymentDetails"
-        min="0"
-        step="5"
-        placeholder="Enter downpayment percentage"
-        required
-      />
-    </div>
-
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-
-    <!-- Reservation Fee -->
-    <p class = "description-align"><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
-    <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "description-align">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-
-    <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-
-    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-      <!-- Spread Downpayment -->
-      <div class="form-group">
-        <label for="spreadDownpayment">Spread Downpayment</label>
-        <input
-        type="number"
-        v-model="spreadDownpaymentPercentage"
-        id="spreadDownpayment"
-        @input="updatePaymentDetails"
-        min="0"
-        max="100"
-        step="1"
-        class="form-control"
-        required
-        placeholder="Enter percentage"
-        />
-      </div>
-      
-      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-
-      <!-- Payable in Months -->
-      <div class="form-group">
-        <label for="months">Months to Pay</label>
-        <input
-          type="number"
-          v-model="payableMonths"
-          id="months"
-          @input="updatePaymentDetails"
-          min="1"
-          max="maxpayableMonths"
-          step="1"
-          required
-        />
-      </div>
-      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-      <!-- Balance Upon Turnover -->
-      <p class = "description-align">
-        <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-      </p>
-      <br>    
-      <div class="line mb-4"></div>
-      <div class="col-12 text-center mb-3 text-center">
-            <h5 class="property-header">Payment Schedule Summary</h5>
-      </div>
-
-      <!-- Payment Summary -->
-      <div class="payment-summary">
-        <p class = "description-align">
-          <strong>Spot Downpayment:</strong> ₱{{
-            spotDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Spread Downpayment:</strong> ₱{{
-            spreadDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Monthly Payment:</strong> ₱{{
-            payablePerMonth.toFixed(2)
-          }}
-          / month for {{ payableMonths }} months
-        </p>
-        <p class = "description-align">
-          <strong>Balance Upon Turnover:</strong> ₱{{
-            balanceUponTurnover.toFixed(2)
-          }}
-        </p>
-      </div>
-      <!-- Expandable Detailed Schedule Section -->
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-     <!-- Detailed Monthly Schedule (Visible when expanded) -->
-    <div v-if="showDetailedSchedule" class="detailed-schedule">
-      <table class="table">
-        <thead>
-          <tr>
-            <th><center>Payment Type</center></th>
-            <th><center>Amount (₱)</center></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Spot Downpayment</td>
-            <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Spread Downpayment</td>
-            <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-          </tr>
-          <!-- Loop through the months to display monthly payments -->
-          <tr v-for="month in payableMonths" :key="month">
-            <td>Month {{ month }} Payment</td>
-            <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Balance Upon Turnover</td>
-            <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-          </tr>
-          <!-- Amortization for 10, 15, 20, and 25 years -->
-          <tr>
-            <td>Monthly Amortization (10 years @ 6.5%)</td>
-            <td>₱{{ amortization10Years.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Monthly Amortization (15 years @ 6.5%)</td>
-            <td>₱{{ amortization15Years.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Monthly Amortization (20 years @ 6.5%)</td>
-            <td>₱{{ amortization20Years.toFixed(2) }}</td>
-          </tr>
-          <tr>
-            <td>Monthly Amortization (25 years @ 6.5%)</td>
-            <td>₱{{ amortization25Years.toFixed(2) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
     >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
+      <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
+      <button class="payment-plan-btn" @click="redirectToPaymentPlan">View Payment Plan</button>
     </div>
 
     <!-- Success Message Pop-up -->
@@ -484,15 +234,16 @@
       @hide="closeReserveModal"
       hide-footer
       title="Reserve Unit"
+      centered
     >
-      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
+      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
         <!-- Customer Name Dropdown -->
         <div class="form-group">
           <label for="customerName">Customer Name</label>
           <select
             v-model="reservationForm.customerName"
             id="customerName"
-            class = "form-select"
+            class="form-select"
             style="margin-left: 1px;"
             required
           >
@@ -513,65 +264,71 @@
             type="file"
             @change="handleFileUpload"
             id="fileUpload"
-            class = "form-control"
+            class="form-control"
             required
           />
         </div>
-        <!-- Payment Amount -->
-        <div class="form-group">
-          <label for="paymentAmount">Payment Amount</label>
-          <input
-            type="number"
-            v-model="reservationForm.paymentAmount"
-            id="paymentAmount"
-            required
-          />
+        <!-- Payment Details -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount</label>
+              <input
+                type="number"
+                v-model="reservationForm.paymentAmount"
+                id="paymentAmount"
+                class="form-control"
+                placeholder="Enter payment amount"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select
+                v-model="reservationForm.paymentMethod"
+                id="paymentMethod"
+                class="form-select"
+                required
+              >
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="online_payment">Online Payment</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <!-- Payment Method -->
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select
-            v-model="reservationForm.paymentMethod"
-            id="paymentMethod"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          >
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="cash">Cash</option>
-            <option value="online_payment">Online Payment</option>
-          </select>
-        </div>
-        <!-- Payment Date -->
-        <div class="form-group">
-          <label for="paymentDate">Date of Payment</label>
-          <input
-            type="date"
-            v-model="reservationForm.paymentDate"
-            id="paymentDate"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Payment Reference (only if payment method is not cash) -->
-        <div
-          class="form-group"
-          v-if="reservationForm.paymentMethod !== 'cash'"
-        >
-          <label for="paymentReference">Payment Reference Number</label>
-          <input
-            type="text"
-            v-model="reservationForm.paymentReference"
-            id="paymentReference"
-            class = "form-control"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentDate">Date of Payment</label>
+              <input
+                type="date"
+                v-model="reservationForm.paymentDate"
+                id="paymentDate"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
+            <div class="form-group">
+              <label for="paymentReference">Payment Reference Number</label>
+              <input
+                type="text"
+                v-model="reservationForm.paymentReference"
+                id="paymentReference"
+                class="form-control"
+                placeholder="Enter reference number"
+                required
+              />
+            </div>
+          </div>
         </div>
         <!-- Submit Button -->
         <div
-          class="d-flex justify-content-end gap-2 mt-30"
+          class="d-flex justify-content-end gap-2 mt-3"
           style="padding-top: 15px"
         >
         <button type="submit" class="btn-add">
@@ -593,6 +350,7 @@
         </div>
       </b-modal>
       </b-modal>
+
      </b-modal>
   </div>
   </div>
@@ -637,32 +395,7 @@ export default {
       errorMessage: "", // Error message
       isErrorModalVisible: false, // To control modal visibility
       showSuccessMessage: false, // Control the visibility of the success message
-      // Payment Scheme Data
-      selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
-      spotCashDiscount: 0,
-      maxSpotCashDiscount: 0, // Default value fetched from DB
-      maxotherChargesPercentage: 0,
-      maxtlpDiscount:0,
-      tlpDiscount: 0,
-      spotDiscount: 0,
-      unitPriceAfterSpotDiscount: 0,
-      tlpDiscountAmount: 0,
-      netUnitPrice: 0,
-      otherChargesPercentage: 0,
-      otherCharges: 0,
-      totalAmountPayable: 0,
-      reservationFee: 0,
-      netFullPayment: 0,
-      spotDownpaymentPercentage: 0,
-      spotDownpayment: 0,
-      spreadDownpaymentPercentage: 0,
-      spreadDownpayment: 0,
-      payableMonths: 1,
-      maxpayableMonths:0,
-      payablePerMonth: 0,
-      balanceUponTurnover: 0,
-      vat: 0,
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
@@ -676,9 +409,6 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
-
-    // Call updatePaymentDetails to show the default payment details
-    this.updatePaymentDetails();
   },
   computed: {
  // Paginate filtered units
@@ -720,34 +450,17 @@ export default {
       return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
     });
     },
-    amortization10Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 10);
-  },
-  amortization15Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 15);
-  },
-  amortization20Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 20);
-  },
-  amortization25Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 25);
-  },
+   
 },
   created() {
       this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
-    calculateAmortization(balance, years) {
-    const interestRate = 6.5 / 100; // 6.5% annual interest
-    const monthlyRate = interestRate / 12; // Monthly interest rate
-    const totalMonths = years * 12; // Total number of months
-    return (
-      balance *
-      (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
-      (Math.pow(1 + monthlyRate, totalMonths) - 1)
-    );
-  },
+    redirectToPaymentPlan() {
+      // Redirect to the payment plan page
+      this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });
+    },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -825,18 +538,6 @@ export default {
       this.selectedUnit = unit;
       this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
-      this.spotCashDiscount = this.selectedUnit.spot_discount;
-      this.payableMonths = this.selectedUnit.months;
-      this.maxpayableMonths = this.payableMonths;
-      this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
-      this.tlpDiscount = this.selectedUnit.TLP_Discount;
-      this.maxtlpDiscount = this.tlpDiscount;
-      this.otherChargesPercentage = this.selectedUnit.other_charges;
-      this.maxotherChargesPercentage = this.otherChargesPercentage;
-      this.reservationFee = this.selectedUnit.reservation_fee;
-      this.vat = this.selectedUnit.vat_percent;
-      // Recalculate payment details when the unit is selected
-      this.updatePaymentDetails();
     },
 
     closeModal() {
@@ -866,88 +567,6 @@ export default {
         this.reservationForm.file = file;
       }
     },
-
-    updatePaymentDetails() {
-    if (this.spotCashDiscount < 0) {
-        this.spotCashDiscount = 0;
-      } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
-        this.spotCashDiscount = this.maxSpotCashDiscount;
-      }
-      if (this.tlpDiscount < 0) {
-        this.tlpDiscount = 0;
-      } else if (this.tlpDiscount > this.maxtlpDiscount) {
-        this.tlpDiscount = this.maxtlpDiscount;
-      }
-      if (this.otherChargesPercentage < 0) {
-        this.otherChargesPercentage = 0;
-      } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
-        this.otherChargesPercentage = this.maxotherChargesPercentage;
-      }
-      if (this.payableMonths < 0) {
-        this.payableMonths = 1;
-      } else if (this.payableMonths > this.maxpayableMonths) {
-        this.payableMonths = this.maxpayableMonths;
-      }
-      this.applySpotCashDiscount();
-      this.applyTLPDiscount();
-      this.applyOtherCharges();
-      this.calculateVAT();
-      this.calculateFinancingDetails();
-    },
-
-    applySpotCashDiscount() {
-      const discountPercentage = parseFloat(this.spotCashDiscount);
-      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
-      this.updateNetUnitPrice();
-    },
-
-    applyTLPDiscount() {
-      const discountPercentage = parseFloat(this.tlpDiscount);
-      this.tlpDiscountAmount =
-        (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
-      this.updateNetUnitPrice();
-    },
-
-    updateNetUnitPrice() {
-      this.netUnitPrice =
-        this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
-      this.applyOtherCharges();
-    },
-
-    applyOtherCharges() {
-      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
-      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
-      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
-    },
-    calculateVAT() {
-      if (this.netUnitPrice > 3600000) {
-        this.vatAmount = this.netUnitPrice * (this.vat / 100);
-        this.totalAmountPayable += this.vatAmount;
-      }
-    },
-
-    calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
-      if (this.spotDownpaymentPercentage == "0") {
-        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
-        this.payablePerMonth = this.netDownpayment / this.payableMonths;
-      } else {
-        this.netDownpayment = this.spotDownpayment - this.reservationFee;
-        this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
-      }
-      this.balanceUponTurnover =
-        ((100 -
-          (Number(this.spreadDownpaymentPercentage) +
-            Number(this.spotDownpaymentPercentage))) /
-          100) *
-        this.totalAmountPayable; // Correct sum of percentages
-    },
-
     async submitReservation() {
       // Check if all required fields are filled, including the file
       if (
@@ -1052,7 +671,9 @@ html,
 body {
   height: 100%;
   margin: 0;
+  /* Removes default margin */
   padding: 0;
+  /* Removes default padding */
 }
 
 .SideNav {
@@ -1076,16 +697,20 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
+  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
+  /* Gray background */
 }
 .main-content {
   display: flex;
   flex-direction: column;
   margin-top: 80px;
   margin-left: 250px;
+  /* Offset for header height */
   flex: 1;
+  /* margin-left: 250px; */
+  /* Set margin equal to sidebar width */
 }
-
 .content {
   flex: 1;
   padding: 20px;
@@ -1104,6 +729,7 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
+  /* Center the wrapper */
 }
 
 .title-left {
@@ -1129,7 +755,9 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   max-width: 1100px;
+  /* Matches the max-width of the card */
   margin: 0 auto;
+  /* Centers the grid within the parent */
 }
 
 .site-card {
@@ -1137,6 +765,7 @@ body {
   padding: 16px;
   text-align: center;
   cursor: pointer;
+  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
 }
 
@@ -1150,18 +779,22 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-left: 20px;
+  /* Space on the left side */
   padding-right: 20px;
+  /* Space on the right side */
 }
 
 .left-section {
   display: flex;
   align-items: center;
   gap: 20px;
+  /* Space between search bar and dropdown */
 }
 
 .dropdown-select {
   padding: 8px 12px;
   height: 38px;
+  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -1172,15 +805,15 @@ body {
 }
 
 .carousel-inner img {
-  max-height: 400px; 
+  max-height: 400px; /* Adjust as needed */
   object-fit: cover;
 }
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background-color: transparent; 
-  color: inherit; 
-  border: none; 
+  background-color: transparent; /* Remove the background color */
+  color: inherit; /* Remove the default text color change */
+  border: none; /* Remove any border if present */
 }
 
 .property-price {
@@ -1189,7 +822,7 @@ body {
 }
 
 .property-price1 {
-  margin-top: 5px; 
+  margin-top: 5px; /* Adjust spacing as needed */
   font-size: 1.5rem;
   font-weight: bold;
   text-align: left;
@@ -1197,7 +830,7 @@ body {
 
 .price-header {
   font-weight: bold;
-  color: #6c757d; 
+  color: #6c757d; /* Example muted color */
 }
 
 .property-header {
@@ -1206,23 +839,24 @@ body {
 }
 
 .row.mb-3.ps-5 .d-flex {
-  gap: 30px; 
+  gap: 30px; /* Adjust as needed for closer spacing */
 }
 
 .form-select {
   margin-left: 5px;
 }
 
+
 .line {
-    border-top: 2px solid #000;
-    width: 100%; 
-    margin: 0 auto; 
+    border-top: 2px solid #000; /* Adjust thickness and color */
+    width: 100%; /* Full-width */
+    margin: 0 auto; /* Center it */
 }
 
 .text-center1 {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; 
+  align-items: flex-start; /* Align the content to the left */
 }
 
 .payment-summary {
@@ -1252,14 +886,14 @@ body {
 
 .button-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-end; /* Align button to the right */
 }
 
 .btn-cancel-right {
-  background-color: #343a40; 
+  background-color: #343a40; /* Button primary color */
   color: #fff;
   border: none;
-  border-radius: 3px; 
+  border-radius: 3px; /* Adjust the border radius */
   padding: 10px;
   cursor: pointer;
 }
@@ -1273,10 +907,11 @@ body {
 }
 
 .btn-add:hover {
-  background-color: #3e9c73;  
+  background-color: #3e9c73;  /* Slightly darker green */
   color: #fff;
   border: none;
 }
+
 
 .btn-cancel {
   background-color: #343a40;
@@ -1287,7 +922,7 @@ body {
 }
 
 .btn-cancel:hover {
-  background-color: #495057;  
+  background-color: #495057;  /* Slightly lighter gray */
   color: #fff;
   border: none;
 }
@@ -1296,6 +931,28 @@ body {
   text-align: right;
 }
 
+/* juju */
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Ensure it appears on top of other content */
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px; /* Set a fixed width */
+}
 .ok-btn {
   background: #007bff;
   color: white;
@@ -1313,14 +970,12 @@ body {
   padding: 20px;
   text-align: center;
 }
-
 .units-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin: 0 auto;
 }
-
 .unit-card {
   border: 1px solid #ccc;
   margin: 10px;
@@ -1329,35 +984,47 @@ body {
   cursor: pointer;
   border-radius: 8px;
 }
-
 .unit-card:hover {
   background-color: #e8e8e8;
   transition: ease 0.3s;
 }
 
+/* Modal Content */
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 700px;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
 .success-message {
-  position: fixed; 
-  top: 50%; 
+  position: fixed; /* Position it relative to the screen */
+  top: 50%; /* Center the message */
   left: 50%;
-  transform: translate(-50%, -50%); 
+  transform: translate(-50%, -50%); /* Adjust to truly center */
   background-color: rgba(
     0,
     128,
     0,
     0.8
-  ); 
+  ); /* Green background, slightly transparent */
   color: white;
   padding: 20px;
   border-radius: 5px;
   font-size: 18px;
-  z-index: 1100; 
-  display: none; 
+  z-index: 1100; /* Make sure it's on top of the modal */
+  display: none; /* Initially hidden */
 }
 
 .success-message.show {
-  display: block; 
+  display: block; /* Show the success message when it's needed */
 }
 
+/* Image Gallery */
 .image-gallery {
   display: flex;
   gap: 10px;
@@ -1372,6 +1039,7 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Unit Details */
 .unit-details {
   margin-bottom: 20px;
 }
@@ -1382,6 +1050,12 @@ body {
   margin: 10px 0;
 }
 
+.row .col-md-6 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+/* Form Group */
 .form-group {
   margin-bottom: 15px;
   margin-left: 30px;
@@ -1389,38 +1063,45 @@ body {
 
 .form-group select:focus {
   outline: none;
-  border-color: #007bff; 
+  border-color: #007bff; /* Highlight border on focus */
 }
 
+/* Dropdown Hover Text */
 .form-group select:hover {
-  color: black; 
+  color: black; /* Change text color to black on hover for better visibility */
 }
 
 .form-group input[type="number"] {
-  width: 70%; 
-  padding: 10px; 
-  font-size: 16px; 
-  border: 1px solid #ccc; 
-  border-radius: 8px; 
-  color: #333; 
-  transition: all 0.3s ease; 
+  width: 100%; /* Make the input take up full width */
+  padding: 10px; /* Add padding for a better click area */
+  font-size: 16px; /* Match font size with the label */
+  border: 1px solid #ccc; /* Light border for input */
+  border-radius: 8px; /* Add rounded corners */
+  color: #333; /* Text color */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus */
 }
 
 .form-group input[type="number"]:hover {
-  border-color: #007bff; 
+  border-color: #007bff; /* Change border color on hover */
 }
 
 .form-group input[type="number"]:focus {
-  border-color: #0056b3; 
-  outline: none; 
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); 
+  border-color: #0056b3; /* Darker border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
 }
 
 .form-group input[type="number"]::placeholder {
-  color: #888; 
-  font-style: italic; 
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
 }
 
+.form-group input[type="text"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+/* Style for File Input Button */
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -1436,6 +1117,7 @@ label {
   margin-left: 30px;
 }
 
+/* Payment Plan Section */
 .payment-plan {
   margin-top: 20px;
 }
@@ -1454,7 +1136,6 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 button:hover {
   background-color: #0056b3;
 }
@@ -1479,12 +1160,12 @@ button:hover {
 
 .filters {
   display: flex;
-  align-items: center;   
-  gap: 20px;             
+  align-items: center;   /* Align vertically */
+  gap: 20px;             /* Add space between elements */
 }
 
 .filters label {
-  margin-right: 5px;     
+  margin-right: 5px;     /* Small space between label and select */
 }
 
 .filters select {
@@ -1493,27 +1174,28 @@ button:hover {
   border-radius: 5px;
 }
 
+/* Style the list for better appearance */
 .unit-list {
-  list-style: none;      
+  list-style: none;      /* Remove default bullets */
   padding: 0;
 }
 
 .unit-list li {
   padding: 10px;
-  border-bottom: 1px solid #ddd; 
+  border-bottom: 1px solid #ddd; /* Add separator between units */
 }
 
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; 
-  margin-top: 20px; 
-  gap: 10px; 
-  padding-right: 20px; 
+  justify-content: flex-end; /* Align to the right */
+  margin-top: 20px; /* Add spacing from the content above */
+  gap: 10px; /* Spacing between buttons */
+  padding-right: 20px; /* Add padding to push it away from the edge */
 }
 
 .page-button {
   padding: 5px 10px;
-  font-size: 12px; 
+  font-size: 12px; /* Slightly smaller font */
   border: 1px solid #ddd;
   background-color: #fff;
   cursor: pointer;
@@ -1532,7 +1214,7 @@ button:hover {
 }
 
 .page-button:hover:not(:disabled) {
-  background-color: #e9ecef; 
+  background-color: #e9ecef; /* Light gray */
 }
 
 </style>
