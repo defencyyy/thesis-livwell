@@ -13,7 +13,7 @@
       <div class="title-wrapper">
         <div class="title-left">
           <div class="title-icon"></div>
-          <div class="edit-title">Available Units for Site {{ siteName }} </div>
+          <div class="edit-title"><strong>Available Units for Site {{ siteName }}</strong> </div>
         </div>
       </div>
 
