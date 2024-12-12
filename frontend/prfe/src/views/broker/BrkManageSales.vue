@@ -394,7 +394,7 @@
                         </p>
 
                       </div>
-                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
+                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3 align-field">
                         <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
                         <input
                           type="number"
@@ -489,162 +489,6 @@
                     </div>
                   </div>
                 </form>
-
-                <!-- Spot Discount -->
-                <div class="form-group">
-                  <label for="spotDiscount"><strong>Spot Discount</strong></label>
-                  <input
-                    type="number"
-                    id="spotDiscount"
-                    v-model="spotCashDiscount"
-                    @input="updatePaymentDetails"
-                    class="form-control"
-                    :min="0"
-                    :max="maxSpotCashDiscount" 
-                  />
-                </div>
-                <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-                <p>
-                  <strong>Unit Price after Spot Discount:</strong> ₱{{
-                    unitPriceAfterSpotDiscount
-                  }}
-                </p>
-
-                <!-- TLP Discount -->
-                <div class="form-group">
-                  <br>
-                  <label for="tlpDiscount"><strong>LP Discount (Optional)</strong></label>
-                  <input
-                    type="number"
-                    id="tlpDiscount"
-                    v-model="tlpDiscount"
-                    @input="updatePaymentDetails"
-                    class="form-control"
-                    min="0"
-                    max="maxtlpDiscount"
-                  />
-                </div>
-
-                <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-                <!-- Net Unit Price -->
-                <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-                <!-- Other Charges -->
-                <div class="form-group">
-                  <br>
-                  <label for="otherChargesPercentage"><strong>Other Charges (%)</strong></label>
-                  <input
-                    type="number"
-                    id="otherChargesPercentage"
-                    v-model="otherChargesPercentage"
-                    @input="updatePaymentDetails"
-                    class="form-control"
-                    min="0"
-                    max="maxotherChargesPercentage"
-                    step="0.1"
-                  />
-                </div>
-                <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-                <!-- VAT Calculation -->
-                <p v-if="netUnitPrice > 3600000">
-                  <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-                </p>
-
-                <!-- Total Amount Payable -->
-                <p>
-                  <strong>Total Amount Payable:</strong> ₱{{
-                    totalAmountPayable
-                  }}
-                </p>
-
-                <!-- Spot Downpayment -->
-                <br>
-                <div
-                  v-if="selectedPaymentPlan === 'Deffered Payment'"
-                  class="form-group"
-                >
-                  <label for="spotDownpayment"><strong>Spot Downpayment</strong></label>
-                  <input
-                    type="number"
-                    id="spotDownpayment"
-                    v-model="spotDownpaymentPercentage"
-                    @input="updatePaymentDetails"
-                    class="form-control"
-                    min="0"
-                    step="5"
-                    placeholder="Enter downpayment percentage"
-                    required
-                  />
-                </div>
-                
-                <p v-if="selectedPaymentPlan === 'Deffered Payment'">
-                  <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-                </p>
-
-                <!-- Reservation Fee -->
-                <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
-                <p v-if="selectedPaymentPlan === 'Spot Cash'">
-                  <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-                </p>
-
-                <!-- Net Downpayment -->
-                <p v-if="selectedPaymentPlan === 'Deffered Payment'">
-                  <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-                </p>
-
-                <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-                  <br>
-                  <!-- Spread Downpayment -->
-                  <div class="form-group">
-                    <label for="spreadDownpayment"><strong>Spread Downpayment</strong></label>
-                    <input
-                    type="number"
-                    v-model="spreadDownpaymentPercentage"
-                    id="spreadDownpayment"
-                    @input="updatePaymentDetails"
-                    min="0"
-                    max="100"
-                    step="1"
-                    class="form-control"
-                    required
-                    placeholder="Enter percentage"
-                  />
-                  </div>
-                  <p>
-                    <strong>Spread Downpayment:</strong> ₱{{
-                      spreadDownpayment
-                    }}
-                  </p>
-
-                  <!-- Payable in Months -->
-                  <br>
-                  <div class="form-group">
-                    <label for="months"><strong>Months to Pay</strong></label>
-                    <input
-                    type="number"
-                    v-model="payableMonths"
-                    id="months"
-                    @input="updatePaymentDetails"
-                    min="1"
-                    max="maxpayableMonths"
-                    step="1"
-                    required
-                  />
-                  </div>
-                  <p>
-                    <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
-                  </p>
-
-                  <!-- Balance Upon Turnover -->
-                  <p>
-                    <strong>Balance Upon Turnover:</strong> ₱{{
-                      balanceUponTurnover
-                    }}
-                  </p>
-                </div>
-                <br>
 
                 <div class="line mb-4"></div>
 
@@ -1943,6 +1787,10 @@ input[type="file"] {
   margin: 5px 0;
   font-size: 0.9rem;
   text-align: center;
+}
+
+.align-field {
+  margin-top: 43px;
 }
 
 /* Responsive layout tweaks */
