@@ -387,32 +387,7 @@ export default {
       errorMessage: "", // Error message
       isErrorModalVisible: false, // To control modal visibility
       showSuccessMessage: false, // Control the visibility of the success message
-      // Payment Scheme Data
-      selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
-      spotCashDiscount: 0,
-      maxSpotCashDiscount: 0, // Default value fetched from DB
-      maxotherChargesPercentage: 0,
-      maxtlpDiscount:0,
-      tlpDiscount: 0,
-      spotDiscount: 0,
-      unitPriceAfterSpotDiscount: 0,
-      tlpDiscountAmount: 0,
-      netUnitPrice: 0,
-      otherChargesPercentage: 0,
-      otherCharges: 0,
-      totalAmountPayable: 0,
-      reservationFee: 0,
-      netFullPayment: 0,
-      spotDownpaymentPercentage: 0,
-      spotDownpayment: 0,
-      spreadDownpaymentPercentage: 0,
-      spreadDownpayment: 0,
-      payableMonths: 1,
-      maxpayableMonths:0,
-      payablePerMonth: 0,
-      balanceUponTurnover: 0,
-      vat: 0,
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
@@ -426,7 +401,6 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
-    this.updatePaymentDetails();
   },
   computed: {
  // Paginate filtered units
@@ -556,18 +530,6 @@ export default {
       this.selectedUnit = unit;
       this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
-      this.spotCashDiscount = this.selectedUnit.spot_discount;
-      this.payableMonths = this.selectedUnit.months;
-      this.maxpayableMonths = this.payableMonths;
-      this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
-      this.tlpDiscount = this.selectedUnit.TLP_Discount;
-      this.maxtlpDiscount = this.tlpDiscount;
-      this.otherChargesPercentage = this.selectedUnit.other_charges;
-      this.maxotherChargesPercentage = this.otherChargesPercentage;
-      this.reservationFee = this.selectedUnit.reservation_fee;
-      this.vat = this.selectedUnit.vat_percent;
-      // Recalculate payment details when the unit is selected
-      this.updatePaymentDetails();
     },
 
     closeModal() {
@@ -597,88 +559,6 @@ export default {
         this.reservationForm.file = file;
       }
     },
-
-    updatePaymentDetails() {
-    if (this.spotCashDiscount < 0) {
-        this.spotCashDiscount = 0;
-      } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
-        this.spotCashDiscount = this.maxSpotCashDiscount;
-      }
-      if (this.tlpDiscount < 0) {
-        this.tlpDiscount = 0;
-      } else if (this.tlpDiscount > this.maxtlpDiscount) {
-        this.tlpDiscount = this.maxtlpDiscount;
-      }
-      if (this.otherChargesPercentage < 0) {
-        this.otherChargesPercentage = 0;
-      } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
-        this.otherChargesPercentage = this.maxotherChargesPercentage;
-      }
-      if (this.payableMonths < 0) {
-        this.payableMonths = 1;
-      } else if (this.payableMonths > this.maxpayableMonths) {
-        this.payableMonths = this.maxpayableMonths;
-      }
-      this.applySpotCashDiscount();
-      this.applyTLPDiscount();
-      this.applyOtherCharges();
-      this.calculateVAT();
-      this.calculateFinancingDetails();
-    },
-
-    applySpotCashDiscount() {
-      const discountPercentage = parseFloat(this.spotCashDiscount);
-      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
-      this.updateNetUnitPrice();
-    },
-
-    applyTLPDiscount() {
-      const discountPercentage = parseFloat(this.tlpDiscount);
-      this.tlpDiscountAmount =
-        (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
-      this.updateNetUnitPrice();
-    },
-
-    updateNetUnitPrice() {
-      this.netUnitPrice =
-        this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
-      this.applyOtherCharges();
-    },
-
-    applyOtherCharges() {
-      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
-      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
-      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
-    },
-    calculateVAT() {
-      if (this.netUnitPrice > 3600000) {
-        this.vatAmount = this.netUnitPrice * (this.vat / 100);
-        this.totalAmountPayable += this.vatAmount;
-      }
-    },
-
-    calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
-      if (this.spotDownpaymentPercentage == "0") {
-        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
-        this.payablePerMonth = this.netDownpayment / this.payableMonths;
-      } else {
-        this.netDownpayment = this.spotDownpayment - this.reservationFee;
-        this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
-      }
-      this.balanceUponTurnover =
-        ((100 -
-          (Number(this.spreadDownpaymentPercentage) +
-            Number(this.spotDownpaymentPercentage))) /
-          100) *
-        this.totalAmountPayable; // Correct sum of percentages
-    },
-
     async submitReservation() {
       // Check if all required fields are filled, including the file
       if (
