@@ -57,8 +57,14 @@
           v-model="isCreateModalOpen"
           title="Create New Unit Type"
           hide-footer
+          hide-header
           centered
         >
+
+        <div class="modal-title p-3">
+  <h5 class="mb-0">New Unit Type</h5>
+</div>
+
           <form @submit.prevent="createUnitType">
             <div class="form-group">
               <label for="unitTypeName">Unit Type Name:</label>
