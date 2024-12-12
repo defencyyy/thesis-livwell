@@ -1479,7 +1479,7 @@ export default {
           }
 
           // Reset form and reload sites
-          this.newSite = this.resetNewSite();
+          //this.newSite = this.resetNewSite();
           this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
@@ -1489,16 +1489,22 @@ export default {
       }
     },
     addSections() {
+      // First, update the section count based on the input
+      const newSectionCount =
+        this.editSite.number_of_sections + this.newSectionsToAdd;
+
+      // Now generate the new sections
       const newSections = [];
       for (let i = 0; i < this.newSectionsToAdd; i++) {
         newSections.push({
-          sectionNumber: this.editSite.number_of_sections + i + 1, // Automatically generate section numbers
+          sectionNumber: this.editSite.number_of_sections + i + 1, // Generate new section numbers starting from the current count
           sectionLabel: this.editSite.section_label, // Section label from the input
         });
       }
+
       // Update the sections and total section count
-      this.editSite.sections.push(...newSections);
-      this.editSite.number_of_sections += this.newSectionsToAdd; // Update the total count based on the input
+      this.editSite.sections.push(...newSections); // Add the new sections
+      this.editSite.number_of_sections = newSectionCount; // Update the total count with the new sections
       this.newSectionsToAdd = 0; // Reset the input field after adding sections
     },
 
@@ -1516,12 +1522,9 @@ export default {
       formData.append("province", this.editSite.province);
       formData.append("municipality", this.editSite.municipality);
       formData.append("barangay", this.editSite.barangay);
-      formData.append("address", this.editSite.address);
-      formData.append("postal_code", this.editSite.postalCode);
+      formData.append("address", this.editSite.address || "null");
+      formData.append("postal_code", this.editSite.postalCode || "null");
       formData.append("status", this.editSite.status);
-
-      // Log sections for debugging
-      console.log("Sections being sent:", this.editSite.sections);
 
       // Payment Fields
       formData.append("maximum_months", this.editSite.maximum_months);
@@ -1541,17 +1544,21 @@ export default {
       // Sections
       formData.append("number_of_sections", this.editSite.number_of_sections); // Updated section count
       formData.append("section_label", this.editSite.section_label || ""); // For updateSite
+
       if (this.editSite.sections && this.editSite.sections.length > 0) {
         this.editSite.sections.forEach((section, index) => {
           formData.append(
             `sections[${index}][sectionNumber]`,
             section.sectionNumber || ""
           );
+          formData.append(
+            `sections[${index}][sectionLabel]`,
+            section.sectionLabel || this.editSite.section_label
+          );
         });
       }
 
       // Handle Picture (If there's a new picture, include it)
-      // Ensure to attach picture correctly if a file is selected, otherwise don't append it.
       const pictureFile =
         this.newPictureFile ||
         (this.editSite.picture && this.editSite.picture instanceof File
@@ -1560,8 +1567,6 @@ export default {
 
       if (pictureFile && pictureFile instanceof File) {
         formData.append("picture", pictureFile); // Append the file directly
-      } else {
-        //formData.append("picture", ""); // Or don't include it at all
       }
 
       // Log the formData content before making the request

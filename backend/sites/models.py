@@ -182,16 +182,24 @@ class Section(models.Model):
         return str(next_number)
 
     def generate_alphabetic_section_name(self, last_section):
-        # Alphabetic sequence: A, B, C...
+        # Alphabetic sequence: A, B, C...Z, AA, AB, etc.
         if not last_section:
             return "A"  # First section
+        
         last_name = last_section.name
-        next_char = chr(ord(last_name[-1]) + 1)  # Increment letter (A -> B)
-        if next_char > 'Z':
-            next_char = 'A'  # Reset to 'A' after 'Z' (you can also add logic for 2A, 2B if needed)
-            next_number = last_section.number + 1
-            return f"{next_number}{next_char}"
-        return next_char
+        # Check if last section name is numeric or alphabetic
+        if last_name[-1].isalpha():
+            next_char = chr(ord(last_name[-1]) + 1)  # Increment letter (A -> B)
+            # If we exceed 'Z', we need to move to the next alphabetical pair (AA, AB, etc.)
+            if next_char > 'Z':
+                # Reset to 'A' and increment the first letter (e.g., A -> B, Z -> AA)
+                next_char = 'A'
+                next_number = last_section.number + 1
+                return f"{next_number}{next_char}"
+            return next_char
+        else:
+            # Handle numeric naming, should not happen in alphabetic naming but let's be safe
+            return str(last_section.number + 1)
 
     def save(self, *args, **kwargs):
         if not self.name:

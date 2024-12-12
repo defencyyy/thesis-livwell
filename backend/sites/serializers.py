@@ -59,18 +59,50 @@ class SiteSerializer(serializers.ModelSerializer):
         numbering_type = validated_data.pop('numbering_type', 'numeric')
         section_label = validated_data.pop('section_label', 'floor')
 
+        # Create the site instance first
         site = super().create(validated_data)
 
-        # Create sections based on the number_of_sections
-        for i in range(1, number_of_sections + 1):
-            Section.objects.create(site=site, number=i)
-
-        # Optionally, you can assign numbering_type and section_label to your site model if necessary.
+        # Optionally, you can assign numbering_type and section_label to your site model if necessary
         site.numbering_type = numbering_type
         site.section_label = section_label
         site.save()
 
+        # Create sections based on the number_of_sections and numbering_type
+        for i in range(1, number_of_sections + 1):
+            # Generate the section name based on the numbering type (numeric or alphabetic)
+            section_name = self.generate_section_name(site, i)
+
+            # Create the section with dynamic name
+            Section.objects.create(site=site, number=i, name=section_name)
+
         return site
+
+    def generate_section_name(self, site, section_number):
+        """Generate the section name based on the numbering type and section label."""
+        last_section = site.sections.order_by('-number').first()
+
+        if site.numbering_type == 'numeric':
+            return str(section_number)
+
+        elif site.numbering_type == 'alphabetic':
+            if not last_section:
+                return "A"  # Start with "A" if no previous section
+            else:
+                return self.generate_alphabetic_name(last_section)
+
+    def generate_alphabetic_name(self, last_section):
+        """Generate an alphabetic name sequence (A, B, C, ..., Z, AA, AB, ...)."""
+        last_name = last_section.name
+        if last_name[-1].isalpha():
+            next_char = chr(ord(last_name[-1]) + 1)
+            if next_char > 'Z':
+                next_char = 'A'
+                next_number = last_section.number + 1
+                return f"{next_number}{next_char}"
+            return next_char
+        else:
+            return str(last_section.number + 1)
+
 
     def update(self, instance, validated_data):
         # Extract sections data from validated_data
