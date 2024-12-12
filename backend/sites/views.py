@@ -117,7 +117,6 @@ class StatusOptionsView(APIView):
         status_options = dict(Site.STATUS_CHOICES) 
         return Response({"status_options": status_options}, status=200)
 
-
 class ArchivedSiteView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -130,10 +129,7 @@ class ArchivedSiteView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Use Q for more efficient querying
-        archived_sites = Site.objects.filter(
-            Q(company=company) & Q(archived=True)
-        )
+        archived_sites = Site.objects.filter(Q(company=company) & Q(archived=True))
         serializer = SiteSerializer(archived_sites, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -145,15 +141,34 @@ class ArchivedSiteView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        action = request.query_params.get("action")
+
         try:
-            site = Site.objects.get(pk=pk, company=company, archived=True)
-            site.archived = False
-            site.save()
-            return Response({"success": True, "message": "Site unarchived successfully."}, status=status.HTTP_200_OK)
-        
+            site = Site.objects.get(pk=pk, company=company)
+
+            if action == "archive":
+                site.archived = True
+                site.save()
+                return Response({"success": True, "message": "Site archived successfully."}, status=status.HTTP_200_OK)
+
+            elif action == "unarchive":
+                if not site.archived:
+                    return Response(
+                        {"error": "Site is not archived."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                site.archived = False
+                site.save()
+                return Response({"success": True, "message": "Site unarchived successfully."}, status=status.HTTP_200_OK)
+
+            return Response(
+                {"error": "Invalid action."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         except Site.DoesNotExist:
             return Response(
-                {"error": "Site not found or not archived."},
+                {"error": "Site not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 

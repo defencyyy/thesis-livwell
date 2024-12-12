@@ -39,20 +39,30 @@ class Site(models.Model):
 
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     picture = models.ImageField(upload_to=logo_upload_path, blank=True, null=True)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True, default="No description provided")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preselling')
     archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Location
     region = models.CharField(max_length=100)
     province = models.CharField(max_length=100)
     municipality = models.CharField(max_length=100)
     barangay = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    address = models.CharField(
+        max_length=75, 
+        blank=True, 
+        null=True, 
+        help_text="Optional additional address details (e.g., landmark, building, floor)"
+    )
+
+    # Sections
     numbering_type = models.CharField(max_length=10, choices=FLOOR_TYPE_CHOICES, default='numeric')
     section_label = models.CharField(max_length=10, choices=LABEL_CHOICES, default='floor')
 
-    # Pricing Defaults
+    # Pricing 
     commission = models.DecimalField(
         max_digits=10, decimal_places=2, null=True,
         help_text="Commission earned when the unit is sold"
@@ -62,9 +72,7 @@ class Site(models.Model):
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
     reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    
-    # Maximum months (e.g., for loan term)
-    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment term (e.g., 60 months for 5 years max)")
+    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment (e.g., 60 months for 5 years max)")
 
     def __str__(self):
         return self.name
@@ -76,6 +84,7 @@ class Site(models.Model):
             self.province,
             self.municipality,
             self.barangay, 
+            self.address, 
             f"Postal Code: {self.postal_code}" if self.postal_code else None, 
         ]
         return ', '.join(filter(None, address_parts))

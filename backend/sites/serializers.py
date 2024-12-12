@@ -35,6 +35,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'municipality',
             'barangay',
             'postal_code',
+            'address',
             'status',
             'created_at',
             'archived',

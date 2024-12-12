@@ -148,7 +148,9 @@
                       </div>
                     </td>
                     <td>{{ site.location || "Location unavailable" }}</td>
-                    <td>{{ site.status || "Status unavailable" }}</td>
+                    <td>
+                      {{ site.status.toUpperCase() || "Status unavailable" }}
+                    </td>
 
                     <td>
                       <!-- Three Dots Icon for each row -->
@@ -320,6 +322,7 @@
                     </select>
                   </div>
 
+                  <!-- Barangay Dropdown -->
                   <div class="form-group mb-3">
                     <label for="barangay" class="form-label">Barangay</label>
                     <select
@@ -336,6 +339,20 @@
                         {{ barangay }}
                       </option>
                     </select>
+                  </div>
+
+                  <!-- Address Field (New) -->
+                  <div class="form-group mb-3">
+                    <label for="address" class="form-label"
+                      >Additional Address</label
+                    >
+                    <input
+                      type="text"
+                      v-model="newSite.address"
+                      id="address"
+                      class="form-control"
+                      placeholder="Enter additional address"
+                    />
                   </div>
 
                   <div class="row mb-3">
@@ -364,7 +381,7 @@
                           :key="status"
                           :value="status"
                         >
-                          {{ status }}
+                          {{ status.toUpperCase() }}
                         </option>
                       </select>
                     </div>
@@ -612,7 +629,7 @@
                     />
                   </div>
 
-                  <!-- Location (Read-Only) -->
+                  <!-- Location Fields (Region, Province, etc.) (Read-Only) -->
                   <div class="row mb-3">
                     <!-- Region -->
                     <div class="col-md-6">
@@ -669,6 +686,20 @@
                     />
                   </div>
 
+                  <!-- Address (Editable as Single String) -->
+                  <div class="form-group mb-3">
+                    <label for="editAddress" class="form-label"
+                      >Additional Address</label
+                    >
+                    <input
+                      type="text"
+                      v-model="editSite.address"
+                      id="editAddress"
+                      class="form-control"
+                      placeholder="Enter additional address"
+                    />
+                  </div>
+
                   <!-- Postal Code -->
                   <div class="row mb-3">
                     <div class="col-md-6">
@@ -700,7 +731,7 @@
                           :key="status"
                           :value="status"
                         >
-                          {{ status }}
+                          {{ status.toUpperCase() }}
                         </option>
                       </select>
                     </div>
@@ -857,6 +888,7 @@
                   />
                 </div>
               </div>
+
               <!-- Number of Sections (Editable) -->
               <div class="form-group mb-3">
                 <label for="numberOfSections" class="form-label"
@@ -875,28 +907,26 @@
 
               <!-- Section Label and Numbering Type (Disabled) -->
               <div class="row mb-3">
-                <!-- Section Label (Readonly) -->
                 <div class="col-md-6">
                   <label for="editSectionLabel" class="form-label"
                     >Section Label</label
                   >
                   <input
                     type="text"
-                    v-model="editSite.section_label"
+                    :value="capitalizeFirstLetter(editSite.section_label)"
                     id="editSectionLabel"
                     class="form-control"
                     readonly
                   />
                 </div>
 
-                <!-- Numbering Type (Readonly) -->
                 <div class="col-md-6">
                   <label for="editNumberingType" class="form-label"
                     >Numbering Type</label
                   >
                   <input
                     type="text"
-                    v-model="editSite.numbering_type"
+                    :value="capitalizeFirstLetter(editSite.numbering_type)"
                     id="editNumberingType"
                     class="form-control"
                     readonly
@@ -992,6 +1022,8 @@ export default {
         province: "",
         municipality: "",
         barangay: "",
+        postalCode: 0,
+        address: "",
         description: "",
         picture: "",
         maximum_months: 24,
@@ -1014,14 +1046,14 @@ export default {
         province: "",
         municipality: "",
         barangay: "",
+        postalCode: 0,
         description: "",
         picture: "",
-        // Section
+        address: "",
         sections: [],
         section_label: "",
         number_of_sections: 0,
         numbering_type: "",
-        // Payment
         maximum_months: 0,
         commission: 0,
         spot_discount_percentage: 0,
@@ -1040,6 +1072,8 @@ export default {
         barangay: "",
         description: "",
         picture: "",
+        address: "",
+        postalCode: 0,
         // Section
         sections: [],
         section_label: "",
@@ -1108,7 +1142,6 @@ export default {
         });
     },
     numberOfSections() {
-      // Return the length of sections array of the selected site
       return this.currentSite.sections.length;
     },
     paginatedSites() {
@@ -1131,6 +1164,24 @@ export default {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
+    },
+    formatStatus(status) {
+      return status
+        .split("_") // Split the string at underscores
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ) // Capitalize each word
+        .join(" "); // Join the words back with spaces
+    },
+    revertStatusToOriginal(status) {
+      return status
+        .split(" ") // Split by space
+        .map((word) => word.toLowerCase()) // Convert each word to lowercase
+        .join("_"); // Join the words back with underscores
+    },
+    capitalizeFirstLetter(str) {
+      if (!str) return str;
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     },
     async fetchSites() {
       try {
@@ -1194,7 +1245,7 @@ export default {
       if (confirm("Are you sure you want to archive this site?")) {
         try {
           const response = await axios.put(
-            `http://localhost:8000/developer/sites/${siteId}/`, // Correct endpoint for updating the site
+            `http://localhost:8000/developer/sites/archived/${siteId}/`, // Correct endpoint for updating the site
             {
               name: site.name, // Pass the existing name or other required fields
               description: site.description,
@@ -1233,7 +1284,7 @@ export default {
       if (confirm("Are you sure you want to unarchive this site?")) {
         try {
           const response = await axios.put(
-            `http://localhost:8000/developer/sites/${siteId}/`, // Correct endpoint for updating the site
+            `http://localhost:8000/developer/sites/archived/${siteId}/`, // Correct endpoint for updating the site
             {
               name: site.name, // Pass the existing name or other required fields
               description: site.description,
@@ -1346,13 +1397,19 @@ export default {
       formData.append("province", this.newSite.province);
       formData.append("municipality", this.newSite.municipality);
       formData.append("barangay", this.newSite.barangay);
+      formData.append("address", this.newSite.address);
+      formData.append("postal_code", this.newSite.postalCode);
+      const formattedStatus = this.revertStatusToOriginal(this.newSite.status);
+      this.newSite.status = formattedStatus;
       formData.append("status", this.newSite.status);
+
+      // Sections
       formData.append("number_of_sections", this.newSite.number_of_sections); // Updated field
-      formData.append("maximum_months", this.newSite.maximum_months);
       formData.append("numbering_type", this.newSite.numbering_type); // Added field
       formData.append("section_label", this.newSite.section_label); // Added field
 
-      // Add Payment Fields
+      // Payment Fields
+      formData.append("maximum_months", this.newSite.maximum_months);
       formData.append("commission", this.newSite.commission || "");
       formData.append(
         "spot_discount_percentage",
@@ -1427,6 +1484,8 @@ export default {
       formData.append("province", this.editSite.province);
       formData.append("municipality", this.editSite.municipality);
       formData.append("barangay", this.editSite.barangay);
+      formData.append("address", this.editSite.address);
+      formData.append("postal_code", this.editSite.postalCode);
       formData.append("status", this.editSite.status);
 
       // Payment Fields
@@ -1443,6 +1502,7 @@ export default {
       formData.append("vat_percentage", this.editSite.vat_percentage || "");
       formData.append("reservation_fee", this.editSite.reservation_fee || "");
       formData.append("other_charges", this.editSite.other_charges || "");
+
       // Sections
       formData.append("number_of_sections", this.editSite.number_of_sections); // Editable section count
       formData.append("section_label", this.editSite.section_label || ""); // for updateSite
@@ -1453,7 +1513,6 @@ export default {
             `sections[${index}][sectionNumber]`,
             section.sectionNumber || ""
           );
-          // You can add more fields for each section if necessary
         });
       }
 
@@ -1517,6 +1576,8 @@ export default {
         province: "",
         municipality: "",
         barangay: "",
+        address: "",
+        postalCode: 0,
         description: "",
         picture: "",
         maximum_months: 24,
@@ -1545,6 +1606,7 @@ export default {
         ...this.selectedSite,
         sections: [...this.selectedSite.sections], // Clone sections array to avoid mutation
         number_of_sections: numberOfSections, // Set the length of sections in the editSite object
+        postalCode: this.selectedSite.postal_code,
       };
 
       console.log("Edit Site after cloning sections:", this.editSite);
@@ -1577,6 +1639,7 @@ export default {
         console.error("Error fetching status options:", error);
       }
     },
+
     constructLocation(site) {
       const addressParts = [
         site.province,
