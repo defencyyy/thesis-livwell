@@ -19,8 +19,8 @@ class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
     sections = serializers.SerializerMethodField()
     number_of_sections = serializers.IntegerField(write_only=True, required=False)
-    numbering_type = serializers.CharField(read_only=True, required=False)
-    section_label = serializers.CharField(read_only=True, required=False)
+    numbering_type = serializers.CharField( required=False)
+    section_label = serializers.CharField( required=False)
 
     class Meta:
         model = Site
