@@ -801,6 +801,16 @@ sortedAndFilteredCustomers() {
     },
   },
   methods: {
+    calculateAmortization(balance, years) {
+      const interestRate = 6.5 / 100; // 6.5% annual interest
+      const monthlyRate = interestRate / 12; // Monthly interest rate
+      const totalMonths = years * 12; // Total number of months
+      return (
+        balance *
+        (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+        (Math.pow(1 + monthlyRate, totalMonths) - 1)
+      );
+    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
