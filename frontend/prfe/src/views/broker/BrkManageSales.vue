@@ -346,6 +346,150 @@
 
                 <div class="line mb-4"></div>
 
+                <form>
+                  <div class = "row">
+                    <div class = "col-md-6">
+                      <div class = "mb-3">
+                        <label for="spotDiscount" class="form-label text-start">Spot Discount</label>
+                        <input
+                          type="number"
+                          id="spotDiscount"
+                          v-model="spotCashDiscount"
+                          @input="updatePaymentDetails"
+                          class="form-control"
+                          :min="0"
+                          :max="maxSpotCashDiscount" 
+                        />
+                        <p class = "p-label"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+                        <p class = "p-label">
+                          <strong>Unit Price after Spot Discount:</strong> ₱{{
+                            unitPriceAfterSpotDiscount
+                          }}
+                        </p>
+                      </div>
+                      <div class = "mb-3">
+                        <label for="otherChargesPercentage" class="form-label text-start">Other Charges (%)</label>
+                        <input
+                          type="number"
+                          id="otherChargesPercentage"
+                          v-model="otherChargesPercentage"
+                          @input="updatePaymentDetails"
+                          class="form-control"
+                          min="0"
+                          max="maxotherChargesPercentage"
+                          step="0.1"
+                        />
+                        <p class = "p-label"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+
+                        <!-- VAT Calculation -->
+                        <p v-if="netUnitPrice > 3600000" class = "p-label">
+                          <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+                        </p>
+
+                        <!-- Total Amount Payable -->
+                        <p class = "p-label">
+                          <strong>Total Amount Payable:</strong> ₱{{
+                            totalAmountPayable
+                          }}
+                        </p>
+
+                      </div>
+                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
+                        <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
+                        <input
+                          type="number"
+                          v-model="spreadDownpaymentPercentage"
+                          id="spreadDownpayment"
+                          @input="updatePaymentDetails"
+                          min="0"
+                          max="100"
+                          step="1"
+                          class="form-control"
+                          required
+                          placeholder="Enter percentage"
+                        />
+                        <p class = "p-label">
+                          <strong>Spread Downpayment:</strong> ₱{{
+                            spreadDownpayment
+                          }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class = "col-md-6">
+                      <div class = "mb-3">
+                        <label for="tlpDiscount" class="form-label text-start">LP Discount (Optional)</label>
+                        <input
+                        type="number"
+                        id="tlpDiscount"
+                        v-model="tlpDiscount"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        max="maxtlpDiscount"
+                      />
+
+                      <p class = "p-label"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+                      <!-- Net Unit Price -->
+                      <p class = "p-label"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+                      </div>
+
+                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
+                        <label for="spotDownpayment" class="form-label text-start">Spot Downpayment</label>
+                        <input
+                          type="number"
+                          id="spotDownpayment"
+                          v-model="spotDownpaymentPercentage"
+                          @input="updatePaymentDetails"
+                          class="form-control"
+                          min="0"
+                          step="5"
+                          placeholder="Enter downpayment percentage"
+                          required
+                        />
+                        <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "p-label">
+                          <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+                        </p>
+
+                        <!-- Reservation Fee -->
+                        <p class = "p-label" ><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+                        <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "p-label" >
+                          <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+                        </p>
+
+                        <!-- Net Downpayment -->
+                        <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "p-label">
+                          <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+                        </p>
+                      </div>
+                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
+                        <label for="months" class="form-label text-start">Months to Pay</label>
+                        <input
+                          type="number"
+                          v-model="payableMonths"
+                          id="months"
+                          @input="updatePaymentDetails"
+                          class="form-control"
+                          min="1"
+                          max="maxpayableMonths"
+                          step="1"
+                          required
+                        />
+                        <p class = "p-label">
+                          <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
+                        </p>
+
+                        <!-- Balance Upon Turnover -->
+                        <p class = "p-label">
+                          <strong>Balance Upon Turnover:</strong> ₱{{
+                            balanceUponTurnover
+                          }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
                 <!-- Spot Discount -->
                 <div class="form-group">
                   <label for="spotDiscount"><strong>Spot Discount</strong></label>
@@ -1700,6 +1844,7 @@ input[type="file"] {
   color: #888; 
   font-style: italic; 
 }
+
 .search-bar-container {
   position: relative;
   width: 100%;
@@ -1779,6 +1924,26 @@ input[type="file"] {
   color: #000;
 }
 
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.col-md-6 {
+  flex: 1;
+  min-width: 300px;
+}
+
+.form-label {
+  color: #333;
+}
+
+.p-label {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
 
 /* Responsive layout tweaks */
 @media (max-width: 1440px) {
