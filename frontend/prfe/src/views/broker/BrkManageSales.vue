@@ -206,51 +206,102 @@
                 </div>
               </div>
               <br>
-              <div class="info-box">
-                <h6 class="fw-bold">Spot Discount</h6>
-                <ul class="list-unstyled mb-0">
-                  <li><strong>Spot Discount Percentage:</strong> {{ salesDetails.spot_discount }}%</li>
-                  <li><strong>Spot Discount:</strong> ₱{{ this.spotDiscount }}</li>
-                  <li><strong>Unit Price after Spot Discount:</strong> ₱{{
+
+              <div class = "sales-box">
+                <h6><strong>Spot Discount</strong></h6>
+                <div class = "sales-item">
+                  <span class="label">Spot Discount Percentage:</span>
+                  <span class="value">{{ salesDetails.spot_discount }}%</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Spot Discount: </span>
+                  <span class="value">₱{{ this.spotDiscount }}</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Unit Price after Spot Discount:</span>
+                  <span class="value">₱{{
                     this.unitPriceAfterSpotDiscount
-                  }}</li>
-                </ul>
+                  }}</span>
+                </div>
+                <hr class="separator">
+                <h6><strong>TLP Discount</strong></h6>
+                <div class = "sales-item">
+                  <span class="label">TLP Discount Percentage:</span>
+                  <span class="value">{{ salesDetails.tlp_discount }}%</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">TLP Discount: </span>
+                  <span class="value">₱{{ this.tlpDiscountAmount }}</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Net Unit Price:</span>
+                  <span class="value">₱{{ netUnitPrice }}</span>
+                </div>
+                <hr class="separator">
+                <h6><strong>Other Charges</strong></h6>
+                <div class = "sales-item">
+                  <span class="label">Other Charges Percentage:</span>
+                  <span class="value">{{ salesDetails.other_charges_percent }}%</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Other Charges:</span>
+                  <span class="value">₱{{ otherCharges }}</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Net Unit Price:</span>
+                  <span class="value">₱{{ netUnitPrice }}</span>
+                </div>
+                <hr class="separator">
+                <div v-if="netUnitPrice > 3600000" class = "sales-item">
+                  <span class="label">VAT (12%):</span>
+                  <span class="value">₱{{ vatAmount }}</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Total Amount Payable:</span>
+                  <span class="value">₱{{totalAmountPayable}}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Spot Downpayment Percentage:</span>
+                  <span class="value">{{ salesDetails.spot_downpayment_percent }}% </span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Spot Downpayment:</span>
+                  <span class="value">₱{{ spotDownpayment }}</span>
+                </div>
+                <div class = "sales-item">
+                  <span class="label">Reservation Fee:</span>
+                  <span class="value">₱{{salesDetails.reservation_fee}}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Spot Cash'" class = "sales-item">
+                  <span class="label">Net Full Payment:</span>
+                  <span class="value">₱{{ netFullPayment }}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Net Downpayment:</span>
+                  <span class="value">₱{{ netDownpayment }}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Spread Downpayment Percentage:</span>
+                  <span class="value">{{ salesDetails.spread_downpayment_percent }}%</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Spread Downpayment:</span>
+                  <span class="value">₱{{ spreadDownpayment }}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Payable Months:</span>
+                  <span class="value">{{ salesDetails.payable_months }}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Payable Per Month:</span>
+                  <span class="value">₱{{ payablePerMonth }}</span>
+                </div>
+                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                  <span class="label">Balance Upon Turnover:</span>
+                  <span class="value">₱{{balanceUponTurnover}}</span>
+                </div>
               </div>
 
-              <div class="info-box">
-                <h6 class="fw-bold">TLP Discount</h6>
-                <ul class="list-unstyled mb-0">
-                  <li><strong>TLP Discount Percentage:</strong> {{ salesDetails.tlp_discount }}%</li>
-                  <li><strong>TLP Discount:</strong> ₱{{ this.tlpDiscountAmount }}</li>
-                  <li><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }} </li>
-                </ul>
-              </div>
-
-              <div class="info-box">
-                <h6 class="fw-bold">Other Charges</h6>
-                <ul class="list-unstyled mb-0">
-                  <li><strong>Other Charges Percentage:</strong> {{ salesDetails.other_charges_percent }}%</li>
-                  <li><strong>Other Charges:</strong> ₱{{ otherCharges }}</li>
-                  <li><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }} </li>
-                </ul>
-              </div>
-
-              <div class="info-box">
-                <ul class="list-unstyled mb-0">
-                  <li v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</li>
-                  <li><strong>Total Amount Payable:</strong> ₱{{totalAmountPayable}}</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment Percentage:</strong> {{ salesDetails.spot_downpayment_percent }}% </li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</li>
-                  <li><strong>Reservation Fee:</strong> ₱{{salesDetails.reservation_fee}}</li>
-                  <li v-if="salesDetails.payment_plan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment Percentage:</strong> {{ salesDetails.spread_downpayment_percent }}%</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Months:</strong> {{ salesDetails.payable_months }}</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</li>
-                  <li v-if="salesDetails.payment_plan === 'Deffered Payment'"><strong>Balance Upon Turnover:</strong> ₱{{balanceUponTurnover}}</li>
-                </ul>
-              </div>
 
               <div
               class="d-flex justify-content-end gap-2 mt-30"
@@ -1702,6 +1753,30 @@ input[type="file"] {
 
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef; 
+}
+
+.sales-box {
+  min-width: 300px;
+  background-color: #f8f9fa; 
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sales-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.sales-item .label {
+  color: #555;
+}
+
+.s-item .value {
+  font-weight: bold;
+  color: #000;
 }
 
 
