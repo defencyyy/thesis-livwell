@@ -4,7 +4,7 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <router-link class="text-start text" to="/broker/affiliated-units">
+        <router-link class="text-start text" :to="`/units/${siteId}`">
           <div class = "back-container">
             <i class="fas fa-arrow-left"></i> Back to Units
           </div>
@@ -277,6 +277,7 @@ export default {
       unitId: this.$route.params.unitId,
       unitDetails: null,
       units: [],
+      siteId:null,
       siteName: "",
       siteYear: "",
       isModalVisible: false,
@@ -351,6 +352,7 @@ methods: {
     );
     this.unitDetails = response.data.unit; // Assuming `unit` is the key in the response
     this.selectedUnit = this.unitDetails;
+    this.siteId = this.selectedUnit.site.id;
     this.unitPrice = this.unitDetails.price; // Set the price of the selected unit
     this.spotCashDiscount = this.selectedUnit.spot_discount;
     this.payableMonths = this.selectedUnit.months;
