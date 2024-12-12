@@ -126,7 +126,7 @@
 
           <!-- Payment Schedule Content -->
           <div v-if="activeTab === 'payment-schedule'" class="tab-content">
-            <div class="detailed-schedule">
+            <div>
               <div class="container mt-5">
                 <div class="mb-4">
                   <h3
@@ -148,62 +148,73 @@
                       netFullPayment.toFixed(2)
                     }}
                   </p>
-                  <p v-if="salesDetail.payment_plan === 'Deffered Payment'" class="text-start" style="margin-bottom: 1px">
-                    <strong>Balance Upon Turnover: </strong>₱{{
-                      balanceUponTurnover.toFixed(2)
-                    }}
-                  </p>
+
                   <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
-                    <p class="text-start">
-                      <strong>Installment Terms: </strong
-                      >{{ salesDetail.payable_months }} months
-                    </p>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Payment Type</th>
-                          <th>Amount (₱)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Spot Downpayment</td>
-                          <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Spread Downpayment</td>
-                          <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-                        </tr>
-                        <tr
-                          v-for="month in salesDetail.payable_months"
-                          :key="month"
-                        >
-                          <td>Month {{ month }} Payment</td>
-                          <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Balance Upon Turnover</td>
-                          <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-                        </tr>
-                        <!-- Amortization for 10, 15, 20, and 25 years -->
-                        <tr>
-                          <td>Monthly Amortization (10 years @ 6.5%)</td>
-                          <td>₱{{ amortization10Years.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Monthly Amortization (15 years @ 6.5%)</td>
-                          <td>₱{{ amortization15Years.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Monthly Amortization (20 years @ 6.5%)</td>
-                          <td>₱{{ amortization20Years.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Monthly Amortization (25 years @ 6.5%)</td>
-                          <td>₱{{ amortization25Years.toFixed(2) }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div class = "payment-container">
+                      <div class = "summary-and-info">
+                        <div class = "payment-schedule-summary">
+                          <div class="summary-item">
+                            <span class="label">Balance Upon Turnover: </span>
+                            <span class="value">₱{{ balanceUponTurnover.toFixed(2)}} </span>
+                          </div>
+                          <hr class="separator">
+                          <div class="summary-item">
+                            <span class="label">Installment Terms:</span>
+                            <span class="value">{{ salesDetail.payable_months }} months </span>
+                          </div>
+                        </div>
+                        <div class="additional-box">
+                          <h4><center>Monthly Amortization (6.5%)</center></h4>
+                          <div class="summary-item">
+                            <span class="label">10 years</span>
+                            <span class="value">₱{{ amortization10Years.toFixed(2) }}</span>
+                          </div>
+                          <hr class="separator">
+                          <div class="summary-item">
+                            <span class="label">15 years</span>
+                            <span class="value">₱{{ amortization15Years.toFixed(2) }}</span>
+                          </div>
+                          <hr class="separator">
+                          <div class="summary-item">
+                            <span class="label">20 years</span>
+                            <span class="value">₱{{ amortization20Years.toFixed(2) }}</span>
+                          </div>
+                          <hr class="separator">
+                          <div class="summary-item">
+                            <span class="label">25 years</span>
+                            <span class="value">₱{{ amortization25Years.toFixed(2) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class = "detailed-schedule">
+                        <table class="payment-table">
+                          <thead>
+                            <tr>
+                              <th>Payment Type</th>
+                              <th class="amount-column">Amount (₱)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Spot Downpayment</td>
+                              <td class="amount-column highlight">₱{{ spotDownpayment.toFixed(2) }}</td>
+                            </tr>
+                            <tr>
+                              <td>Spread Downpayment</td>
+                              <td class="amount-column highlight">₱{{ spreadDownpayment.toFixed(2) }}</td>
+                            </tr>
+                            <tr v-for="month in salesDetail.payable_months" :key="month">
+                              <td>Month {{ month }} Payment</td>
+                              <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
+                            </tr>
+                            <tr>
+                              <td>Balance Upon Turnover</td>
+                              <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -581,6 +592,120 @@ tr:hover {
 
 .documents-table th {
   text-align: center;
+}
+
+.payment-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping for responsiveness */
+  justify-content: space-between;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.summary-and-info {
+  display: flex;
+  flex-direction: column; /* Stack summary and additional box */
+  gap: 20px;
+  flex: 1; /* Flex item for dynamic width */
+  max-width: 400px;
+}
+
+.payment-schedule-summary,
+.detailed-schedule,
+.additional-box {
+  min-width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow-y: auto; /* Add scroll if content exceeds height */
+}
+
+.payment-schedule-summary {
+  background: #f9f9f9;
+  height: 130px;
+  max-width: 400px;
+  margin-left: 1px !important;
+}
+
+.additional-box {
+  background: #f9f9f9;
+  text-align: left;
+  margin-top: -5px;
+  max-width: 400px;
+  height: 270px;
+  margin-left: 1px !important;
+}
+
+.detailed-schedule {
+  flex: 1; /* Flex item for dynamic width */
+  height: 415px;
+  min-width: 300px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.summary-item .label {
+  color: #555;
+}
+
+.summary-item .value {
+  font-weight: bold;
+  color: #000;
+}
+
+.summary-item.highlight .value {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.separator {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  margin-top: 10px;
+}
+
+.payment-table th,
+.payment-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.payment-table thead th {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+}
+
+.payment-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.payment-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.amount-column {
+  text-align: right;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #007bff;
 }
 
 /* juju */
