@@ -165,35 +165,64 @@
           </div>
           
           <div class="payment-container">
-            <div class="payment-schedule-summary">
-              <div class="summary-item">
-                <span class="label">Spot Downpayment:</span>
-                <span class="value">₱0.00</span>
+            <!-- Payment Summary and Additional Information -->
+            <div class="summary-and-info">
+              <!-- Payment Schedule Summary -->
+              <div class="payment-schedule-summary">
+                <div class="summary-item">
+                  <span class="label">Spot Downpayment:</span>
+                  <span class="value">₱0.00</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">Spread Downpayment:</span>
+                  <span class="value">₱N/A</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item highlight">
+                  <span class="label">Monthly Payment:</span>
+                  <span class="value">₱50,000 / month for 360 months</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">Balance Upon Turnover:</span>
+                  <span class="value">₱3,000,000</span>
+                </div>
+                <button @click="toggleDetailedSchedule" class="btn btn-primary">
+                  {{
+                    showDetailedSchedule
+                      ? "Hide Detailed Schedule"
+                      : "Show Detailed Schedule"
+                  }}
+                </button>
               </div>
-              <hr class="separator">
-              <div class="summary-item">
-                <span class="label">Spread Downpayment:</span>
-                <span class="value">₱N/A</span>
+
+              <!-- Additional Information Box -->
+              <div class="additional-box">
+                <h4><center>Monthly Amortization (6.5%)</center></h4>
+                <div class="summary-item">
+                  <span class="label">10 years</span>
+                  <span class="value">₱{{ amortization10Years.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">15 years</span>
+                  <span class="value">₱{{ amortization15Years.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">20 years</span>
+                  <span class="value">₱{{ amortization20Years.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">25 years</span>
+                  <span class="value">₱{{ amortization25Years.toFixed(2) }}</span>
+                </div>
               </div>
-              <hr class="separator">
-              <div class="summary-item highlight">
-                <span class="label">Monthly Payment:</span>
-                <span class="value">₱50,000 / month for 360 months</span>
-              </div>
-              <hr class="separator">
-              <div class="summary-item">
-                <span class="label">Balance Upon Turnover:</span>
-                <span class="value">₱3,000,000</span>
-              </div>
-              <button @click="toggleDetailedSchedule" class="btn btn-primary">
-                {{
-                  showDetailedSchedule
-                    ? "Hide Detailed Schedule"
-                    : "Show Detailed Schedule"
-                }}
-              </button>
             </div>
 
+            <!-- Detailed Schedule -->
             <div v-if="showDetailedSchedule" class="detailed-schedule">
               <table class="payment-table">
                 <thead>
@@ -211,7 +240,6 @@
                     <td>Spread Downpayment</td>
                     <td class="amount-column highlight">₱{{ spreadDownpayment.toFixed(2) }}</td>
                   </tr>
-                  <!-- Loop through the months to display monthly payments -->
                   <tr v-for="month in payableMonths" :key="month">
                     <td>Month {{ month }} Payment</td>
                     <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
@@ -220,27 +248,11 @@
                     <td>Balance Upon Turnover</td>
                     <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
                   </tr>
-                  <!-- Amortization for 10, 15, 20, and 25 years -->
-                  <tr>
-                    <td>Monthly Amortization (10 years @ 6.5%)</td>
-                    <td class="amount-column">₱{{ amortization10Years.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Monthly Amortization (15 years @ 6.5%)</td>
-                    <td class="amount-column">₱{{ amortization15Years.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Monthly Amortization (20 years @ 6.5%)</td>
-                    <td class="amount-column">₱{{ amortization20Years.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Monthly Amortization (25 years @ 6.5%)</td>
-                    <td class="amount-column">₱{{ amortization25Years.toFixed(2) }}</td>
-                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
+
           
         </div>
       </div>
@@ -567,116 +579,134 @@ p {
 }
 
 .payment-container {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 20px;
-    margin: 20px 0;
-  }
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping for responsiveness */
+  justify-content: space-between;
+  gap: 20px;
+  margin: 20px 0;
+}
 
-  .payment-schedule-summary,
-  .detailed-schedule {
-    flex: 1;
-    min-width: 300px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    overflow-y: auto; /* Add scroll if content exceeds height */
-  }
+.summary-and-info {
+  display: flex;
+  flex-direction: column; /* Stack summary and additional box */
+  gap: 20px;
+  flex: 1; /* Flex item for dynamic width */
+  max-width: 400px;
+}
 
-  .payment-schedule-summary {
-    margin-left: 60px !important;
-    max-width: 400px;
-    background: #f9f9f9;
-    height: 300px;
-  }
+.payment-schedule-summary,
+.detailed-schedule,
+.additional-box {
+  min-width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow-y: auto; /* Add scroll if content exceeds height */
+}
 
-  .detailed-schedule {
-    height: 450px;
-  }
+.payment-schedule-summary {
+  background: #f9f9f9;
+  height: 300px;
+  max-width: 400px;
+  margin-left: 60px !important;
+}
 
+.additional-box {
+  background: #f9f9f9;
+  text-align: left;
+  margin-top: 20px;
+  max-width: 400px;
+  height: 300px;
+  margin-left: 60px !important;
+}
 
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    font-size: 16px;
-  }
+.detailed-schedule {
+  flex: 1; /* Flex item for dynamic width */
+  height: 450px;
+  min-width: 300px;
+}
 
-  .summary-item .label {
-    color: #555;
-  }
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
 
-  .summary-item .value {
-    font-weight: bold;
-    color: #000;
-  }
+.summary-item .label {
+  color: #555;
+}
 
-  .summary-item.highlight .value {
-    font-weight: bold;
-    color: #007bff;
-  }
+.summary-item .value {
+  font-weight: bold;
+  color: #000;
+}
 
-  .separator {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 10px 0;
-  }
+.summary-item.highlight .value {
+  font-weight: bold;
+  color: #007bff;
+}
 
-  .btn-primary {
-    display: block;
-    width: 100%;
-    padding: 10px 20px;
-    color: white;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-  }
+.separator {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
 
-  .btn-primary:hover {
-    background-color: #0056b3;
-  }
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
 
-  .payment-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 16px;
-    font-family: Arial, sans-serif;
-    margin-top: 10px;
-  }
+.btn-primary:hover {
+  background-color: #0056b3;
+}
 
-  .payment-table th,
-  .payment-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-  }
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  margin-top: 10px;
+}
 
-  .payment-table thead th {
-    background-color: #007bff;
-    color: white;
-    text-align: center;
-  }
+.payment-table th,
+.payment-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
 
-  .payment-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
+.payment-table thead th {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+}
 
-  .payment-table tbody tr:hover {
-    background-color: #f1f1f1;
-  }
+.payment-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
 
-  .amount-column {
-    text-align: right;
-  }
+.payment-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
 
-  .highlight {
-    font-weight: bold;
-    color: #007bff;
-  }
+.amount-column {
+  text-align: right;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #007bff;
+}
 
 /* juju */
 
