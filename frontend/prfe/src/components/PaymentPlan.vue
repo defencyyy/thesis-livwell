@@ -4,37 +4,159 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <router-link class="text-start" to="/broker/affiliated-units">
+        <router-link class="text-start text" to="/broker/affiliated-units">
           <div class = "back-container">
             <i class="fas fa-arrow-left"></i> Back to Units
           </div>
         </router-link>
 
         <div class="title-wrapper">
-        <div class="title-left">
-          <div class="title-icon"></div>
-          <div class="edit-title"><strong>Payment Plan for Unit {{ unitDetails ? unitDetails.unit_title : unitId }}</strong></div>
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title"><strong>Payment Plan for Unit {{ unitDetails ? unitDetails.unit_title : unitId }}</strong></div>
+          </div>
         </div>
-      </div>
 
         <div class="payment-plan-container">
           <div class="row mb-3 ps-5">
             <div class="col-12 d-flex justify-content-around align-items-center">
               <!-- Left Section: Property Price -->
               <div class="text-center">
-                <h5 class="muted price-header">Property Price</h5>
-                <p class="property-price1">₱ {{ selectedUnit.price }}</p>
+                <h5 class="price-header">Property Price</h5>
+                <p class="property-price"><strong>₱ {{ selectedUnit.price }}</strong></p>
               </div>
               <!-- Right Section: Payment Plan -->
-              <div class="text-center1">
+              <div class="text-center">
                 <h5 class="price-header">Payment Plan</h5>
                 <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
                   <option value="Spot Cash">Spot Cash</option>
-                  <option value="Deffered Payment">Deffered Payment</option>
+                  <option value="Deferred Payment">Deferred Payment</option>
                 </select>
               </div>
             </div>
           </div>
+
+          <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 900px;">
+            <div class="card-body">
+              <form>
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Spot Discount -->
+                    <div class="mb-3">
+                      <label for="spotDiscount" class="form-label text-start">Spot Discount</label>
+                      <input
+                        type="number"
+                        id="spotDiscount"
+                        v-model="spotCashDiscount"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        :min="0"
+                        :max="maxSpotCashDiscount"
+                      />
+                      <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+                      <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+                    </div>
+
+                    <!-- Other Charges -->
+                    <div class="mb-3">
+                      <label for="otherChargesPercentage" class="form-label text-start">Other Charges (%)</label>
+                      <input
+                        type="number"
+                        id="otherChargesPercentage"
+                        v-model="otherChargesPercentage"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        max="maxOtherChargesPercentage"
+                        step="0.1"
+                      />
+                      <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+                      <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+                      <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+                    </div>
+
+                    <!-- Spread Downpayment -->
+                    <div v-if="selectedPaymentPlan === 'Deferred Payment'">
+                      <div class="mb-3 align-fields">
+                        <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
+                        <input
+                        type="number"
+                        v-model="spreadDownpaymentPercentage"
+                        id="spreadDownpayment"
+                        @input="updatePaymentDetails"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="form-control"
+                        required
+                        placeholder="Enter percentage"
+                      />
+                      <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <!-- TLP Discount -->
+                    <div class="mb-3">
+                      <label for="tlpDiscount" class="form-label text-start">TLP Discount (Optional)</label>
+                      <input
+                        type="number"
+                        id="tlpDiscount"
+                        v-model="tlpDiscount"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        max="maxTlpDiscount"
+                      />
+                      <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+                      <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+                    </div>
+
+                    <!-- Spot Downpayment -->
+                    <div v-if="selectedPaymentPlan === 'Deferred Payment'" class="mb-3">
+                      <label for="spotDownpayment" class="form-label text-start">Spot Downpayment</label>
+                      <input
+                        type="number"
+                        id="spotDownpayment"
+                        v-model="spotDownpaymentPercentage"
+                        class="form-control"
+                        @input="updatePaymentDetails"
+                        min="0"
+                        step="5"
+                        placeholder="Enter downpayment percentage"
+                        required
+                      />
+                      <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+                      <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+                      <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+                      <p v-if="selectedPaymentPlan === 'Deferred Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+                      <!-- Payable in Months -->
+                      <div class="mb-3">
+                        <label for="months" class="form-label text-start">Months to Pay</label>
+                        <input
+                          type="number"
+                          v-model="payableMonths"
+                          id="months"
+                          @input="updatePaymentDetails"
+                          class="form-control"
+                          min="1"
+                          max="maxPayableMonths"
+                          step="1"
+                          required
+                        />
+                        <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+                        <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+
+
 
           <!-- Spot Discount -->
           <div class="form-group">
@@ -502,7 +624,7 @@ body {
   text-align: center;
 }
 
-.text-start{
+.text{
   color: black;
   text-decoration: none !important;
 }
@@ -535,12 +657,50 @@ body {
   text-align: left;
 }
 
-/* juju */
 .payment-plan-container {
   padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
+  border-radius: 8px;
 }
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 2.5rem;
+}
+
+.form-label {
+  color: #333;
+}
+
+p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.col-md-6 {
+  flex: 1;
+  min-width: 300px;
+}
+
+.align-fields{
+  margin-top: 35px;
+}
+
+.property-price {
+  font-size: 20px;
+}
+
+/* juju */
 
 label {
   display: block;
