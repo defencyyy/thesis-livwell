@@ -9,26 +9,6 @@
             <div class="title-icon"></div>
             <div class="edit-title"><strong>Available Sites</strong></div>
           </div>
-
-          <div class="view-switch">
-            <div
-              class="view-icon"
-              :class="{ active: viewMode === 'grid' }"
-              @click="viewMode = 'grid'"
-            >
-              <i class="fa fa-th"></i>
-              <!-- Grid Icon -->
-            </div>
-            <div class="separator"></div>
-            <div
-              class="view-icon"
-              :class="{ active: viewMode === 'table' }"
-              @click="viewMode = 'table'"
-            >
-              <i class="fa fa-list"></i>
-              <!-- Table Icon -->
-            </div>
-          </div>
         </div>
 
         <div
@@ -66,41 +46,7 @@
           </div>
         </div>
         
-        <!-- Grid View -->
-        <div v-if="viewMode === 'grid'">
-          <div v-if="filteredSites.length" class="site-grid">
-            <div
-              v-for="site in paginatedSites"
-              :key="site.id || index"
-              class="site-card"
-              @click="() => redirectToUnits(site.id)"
-            >
-              <!-- Site Image -->
-              <img
-                :src="site.picture || require('@/assets/home.png')"
-                alt="Site Image"
-                class="site-image"
-              />
-
-              <!-- Site Name -->
-              <h2 class="site-name">
-                {{ site.name || "Unknown" }}
-              </h2>
-
-              <!-- Site Location -->
-              <p class="site-location">
-                {{ site.location || "Location unavailable" }}
-              </p>
-            </div>
-          </div>
-
-          <div v-else>
-            <p>No sites with available units.</p>
-          </div>
-
-        </div>
-
-        <div v-if="viewMode === 'table'">
+        <div>
           <div class="outside-headers">
             <span class="header-item">Name</span>
             <span class="header-item">Location</span>
@@ -386,57 +332,6 @@ body {
   text-align: left;
 }
 
-.view-switch {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  overflow: hidden;
-  background-color: #f6f6f6;
-}
-
-.view-icon {
-  flex: 1;
-  padding: 6px;
-  text-align: center;
-  cursor: pointer;
-  font-size: 15px;
-  color: #343a40;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.view-icon.active {
-  background-color: #343a40;
-  color: #f6f6f6;
-}
-
-.separator {
-  width: 1px;
-  background-color: #f6f6f6;
-  height: 100%;
-}
-
-.site-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.site-card {
-  background: #fff;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  box-sizing: border-box; 
-  transition: transform 0.2s ease; 
-}
-
-.site-card:hover {
-  transform: translateY(-2px); 
-}
-
 .site-image {
   width: 100%; 
   height: 150px; 
@@ -454,13 +349,6 @@ body {
 .site-location {
   font-size: 14px;
   color: #777;
-}
-
-.site-card {
-  height: 300px; 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; 
 }
 
 .table-image {

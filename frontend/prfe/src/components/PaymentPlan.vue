@@ -1,270 +1,283 @@
 <template>
-  <div class="payment-plan-container">
-    <h1>
-      Payment Plan for Unit 
-      {{ unitDetails ? unitDetails.unit_title : unitId }}
-    </h1>
-   <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-      <h5 class="property-header">Payment Plan</h5><br>
-    </div>
-    <div class="row mb-3 ps-5">
-      <div class="col-12 d-flex justify-content-around align-items-center">
-        <!-- Left Section: Property Price -->
-        <div class="text-center">
-          <h5 class="muted price-header">Property Price</h5>
-          <p class="property-price1">₱ {{ selectedUnit.price }}</p>
-        </div>
-        <!-- Right Section: Payment Plan -->
-        <div class="text-center1">
-          <h5 class="price-header">Payment Plan</h5>
-          <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
-            <option value="Spot Cash">Spot Cash</option>
-            <option value="Deffered Payment">Deffered Payment</option>
-          </select>
+  <div class="main-page">
+    <SideNav />
+    <div class="main-content">
+      <AppHeader />
+      <div class="content">
+        <router-link class="text-start text" :to="`/units/${siteId}`">
+          <div class = "back-container">
+            <i class="fas fa-arrow-left"></i> Back to Units
+          </div>
+        </router-link>
+
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title"><strong>Payment Plan for Unit {{ unitDetails ? unitDetails.unit_title : unitId }}</strong></div>
+          </div>
         </div>
 
-      </div>
-    </div>
+        <div class="payment-plan-container">
+          <div class="row mb-3 ps-5">
+            <div class="col-12 d-flex justify-content-around align-items-center">
+              <!-- Left Section: Property Price -->
+              <div class="text-center">
+                <h5 class="price-header">Property Price</h5>
+                <p class="property-price"><strong>₱ {{ selectedUnit.price }}</strong></p>
+              </div>
+              <!-- Right Section: Payment Plan -->
+              <div class="text-center">
+                <h5 class="price-header">Payment Plan</h5>
+                <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
+                  <option value="Spot Cash">Spot Cash</option>
+                  <option value="Deferred Payment">Deferred Payment</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-    <!-- Spot Discount -->
-    <div class="form-group">
-      <label for="spotDiscount">Spot Discount</label>
-       <input
-       type="number"
-        id="spotDiscount"
-        v-model="spotCashDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        :min="0"
-        :max="maxSpotCashDiscount" 
-        />
-    </div>
+          <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 900px;">
+            <div class="card-body">
+              <form>
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Spot Discount -->
+                    <div class="mb-3">
+                      <label for="spotDiscount" class="form-label text-start">Spot Discount</label>
+                      <input
+                        type="number"
+                        id="spotDiscount"
+                        v-model="spotCashDiscount"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        :min="0"
+                        :max="maxSpotCashDiscount"
+                      />
+                      <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+                      <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+                    </div>
+
+                    <!-- Other Charges -->
+                    <div class="mb-3">
+                      <label for="otherChargesPercentage" class="form-label text-start">Other Charges (%)</label>
+                      <input
+                        type="number"
+                        id="otherChargesPercentage"
+                        v-model="otherChargesPercentage"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        max="maxOtherChargesPercentage"
+                        step="0.1"
+                      />
+                      <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+                      <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
+                      <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+                    </div>
+
+                    <!-- Spread Downpayment -->
+                    <div v-if="selectedPaymentPlan === 'Deferred Payment'">
+                      <div class="mb-3 align-fields">
+                        <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
+                        <input
+                        type="number"
+                        v-model="spreadDownpaymentPercentage"
+                        id="spreadDownpayment"
+                        @input="updatePaymentDetails"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="form-control"
+                        required
+                        placeholder="Enter percentage"
+                      />
+                      <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <!-- TLP Discount -->
+                    <div class="mb-3">
+                      <label for="tlpDiscount" class="form-label text-start">TLP Discount (Optional)</label>
+                      <input
+                        type="number"
+                        id="tlpDiscount"
+                        v-model="tlpDiscount"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        max="maxTlpDiscount"
+                      />
+                      <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+                      <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+                    </div>
+
+                    <!-- Spot Downpayment -->
+                    <div v-if="selectedPaymentPlan === 'Deferred Payment'" class="mb-3">
+                      <label for="spotDownpayment" class="form-label text-start">Spot Downpayment</label>
+                      <input
+                        type="number"
+                        id="spotDownpayment"
+                        v-model="spotDownpaymentPercentage"
+                        class="form-control"
+                        @input="updatePaymentDetails"
+                        min="0"
+                        step="5"
+                        placeholder="Enter downpayment percentage"
+                        required
+                      />
+                      <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
+                      <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+                      <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
+                      <p v-if="selectedPaymentPlan === 'Deferred Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+                      <!-- Payable in Months -->
+                      <div class="mb-3">
+                        <label for="months" class="form-label text-start">Months to Pay</label>
+                        <input
+                          type="number"
+                          v-model="payableMonths"
+                          id="months"
+                          @input="updatePaymentDetails"
+                          class="form-control"
+                          min="1"
+                          max="maxPayableMonths"
+                          step="1"
+                          required
+                        />
+                        <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
+                        <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          </div>
+          <div v-if="selectedPaymentPlan === 'Deferred Payment'">
+            <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
+            </div>
+          </div>
+          
+          <div class="payment-container">
+            <!-- Payment Summary and Additional Information -->
+            <div class="summary-and-info">
+              <!-- Payment Schedule Summary -->
+              <div class="payment-schedule-summary">
+                <div class="summary-item">
+                  <span class="label">Spot Downpayment:</span>
+                  <span class="value">₱{{ spotDownpayment.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">Spread Downpayment:</span>
+                  <span class="value">₱{{ spreadDownpayment.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item highlight">
+                  <span class="label">Monthly Payment:</span>
+                  <span class="value">₱{{payablePerMonth.toFixed(2)}}/ month for {{ payableMonths }} months</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">Balance Upon Turnover:</span>
+                  <span class="value"> ₱{{balanceUponTurnover.toFixed(2)}}</span>
+                </div>
+                <button @click="toggleDetailedSchedule" class="btn btn-primary">
+                  {{
+                    showDetailedSchedule
+                      ? "Hide Detailed Schedule"
+                      : "Show Detailed Schedule"
+                  }}
+                </button>
+              </div>
+
+              <!-- Additional Information Box -->
+              <div class="additional-box">
+                <h4><center>Monthly Amortization (6.5%)</center></h4>
+                <div class="summary-item">
+                  <span class="label">10 years</span>
+                  <span class="value">₱{{ amortization10Years.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">15 years</span>
+                  <span class="value">₱{{ amortization15Years.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">20 years</span>
+                  <span class="value">₱{{ amortization20Years.toFixed(2) }}</span>
+                </div>
+                <hr class="separator">
+                <div class="summary-item">
+                  <span class="label">25 years</span>
+                  <span class="value">₱{{ amortization25Years.toFixed(2) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed Schedule -->
+            <div v-if="showDetailedSchedule" class="detailed-schedule">
+              <table class="payment-table">
+                <thead>
+                  <tr>
+                    <th>Payment Type</th>
+                    <th class="amount-column">Amount (₱)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Spot Downpayment</td>
+                    <td class="amount-column highlight">₱{{ spotDownpayment.toFixed(2) }}</td>
+                  </tr>
+                  <tr>
+                    <td>Spread Downpayment</td>
+                    <td class="amount-column highlight">₱{{ spreadDownpayment.toFixed(2) }}</td>
+                  </tr>
+                  <tr v-for="month in payableMonths" :key="month">
+                    <td>Month {{ month }} Payment</td>
+                    <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
+                  </tr>
+                  <tr>
+                    <td>Balance Upon Turnover</td>
+                    <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          </div>
     
-    <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    
-    <p class = "description-align">
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
 
-    <!-- TLP Discount -->
-    <div class="form-group">
-      <label for="tlpDiscount">TLP Discount (Optional)</label>
-      <input
-      type="number"
-      id="tlpDiscount"
-      v-model="tlpDiscount"
-      @input="updatePaymentDetails"
-      class="form-control"
-      min="0"
-      max="maxtlpDiscount"
-      />
-    </div>
-
-    <p class = "description-align"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-    <!-- Net Unit Price -->
-    <p class = "description-align"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-    <!-- Other Charges -->
-    <div class="form-group">
-      <label for="otherChargesPercentage">Other Charges (%)</label>
-      <input
-        type="number"
-        id="otherChargesPercentage"
-        v-model="otherChargesPercentage"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="maxotherChargesPercentage"
-        step="0.1"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-    <!-- VAT Calculation -->
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-
-    <!-- Total Amount Payable -->
-    <p class = "description-align">
-      <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-    </p>
-
-    <div
-    v-if="selectedPaymentPlan === 'Deffered Payment'"
-    class="form-group"
-    >
-      <label for="spotDownpayment">Spot Downpayment</label>
-      <input
-        type="number"
-        id="spotDownpayment"
-        v-model="spotDownpaymentPercentage"
-        @input="updatePaymentDetails"
-        min="0"
-        step="5"
-        placeholder="Enter downpayment percentage"
-        required
-      />
-    </div>
-
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-
-    <!-- Reservation Fee -->
-    <p class = "description-align"><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
-    <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "description-align">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-
-    <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-
-    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-      <!-- Spread Downpayment -->
-      <div class="form-group">
-        <label for="spreadDownpayment">Spread Downpayment</label>
-        <input
-        type="number"
-        v-model="spreadDownpaymentPercentage"
-        id="spreadDownpayment"
-        @input="updatePaymentDetails"
-        min="0"
-        max="100"
-        step="1"
-        class="form-control"
-        required
-        placeholder="Enter percentage"
-        />
-      </div>
-      
-      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-
-      <!-- Payable in Months -->
-      <div class="form-group">
-        <label for="months">Months to Pay</label>
-        <input
-          type="number"
-          v-model="payableMonths"
-          id="months"
-          @input="updatePaymentDetails"
-          min="1"
-          max="maxpayableMonths"
-          step="1"
-          required
-        />
-      </div>
-      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-      <!-- Balance Upon Turnover -->
-      <p class = "description-align">
-        <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-      </p>
-      <br>    
-      <div class="line mb-4"></div>
-      <div class="col-12 text-center mb-3 text-center">
-            <h5 class="property-header">Payment Schedule Summary</h5>
-      </div>
-
-      <!-- Payment Summary -->
-      <div class="payment-summary">
-        <p class = "description-align">
-          <strong>Spot Downpayment:</strong> ₱{{
-            spotDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Spread Downpayment:</strong> ₱{{
-            spreadDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Monthly Payment:</strong> ₱{{
-            payablePerMonth.toFixed(2)
-          }}
-          / month for {{ payableMonths }} months
-        </p>
-        <p class = "description-align">
-          <strong>Balance Upon Turnover:</strong> ₱{{
-            balanceUponTurnover.toFixed(2)
-          }}
-        </p>
-      </div>
-      <!-- Expandable Detailed Schedule Section -->
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-            <!-- Amortization for 10, 15, 20, and 25 years -->
-                      <tr>
-                        <td>Monthly Amortization (10 years @ 6.5%)</td>
-                        <td>₱{{ amortization10Years.toFixed(2) }}</td>
-                      </tr>
-                      <tr>
-                        <td>Monthly Amortization (15 years @ 6.5%)</td>
-                        <td>₱{{ amortization15Years.toFixed(2) }}</td>
-                      </tr>
-                      <tr>
-                        <td>Monthly Amortization (20 years @ 6.5%)</td>
-                        <td>₱{{ amortization20Years.toFixed(2) }}</td>
-                      </tr>
-                      <tr>
-                        <td>Monthly Amortization (25 years @ 6.5%)</td>
-                        <td>₱{{ amortization25Years.toFixed(2) }}</td>
-                      </tr>
-          </tbody>
-        </table>
+          
+        </div>
       </div>
     </div>
-  </div>
 </template>
 
+
 <script>
+import SideNav from "@/components/SideNav.vue";
+import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 
 export default {
+  components: {
+    SideNav,
+    AppHeader,
+  },
   data() {
     return {
       unitId: this.$route.params.unitId,
       unitDetails: null,
       units: [],
+      siteId:null,
       siteName: "",
       siteYear: "",
       isModalVisible: false,
@@ -339,6 +352,7 @@ methods: {
     );
     this.unitDetails = response.data.unit; // Assuming `unit` is the key in the response
     this.selectedUnit = this.unitDetails;
+    this.siteId = this.selectedUnit.site.id;
     this.unitPrice = this.unitDetails.price; // Set the price of the selected unit
     this.spotCashDiscount = this.selectedUnit.spot_discount;
     this.payableMonths = this.selectedUnit.months;
@@ -445,11 +459,260 @@ methods: {
 </script>
 
 <style scoped>
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.SideNav {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #343a40;
+  z-index: 1;
+}
+
+.AppHeader {
+  width: 100%;
+  height: 60px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #ffffff;
+}
+
+.main-page {
+  display: flex;
+  min-height: 100vh;
+  background-color: #e8f0fa;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  margin-left: 250px;
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+
+.text{
+  color: black;
+  text-decoration: none !important;
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+}
+
 .payment-plan-container {
   padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
+  border-radius: 8px;
 }
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 2.5rem;
+}
+
+.form-label {
+  color: #333;
+}
+
+p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.col-md-6 {
+  flex: 1;
+  min-width: 300px;
+}
+
+.align-fields{
+  margin-top: 35px;
+}
+
+.property-price {
+  font-size: 20px;
+}
+
+.payment-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping for responsiveness */
+  justify-content: space-between;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.summary-and-info {
+  display: flex;
+  flex-direction: column; /* Stack summary and additional box */
+  gap: 20px;
+  flex: 1; /* Flex item for dynamic width */
+  max-width: 400px;
+}
+
+.payment-schedule-summary,
+.detailed-schedule,
+.additional-box {
+  min-width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow-y: auto; /* Add scroll if content exceeds height */
+}
+
+.payment-schedule-summary {
+  background: #f9f9f9;
+  height: 300px;
+  max-width: 400px;
+  margin-left: 60px !important;
+}
+
+.additional-box {
+  background: #f9f9f9;
+  text-align: left;
+  margin-top: 20px;
+  max-width: 400px;
+  height: 300px;
+  margin-left: 60px !important;
+}
+
+.detailed-schedule {
+  flex: 1; /* Flex item for dynamic width */
+  height: 640px;
+  min-width: 300px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.summary-item .label {
+  color: #555;
+}
+
+.summary-item .value {
+  font-weight: bold;
+  color: #000;
+}
+
+.summary-item.highlight .value {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.separator {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  margin-top: 10px;
+}
+
+.payment-table th,
+.payment-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.payment-table thead th {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+}
+
+.payment-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.payment-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.amount-column {
+  text-align: right;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* juju */
 
 label {
   display: block;
