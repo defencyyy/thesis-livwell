@@ -128,7 +128,7 @@ export default {
             icon: "fas fa-home",
           },
           {
-            name: "Sales",
+            name: "Manage Sales",
             link: "/broker/manage-sales",
             icon: "fas fa-chart-line",
           },
