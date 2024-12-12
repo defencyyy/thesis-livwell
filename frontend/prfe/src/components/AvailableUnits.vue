@@ -278,6 +278,7 @@
                 v-model="reservationForm.paymentAmount"
                 id="paymentAmount"
                 class="form-control"
+                placeholder="Enter payment amount"
                 required
               />
             </div>
@@ -319,6 +320,7 @@
                 v-model="reservationForm.paymentReference"
                 id="paymentReference"
                 class="form-control"
+                placeholder="Enter reference number"
                 required
               />
             </div>
@@ -1090,6 +1092,11 @@ body {
 }
 
 .form-group input[type="number"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+.form-group input[type="text"]::placeholder {
   color: #888; /* Lighter text for placeholder */
   font-style: italic; /* Italicize placeholder text */
 }
