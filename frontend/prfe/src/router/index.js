@@ -2,11 +2,14 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/views/HomeView.vue";
 import NotFoundComponent from "@/components/NotFoundComponent.vue";
+import MainLogin from "@/views/MainLogin.vue"; 
+import MainForgotPass from "@/views/MainForgotPass.vue"; // Import MainLogin component
+import MainResetPass from "@/views/MainResetPass.vue"; // Import MainResetPass component
+
+
 
 // Developers
 import DevLogin from "@/views/developer/DevLogin.vue";
-import DevForgotPass from "@/views/developer/DevForgotPass.vue";
-import DevResetPass from "@/views/developer/DevResetPass.vue";
 import DevMainPage from "@/views/developer/DevMainPage.vue";
 
 // Dev Functions
@@ -25,8 +28,6 @@ import DevFuncSales from "@/views/developer/functions/DevSales.vue";
 
 // Brokers
 import BrkLogin from "@/views/broker/BrkLogin.vue";
-import BrkForgotPass from "@/views/broker/BrkForgotPass.vue";
-import BrkResetPass from "@/views/broker/BrkResetPass.vue";
 import BrkMainPage from "@/views/broker/BrkMainPage.vue";
 
 // Broker Functions
@@ -44,6 +45,10 @@ import PaymentPlan from '@/components/PaymentPlan.vue';
 
 
 const routes = [
+  { path: "/login", name: "MainLogin", component: MainLogin }, // Set MainLogin as the default page
+  {path: "/forgot-password", name: "forgot-password", component: MainForgotPass, },
+  {path: "/reset-password/:token", name: "reset-password", component: MainResetPass, },
+
   { path: "/home", name: "Home", component: Home },
 
   // Developer Routes
@@ -51,16 +56,6 @@ const routes = [
     path: "/developer/login",
     name: "DevLogin",
     component: DevLogin,
-  },
-  {
-    path: "/developer/forgot-password",
-    name: "DevForgotPass",
-    component: DevForgotPass,
-  },
-  {
-    path: "/developer/reset-pass/:uid/:token",
-    name: "DevResetPass",
-    component: DevResetPass,
   },
   {
     path: "/developer/dashboard",
@@ -149,16 +144,7 @@ const routes = [
     name: "BrkLogin",
     component: BrkLogin,
   },
-  {
-    path: "/broker/forgot-password",
-    name: "BrkForgotPass",
-    component: BrkForgotPass,
-  },
-  {
-    path: "/broker/reset-pass/:uid/:token",
-    name: "BrkResetPass",
-    component: BrkResetPass,
-  },
+
   {
     path: "/broker/dashboard",
     name: "BrkMain",
@@ -227,7 +213,7 @@ const routes = [
     component: BrkTest,
     meta: { requiresAuth: true, role: "broker" },
   },
-  { path: "/", redirect: "/home" },
+  { path: "/", redirect: "/login" },
   { path: "/:catchAll(.*)", component: NotFoundComponent },
 ];
 
@@ -243,7 +229,7 @@ router.beforeEach((to, from, next) => {
   // Handle routes that require authentication
   if (to.meta.requiresAuth) {
     if (!isLoggedIn) {
-      return next({ path: "/home" }); // Redirect to home if not logged in
+      return next({ path: "/login" }); // Redirect to home if not logged in
     }
 
     // Check if the user role matches the required role
