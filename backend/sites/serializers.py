@@ -77,6 +77,52 @@ class SiteSerializer(serializers.ModelSerializer):
 
         return site
 
+    def update(self, instance, validated_data):
+        # Extract sections data from validated_data
+        sections_data = validated_data.pop('sections', [])
+
+        # Update fields of the site instance
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
+        # If the 'picture' field is included in the validated_data, update the instance picture
+        picture_file = validated_data.get('picture', None)
+        if picture_file:
+            instance.picture = picture_file
+
+        instance.save()
+
+        # Retrieve existing sections for the site
+        existing_sections = {section.number: section for section in instance.sections.all()}
+
+        # Keep track of processed sections
+        processed_sections = set()
+
+        # Iterate through incoming sections data
+        for section_data in sections_data:
+            section_number = section_data['number']
+            processed_sections.add(section_number)
+
+            if section_number in existing_sections:
+                # Update existing section (if it already exists)
+                section = existing_sections[section_number]
+                for key, value in section_data.items():
+                    setattr(section, key, value)
+                section.save()
+            else:
+                # Create new section (if it doesn't exist)
+                Section.objects.create(site=instance, **section_data)
+
+        # Append sections based on number_of_sections and numbering_type if no sections are provided
+        number_of_sections = validated_data.get('number_of_sections', 0)
+        if number_of_sections:
+            last_section_number = max(existing_sections.keys(), default=0)
+            for i in range(last_section_number + 1, last_section_number + number_of_sections + 1):
+                section_name = self.generate_section_name(instance, i)
+                Section.objects.create(site=instance, number=i, name=section_name)
+
+        return instance
+
     def generate_section_name(self, site, section_number):
         """Generate the section name based on the numbering type and section label."""
         last_section = site.sections.order_by('-number').first()
@@ -102,51 +148,6 @@ class SiteSerializer(serializers.ModelSerializer):
             return next_char
         else:
             return str(last_section.number + 1)
-
-
-    def update(self, instance, validated_data):
-        # Extract sections data from validated_data
-        sections_data = validated_data.pop('sections', [])
-
-        # Update fields of the site instance
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-
-        # If the 'picture' field is included in the validated_data, update the instance picture
-        picture_file = validated_data.get('picture', None)
-        if picture_file:
-            instance.picture = picture_file
-
-        instance.save()
-
-        # Retrieve existing sections for the site
-        existing_sections = {section.number: section for section in instance.sections.all()}
-
-        # Keep track of processed sections to handle deletions later
-        processed_sections = set()
-
-        # Iterate through incoming sections data
-        for section_data in sections_data:
-            section_number = section_data['number']
-            processed_sections.add(section_number)
-
-            if section_number in existing_sections:
-                # Update existing section
-                section = existing_sections[section_number]
-                for key, value in section_data.items():
-                    setattr(section, key, value)
-                section.save()
-            else:
-                # Create new section
-                Section.objects.create(site=instance, **section_data)
-
-        # Remove sections that were not included in the update request
-        for section_number, section in existing_sections.items():
-            if section_number not in processed_sections:
-                section.delete()
-
-        return instance
-
 
     def validate_status(self, value):
         """Ensure the status is within the allowed choices."""

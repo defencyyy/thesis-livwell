@@ -1489,25 +1489,31 @@ export default {
       }
     },
     addSections() {
-      // First, update the section count based on the input
-      const newSectionCount =
-        this.editSite.number_of_sections + this.newSectionsToAdd;
+      // Find the last section number from the existing sections
+      let lastSectionNumber = 0;
+      if (this.editSite.sections.length > 0) {
+        lastSectionNumber = Math.max(
+          ...this.editSite.sections.map((section) => section.sectionNumber)
+        );
+      }
 
-      // Now generate the new sections
+      // Generate new sections, starting from the correct number
       const newSections = [];
       for (let i = 0; i < this.newSectionsToAdd; i++) {
+        // Make sure the new sections start from the last section number + 1
         newSections.push({
-          sectionNumber: this.editSite.number_of_sections + i + 1, // Generate new section numbers starting from the current count
+          sectionNumber: lastSectionNumber + i + 1, // Generate new section numbers
           sectionLabel: this.editSite.section_label, // Section label from the input
         });
       }
 
-      // Update the sections and total section count
-      this.editSite.sections.push(...newSections); // Add the new sections
-      this.editSite.number_of_sections = newSectionCount; // Update the total count with the new sections
-      this.newSectionsToAdd = 0; // Reset the input field after adding sections
-    },
+      // Append the new sections to the existing ones
+      this.editSite.sections.push(...newSections); // Add the new sections to the current ones
+      this.editSite.number_of_sections = this.editSite.sections.length; // Update the total section count
 
+      // Reset the input field after adding sections
+      this.newSectionsToAdd = 0;
+    },
     async updateSite() {
       const formData = new FormData();
 
@@ -1541,12 +1547,16 @@ export default {
       formData.append("reservation_fee", this.editSite.reservation_fee || "");
       formData.append("other_charges", this.editSite.other_charges || "");
 
-      // Sections
-      formData.append("number_of_sections", this.editSite.number_of_sections); // Updated section count
-      formData.append("section_label", this.editSite.section_label || ""); // For updateSite
+      // Sections - only append newly added sections
+      formData.append("number_of_sections", this.newSectionsToAdd); // Use newSectionsToAdd here
+      formData.append("section_label", this.editSite.section_label || ""); // Section label
 
-      if (this.editSite.sections && this.editSite.sections.length > 0) {
-        this.editSite.sections.forEach((section, index) => {
+      // Append only the newly added sections
+      if (this.newSectionsToAdd > 0) {
+        const newSections = this.editSite.sections.slice(
+          -this.newSectionsToAdd
+        ); // Get only the newly added sections
+        newSections.forEach((section, index) => {
           formData.append(
             `sections[${index}][sectionNumber]`,
             section.sectionNumber || ""
@@ -1597,7 +1607,7 @@ export default {
           this.newPictureFile = null; // Clear the file input field
 
           // Reset the input field itself
-          const fileInput = document.getElementById("picture"); // Get the file input element
+          const fileInput = document.getElementById("picture");
           if (fileInput) {
             fileInput.value = ""; // Reset the file input
           }
@@ -1609,8 +1619,6 @@ export default {
       } catch (error) {
         // Log full error details for debugging
         console.error("Error editing site:", error.response || error);
-
-        // Check for specific response errors
         if (error.response) {
           console.log("Error Response Status:", error.response.status);
           console.log("Error Response Data:", error.response.data);
