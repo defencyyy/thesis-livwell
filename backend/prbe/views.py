@@ -549,6 +549,62 @@ def get_available_units(request):
 
     logger.warning("Invalid request method: %s", request.method)
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+@csrf_exempt
+def get_unit_details(request, unit_id):
+    if request.method == 'GET':
+        logger.debug("Received request to fetch details for unit ID: %s", unit_id)
+
+        try:
+            # Fetch the unit with the given unit ID
+            unit = Unit.objects.select_related('site', 'unit_type', 'floor').get(id=unit_id)
+
+            # Fetch unit images
+            images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
+            image_urls = [request.build_absolute_uri(image.image.url) for image in images]
+
+            # Prepare unit details
+            unit_details = {
+                'id': unit.id,
+                'months': unit.site.maximum_months,
+                'unit_title': unit.unit_title,
+                'images': image_urls,
+                'price': unit.price,
+                'bedroom': unit.bedroom,
+                'bathroom': unit.bathroom,
+                'floor_area': unit.floor_area,
+                'floor': unit.floor.floor_number if unit.floor else None,
+                'balcony': unit.balcony,
+                'type': unit.unit_type.name if unit.unit_type else None,
+                'view': unit.view,
+                'company_id': unit.company.id,
+                'unit_number': unit.unit_number,
+                'lot_area': unit.lot_area,
+                'reservation_fee': unit.reservation_fee,
+                'other_charges': unit.other_charges,
+                'TLP_Discount': unit.spot_discount_flat,
+                'spot_discount': unit.spot_discount_percentage,
+                'vat_percent': unit.vat_percentage,
+                'commission': unit.commission,
+                'site': {
+                    'id': unit.site.id,
+                    'name': unit.site.name,
+                    'months': unit.site.maximum_months,
+                },
+            }
+            logger.debug("Fetched unit details: %s", unit_details)
+
+            return JsonResponse({'success': True, 'unit': unit_details}, status=200)
+
+        except Unit.DoesNotExist:
+            logger.error("Unit with ID %s does not exist.", unit_id)
+            return JsonResponse({'success': False, 'message': 'Unit not found'}, status=404)
+
+        except Exception as e:
+            logger.error("Error fetching unit details for ID %s: %s", unit_id, str(e))
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    logger.warning("Invalid request method: %s", request.method)
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
 
 @csrf_exempt

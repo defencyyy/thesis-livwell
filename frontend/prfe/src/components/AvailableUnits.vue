@@ -439,9 +439,8 @@
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
     >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
+      <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
+      <button class="payment-plan-btn" @click="redirectToPaymentPlan">View Payment Plan</button>
     </div>
 
     <!-- Success Message Pop-up -->
@@ -658,8 +657,6 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
-
-    // Call updatePaymentDetails to show the default payment details
     this.updatePaymentDetails();
   },
   computed: {
@@ -709,6 +706,10 @@ export default {
   },
 
   methods: {
+    redirectToPaymentPlan() {
+      // Redirect to the payment plan page
+      this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });
+    },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
