@@ -1,14 +1,13 @@
 from rest_framework import serializers
-from .models import Site, Company
-from .models import Floor
+from .models import Site, Company, Section
 
-class FloorSerializer(serializers.ModelSerializer):
+class SectionSerializer(serializers.ModelSerializer):
     total_units = serializers.SerializerMethodField()
     available_units = serializers.SerializerMethodField()
     
     class Meta:
-        model = Floor
-        fields = ['id', 'floor_number', 'total_units', 'available_units']
+        model = Section
+        fields = ['id', 'number', 'total_units', 'available_units']
 
     def get_total_units(self, obj):
         return obj.units.count()
@@ -18,8 +17,8 @@ class FloorSerializer(serializers.ModelSerializer):
 
 class SiteSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())  # Ensure company exists
-    floors = serializers.SerializerMethodField()
-    number_of_floors = serializers.IntegerField(write_only=True, required=False)  # New field to add floors
+    sections = serializers.SerializerMethodField()
+    number_of_sections = serializers.IntegerField(write_only=True, required=False)  # New field to add sections
 
     class Meta:
         model = Site
@@ -38,8 +37,8 @@ class SiteSerializer(serializers.ModelSerializer):
             'status',
             'created_at',
             'archived',
-            'floors',
-            'number_of_floors',  # Include new field
+            'sections',
+            'number_of_sections',  # Include new field
             'total_units', 
             'location',
             'available_units',
@@ -54,52 +53,52 @@ class SiteSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def create(self, validated_data):
-        # Extract the number of floors
-        number_of_floors = validated_data.pop('number_of_floors', 0)
+        # Extract the number of sections
+        number_of_sections = validated_data.pop('number_of_sections', 0)
         
         # Create the site
         site = super().create(validated_data)
 
-        # Create floors based on the number_of_floors
-        for i in range(1, number_of_floors + 1):
-            Floor.objects.create(site=site, floor_number=i)
+        # Create sections based on the number_of_sections
+        for i in range(1, number_of_sections + 1):
+            Section.objects.create(site=site, number=i)
 
         return site
 
     def update(self, instance, validated_data):
-        # Extract floors data from validated_data
-        floors_data = validated_data.pop('floors', [])
+        # Extract sections data from validated_data
+        sections_data = validated_data.pop('sections', [])
 
         # Update fields of the site instance
         for key, value in validated_data.items():
             setattr(instance, key, value)
         instance.save()
 
-        # Retrieve existing floors for the site
-        existing_floors = {floor.floor_number: floor for floor in instance.floors.all()}
+        # Retrieve existing sections for the site
+        existing_sections = {section.number: section for section in instance.sections.all()}
         
-        # Keep track of processed floors to handle deletions later
-        processed_floors = set()
+        # Keep track of processed sections to handle deletions later
+        processed_sections = set()
 
-        # Iterate through incoming floors data
-        for floor_data in floors_data:
-            floor_number = floor_data['floor_number']
-            processed_floors.add(floor_number)
+        # Iterate through incoming sections data
+        for section_data in sections_data:
+            section_number = section_data['number']
+            processed_sections.add(section_number)
 
-            if floor_number in existing_floors:
-                # Update existing floor
-                floor = existing_floors[floor_number]
-                for key, value in floor_data.items():
-                    setattr(floor, key, value)
-                floor.save()
+            if section_number in existing_sections:
+                # Update existing section
+                section = existing_sections[section_number]
+                for key, value in section_data.items():
+                    setattr(section, key, value)
+                section.save()
             else:
-                # Create new floor
-                Floor.objects.create(site=instance, **floor_data)
+                # Create new section
+                Section.objects.create(site=instance, **section_data)
 
-        # Remove floors that were not included in the update request
-        for floor_number, floor in existing_floors.items():
-            if floor_number not in processed_floors:
-                floor.delete()
+        # Remove sections that were not included in the update request
+        for section_number, section in existing_sections.items():
+            if section_number not in processed_sections:
+                section.delete()
 
         return instance
 
@@ -130,7 +129,6 @@ class SiteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Maximum months cannot be negative.")
         return value
 
-
     def validate(self, data):
         """Additional validation for required fields (if they are not included in 'required' attribute)."""
         required_fields = ['name', 'region', 'province', 'municipality', 'barangay', 'status']
@@ -139,6 +137,6 @@ class SiteSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(f"{field} is required and cannot be empty.")
         return data
 
-    def get_floors(self, obj):
-        floors_with_counts = obj.floors_with_unit_counts()
-        return floors_with_counts
+    def get_sections(self, obj):
+        sections_with_counts = obj.section_with_unit_counts()
+        return sections_with_counts

@@ -3,7 +3,7 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from companies.models import Company
-from sites.models import Site, Floor
+from sites.models import Site, Section
 import os, re
 from decimal import Decimal
 
@@ -94,7 +94,6 @@ class UnitType(models.Model):
     def __str__(self):
         return self.name
 
-
 class Unit(models.Model):
     STATUS_CHOICES = [
         ('Available', 'Available'),
@@ -123,9 +122,9 @@ class Unit(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     unit_template = models.ForeignKey('UnitTemplate', related_name='units', null=True, blank=True, on_delete=models.SET_NULL)
     site = models.ForeignKey(Site, on_delete=models.DO_NOTHING)
-    floor = models.ForeignKey(Floor, on_delete=models.CASCADE, related_name="units")
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="units")
     unit_number = models.CharField(
-        max_length=10,
+        max_length=20,
         blank=True,
         help_text="Auto-generated Unit Number (e.g., 21001)"
     )
@@ -206,8 +205,8 @@ class Unit(models.Model):
 
         # Auto-generate unit number if not set
         if not self.unit_number:
-            unit_count = Unit.objects.filter(floor=self.floor).count() + 1
-            self.unit_number = f"{self.floor.floor_number:02d}{unit_count:03d}"
+            unit_count = Unit.objects.filter(section=self.section).count() + 1
+            self.unit_number = f"{self.section.name}-{unit_count:03d}"
 
         # Auto-generate unit title if not set
         if not self.unit_title:

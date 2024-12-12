@@ -1,19 +1,16 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
-from .models import Site, Floor
+from .models import Site, Section
 from prbe.admin import custom_admin_site
 from django import forms
 
-class FloorInline(admin.TabularInline):
-    model = Floor
+class SectionInline(admin.TabularInline):
+    model = Section
     extra = 1  # Shows one empty form by default for adding new floors
-    fields = ['floor_number']
-    readonly_fields = ['floor_number']
+    fields = ['number']
+    readonly_fields = ['number']
 
     def get_queryset(self, request):
-        """
-        Fetch the floors for the current site being edited without using self.instance.
-        """
         site_id = request.resolver_match.kwargs.get('object_id')  # Get the site ID from the URL
         queryset = super().get_queryset(request)
         if site_id:
@@ -21,7 +18,7 @@ class FloorInline(admin.TabularInline):
         return queryset
 
 class SiteAdminForm(forms.ModelForm):
-    add_multiple_floors = forms.IntegerField(min_value=1, required=False, label="Number of Floors to Add")
+    add_multiple_sections = forms.IntegerField(min_value=1, required=False, label="Number of sections to Add")
 
     class Meta:
         model = Site
@@ -31,23 +28,23 @@ class SiteAdminForm(forms.ModelForm):
         # Save the site instance first to generate a primary key
         site = super().save(commit=False)
 
-        # Get the number of floors to add, defaulting to 0 if None
-        num_floors = self.cleaned_data.get('add_multiple_floors', 0)
+        # Get the number of sections to add, defaulting to 0 if None
+        num_sections = self.cleaned_data.get('add_multiple_sections', 0)
 
-        # Ensure num_floors is an integer (if it's None, set it to 0)
-        if num_floors is None:
-            num_floors = 0
+        # Ensure num_sections is an integer (if it's None, set it to 0)
+        if num_sections is None:
+            num_sections = 0
 
-        # If we are adding multiple floors, create them
-        if num_floors > 0:
+        # If we are adding multiple sections, create them
+        if num_sections > 0:
             # Save the site first to ensure it has a primary key
             if commit:
                 site.save()
 
-            # After saving the site, create the floors
-                max_floor_number = site.floors.count() + 1
-                for i in range(num_floors):
-                    Floor.objects.create(site=site, floor_number=max_floor_number)
+            # After saving the site, create the sections
+                max_floor_number = site.sections.count() + 1
+                for i in range(num_sections):
+                    Section.objects.create(site=site, number=max_floor_number)
                     max_floor_number += 1
 
          # Save the site instance if it hasn't been saved yet (in case commit was False)
@@ -77,7 +74,7 @@ class SiteAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
     # Add FloorInline to allow floor management within the Site admin page
-    inlines = [FloorInline]
+    inlines = [SectionInline]
     
     # Image preview for site logo
     def image_preview(self, obj):

@@ -70,31 +70,31 @@ class Site(models.Model):
 
     @property
     def total_units(self):
-        # Using annotate to count the units per floor
+        # Using annotate to count the units per section
         from units.models import Unit
         return Unit.objects.filter(site=self).count()
 
     @property
     def available_units(self):
-        # Using annotate to count available units per floor
+        # Using annotate to count available units per section
         from units.models import Unit
         return Unit.objects.filter(site=self, status='Available').count()
 
-    def floors_with_unit_counts(self):
-        # This method returns floors with unit counts and available unit counts.
+    def section_with_unit_counts(self):
+        # This method returns sections with unit counts and available unit counts.
         return (
-            self.floors
+            self.sections
             .annotate(
                 total_units=Count('units'),
                 available_units=Count('units', filter=Q(units__status='Available'))
             )
-            .values('id', 'floor_number', 'total_units', 'available_units')
+            .values('id', 'number', 'total_units', 'available_units')
         )
 
-    def create_units(self, units_per_floor, template=None):
+    def create_units(self, units_per_section, template=None):
         from units.models import Unit
-        if units_per_floor <= 0:
-            raise ValueError("Units per floor must be a positive integer.")
+        if units_per_section <= 0:
+            raise ValueError("Units per section must be a positive integer.")
         
         if not template:
             template = {
@@ -110,14 +110,14 @@ class Site(models.Model):
             }
         
         created_units = []
-        for floor in self.floors.all():  # Access the related floors from the Floor model
-            for unit_number in range(1, units_per_floor + 1):
+        for section in self.sections.all(): 
+            for unit_number in range(1, units_per_section + 1):
                 unit = Unit(
                     company=self.company,
                     site=self,
-                    floor=floor.floor_number,
-                    unit_title=f"Unit {floor.floor_number}-{unit_number}",
-                    unit_number=f"{floor.floor_number:02d}{unit_number:03d}",
+                    section=section.number,
+                    unit_number=f"{section.name}{unit_number:03d}",
+                    unit_title=f"Unit {section.name}-{unit_number}",
                     bedroom=template.get("bedroom"),
                     bathroom=template.get("bathroom"),
                     floor_area=template.get("floor_area"),
@@ -130,15 +130,15 @@ class Site(models.Model):
                 )
                 created_units.append(unit)
         
-        # Bulk create all units at once
         Unit.objects.bulk_create(created_units)
         return len(created_units)
 
-
-class Floor(models.Model):
-    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="floors")
-    floor_number = models.PositiveIntegerField()
+class Section(models.Model):
+    # This model represents sections such as floors (condos), blocks (subdivisions), or levels (parking).
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="sections")
+    name = models.CharField(max_length=50) 
+    number = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"Floor {self.floor_number} - {self.site.name}"
+        return f"Section {self.name} - {self.site.name}"
         

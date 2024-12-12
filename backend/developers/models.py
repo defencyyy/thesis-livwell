@@ -5,9 +5,6 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.hashers import make_password
 
 class DeveloperManager(BaseUserManager):
-    """
-    Custom manager for Developer model.
-    """
     def create_user(self, username, email, first_name, last_name, password=None, **extra_fields):
         if not email:
             raise ValueError("The Email field must be set")
@@ -40,9 +37,6 @@ class DeveloperManager(BaseUserManager):
 
 
 class Developer(AbstractBaseUser, PermissionsMixin):
-    """
-    Custom Developer model inheriting from AbstractBaseUser.
-    """
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
     email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)

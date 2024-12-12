@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import Unit, UnitImage, UnitTemplate, UnitType
-from sites.models import Floor
+from sites.models import Section
 from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer, UnitTypeSerializer
 
 # Utility to retrieve the company associated with the request user
@@ -100,7 +100,7 @@ class UnitListView(APIView):
         unit_number = request.query_params.get('unitNumber', None)
         unit_type = request.query_params.get('unitType', None)
         site_id = request.query_params.get('siteId', None)
-        floor_id = request.query_params.get('floorId', None)
+        section_id = request.query_params.get('sectionId', None)
         status_param = request.query_params.get('status', None)
 
         # Using Q object to build query dynamically
@@ -110,9 +110,9 @@ class UnitListView(APIView):
         if unit_type:
             query &= Q(unit_type__id=unit_type)
         if site_id:
-            query &= Q(floor__site__id=site_id)
-        if floor_id:
-            query &= Q(floor__id=floor_id)
+            query &= Q(section__site__id=site_id)
+        if section_id:
+            query &= Q(section__id=section_id)
         if status_param:
             query &= Q(status=status_param)
 
@@ -170,15 +170,15 @@ class UnitDetailView(APIView):
         unit.balcony = data.get("balcony", unit.balcony)
         unit.view = data.get("view", unit.view)
 
-        floor_ids = data.getlist("floor_ids[]", [])
-        if floor_ids:
-            unit.floors.clear()
-            for floor_id in floor_ids:
+        section_ids = data.getlist("section_ids[]", [])
+        if section_ids:
+            unit.sections.clear()
+            for section_id in section_ids:
                 try:
-                    floor = Floor.objects.get(id=floor_id)
-                    unit.floors.add(floor)
-                except Floor.DoesNotExist:
-                    return Response({"error": f"Invalid floor ID: {floor_id}"}, status=status.HTTP_400_BAD_REQUEST)
+                    section = Section.objects.get(id=section_id)  # Updated to Section
+                    unit.sections.add(section)
+                except Section.DoesNotExist:
+                    return Response({"error": f"Invalid section ID: {section_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
         image_files = request.FILES.getlist("images[]")
         if image_files:
@@ -277,11 +277,11 @@ class BulkAddUnitsView(APIView):
             data = request.data
             quantity = int(data.get("quantity", 1))
             unit_type_id = data.get("unit_type_id")
-            floor_ids = data.getlist("floor_ids[]", [])
+            section_ids = data.getlist("section_ids[]", [])
 
             # Validate required fields
-            if not floor_ids:
-                return Response({"error": "No floors selected."}, status=status.HTTP_400_BAD_REQUEST)
+            if not section_ids:
+                return Response({"error": "No sections selected."}, status=status.HTTP_400_BAD_REQUEST)
             if not quantity:
                 return Response({"error": "Quantity must be specified."}, status=status.HTTP_400_BAD_REQUEST)
             if not unit_type_id:
@@ -296,11 +296,11 @@ class BulkAddUnitsView(APIView):
                 return Response({"error": f"Invalid unit type ID: {unit_type_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
             created_units = []
-            for floor_id in floor_ids:
+            for section_id in section_ids:
                 try:
-                    floor = Floor.objects.get(id=floor_id)
-                except Floor.DoesNotExist:
-                    return Response({"error": f"Invalid floor ID: {floor_id}"}, status=status.HTTP_400_BAD_REQUEST)
+                    section = Section.objects.get(id=section_id)
+                except Section.DoesNotExist:
+                    return Response({"error": f"Invalid section ID: {section_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
                 # Get unit fields, default to values if not provided
                 unit_fields = {
@@ -322,8 +322,8 @@ class BulkAddUnitsView(APIView):
 
                 for i in range(quantity):
                     unit = Unit(
-                        floor=floor,
-                        site=floor.site,
+                        section=section,
+                        site=section.site,
                         unit_type=unit_type,
                         company=company,
                         status="Available",
@@ -429,19 +429,20 @@ class ImageManagementView(APIView):
         image.delete()
         return Response({"detail": "Image deleted successfully."}, status=200)
 
-class UnitsByFloorView(APIView):
+class UnitsBySectionView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, site_id, floor_id):
+    def get(self, request, site_id, section_id):
         company = request.user.company
         if not company:
             return Response({"error": "Company not found for this developer."}, status=status.HTTP_404_NOT_FOUND)
 
-        floor = get_object_or_404(Floor, id=floor_id, site_id=site_id, site__company=company)
+        section = get_object_or_404(Section, id=section_id, site_id=site_id, site__company=company)
 
         # Using Q to filter and allow more flexible queries if necessary
-        units = Unit.objects.filter(Q(floor=floor) & Q(company=company))
+        units = Unit.objects.filter(Q(section=section) & Q(company=company))
 
         serializer = UnitSerializer(units, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+    

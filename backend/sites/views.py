@@ -1,22 +1,21 @@
 import logging
+import traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.db import transaction
 from developers.models import Developer
-from .models import Site, Floor
+from .models import Site, Section
 from .serializers import SiteSerializer
-import traceback
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.shortcuts import render, get_object_or_404
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -26,6 +25,11 @@ def get_developer_company(request):
     if not hasattr(developer, 'company'):
         return None
     return developer.company
+
+def list_sections(request, site_id):
+    site = get_object_or_404(Site, id=site_id)
+    sections = site.sections.all()  # Accessing via the related name "floors"
+    return render(request, "sections/list.html", {"sections": sections, "site": site})
 
 class SiteListView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -58,15 +62,15 @@ class SiteListView(APIView):
         data['company'] = company.id
 
         # Handle floors in the request
-        floors_data = data.pop('floors', [])
+        sections_data = data.pop('sections', [])
         serializer = SiteSerializer(data=data)
         
         if serializer.is_valid():
             site = serializer.save()
 
-            # Create the floors associated with the site
-            for floor_data in floors_data:
-                Floor.objects.create(site=site, **floor_data)
+            # Create the sections associated with the site
+            for section_data in sections_data:
+                Section.objects.create(site=site, **section_data)
 
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
@@ -89,77 +93,6 @@ class SiteDetailView(APIView):
         site = get_object_or_404(Site, pk=pk, company=company)
         serializer = SiteSerializer(site)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk):
-        company = get_developer_company(request)
-        if not company:
-            return Response(
-                {"error": "Company not found for this developer."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        site = get_object_or_404(Site, pk=pk, company=company)
-
-        try:
-            data = request.data.copy()
-            data['company'] = company.id
-
-            logger.debug(f"Received data for site {pk}: {data}")
-
-            # Extract floor data
-            floors_data = data.pop('floors', None)  # If no floors, this will be None
-            logger.debug(f"Floors data extracted: {floors_data}")
-
-            # Serialize the site data
-            serializer = SiteSerializer(site, data=data, partial=True)
-
-            if serializer.is_valid():
-                try:
-                    with transaction.atomic():
-                        # Save site data
-                        site = serializer.save()
-
-                        # If floors data exists, process it
-                        if floors_data:
-                            for floor_data in floors_data:
-                                # Exclude non-model fields
-                                floor_data_cleaned = {
-                                    key: value for key, value in floor_data.items()
-                                    if key in ['floor_number']
-                                }
-                                logger.debug(f"Processing floor data: {floor_data_cleaned}")
-
-                                floor_number = floor_data_cleaned.get('floor_number')
-
-                                # Check if floor already exists
-                                existing_floor = Floor.objects.filter(site=site, floor_number=floor_number).first()
-
-                                if existing_floor:
-                                    # Update the existing floor
-                                    for field, value in floor_data_cleaned.items():
-                                        setattr(existing_floor, field, value)
-                                    existing_floor.save()
-                                    logger.debug(f"Updated existing floor {floor_number} for site {site.id}")
-                                else:
-                                    # Create a new floor if it doesn't exist
-                                    Floor.objects.create(site=site, **floor_data_cleaned)
-                                    logger.debug(f"Created new floor {floor_number} for site {site.id}")
-
-                        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
-                except Exception as e:
-                    logger.error(f"Error updating site and floors: {e}")
-                    logger.debug(f"Traceback: {traceback.format_exc()}")
-                    return Response({"success": False, "error": "An error occurred while updating."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            else:
-                logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
-                return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-            logger.debug(f"Traceback: {traceback.format_exc()}")
-            return Response({"success": False, "error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         company = get_developer_company(request)
@@ -229,8 +162,8 @@ class SiteWithFloorCountsView(APIView):
     def get(self, request, site_id):
         try:
             site = Site.objects.get(id=site_id)  # Get the site by ID
-            floor_data = site.floors_with_unit_counts()  # Call the method to get the floor data
-            return Response({"success": True, "data": floor_data}, status=status.HTTP_200_OK)
+            section_data = site.sections_with_unit_counts()  # Call the method to get the floor data
+            return Response({"success": True, "data": section_data}, status=status.HTTP_200_OK)
         except Site.DoesNotExist:
             return Response({"error": "Site not found"}, status=status.HTTP_404_NOT_FOUND)
 
