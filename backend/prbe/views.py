@@ -1280,13 +1280,17 @@ def mark_unit_as_sold(request, customer_id, sales_id):
         customer = Customer.objects.get(id=customer_id)
         sale = Sale.objects.get(id=sales_id)
 
-        # Fetch the required document types for the sale
-        required_document_types = DocumentType.objects.all()  # Adjust this if needed to fetch specific required docs
+        # Assuming 'sale.company' provides the company related to the sale
+        company = sale.company
+
+        # Fetch the required document types for the specific company
+        required_document_types = DocumentType.objects.filter(company=company)
 
         # Fetch the documents the customer has submitted for this sale
         submitted_documents = Document.objects.filter(customer=customer, sales_id=sales_id)
         submitted_document_types = {doc.document_type.id for doc in submitted_documents}
 
+        
         # Check if the customer has submitted all required documents
         all_documents_submitted = all(
             req_doc.id in submitted_document_types for req_doc in required_document_types
@@ -1294,7 +1298,6 @@ def mark_unit_as_sold(request, customer_id, sales_id):
 
         # If all documents are submitted, mark the unit as sold
         if all_documents_submitted:
-            # Mark the sale as "sold" (or handle your business logic accordingly)
             sale.status = 'Pending Sold'  # Assuming 'sold' is a valid status for the sale
             sale.save()
 
@@ -1309,23 +1312,26 @@ def mark_unit_as_sold(request, customer_id, sales_id):
             })
 
     except Customer.DoesNotExist:
+        print("Customer not found with ID:", customer_id)
         return JsonResponse({
             'success': False,
             'message': 'Customer not found.'
         }, status=404)
 
     except Sale.DoesNotExist:
+        print("Sale not found with ID:", sales_id)
         return JsonResponse({
             'success': False,
             'message': 'Sale not found.'
         }, status=404)
 
     except Exception as e:
+        print("Error:", str(e))  # Log the exception
         return JsonResponse({
             'success': False,
             'message': str(e),
-        }, status=500)
-    
+        }, status=500) 
+   
 def get_milestones(request):
     try:
         broker_id = request.GET.get('broker_id')  # Get broker_id from query parameter

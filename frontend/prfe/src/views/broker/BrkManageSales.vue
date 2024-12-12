@@ -1136,11 +1136,19 @@ sortedAndFilteredCustomers() {
 
         if (response.data.success) {
           // Successfully marked as sold
-          alert("Unit successfully marked as sold!");
-          // Optionally, update the UI to reflect this change (e.g., mark the unit in the list as sold)
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Unit successfully marked as sold!";
+          this.showNotification = true;
+          this.showModal=false;
+          this.fetchSales();
+
         } else {
-          // Handle failure (e.g., customer has not submitted all required documents)
-          alert(response.data.message);
+          this.notificationTitle = "Failed!";
+          this.notificationMessage = "Customer has not submitted all required documents!";
+          this.showNotification = true;
+          this.showModal=false;
+          this.fetchSales();
+
         }
       } catch (error) {
         console.error("Error marking unit as sold:", error);
