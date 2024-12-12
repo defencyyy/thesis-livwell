@@ -979,6 +979,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .template-table th,
@@ -987,6 +988,7 @@ body {
   text-align: left;
   vertical-align: middle;
   border: none;
+  padding: 7px;
   /* Remove borders from all cells */
 }
 
@@ -1207,9 +1209,8 @@ body {
   /* Change to grid layout */
   grid-template-columns: 5% 20% 15% 15% 12% 12% 15% 6%;
   /* Match the column widths */
-  padding: 0px 15px;
+  padding: 0px 18px;
   margin: 20px auto 10px;
-  width: 100%;
   max-width: 1100px;
 }
 
