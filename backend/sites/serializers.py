@@ -21,6 +21,7 @@ class SiteSerializer(serializers.ModelSerializer):
     number_of_sections = serializers.IntegerField(write_only=True, required=False)
     numbering_type = serializers.CharField( required=False)
     section_label = serializers.CharField( required=False)
+    picture = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Site
@@ -78,11 +79,17 @@ class SiteSerializer(serializers.ModelSerializer):
         # Update fields of the site instance
         for key, value in validated_data.items():
             setattr(instance, key, value)
+
+        # If the 'picture' field is included in the validated_data, update the instance picture
+        picture_file = validated_data.get('picture', None)
+        if picture_file:
+            instance.picture = picture_file
+
         instance.save()
 
         # Retrieve existing sections for the site
         existing_sections = {section.number: section for section in instance.sections.all()}
-        
+
         # Keep track of processed sections to handle deletions later
         processed_sections = set()
 
@@ -107,6 +114,7 @@ class SiteSerializer(serializers.ModelSerializer):
                 section.delete()
 
         return instance
+
 
     def validate_status(self, value):
         """Ensure the status is within the allowed choices."""

@@ -612,7 +612,7 @@
             <h5 class="mb-0">Site Details / Edit</h5>
           </div>
           <div class="p-3">
-            <form @submit.prevent="manageSite">
+            <form @submit.prevent="updateSite">
               <div class="row">
                 <!-- Left Side (Site Name to Status) -->
                 <div class="col-md-6">
@@ -712,7 +712,6 @@
                         v-model="editSite.postalCode"
                         id="editPostalCode"
                         class="form-control"
-                        readonly
                       />
                     </div>
 
@@ -892,18 +891,52 @@
 
               <!-- Number of Sections (Editable) -->
               <div class="form-group mb-3">
-                <label for="numberOfSections" class="form-label"
-                  >Number of Sections</label
-                >
-                <input
-                  type="number"
-                  v-model="editSite.number_of_sections"
-                  id="numberOfSections"
-                  class="form-control"
-                  placeholder="Enter the number of sections"
-                  min="1"
-                  required
-                />
+                <div class="row">
+                  <!-- Current Number of Sections -->
+                  <div class="col-md-4">
+                    <label for="numberOfSections" class="form-label"
+                      >Current Number of Sections</label
+                    >
+                    <input
+                      type="number"
+                      v-model="editSite.number_of_sections"
+                      id="numberOfSections"
+                      class="form-control"
+                      placeholder="Current Sections"
+                      min="1"
+                      readonly
+                    />
+                  </div>
+
+                  <!-- Add Sections -->
+                  <div class="col-md-4">
+                    <label for="addSections" class="form-label"
+                      >Add Sections</label
+                    >
+                    <input
+                      type="number"
+                      v-model="newSectionsToAdd"
+                      id="addSections"
+                      class="form-control"
+                      placeholder="Add Sections"
+                      min="0"
+                    />
+                  </div>
+
+                  <!-- Total Sections -->
+                  <div class="col-md-4">
+                    <label for="totalSections" class="form-label"
+                      >Total Sections</label
+                    >
+                    <input
+                      type="number"
+                      :value="editSite.number_of_sections + newSectionsToAdd"
+                      id="totalSections"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+                </div>
               </div>
 
               <!-- Section Label and Numbering Type (Disabled) -->
@@ -932,33 +965,6 @@
                     class="form-control"
                     readonly
                   />
-                </div>
-              </div>
-
-              <!-- Section Management (Add Sections) -->
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="addSection" class="form-label"
-                    >Add New Section</label
-                  >
-                  <input
-                    type="number"
-                    v-model="newSectionCount"
-                    class="form-control"
-                    min="1"
-                    max="99"
-                    placeholder="Number of Sections"
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <button
-                    @click="addSections"
-                    class="btn btn-primary"
-                    style="width: 100%"
-                  >
-                    Add Sections
-                  </button>
                 </div>
               </div>
 
@@ -1039,6 +1045,7 @@ export default {
         other_charges: 0,
       },
       showSectionModal: false, // Updated from showFloorModal
+      newSectionsToAdd: 0,
       editSite: {
         id: "",
         name: "",
@@ -1481,8 +1488,25 @@ export default {
         console.error("Error adding site:", error.response || error);
       }
     },
+    addSections() {
+      const newSections = [];
+      for (let i = 0; i < this.newSectionsToAdd; i++) {
+        newSections.push({
+          sectionNumber: this.editSite.number_of_sections + i + 1, // Automatically generate section numbers
+          sectionLabel: this.editSite.section_label, // Section label from the input
+        });
+      }
+      // Update the sections and total section count
+      this.editSite.sections.push(...newSections);
+      this.editSite.number_of_sections += this.newSectionsToAdd; // Update the total count based on the input
+      this.newSectionsToAdd = 0; // Reset the input field after adding sections
+    },
+
     async updateSite() {
       const formData = new FormData();
+
+      // Log the editSite data for debugging
+      console.log("Data for updateSite:", this.editSite);
 
       // Site fields
       formData.append("companyId", this.vuexCompanyId);
@@ -1495,6 +1519,9 @@ export default {
       formData.append("address", this.editSite.address);
       formData.append("postal_code", this.editSite.postalCode);
       formData.append("status", this.editSite.status);
+
+      // Log sections for debugging
+      console.log("Sections being sent:", this.editSite.sections);
 
       // Payment Fields
       formData.append("maximum_months", this.editSite.maximum_months);
@@ -1512,9 +1539,8 @@ export default {
       formData.append("other_charges", this.editSite.other_charges || "");
 
       // Sections
-      formData.append("number_of_sections", this.editSite.number_of_sections); // Editable section count
-      formData.append("section_label", this.editSite.section_label || ""); // for updateSite
-      formData.append("numbering_type", this.editSite.numbering_type || ""); // Added field
+      formData.append("number_of_sections", this.editSite.number_of_sections); // Updated section count
+      formData.append("section_label", this.editSite.section_label || ""); // For updateSite
       if (this.editSite.sections && this.editSite.sections.length > 0) {
         this.editSite.sections.forEach((section, index) => {
           formData.append(
@@ -1525,14 +1551,25 @@ export default {
       }
 
       // Handle Picture (If there's a new picture, include it)
-      const pictureFile = this.newPictureFile || this.editSite.picture;
-      if (pictureFile) {
-        formData.append("picture", pictureFile);
+      // Ensure to attach picture correctly if a file is selected, otherwise don't append it.
+      const pictureFile =
+        this.newPictureFile ||
+        (this.editSite.picture && this.editSite.picture instanceof File
+          ? this.editSite.picture
+          : null);
+
+      if (pictureFile && pictureFile instanceof File) {
+        formData.append("picture", pictureFile); // Append the file directly
+      } else {
+        //formData.append("picture", ""); // Or don't include it at all
       }
+
+      // Log the formData content before making the request
+      console.log("Form Data being sent:", formData);
 
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.selectedSite.id}/`, // Make sure to use the selected site's ID
+          `http://localhost:8000/developer/sites/${this.selectedSite.id}/`, // Ensure to use the selected site's ID
           formData,
           {
             headers: {
@@ -1550,55 +1587,31 @@ export default {
           const siteId = parsedData.id;
           console.log("Site updated with ID:", siteId);
 
-          // If there's a new picture, upload it
-          if (this.newPictureFile) {
-            await this.uploadPicture(siteId, this.newPictureFile); // Call the uploadPicture function
+          // Reset the picture preview and clear the file input
+          this.resetPicturePreview();
+          this.newPictureFile = null; // Clear the file input field
+
+          // Reset the input field itself
+          const fileInput = document.getElementById("picture"); // Get the file input element
+          if (fileInput) {
+            fileInput.value = ""; // Reset the file input
           }
 
           // Reset form and close the modal
-          this.resetPicturePreview();
           this.showEditModal = false;
           this.fetchSites(); // Reload the list of sites after editing
         }
       } catch (error) {
+        // Log full error details for debugging
         console.error("Error editing site:", error.response || error);
+
+        // Check for specific response errors
+        if (error.response) {
+          console.log("Error Response Status:", error.response.status);
+          console.log("Error Response Data:", error.response.data);
+          console.log("Error Response Headers:", error.response.headers);
+        }
       }
-    },
-    addSections() {
-      const newSections = [];
-      for (let i = 0; i < this.newSectionCount; i++) {
-        newSections.push({
-          sectionNumber: this.editSite.sections.length + i + 1, // Automatically generate section numbers
-          sectionLabel: this.editSite.section_label, // Include the section label for each new section
-        });
-      }
-      this.editSite.sections.push(...newSections);
-      this.editSite.number_of_sections = this.editSite.sections.length; // Update the section count
-    },
-    // Helper function to reset the new site form
-    resetNewSite() {
-      return {
-        name: "",
-        status: "",
-        region: "",
-        province: "",
-        municipality: "",
-        barangay: "",
-        address: "",
-        postalCode: 0,
-        description: "",
-        picture: "",
-        maximum_months: 24,
-        number_of_sections: 15,
-        numbering_type: "numeric",
-        section_label: "floor",
-        commission: 200000,
-        spot_discount_percentage: 0,
-        spot_discount_flat: 0,
-        vat_percentage: 12.0,
-        reservation_fee: 50000,
-        other_charges: 0,
-      };
     },
     // Open the edit modal and prepare the data
     openEditModal(selectedSite) {
@@ -1622,15 +1635,17 @@ export default {
       this.showEditModal = true;
     },
 
-    // Cancel editing and reset preview
     cancelEdit() {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
-    // Reset the picture preview
     resetPicturePreview() {
       this.newPictureFile = null;
       this.imagePreview = null;
+      const fileInput = document.getElementById("picture"); // Get the file input element
+      if (fileInput) {
+        fileInput.value = ""; // Clear the file input
+      }
     },
     async fetchStatusOptions() {
       try {

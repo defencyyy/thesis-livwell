@@ -94,6 +94,25 @@ class SiteDetailView(APIView):
         serializer = SiteSerializer(site)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
+    def put(self, request, pk):
+        logging.debug("PUT request received for site ID: %s", pk)
+        company = get_developer_company(request)
+        if not company:
+            return Response(
+                {"error": "Company not found for this developer."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        site = get_object_or_404(Site, pk=pk, company=company)
+
+        # Validate and update the site fields using the serializer
+        serializer = SiteSerializer(site, data=request.data, partial=True)  # partial=True allows partial updates
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
         company = get_developer_company(request)
         if not company:
@@ -171,7 +190,6 @@ class ArchivedSiteView(APIView):
                 {"error": "Site not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-
 
 class SiteWithFloorCountsView(APIView):
     def get(self, request, site_id):

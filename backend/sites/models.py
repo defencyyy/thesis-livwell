@@ -5,19 +5,20 @@ from django.core.exceptions import ValidationError
 import os, re
 
 def logo_upload_path(instance, filename):
-  company_name = instance.company.name if instance.company else 'new_company'
-  company_name = re.sub(r'\s+', '_', company_name) 
-  company_name = re.sub(r'[^\w\s-]', '', company_name)
+    # Sanitize company and site names (remove spaces and non-alphanumeric characters)
+    company_name = instance.company.name if instance.company else 'new_company'
+    company_name = re.sub(r'\s+', '', company_name)  # Remove all spaces
+    company_name = re.sub(r'[^\w\s-]', '', company_name)  # Remove special characters
 
-  site_name = instance.name if instance.name else 'new_site'
-  site_name = re.sub(r'\s+', '_', site_name) 
-  site_name = re.sub(r'[^\w\s-]', '', site_name)  
+    site_name = instance.name if instance.name else 'new_site'
+    site_name = re.sub(r'\s+', '', site_name)  # Remove all spaces
+    site_name = re.sub(r'[^\w\s-]', '', site_name)  # Remove special characters
 
-  # Prevent overwriting by including the original filename
-  file_extension = filename.split('.')[-1]
-  filename = f'{site_name}_logo.{file_extension}'
-  
-  return os.path.join('photos', company_name, 'sites', site_name, filename)
+    # Concatenate the sanitized company and site names to form the filename
+    filename = f'{site_name}.{filename.split(".")[-1]}'
+
+    return os.path.join('photos', company_name, 'sites', site_name, filename)
+
 
 class Site(models.Model):
     STATUS_CHOICES = [
