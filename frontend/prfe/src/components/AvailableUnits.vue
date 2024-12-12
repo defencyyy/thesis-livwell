@@ -13,7 +13,7 @@
       <div class="title-wrapper">
         <div class="title-left">
           <div class="title-icon"></div>
-          <div class="edit-title">Available Units for Site {{ siteName }} </div>
+          <div class="edit-title"><strong>Available Units for Site {{ siteName }}</strong> </div>
         </div>
       </div>
 
@@ -203,245 +203,13 @@
       </div>
     </div>
     <br>
-    <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-      <h5 class="property-header">Payment Plan</h5><br>
-    </div>
-    <div class="row mb-3 ps-5">
-      <div class="col-12 d-flex justify-content-around align-items-center">
-        <!-- Left Section: Property Price -->
-        <div class="text-center">
-          <h5 class="muted price-header">Property Price</h5>
-          <p class="property-price1">₱ {{ selectedUnit.price }}</p>
-        </div>
-        <!-- Right Section: Payment Plan -->
-        <div class="text-center1">
-          <h5 class="price-header">Payment Plan</h5>
-          <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
-            <option value="Spot Cash">Spot Cash</option>
-            <option value="Deffered Payment">Deffered Payment</option>
-          </select>
-        </div>
 
-      </div>
-    </div>
-
-    <!-- Spot Discount -->
-    <div class="form-group">
-      <label for="spotDiscount">Spot Discount</label>
-       <input
-       type="number"
-        id="spotDiscount"
-        v-model="spotCashDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        :min="0"
-        :max="maxSpotCashDiscount" 
-        />
-    </div>
-    
-    <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    
-    <p class = "description-align">
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
-
-    <!-- TLP Discount -->
-    <div class="form-group">
-      <label for="tlpDiscount">TLP Discount (Optional)</label>
-      <input
-      type="number"
-      id="tlpDiscount"
-      v-model="tlpDiscount"
-      @input="updatePaymentDetails"
-      class="form-control"
-      min="0"
-      max="maxtlpDiscount"
-      />
-    </div>
-
-    <p class = "description-align"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-    <!-- Net Unit Price -->
-    <p class = "description-align"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-    <!-- Other Charges -->
-    <div class="form-group">
-      <label for="otherChargesPercentage">Other Charges (%)</label>
-      <input
-        type="number"
-        id="otherChargesPercentage"
-        v-model="otherChargesPercentage"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="maxotherChargesPercentage"
-        step="0.1"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-    <!-- VAT Calculation -->
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-
-    <!-- Total Amount Payable -->
-    <p class = "description-align">
-      <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-    </p>
-
-    <div
-    v-if="selectedPaymentPlan === 'Deffered Payment'"
-    class="form-group"
-    >
-      <label for="spotDownpayment">Spot Downpayment</label>
-      <input
-        type="number"
-        id="spotDownpayment"
-        v-model="spotDownpaymentPercentage"
-        @input="updatePaymentDetails"
-        min="0"
-        step="5"
-        placeholder="Enter downpayment percentage"
-        required
-      />
-    </div>
-
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-
-    <!-- Reservation Fee -->
-    <p class = "description-align"><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
-    <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "description-align">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-
-    <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-
-    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-      <!-- Spread Downpayment -->
-      <div class="form-group">
-        <label for="spreadDownpayment">Spread Downpayment</label>
-        <input
-        type="number"
-        v-model="spreadDownpaymentPercentage"
-        id="spreadDownpayment"
-        @input="updatePaymentDetails"
-        min="0"
-        max="100"
-        step="1"
-        class="form-control"
-        required
-        placeholder="Enter percentage"
-        />
-      </div>
-      
-      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-
-      <!-- Payable in Months -->
-      <div class="form-group">
-        <label for="months">Months to Pay</label>
-        <input
-          type="number"
-          v-model="payableMonths"
-          id="months"
-          @input="updatePaymentDetails"
-          min="1"
-          max="maxpayableMonths"
-          step="1"
-          required
-        />
-      </div>
-      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-      <!-- Balance Upon Turnover -->
-      <p class = "description-align">
-        <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-      </p>
-      <br>    
-      <div class="line mb-4"></div>
-      <div class="col-12 text-center mb-3 text-center">
-            <h5 class="property-header">Payment Schedule Summary</h5>
-      </div>
-
-      <!-- Payment Summary -->
-      <div class="payment-summary">
-        <p class = "description-align">
-          <strong>Spot Downpayment:</strong> ₱{{
-            spotDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Spread Downpayment:</strong> ₱{{
-            spreadDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Monthly Payment:</strong> ₱{{
-            payablePerMonth.toFixed(2)
-          }}
-          / month for {{ payableMonths }} months
-        </p>
-        <p class = "description-align">
-          <strong>Balance Upon Turnover:</strong> ₱{{
-            balanceUponTurnover.toFixed(2)
-          }}
-        </p>
-      </div>
-      <!-- Expandable Detailed Schedule Section -->
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
     >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
+      <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
+      <button class="payment-plan-btn" @click="redirectToPaymentPlan">View Payment Plan</button>
     </div>
 
     <!-- Success Message Pop-up -->
@@ -466,15 +234,16 @@
       @hide="closeReserveModal"
       hide-footer
       title="Reserve Unit"
+      centered
     >
-      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
+      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
         <!-- Customer Name Dropdown -->
         <div class="form-group">
           <label for="customerName">Customer Name</label>
           <select
             v-model="reservationForm.customerName"
             id="customerName"
-            class = "form-select"
+            class="form-select"
             style="margin-left: 1px;"
             required
           >
@@ -495,65 +264,71 @@
             type="file"
             @change="handleFileUpload"
             id="fileUpload"
-            class = "form-control"
+            class="form-control"
             required
           />
         </div>
-        <!-- Payment Amount -->
-        <div class="form-group">
-          <label for="paymentAmount">Payment Amount</label>
-          <input
-            type="number"
-            v-model="reservationForm.paymentAmount"
-            id="paymentAmount"
-            required
-          />
+        <!-- Payment Details -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount</label>
+              <input
+                type="number"
+                v-model="reservationForm.paymentAmount"
+                id="paymentAmount"
+                class="form-control"
+                placeholder="Enter payment amount"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select
+                v-model="reservationForm.paymentMethod"
+                id="paymentMethod"
+                class="form-select"
+                required
+              >
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="online_payment">Online Payment</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <!-- Payment Method -->
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select
-            v-model="reservationForm.paymentMethod"
-            id="paymentMethod"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          >
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="cash">Cash</option>
-            <option value="online_payment">Online Payment</option>
-          </select>
-        </div>
-        <!-- Payment Date -->
-        <div class="form-group">
-          <label for="paymentDate">Date of Payment</label>
-          <input
-            type="date"
-            v-model="reservationForm.paymentDate"
-            id="paymentDate"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Payment Reference (only if payment method is not cash) -->
-        <div
-          class="form-group"
-          v-if="reservationForm.paymentMethod !== 'cash'"
-        >
-          <label for="paymentReference">Payment Reference Number</label>
-          <input
-            type="text"
-            v-model="reservationForm.paymentReference"
-            id="paymentReference"
-            class = "form-control"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentDate">Date of Payment</label>
+              <input
+                type="date"
+                v-model="reservationForm.paymentDate"
+                id="paymentDate"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
+            <div class="form-group">
+              <label for="paymentReference">Payment Reference Number</label>
+              <input
+                type="text"
+                v-model="reservationForm.paymentReference"
+                id="paymentReference"
+                class="form-control"
+                placeholder="Enter reference number"
+                required
+              />
+            </div>
+          </div>
         </div>
         <!-- Submit Button -->
         <div
-          class="d-flex justify-content-end gap-2 mt-30"
+          class="d-flex justify-content-end gap-2 mt-3"
           style="padding-top: 15px"
         >
         <button type="submit" class="btn-add">
@@ -575,6 +350,7 @@
         </div>
       </b-modal>
       </b-modal>
+
      </b-modal>
   </div>
   </div>
@@ -619,32 +395,7 @@ export default {
       errorMessage: "", // Error message
       isErrorModalVisible: false, // To control modal visibility
       showSuccessMessage: false, // Control the visibility of the success message
-      // Payment Scheme Data
-      selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
-      spotCashDiscount: 0,
-      maxSpotCashDiscount: 0, // Default value fetched from DB
-      maxotherChargesPercentage: 0,
-      maxtlpDiscount:0,
-      tlpDiscount: 0,
-      spotDiscount: 0,
-      unitPriceAfterSpotDiscount: 0,
-      tlpDiscountAmount: 0,
-      netUnitPrice: 0,
-      otherChargesPercentage: 0,
-      otherCharges: 0,
-      totalAmountPayable: 0,
-      reservationFee: 0,
-      netFullPayment: 0,
-      spotDownpaymentPercentage: 0,
-      spotDownpayment: 0,
-      spreadDownpaymentPercentage: 0,
-      spreadDownpayment: 0,
-      payableMonths: 1,
-      maxpayableMonths:0,
-      payablePerMonth: 0,
-      balanceUponTurnover: 0,
-      vat: 0,
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
@@ -658,9 +409,6 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
-
-    // Call updatePaymentDetails to show the default payment details
-    this.updatePaymentDetails();
   },
   computed: {
  // Paginate filtered units
@@ -709,6 +457,10 @@ export default {
   },
 
   methods: {
+    redirectToPaymentPlan() {
+      // Redirect to the payment plan page
+      this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });
+    },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -786,18 +538,6 @@ export default {
       this.selectedUnit = unit;
       this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
-      this.spotCashDiscount = this.selectedUnit.spot_discount;
-      this.payableMonths = this.selectedUnit.months;
-      this.maxpayableMonths = this.payableMonths;
-      this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
-      this.tlpDiscount = this.selectedUnit.TLP_Discount;
-      this.maxtlpDiscount = this.tlpDiscount;
-      this.otherChargesPercentage = this.selectedUnit.other_charges;
-      this.maxotherChargesPercentage = this.otherChargesPercentage;
-      this.reservationFee = this.selectedUnit.reservation_fee;
-      this.vat = this.selectedUnit.vat_percent;
-      // Recalculate payment details when the unit is selected
-      this.updatePaymentDetails();
     },
 
     closeModal() {
@@ -827,88 +567,6 @@ export default {
         this.reservationForm.file = file;
       }
     },
-
-    updatePaymentDetails() {
-    if (this.spotCashDiscount < 0) {
-        this.spotCashDiscount = 0;
-      } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
-        this.spotCashDiscount = this.maxSpotCashDiscount;
-      }
-      if (this.tlpDiscount < 0) {
-        this.tlpDiscount = 0;
-      } else if (this.tlpDiscount > this.maxtlpDiscount) {
-        this.tlpDiscount = this.maxtlpDiscount;
-      }
-      if (this.otherChargesPercentage < 0) {
-        this.otherChargesPercentage = 0;
-      } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
-        this.otherChargesPercentage = this.maxotherChargesPercentage;
-      }
-      if (this.payableMonths < 0) {
-        this.payableMonths = 1;
-      } else if (this.payableMonths > this.maxpayableMonths) {
-        this.payableMonths = this.maxpayableMonths;
-      }
-      this.applySpotCashDiscount();
-      this.applyTLPDiscount();
-      this.applyOtherCharges();
-      this.calculateVAT();
-      this.calculateFinancingDetails();
-    },
-
-    applySpotCashDiscount() {
-      const discountPercentage = parseFloat(this.spotCashDiscount);
-      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
-      this.updateNetUnitPrice();
-    },
-
-    applyTLPDiscount() {
-      const discountPercentage = parseFloat(this.tlpDiscount);
-      this.tlpDiscountAmount =
-        (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
-      this.updateNetUnitPrice();
-    },
-
-    updateNetUnitPrice() {
-      this.netUnitPrice =
-        this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
-      this.applyOtherCharges();
-    },
-
-    applyOtherCharges() {
-      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
-      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
-      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
-    },
-    calculateVAT() {
-      if (this.netUnitPrice > 3600000) {
-        this.vatAmount = this.netUnitPrice * (this.vat / 100);
-        this.totalAmountPayable += this.vatAmount;
-      }
-    },
-
-    calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
-      if (this.spotDownpaymentPercentage == "0") {
-        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
-        this.payablePerMonth = this.netDownpayment / this.payableMonths;
-      } else {
-        this.netDownpayment = this.spotDownpayment - this.reservationFee;
-        this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
-      }
-      this.balanceUponTurnover =
-        ((100 -
-          (Number(this.spreadDownpaymentPercentage) +
-            Number(this.spotDownpaymentPercentage))) /
-          100) *
-        this.totalAmountPayable; // Correct sum of percentages
-    },
-
     async submitReservation() {
       // Check if all required fields are filled, including the file
       if (
@@ -1392,6 +1050,11 @@ body {
   margin: 10px 0;
 }
 
+.row .col-md-6 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 /* Form Group */
 .form-group {
   margin-bottom: 15px;
@@ -1409,7 +1072,7 @@ body {
 }
 
 .form-group input[type="number"] {
-  width: 70%; /* Make the input take up full width */
+  width: 100%; /* Make the input take up full width */
   padding: 10px; /* Add padding for a better click area */
   font-size: 16px; /* Match font size with the label */
   border: 1px solid #ccc; /* Light border for input */
@@ -1433,6 +1096,11 @@ body {
   font-style: italic; /* Italicize placeholder text */
 }
 
+.form-group input[type="text"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
 /* Style for File Input Button */
 input[type="file"] {
   border: 1px solid #ccc;
@@ -1449,8 +1117,6 @@ label {
   margin-left: 30px;
 }
 
-/* Dropdown Styling */
-
 /* Payment Plan Section */
 .payment-plan {
   margin-top: 20px;
@@ -1461,7 +1127,6 @@ label {
   color: #007bff;
   margin-bottom: 10px;
 }
-
 
 button {
   padding: 10px 15px;

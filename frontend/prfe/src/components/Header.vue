@@ -140,9 +140,9 @@ export default {
         localStorage.removeItem("company_id");
 
         if (this.userRole === "developer") {
-          this.redirectToLogin("Home");
+          this.redirectToLogin("MainLogin");
         } else if (this.userRole === "broker") {
-          this.redirectToLogin("Home");
+          this.redirectToLogin("MainLogin");
         }
       } catch (error) {
         console.error("Error during logout:", error);

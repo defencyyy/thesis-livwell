@@ -16,10 +16,15 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 from django.db.models import Sum
-from datetime import timedelta
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractYear
+from datetime import datetime
+from django.core.cache import cache  # For caching tokens temporarily
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
+import random
+import string
 
 
 
@@ -28,6 +33,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+SECRET_KEY = settings.SECRET_KEY
+
 
 from developers.models import Developer
 from brokers.models import Broker 
@@ -72,7 +79,7 @@ def login_view(request, user_role):
                 return JsonResponse({"success": False, "message": "Invalid user role."}, status=400)
 
             if user is None:
-                return JsonResponse({"success": False, "message": "User not found."}, status=404)
+                return JsonResponse({"success": False, "message": "Invalid Credentials."}, status=404)
 
             if not check_password(password, user.password):
                 return JsonResponse({"success": False, "message": "Invalid password."}, status=401)
@@ -170,71 +177,86 @@ def validate_password_strength(password):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         return "Password must contain at least one special character."
     return None
-
-# Brokers
-@csrf_exempt
-def send_password_reset_email(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            broker = Broker.objects.get(email=email)
-
-            token = default_token_generator.make_token(broker)
-
-            reset_link = reverse('BrkResetPass', kwargs={'uid': broker.pk, 'token': token})
-
-            reset_link_full = f'http://localhost:8080/#/broker/reset-pass/{broker.pk}/{token}/'
-
-            send_mail(
-                'Password Reset',
-                f'Click the link below to reset your password:\n{reset_link_full}',
-                'noreply@example.com',
-                [email],
-                fail_silently=False,
-            )
-
-            return JsonResponse({"success": True, "message": "Password reset email sent"}, status=200)
-
-        except Broker.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Broker not found"}, status=404)
-        except Exception as e:
-            return JsonResponse({"success": False, "message": "An internal error occurred."}, status=500)
-
-    return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+# Function to generate a reset token
+def generate_reset_token():
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=20))
 
 @csrf_exempt
-def BrkResetPass(request, uid, token):
+def forgot_password(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        email = data.get('email')
+
+        if not username or not email:
+            return JsonResponse({"success": False, "message": "Username and email are required."}, status=400)
+
+        # Check if the user exists in Broker or Developer models
+        broker = Broker.objects.filter(username=username, email=email).first()
+        developer = Developer.objects.filter(username=username, email=email).first()
+
+        if not broker and not developer:
+            return JsonResponse({"success": False, "message": "No account found with this username and email."}, status=404)
+
+        user = broker if broker else developer
+
+        # Generate a reset token
+        reset_token = generate_reset_token()
+
+        # Store the token in cache (valid for 1 hour)
+        cache.set(f'password_reset_{reset_token}', user.id, timeout=3600)  # store user ID in the cache with the token
+
+        # Send the reset email
+        reset_link = f"http://localhost:8080/reset-password/{reset_token}/"  # Modify this URL to match your frontend
+        send_mail(
+            "Password Reset Request",
+            f"Hello {user.username},\n\nPlease click the following link to reset your password: {reset_link}",
+            'noreply@example.com',
+            [email],
+        )
+
+        return JsonResponse({"success": True, "message": "Password reset instructions sent to your email."}, status=200)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+@csrf_exempt
+def reset_password(request, token):
     if request.method == 'POST':
         try:
-            print("Received POST request to reset password.")
             data = json.loads(request.body)
             new_password = data.get('new_password')
 
             if not new_password:
                 return JsonResponse({"success": False, "message": "New password is required."}, status=400)
 
-            password_error = validate_password_strength(new_password)
-            if password_error:
-                return JsonResponse({"success": False, "message": password_error}, status=400)
+            # Check if the token exists in cache and get the user ID
+            user_id = cache.get(f'password_reset_{token}')
 
-            broker = Broker.objects.get(pk=uid)
-
-            if not default_token_generator.check_token(broker, token):
+            if not user_id:
                 return JsonResponse({"success": False, "message": "Invalid or expired token."}, status=400)
 
-            broker.password = make_password(new_password)
-            broker.save()
+            # Retrieve the user associated with the token
+            user = Broker.objects.filter(id=user_id).first() or Developer.objects.filter(id=user_id).first()
+
+            if not user:
+                return JsonResponse({"success": False, "message": "User not found."}, status=404)
+
+            # Update the user's password
+            user.password = make_password(new_password)
+            user.save()
+
+            # Optionally, delete the token from cache after using it
+            cache.delete(f'password_reset_{token}')
 
             return JsonResponse({"success": True, "message": "Password reset successfully!"}, status=200)
 
-        except Broker.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Broker not found."}, status=404)
         except Exception as e:
-            print(f"Error resetting password: {e}")
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
+
+
+
 @csrf_exempt
 def get_broker_data(request, broker_id):
     try:
@@ -259,41 +281,64 @@ def update_broker_view(request, broker_id):
             data = json.loads(request.body)
             broker = Broker.objects.get(id=broker_id)
 
+            # Get the company the broker belongs to
+            company_id = broker.company.id  # Assuming the broker has a company ForeignKey
             current_password = data.get('current_password')
+            
             if current_password and not broker.check_password(current_password):
                 return JsonResponse({"success": False, "message": "Current password is incorrect."}, status=400)
 
             if 'password' in data and data['password'] is not None:
                 password = data['password']
-
                 password_error = validate_password_strength(password)
                 if password_error:
                     return JsonResponse({"success": False, "message": password_error}, status=400)
-
                 broker.password = make_password(password)
 
             if 'username' in data and data['username'] is not None:
-                broker.username = data['username']
+                username = data['username']
+
+                # Check if another broker in the same company has the same username
+                if Broker.objects.filter(username=username, company_id=company_id).exclude(id=broker.id).exists():
+                    return JsonResponse({"success": False, "message": "The username is already taken within your company. Please choose a different one."}, status=400)
+
+                # Check if a developer in the same company has the same username
+                if Developer.objects.filter(username=username, company_id=company_id).exists():
+                    return JsonResponse({"success": False, "message": "The username is already taken by a developer in your company. Please choose a different one."}, status=400)
+
+                broker.username = username
+            
             if 'email' in data and data['email'] is not None:
-                broker.email = data['email']
+                email = data['email']
+                try:
+                    validate_email(email)
+                    if Broker.objects.filter(email=email).exclude(id=broker.id).exists():
+                        return JsonResponse({"success": False, "message": "The email is already taken. Please choose a different one."}, status=400)
+                    broker.email = email
+                except ValidationError:
+                    return JsonResponse({"success": False, "message": "Invalid email format."}, status=400)
+
             if 'contact_number' in data and data['contact_number'] is not None:
-                broker.contact_number = data['contact_number']
+                contact_number = data['contact_number']
+                # Add a validation for phone number format if needed
+                if not re.match(r'^\+?[1-9]\d{1,14}$', contact_number):
+                    return JsonResponse({"success": False, "message": "Invalid contact number format."}, status=400)
+                broker.contact_number = contact_number
 
             broker.save()
             return JsonResponse({"success": True, "message": "Broker updated successfully."}, status=200)
 
         except Exception as e:
             error_message = str(e).lower()
-            
-            # Check for specific fields causing the unique constraint violation
+
+            # Handle specific database errors like unique constraints
             if 'username' in error_message and 'already exists' in error_message:
-                return JsonResponse({"success": False, "message": "The username is already taken. Please choose a different one."}, status=400)
+                return JsonResponse({"success": False, "message": "The username is already staken. Please choose a different one."}, status=400)
             elif 'email' in error_message and 'already exists' in error_message:
                 return JsonResponse({"success": False, "message": "The email is already taken. Please choose a different one."}, status=400)
             elif 'unique constraint' in error_message:
                 return JsonResponse({"success": False, "message": "The provided data violates a unique constraint."}, status=400)
 
-            print(f"Error updating broker: {e}")
             return JsonResponse({"success": False, "message": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
@@ -549,6 +594,62 @@ def get_available_units(request):
 
     logger.warning("Invalid request method: %s", request.method)
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+@csrf_exempt
+def get_unit_details(request, unit_id):
+    if request.method == 'GET':
+        logger.debug("Received request to fetch details for unit ID: %s", unit_id)
+
+        try:
+            # Fetch the unit with the given unit ID
+            unit = Unit.objects.select_related('site', 'unit_type', 'floor').get(id=unit_id)
+
+            # Fetch unit images
+            images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
+            image_urls = [request.build_absolute_uri(image.image.url) for image in images]
+
+            # Prepare unit details
+            unit_details = {
+                'id': unit.id,
+                'months': unit.site.maximum_months,
+                'unit_title': unit.unit_title,
+                'images': image_urls,
+                'price': unit.price,
+                'bedroom': unit.bedroom,
+                'bathroom': unit.bathroom,
+                'floor_area': unit.floor_area,
+                'floor': unit.floor.floor_number if unit.floor else None,
+                'balcony': unit.balcony,
+                'type': unit.unit_type.name if unit.unit_type else None,
+                'view': unit.view,
+                'company_id': unit.company.id,
+                'unit_number': unit.unit_number,
+                'lot_area': unit.lot_area,
+                'reservation_fee': unit.reservation_fee,
+                'other_charges': unit.other_charges,
+                'TLP_Discount': unit.spot_discount_flat,
+                'spot_discount': unit.spot_discount_percentage,
+                'vat_percent': unit.vat_percentage,
+                'commission': unit.commission,
+                'site': {
+                    'id': unit.site.id,
+                    'name': unit.site.name,
+                    'months': unit.site.maximum_months,
+                },
+            }
+            logger.debug("Fetched unit details: %s", unit_details)
+
+            return JsonResponse({'success': True, 'unit': unit_details}, status=200)
+
+        except Unit.DoesNotExist:
+            logger.error("Unit with ID %s does not exist.", unit_id)
+            return JsonResponse({'success': False, 'message': 'Unit not found'}, status=404)
+
+        except Exception as e:
+            logger.error("Error fetching unit details for ID %s: %s", unit_id, str(e))
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    logger.warning("Invalid request method: %s", request.method)
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
 
 @csrf_exempt
@@ -691,8 +792,6 @@ def update_customer(request, customer_id):
         # Return a 405 Method Not Allowed if it's not a PUT request
         return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
-
-
 def fetch_sites(request):
     # Filter sites that have available units
     sites = Site.objects.filter(unit__status='Available').distinct()
@@ -750,7 +849,7 @@ def fetch_sales(request):
             )
 
         sales_data = []
-        for sale in sales:
+        for sale in sales: 
             # Add sale data to the list, including full names and titles
             sales_data.append({
                 'sale_id': sale.id,  # Include the sale ID
@@ -1043,14 +1142,29 @@ def check_sales_details(request, customer_id, site_id, unit_id):
 
     return JsonResponse(response_data)
 
-# Fetch document types - for dropdown
 def fetch_document_types(request):
     try:
-        document_types = DocumentType.objects.all()
+        # Get the company ID from the request (query parameter or user's session)
+        company_id = request.GET.get("company_id")
+
+        # Ensure company_id is provided and valid
+        if not company_id:
+            return JsonResponse({"success": False, "message": "Company ID is required"}, status=400)
+        
+        try:
+            company = Company.objects.get(id=company_id)
+        except Company.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Invalid Company ID"}, status=404)
+
+        # Filter document types by company
+        document_types = DocumentType.objects.filter(company=company)
+
+        # Prepare the response data
         document_types_data = [
             {"id": dt.id, "name": dt.name, "description": dt.description}
             for dt in document_types
         ]
+
         return JsonResponse({"success": True, "documentTypes": document_types_data})
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
@@ -1125,16 +1239,19 @@ def fetch_customer_documents(request, customer_id, sales_id):
         # Fetch documents for the customer and specific sale
         documents = Document.objects.filter(customer=customer, sales_id=sales_id)
 
+        # Log the fetched documents
+
         # Prepare a list to return
         document_data = []
         for doc in documents:
-            document_data.append({
+            doc_info = {
                 'id': doc.id,
                 'document_type_id': doc.document_type.id,
                 'document_type_name': doc.document_type.name,
                 'file_name': os.path.basename(doc.file.name),
                 'uploaded_at': doc.uploaded_at.isoformat(),
-            })
+            }
+            document_data.append(doc_info)
 
         # Return JSON response
         return JsonResponse({
@@ -1149,10 +1266,12 @@ def fetch_customer_documents(request, customer_id, sales_id):
         }, status=404)
 
     except Exception as e:
+        print(f"Error occurred: {str(e)}")  # Print the error
         return JsonResponse({
             'success': False,
             'message': str(e),
         }, status=500)
+
 
 @csrf_exempt
 def mark_unit_as_sold(request, customer_id, sales_id):
@@ -1348,75 +1467,3 @@ def sales_by_month(request):
         "month_sales": month_sales,  # Sales per month
         "years": available_years,  # Available years for the dropdown
     })
-# Developers
-@csrf_exempt
-def send_dev_password_reset_email(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            developer = Developer.objects.get(email=email)
-
-            # Generate a token
-            token = default_token_generator.make_token(developer)
-
-            # Create a password reset link for developers
-            reset_link = reverse('DevResetPass', kwargs={'uid': developer.pk, 'token': token})
-
-            # Assuming your Vue app is running on localhost:8080
-            reset_link_full = f'http://localhost:8080/#/developer/reset-pass/{developer.pk}/{token}/'
-
-            # Send email
-            send_mail(
-                'Developer Password Reset',
-                f'Click the link below to reset your password:\n{reset_link_full}',
-                'noreply@example.com',
-                [email],
-                fail_silently=False,
-            )
-
-            return JsonResponse({"success": True, "message": "Password reset email sent"}, status=200)
-
-        except Developer.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Developer not found"}, status=404)
-        except Exception as e:
-            return JsonResponse({"success": False, "message": "An internal error occurred."}, status=500)
-
-    return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
-
-
-
-@csrf_exempt
-def DevResetPass(request, uid, token):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            new_password = data.get('new_password')
-
-            # Ensure password is provided
-            if not new_password:
-                return JsonResponse({"success": False, "message": "New password is required."}, status=400)
-
-            password_error = validate_password_strength(new_password)
-            if password_error:
-                return JsonResponse({"success": False, "message": password_error}, status=400)
-
-            # Find the developer by uid
-            developer = Developer.objects.get(pk=uid)
-
-            # Check if the token is valid
-            if not default_token_generator.check_token(developer, token):
-                return JsonResponse({"success": False, "message": "Invalid or expired token."}, status=400)
-
-            # Update the password
-            developer.password = make_password(new_password)
-            developer.save()
-
-            return JsonResponse({"success": True, "message": "Password reset successfully!"}, status=200)
-
-        except Developer.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Developer not found."}, status=404)
-        except Exception as e:
-            return JsonResponse({"success": False, "message": str(e)}, status=500)
-
-    return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
