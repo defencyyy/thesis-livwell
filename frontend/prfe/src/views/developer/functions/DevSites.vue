@@ -1058,6 +1058,7 @@ export default {
         description: "",
         picture: "",
         address: "",
+        newSectionsToAdd: 0,
         sections: [],
         section_label: "",
         number_of_sections: 0,
@@ -1644,7 +1645,7 @@ export default {
       };
 
       console.log("Edit Site after cloning sections:", this.editSite);
-
+      this.newSectionsToAdd = 0;
       this.showEditModal = true;
     },
 
