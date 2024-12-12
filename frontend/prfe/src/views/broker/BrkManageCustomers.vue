@@ -1060,4 +1060,99 @@ input[type="file"] {
   background-color: #e9ecef; 
 }
 
+
+/* General Styles for Small Screens */
+@media (max-width: 768px) {
+  .main-page {
+    flex-direction: column;
+  }
+
+  .SideNav {
+    width: 100%;
+    position: relative;
+    height: auto;
+  }
+
+  .main-content {
+    margin-left: 0;
+    margin-top: 0;
+  }
+
+  .content {
+    padding: 10px;
+  }
+
+  .title-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-bar-container {
+    width: 100%;
+  }
+
+  .search-bar {
+    width: 100%;
+  }
+
+  .dropdown {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .right-section .add-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .customer-table td {
+    font-size: 0.875rem;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .page-button {
+    padding: 8px 16px;
+  }
+}
+
+
+/* Styles for Extra Small Screens */
+@media (max-width: 480px) {
+  .title-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .edit-title {
+    font-size: 1.25rem;
+  }
+
+  .search-bar {
+    padding: 8px;
+  }
+
+  .customer-table td {
+    padding: 8px;
+  }
+
+  .btn-add,
+  .btn-cancel {
+    width: 100%;
+    padding: 8px;
+  }
+
+  .btn-cancel-right {
+    width: 100%;
+    padding: 8px;
+  }
+}
 </style>
