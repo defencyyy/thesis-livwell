@@ -300,11 +300,11 @@ def update_broker_view(request, broker_id):
 
                 # Check if another broker in the same company has the same username
                 if Broker.objects.filter(username=username, company_id=company_id).exclude(id=broker.id).exists():
-                    return JsonResponse({"success": False, "message": "The username is already taken within your company. Please choose a different one."}, status=400)
+                    return JsonResponse({"success": False, "message": "The username is already taken. Please choose a different one."}, status=400)
 
                 # Check if a developer in the same company has the same username
                 if Developer.objects.filter(username=username, company_id=company_id).exists():
-                    return JsonResponse({"success": False, "message": "The username is already taken by a developer in your company. Please choose a different one."}, status=400)
+                    return JsonResponse({"success": False, "message": "The username is already taken. Please choose a different one."}, status=400)
 
                 broker.username = username
             
