@@ -203,7 +203,7 @@
       </div>
     </div>
     <br>
-    <div class="line mb-4"></div>
+
     <div
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
@@ -234,15 +234,16 @@
       @hide="closeReserveModal"
       hide-footer
       title="Reserve Unit"
+      centered
     >
-      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
+      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
         <!-- Customer Name Dropdown -->
         <div class="form-group">
           <label for="customerName">Customer Name</label>
           <select
             v-model="reservationForm.customerName"
             id="customerName"
-            class = "form-select"
+            class="form-select"
             style="margin-left: 1px;"
             required
           >
@@ -263,65 +264,69 @@
             type="file"
             @change="handleFileUpload"
             id="fileUpload"
-            class = "form-control"
+            class="form-control"
             required
           />
         </div>
-        <!-- Payment Amount -->
-        <div class="form-group">
-          <label for="paymentAmount">Payment Amount</label>
-          <input
-            type="number"
-            v-model="reservationForm.paymentAmount"
-            id="paymentAmount"
-            required
-          />
+        <!-- Payment Details -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount</label>
+              <input
+                type="number"
+                v-model="reservationForm.paymentAmount"
+                id="paymentAmount"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select
+                v-model="reservationForm.paymentMethod"
+                id="paymentMethod"
+                class="form-select"
+                required
+              >
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="online_payment">Online Payment</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <!-- Payment Method -->
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select
-            v-model="reservationForm.paymentMethod"
-            id="paymentMethod"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          >
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="cash">Cash</option>
-            <option value="online_payment">Online Payment</option>
-          </select>
-        </div>
-        <!-- Payment Date -->
-        <div class="form-group">
-          <label for="paymentDate">Date of Payment</label>
-          <input
-            type="date"
-            v-model="reservationForm.paymentDate"
-            id="paymentDate"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Payment Reference (only if payment method is not cash) -->
-        <div
-          class="form-group"
-          v-if="reservationForm.paymentMethod !== 'cash'"
-        >
-          <label for="paymentReference">Payment Reference Number</label>
-          <input
-            type="text"
-            v-model="reservationForm.paymentReference"
-            id="paymentReference"
-            class = "form-control"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentDate">Date of Payment</label>
+              <input
+                type="date"
+                v-model="reservationForm.paymentDate"
+                id="paymentDate"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
+            <div class="form-group">
+              <label for="paymentReference">Payment Reference Number</label>
+              <input
+                type="text"
+                v-model="reservationForm.paymentReference"
+                id="paymentReference"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
         </div>
         <!-- Submit Button -->
         <div
-          class="d-flex justify-content-end gap-2 mt-30"
+          class="d-flex justify-content-end gap-2 mt-3"
           style="padding-top: 15px"
         >
         <button type="submit" class="btn-add">
@@ -343,6 +348,7 @@
         </div>
       </b-modal>
       </b-modal>
+
      </b-modal>
   </div>
   </div>
@@ -1042,6 +1048,11 @@ body {
   margin: 10px 0;
 }
 
+.row .col-md-6 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 /* Form Group */
 .form-group {
   margin-bottom: 15px;
@@ -1059,7 +1070,7 @@ body {
 }
 
 .form-group input[type="number"] {
-  width: 70%; /* Make the input take up full width */
+  width: 100%; /* Make the input take up full width */
   padding: 10px; /* Add padding for a better click area */
   font-size: 16px; /* Match font size with the label */
   border: 1px solid #ccc; /* Light border for input */
@@ -1099,8 +1110,6 @@ label {
   margin-left: 30px;
 }
 
-/* Dropdown Styling */
-
 /* Payment Plan Section */
 .payment-plan {
   margin-top: 20px;
@@ -1111,7 +1120,6 @@ label {
   color: #007bff;
   margin-bottom: 10px;
 }
-
 
 button {
   padding: 10px 15px;
