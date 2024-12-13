@@ -3,7 +3,7 @@ import os, re
 
 def logo_upload_path(instance, filename):
     company_name = instance.name if instance.name else 'new_company'  
-    company_name = re.sub(r'\s+', '_', company_name) 
+    company_name = re.sub(r'\s+', '', company_name) 
     company_name = re.sub(r'[^\w\s-]', '', company_name) 
 
     filename = 'company_logo.jpg' 

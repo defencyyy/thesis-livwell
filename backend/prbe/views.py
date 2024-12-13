@@ -595,6 +595,7 @@ def get_available_units(request):
 
     logger.warning("Invalid request method: %s", request.method)
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 @csrf_exempt
 def get_unit_details(request, unit_id):
     if request.method == 'GET':
