@@ -143,11 +143,19 @@
                   </p>
                 </div>
                 <div class="mb-4">
-                  <p v-if="salesDetail.payment_plan === 'Spot Cash'" class="text-start" style="margin-bottom: 1px">
+                  <div v-if="salesDetail.payment_plan === 'Spot Cash'" class = "additional-box1">
+                    <div class="summary-item">
+                      <span class="label">Total Amount Due:</span>
+                      <span class="value">₱{{
+                      netFullPayment.toFixed(2)
+                    }} </span>
+                    </div>
+                    <!-- <p v-if="salesDetail.payment_plan === 'Spot Cash'" class="text-start" style="margin-bottom: 1px">
                     <strong>Total Amount Due: </strong>₱{{
                       netFullPayment.toFixed(2)
                     }}
-                  </p>
+                  </p> -->
+                  </div>
 
                   <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
                     <div class = "payment-container">
@@ -612,7 +620,8 @@ tr:hover {
 
 .payment-schedule-summary,
 .detailed-schedule,
-.additional-box {
+.additional-box,
+.additional-box1  {
   min-width: 300px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -635,6 +644,15 @@ tr:hover {
   margin-top: -5px;
   max-width: 400px;
   height: 270px;
+  margin-left: 1px !important;
+}
+
+.additional-box1 {
+  background: #f9f9f9;
+  text-align: left;
+  margin-top: -5px;
+  max-width: 400px;
+  height: 90px;
   margin-left: 1px !important;
 }
 
