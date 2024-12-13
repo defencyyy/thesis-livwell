@@ -525,7 +525,7 @@
                     >
                       <option value="floor">Floor</option>
                       <option value="block">Block</option>
-                      <option value="unit">Unit</option>
+                      <option value="unit">Level</option>
                       <option value="unit">Section</option>
                     </select>
                   </div>

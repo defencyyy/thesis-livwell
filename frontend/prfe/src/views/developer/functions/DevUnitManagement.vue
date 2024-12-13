@@ -928,35 +928,51 @@ export default {
     isSaveButtonDisabled() {
       return this.newUnitFloorArea < this.newUnitLotArea;
     },
-
     sectionOptions() {
-      // Ensure the site and sections are available
       if (this.site && this.site.sections) {
-        // Clone the sections array to avoid mutating the original array
         const sectionsCopy = [...this.site.sections];
-
-        // Sort the cloned sections array based on the selected order (asc or desc)
         const sortedSections = sectionsCopy.sort((a, b) => {
-          // Ascending order (if `sectionSortOrder` is 'asc')
           if (this.sectionSortOrder === "asc") {
             return a.number - b.number;
           }
-          // Descending order (if `sectionSortOrder` is 'desc')
           return b.number - a.number;
         });
 
-        // Map the sorted sections to the options for the dropdown
-        return sortedSections.map((section) => ({
-          value: section.id, // section ID is the value sent to the backend
-          text: `Section ${section.number}`, // section number is displayed as text
-        }));
+        return sortedSections.map((section) => {
+          let sectionName = section.name || `Section ${section.number}`;
+
+          // Adjust naming based on the site's `section_label`
+          if (this.site.section_label === "block") {
+            if (section.number > 0) {
+              sectionName = `Block ${String.fromCharCode(
+                65 + section.number - 1
+              )} (${section.number})`;
+            } else {
+              sectionName = `Block ${section.number}`;
+            }
+          } else if (this.site.section_label === "level") {
+            // Customize naming for level-based section_label
+            sectionName = `Level ${section.number}`;
+          } else if (this.site.section_label === "floor") {
+            // Customize naming for floor-based section_label
+            sectionName = `Floor ${section.number}`;
+          } else {
+            // Default case (e.g., section_label not recognized)
+            sectionName = `Section ${section.number}`;
+          }
+
+          return {
+            value: section.id,
+            text: sectionName,
+          };
+        });
       } else {
-        return []; // Return an empty array if no site or sections are available
+        return [];
       }
     },
     unitTypeOptions() {
       return [
-        { value: null, text: "Default" },
+        { value: null, text: "Select" },
         ...this.unitTypes.map((type) => ({
           value: type.id,
           text: type.name,
@@ -994,7 +1010,7 @@ export default {
         units = units.filter((unit) => {
           const price = unit.price;
           // Price range filters based on selected range
-          if (priceRange === "1-5") return price >= 1000000 && price <= 5000000;
+          if (priceRange === "1-5") return price >= 1 && price <= 5000000;
           if (priceRange === "5-10")
             return price >= 5000001 && price <= 10000000;
           if (priceRange === "10-15")
@@ -1063,6 +1079,9 @@ export default {
         );
         this.site = response.data.data;
 
+        // Log the site object to see its properties
+        console.log(this.site);
+
         if (this.site && this.site.sections) {
           this.fetchSectionsData();
         } else {
@@ -1111,6 +1130,101 @@ export default {
       } catch (error) {
         console.error("Error fetching unit types:", error);
         alert("An error occurred while fetching unit types.");
+      }
+    },
+    async addUnits() {
+      // Validate form fields
+      if (
+        !this.newUnitSections.length ||
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitLotArea ||
+        !this.newUnitFloorArea ||
+        !this.newUnitQuantity
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+
+      // Create a FormData object to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Log the selected section IDs
+      console.log("Selected section IDs:", this.newUnitSections);
+
+      // Append the selected section IDs as an array
+      this.newUnitSections.forEach((sectionId) => {
+        formData.append("section_ids[]", sectionId);
+      });
+
+      if (this.newUnitImages && this.newUnitImages.length) {
+        console.log("Selected images:", this.newUnitImages);
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+          console.log(`Appending image ${i + 1}:`, image);
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      // Log FormData content for debugging
+      console.log("FormData contents before sending to backend:");
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      try {
+        // Send the FormData to the backend
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        console.log("Response from backend:", response);
+
+        if (response.status === 201) {
+          this.fetchSiteDetails(); // Refresh the site details
+          this.showAddUnitsModal = false; // Close the modal
+          alert("Units successfully added!");
+        }
+      } catch (error) {
+        console.error("Error adding unit:", error);
+        alert("Failed to add the unit. Please try again.");
       }
     },
     toggleAddUnitsModal() {
@@ -1220,101 +1334,6 @@ export default {
       }
     },
 
-    async addUnits() {
-      // Validate form fields
-      if (
-        !this.newUnitSections.length ||
-        !this.newUnitType ||
-        !this.newUnitPrice ||
-        !this.newUnitLotArea ||
-        !this.newUnitFloorArea ||
-        !this.newUnitQuantity
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create a FormData object to send both unit data and images
-      const formData = new FormData();
-      formData.append("quantity", this.newUnitQuantity);
-      formData.append("unit_type_id", this.newUnitType);
-      formData.append("unit_title", this.newUnitTitle);
-      formData.append("bedroom", this.newUnitBedroom);
-      formData.append("bathroom", this.newUnitBathroom);
-      formData.append("lot_area", this.newUnitLotArea);
-      formData.append("floor_area", this.newUnitFloorArea);
-      formData.append("price", this.newUnitPrice);
-      formData.append("status", this.newUnitStatus);
-      formData.append("view", this.newUnitView);
-      formData.append("balcony", this.newUnitBalcony);
-      formData.append("commission", this.newUnitCommission);
-      formData.append(
-        "spot_discount_percentage",
-        this.newUnitSpotDiscountPercentage
-      );
-      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
-      formData.append("reservation_fee", this.newUnitReservationFee);
-      formData.append("other_charges", this.newUnitOtherCharges);
-      formData.append("vat_percentage", this.newUnitVatPercentage);
-
-      // Log the selected section IDs
-      console.log("Selected section IDs:", this.newUnitSections);
-
-      // Append the selected section IDs as an array
-      this.newUnitSections.forEach((sectionId) => {
-        formData.append("section_ids[]", sectionId);
-      });
-
-      if (this.newUnitImages && this.newUnitImages.length) {
-        console.log("Selected images:", this.newUnitImages);
-        for (let i = 0; i < this.newUnitImages.length; i++) {
-          const image = this.newUnitImages[i];
-
-          // Append image file with a unique key based on index
-          formData.append(`images[${i}]`, image);
-
-          // Append image type and primary flag with unique keys as well
-          formData.append(`image_types[${i}]`, image.image_type || "Unit");
-          formData.append(`primaries[${i}]`, image.primary || false);
-
-          // Log the data for debugging
-          console.log(`Appending image ${i + 1}:`, image);
-        }
-      } else {
-        console.log("No images selected.");
-      }
-
-      // Log FormData content for debugging
-      console.log("FormData contents before sending to backend:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
-      try {
-        // Send the FormData to the backend
-        const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        console.log("Response from backend:", response);
-
-        if (response.status === 201) {
-          this.fetchSiteDetails(); // Refresh the site details
-          this.showAddUnitsModal = false; // Close the modal
-          alert("Units successfully added!");
-        }
-      } catch (error) {
-        console.error("Error adding unit:", error);
-        alert("Failed to add the unit. Please try again.");
-      }
-    },
     async openUnitManagement(section) {
       if (!section.id) {
         console.error("Invalid section ID:", section);
