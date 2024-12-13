@@ -11,9 +11,9 @@ def logo_upload_path(instance, filename):
     company_name = instance.unit.company.name if instance.unit and instance.unit.company else 'new_company'
     site_name = instance.unit.site.name if instance.unit and instance.unit.site else 'new_site'
 
-    company_name = re.sub(r'\s+', '_', company_name)
+    company_name = re.sub(r'\s+', '', company_name)
     company_name = re.sub(r'[^\w\s-]', '', company_name)  
-    site_name = re.sub(r'\s+', '_', site_name)
+    site_name = re.sub(r'\s+', '', site_name)
     site_name = re.sub(r'[^\w\s-]', '', site_name)
 
     if instance.image_type == 'unit':
@@ -285,25 +285,6 @@ class UnitTemplate(models.Model):
             "balcony": self.balcony,
             "commission": self.commission,
         }
-
-    # @property
-    # def relative_id(self):
-    #     if not self.pk:  # If the template is not yet saved, skip to avoid errors
-    #         return None
-
-    #     # Check if the relative_id has already been set
-    #     if not hasattr(self, '_relative_id'):
-    #         # Retrieve all templates for the company, ordered by 'name'
-    #         company_templates = UnitTemplate.objects.filter(company=self.company).order_by('name')
-            
-    #         # Find the index of the current template in the company templates
-    #         index = list(company_templates).index(self) + 1  # Add 1 for a 1-based index
-            
-    #         # Generate the relative ID using the company's ID and the template's position
-    #         self._relative_id = f"{self.company.id} {index}"
-
-    #     return self._relative_id
-
 
 def validate_image_size(image):
     filesize = image.file.size

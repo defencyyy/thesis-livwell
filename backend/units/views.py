@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from .models import Unit, UnitImage, UnitTemplate, UnitType
 from sites.models import Section
 from .serializers import UnitSerializer, UnitImageSerializer, UnitTemplateSerializer, UnitTypeSerializer
+logger = logging.getLogger(__name__)
 
 # Utility to retrieve the company associated with the request user
 def get_company(request):
@@ -345,7 +346,6 @@ class BulkAddUnitsView(APIView):
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def _handle_images(self, request, unit):
-        """Handles the image upload and association with the unit."""
         images = [image for key, image in request.FILES.items() if key.startswith("images")]
         if images:
             image_types = request.data.getlist("image_types")
@@ -357,20 +357,25 @@ class BulkAddUnitsView(APIView):
                 try:
                     unit_template = UnitTemplate.objects.get(id=unit_template_id)
                 except UnitTemplate.DoesNotExist:
+                    logger.error(f"Invalid unit template ID: {unit_template_id}")
                     return Response({"error": f"Invalid unit template ID: {unit_template_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
             for i, image in enumerate(images):
-                image_type = image_types[i] if i < len(image_types) else 'Unit'
-                primary = primaries[i] if i < len(primaries) else False
+                try:
+                    image_type = image_types[i] if i < len(image_types) else 'unit'
+                    primary = primaries[i] if i < len(primaries) else False
 
-                # Save image as UnitImage
-                UnitImage.objects.create(
-                    unit=unit,
-                    unit_template=unit_template,
-                    image=image,
-                    image_type=image_type,
-                    primary=primary
-                )
+                    unit_image = UnitImage.objects.create(
+                        unit=unit,
+                        unit_template=unit_template,
+                        image=image,
+                        image_type=image_type,
+                        primary=primary
+                    )
+                    logger.info(f"Image successfully added: {unit_image}")
+                except Exception as e:
+                    logger.error(f"Error saving image: {e}")
+                    return Response({"error": f"Error saving image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
