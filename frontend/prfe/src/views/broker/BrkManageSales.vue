@@ -394,7 +394,8 @@
                         </p>
 
                       </div>
-                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3 align-field">
+                      <br><br>
+                      <div v-if="selectedPaymentPlan === 'Deffered Payment'">
                         <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
                         <input
                           type="number"
@@ -462,6 +463,8 @@
                           <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
                         </p>
                       </div>
+
+                      <br>
                       <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
                         <label for="months" class="form-label text-start">Months to Pay</label>
                         <input
@@ -1133,11 +1136,19 @@ sortedAndFilteredCustomers() {
 
         if (response.data.success) {
           // Successfully marked as sold
-          alert("Unit successfully marked as sold!");
-          // Optionally, update the UI to reflect this change (e.g., mark the unit in the list as sold)
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Unit successfully marked as sold!";
+          this.showNotification = true;
+          this.showModal=false;
+          this.fetchSales();
+
         } else {
-          // Handle failure (e.g., customer has not submitted all required documents)
-          alert(response.data.message);
+          this.notificationTitle = "Failed!";
+          this.notificationMessage = "Customer has not submitted all required documents!";
+          this.showNotification = true;
+          this.showModal=false;
+          this.fetchSales();
+
         }
       } catch (error) {
         console.error("Error marking unit as sold:", error);
@@ -1499,7 +1510,7 @@ html, body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   color: #fff;
   border: none;
   border-radius: 3px;

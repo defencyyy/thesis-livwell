@@ -41,9 +41,6 @@
                     to="/forgot-password"
                     >Forgot Password</router-link
                   >
-                  <router-link class="text-muted" to="/login"
-                    >Back to home</router-link
-                  >
                 </div>
 
                 <div class="text-center pt-1 mb-5 pb-1">

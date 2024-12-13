@@ -132,12 +132,12 @@ export default {
             icon: "fas fa-home",
           },
           {
-            name: "Sales",
+            name: "Manage Sales",
             link: "/broker/manage-sales",
             icon: "fas fa-chart-line",
           },
           {
-            name: "Customers",
+            name: "Add Customers",
             link: "/broker/manage-customer",
             icon: "fas fa-users",
           },
