@@ -56,23 +56,6 @@
                 <div class="title-icon"></div>
                 <div class="edit-title">Sites</div>
               </div>
-              <div class="view-switch">
-                <div
-                  class="view-icon"
-                  :class="{ active: viewMode === 'grid' }"
-                  @click="viewMode = 'grid'"
-                >
-                  <i class="fa fa-th"></i>
-                </div>
-                <div class="separator"></div>
-                <div
-                  class="view-icon"
-                  :class="{ active: viewMode === 'table' }"
-                  @click="viewMode = 'table'"
-                >
-                  <i class="fa fa-list"></i>
-                </div>
-              </div>
             </div>
 
           <!-- Search and Filter Section -->
@@ -115,47 +98,6 @@
             </div>
           </div>
 
-            <div v-if="viewMode === 'grid'" class="site-grid">
-              <div
-                v-for="site in filteredSites"
-                :key="site.id"
-                class="site-card"
-                @click="openFloorManagement(site)"
-              >
-                <img
-                  :src="
-                    getPictureUrl(site.picture) || require('@/assets/home.png')
-                  "
-                  alt="Site Image"
-                  class="site-image"
-                />
-                <h2 class="site-name">{{ site.name || "Unknown" }}</h2>
-                <p class="site-location">
-                  {{ site.location || "Location unavailable" }}
-                </p>
-                <!-- <div class="site-stats">
-                  <p>
-                    Floors:
-                    {{ site.floors.length > 0 ? site.floors.length : "None" }}
-                  </p>
-                  <p>
-                    Units:
-                    {{ site.total_units > 0 ? site.total_units : "None" }}
-                  </p>
-                  <p v-if="site.total_units > 0">
-                    Available Units:
-                    {{
-                      site.available_units > 0
-                        ? site.available_units
-                        : "No Available Units"
-                    }}
-                  </p>
-                </div>
-                <button @click.stop="openFloorManagement(site)" class = "button-bottom-right">
-                  Manage Floors
-                </button> -->
-              </div>
-            </div>
 
             <div v-if="viewMode === 'table'">
               <div class="outside-headers">
@@ -295,7 +237,7 @@ export default {
       sites: [],
       isLoading: false,
       errorMessage: null,
-      viewMode: "grid",
+      viewMode: "table",
       viewFilter: "active",
       selectedSite: null,
       unitNumberFilter: "",
