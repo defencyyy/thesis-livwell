@@ -88,18 +88,19 @@
                       <tr>
                         <td>
                           <span class="section-number">
-                            Section {{ section.number }}
+                            <!-- Use sectionOptions method to display the section name dynamically -->
+                            {{ sectionOptionsForSection(section) }}
                           </span>
                         </td>
                         <td>
                           <span class="section-total-units">
-                            {{ section.total_units }}</span
-                          >
+                            {{ section.total_units }}
+                          </span>
                         </td>
                         <td>
-                          <span class="section-available-units">{{
-                            section.available_units
-                          }}</span>
+                          <span class="section-available-units">
+                            {{ section.available_units }}
+                          </span>
                         </td>
                         <td>
                           <div class="section-actions d-flex gap-2">
@@ -117,6 +118,7 @@
                 </div>
               </div>
             </div>
+
             <div v-else>
               <p>No Sections Available</p>
             </div>
@@ -928,6 +930,7 @@ export default {
     isSaveButtonDisabled() {
       return this.newUnitFloorArea < this.newUnitLotArea;
     },
+
     sectionOptions() {
       if (this.site && this.site.sections) {
         const sectionsCopy = [...this.site.sections];
@@ -1067,6 +1070,35 @@ export default {
     this.fetchUnits();
   },
   methods: {
+    sectionOptionsForSection(section) {
+      let sectionName = section.name || `Section ${section.number}`;
+
+      // Adjust naming based on the site's `section_label`
+      if (this.site.section_label === "block") {
+        if (section.number > 0) {
+          sectionName = `Block ${String.fromCharCode(
+            65 + section.number - 1
+          )} (${section.number})`;
+        } else {
+          sectionName = `Block ${section.number}`;
+        }
+      } else if (this.site.section_label === "unit") {
+        // Customize naming for unit-based section_label
+        sectionName = `Unit ${section.number}`;
+      } else if (this.site.section_label === "level") {
+        // Customize naming for level-based section_label
+        sectionName = `Level ${section.number}`;
+      } else if (this.site.section_label === "floor") {
+        // Customize naming for floor-based section_label
+        sectionName = `Floor ${section.number}`;
+      } else {
+        // Default case (e.g., section_label not recognized)
+        sectionName = `Section ${section.number}`;
+      }
+
+      return sectionName;
+    },
+
     async fetchSiteDetails() {
       try {
         const response = await axios.get(
