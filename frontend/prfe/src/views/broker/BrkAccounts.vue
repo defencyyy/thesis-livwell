@@ -102,33 +102,19 @@
               </button>
             </div>
           </form>
-          <!-- Success Message Pop-up -->
-
-    <b-modal
-      v-model="showSuccessMessage"
-      title="Updated Broker"
-      @hide="closePopup"
-      centered
-      hide-footer
-      :visible="successMessage"
-      >
-        <p>{{ successMessage }}</p>
-        <div class = "buttons-container">
-          <button @click="closeErrorModal" class="btn btn-primary">OK</button>
-        </div>
-    </b-modal>
-     <!-- Error Message Modal -->
-      <b-modal 
-        v-model="isErrorModalVisible" 
-        hide-footer 
-        title="Error"
-        @hide="handleErrorModalClose"
-      >
-        <p>{{ errorMessage }}</p>
-        <div class="button-container">
-          <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
-        </div>
-      </b-modal>
+          <b-modal
+              v-model="showModal"
+              :title="isSuccess ? 'Success' : 'Error'"
+              @hide="closeModal"
+              centered
+              hide-footer
+              :modal-class="isSuccess ? 'modal-success' : 'modal-error'"
+            >
+              <p>{{ modalMessage }}</p>
+              <div class="buttons-container">
+                <button @click="closeModal" class="btn btn-primary">OK</button>
+              </div>
+            </b-modal>
         </div>
       </div>
     </div>
@@ -159,10 +145,9 @@ export default {
       email: "",
       contactNumber: "",
       password: "",
-      errorMessage: "", // Error message
-      successMessage: "", // Success message
-      isErrorModalVisible: false, // To control modal visibility
-      showSuccessMessage: false,
+      modalMessage: "", // Message to display in the modal
+      showModal: false, // Modal visibility
+      isSuccess: false,
       loading: false, // For showing loading state
       placeholderUsername: "",
       placeholderEmail: "",
@@ -173,22 +158,9 @@ export default {
     ...mapGetters(["getUserId", "getAuthToken"]),
   },
   methods: {
-      showErrorModal(message) {
-    this.errorMessage = message; // Set the error message
-    this.isErrorModalVisible = true; // Open the error modal
-  },
-  // Handle closing of the modal
-  handleErrorModalClose() {
-    this.isErrorModalVisible = false; // Ensure modal closes
-    this.errorMessage = ''; // Clear the error message
-    this.showSuccessMessage = false;
-    this.successMessage = '';
-  },
-  closeErrorModal() {
-    this.handleErrorModalClose();
-  },
-  closePopup() {
-      this.successMessage = ""; // Hide the success message pop-up
+      closeModal() {
+      this.showModal = false; // Hide the modal
+      this.modalMessage = ""; // Clear the message
     },
     async fetchBrokerData() {
       const brokerId = this.getUserId;
@@ -210,14 +182,12 @@ export default {
           this.placeholderEmail = data.email;
           this.placeholderContactNumber = data.contact_number;
         } else {
-          this.errorMessage = "Failed to fetch broker data.";
-          this.isErrorModalVisible = true;
+          this.showModalWithMessage("Failed to fetch broker data.", false);
 
         }
       } catch (error) {
         console.error("Error fetching broker data:", error);
-        this.errorMessage = "An error occurred while fetching broker data.";
-        this.isErrorModalVisible = true;
+        this.showModalWithMessage("An error occurred while fetching broker data.", false);
 
       }
     },
@@ -228,40 +198,35 @@ export default {
   if (this.password) {
     // Ensure current password is provided when trying to change the password
     if (!this.currentPassword) {
-      this.errorMessage = "You must provide your current password to change your password.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("You must provide your current password to change your password.", false);
       return;
     }
     
     if (this.password.length < 8) {
-      this.errorMessage = "Password must be at least 8 characters long.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("Password must contain at least 8 characters long.", false);
       return;
     }
     if (!/[A-Z]/.test(this.password)) {
-      this.errorMessage = "Password must contain at least one uppercase letter.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("Password must contain at least one uppercase letter.", false);
       return;
     }
     if (!/[a-z]/.test(this.password)) {
-      this.errorMessage = "Password must contain at least one lowercase letter.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("Password must contain at least one lowercase letter.", false);
       return;
     }
     if (!/\d/.test(this.password)) {
-      this.errorMessage = "Password must contain at least one number.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("Password must contain at least one number.", false);
       return;
     }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
       this.errorMessage = "Password must contain at least one special character.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("Password must contain at least one special character.", false);
+
       return;
     }
 
     if (this.password !== this.confirmNewPassword) {
-      this.errorMessage = "New passwords do not match.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("New passwords do not match.", false);
       return;
     }
   }
@@ -285,34 +250,35 @@ export default {
 
       if (!response.ok) {
         const errorData = await response.json();
-        this.error = errorData.message || "Failed to update account.";
-        this.successMessage = null;
+        this.showModalWithMessage(errorData.message || "Failed to update account.", false);
         return;
       }
 
       const data = await response.json();
       if (data.success) {
-        this.successMessage = "Account updated successfully!";
-        this.showSuccessMessage = true; // Trigger to show success message
-        this.error = null;
+        this.showModalWithMessage("Account updated successfully!", true);
         // Optionally clear sensitive fields like current password
         this.currentPassword = "";
         this.password = "";
         this.confirmNewPassword = "";
       } else {
         const errorData = await response.json();
-        this.errorMessage = errorData.message || "Failed to update account.";
-        this.isErrorModalVisible = true;
+        this.showModalWithMessage(errorData.message || "Failed to update account.", false);
       }
     } catch (error) {
       console.error("Error updating account:", error);
-      this.errorMessage = "An error occurred while updating your account.";
-      this.isErrorModalVisible = true;
+      this.showModalWithMessage("An error occurred while updating your account.", false);
+
     }
   } else {
     this.error = "No broker ID found in localStorage.";
   }
-},
+    },
+ showModalWithMessage(message, isSuccess) {
+      this.modalMessage = message;
+      this.isSuccess = isSuccess;
+      this.showModal = true;
+    },
   },
 };
 </script>
