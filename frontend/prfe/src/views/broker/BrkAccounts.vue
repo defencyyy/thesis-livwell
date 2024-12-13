@@ -102,10 +102,33 @@
               </button>
             </div>
           </form>
-          <p v-if="error" class="text-danger">{{ error }}</p>
-          <p v-if="successMessage" class="text-success">
-            {{ successMessage }}
-          </p>
+          <!-- Success Message Pop-up -->
+
+    <b-modal
+      v-model="showSuccessMessage"
+      title="Updated Broker"
+      @hide="closePopup"
+      centered
+      hide-footer
+      :visible="successMessage"
+      >
+        <p>{{ successMessage }}</p>
+        <div class = "buttons-container">
+          <button @click="closeErrorModal" class="btn btn-primary">OK</button>
+        </div>
+    </b-modal>
+     <!-- Error Message Modal -->
+      <b-modal 
+        v-model="isErrorModalVisible" 
+        hide-footer 
+        title="Error"
+        @hide="handleErrorModalClose"
+      >
+        <p>{{ errorMessage }}</p>
+        <div class="button-container">
+          <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
+        </div>
+      </b-modal>
         </div>
       </div>
     </div>
@@ -118,11 +141,13 @@
 import { mapGetters } from "vuex";
 import SideNav from "@/components/SideNav.vue";
 import AppHeaderLivwell from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3"; 
 
 export default {
   name: "BrkAccounts",
   components: {
     SideNav,
+    BModal,
     AppHeaderLivwell,
   },
   mounted() {
@@ -134,8 +159,10 @@ export default {
       email: "",
       contactNumber: "",
       password: "",
-      error: null,
-      successMessage: null,
+      errorMessage: "", // Error message
+      successMessage: "", // Success message
+      isErrorModalVisible: false, // To control modal visibility
+      showSuccessMessage: false,
       loading: false, // For showing loading state
       placeholderUsername: "",
       placeholderEmail: "",
@@ -146,6 +173,23 @@ export default {
     ...mapGetters(["getUserId", "getAuthToken"]),
   },
   methods: {
+      showErrorModal(message) {
+    this.errorMessage = message; // Set the error message
+    this.isErrorModalVisible = true; // Open the error modal
+  },
+  // Handle closing of the modal
+  handleErrorModalClose() {
+    this.isErrorModalVisible = false; // Ensure modal closes
+    this.errorMessage = ''; // Clear the error message
+    this.showSuccessMessage = false;
+    this.successMessage = '';
+  },
+  closeErrorModal() {
+    this.handleErrorModalClose();
+  },
+  closePopup() {
+      this.successMessage = ""; // Hide the success message pop-up
+    },
     async fetchBrokerData() {
       const brokerId = this.getUserId;
       const authToken = this.getAuthToken;
@@ -166,11 +210,15 @@ export default {
           this.placeholderEmail = data.email;
           this.placeholderContactNumber = data.contact_number;
         } else {
-          this.error = "Failed to fetch broker data.";
+          this.errorMessage = "Failed to fetch broker data.";
+          this.isErrorModalVisible = true;
+
         }
       } catch (error) {
         console.error("Error fetching broker data:", error);
-        this.error = "An error occurred while fetching broker data.";
+        this.errorMessage = "An error occurred while fetching broker data.";
+        this.isErrorModalVisible = true;
+
       }
     },
     async updateAccount() {
@@ -180,40 +228,40 @@ export default {
   if (this.password) {
     // Ensure current password is provided when trying to change the password
     if (!this.currentPassword) {
-      this.error = "You must provide your current password to change your password.";
-      this.successMessage = null;
+      this.errorMessage = "You must provide your current password to change your password.";
+      this.isErrorModalVisible = true;
       return;
     }
     
     if (this.password.length < 8) {
-      this.error = "Password must be at least 8 characters long.";
-      this.successMessage = null;
+      this.errorMessage = "Password must be at least 8 characters long.";
+      this.isErrorModalVisible = true;
       return;
     }
     if (!/[A-Z]/.test(this.password)) {
-      this.error = "Password must contain at least one uppercase letter.";
-      this.successMessage = null;
+      this.errorMessage = "Password must contain at least one uppercase letter.";
+      this.isErrorModalVisible = true;
       return;
     }
     if (!/[a-z]/.test(this.password)) {
-      this.error = "Password must contain at least one lowercase letter.";
-      this.successMessage = null;
+      this.errorMessage = "Password must contain at least one lowercase letter.";
+      this.isErrorModalVisible = true;
       return;
     }
     if (!/\d/.test(this.password)) {
-      this.error = "Password must contain at least one number.";
-      this.successMessage = null;
+      this.errorMessage = "Password must contain at least one number.";
+      this.isErrorModalVisible = true;
       return;
     }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
-      this.error = "Password must contain at least one special character.";
-      this.successMessage = null;
+      this.errorMessage = "Password must contain at least one special character.";
+      this.isErrorModalVisible = true;
       return;
     }
 
     if (this.password !== this.confirmNewPassword) {
-      this.error = "New passwords do not match.";
-      this.successMessage = null;
+      this.errorMessage = "New passwords do not match.";
+      this.isErrorModalVisible = true;
       return;
     }
   }
@@ -245,19 +293,21 @@ export default {
       const data = await response.json();
       if (data.success) {
         this.successMessage = "Account updated successfully!";
+        this.showSuccessMessage = true; // Trigger to show success message
         this.error = null;
         // Optionally clear sensitive fields like current password
         this.currentPassword = "";
         this.password = "";
         this.confirmNewPassword = "";
       } else {
-        this.error = data.message || "Failed to update account.";
-        this.successMessage = null;
+        const errorData = await response.json();
+        this.errorMessage = errorData.message || "Failed to update account.";
+        this.isErrorModalVisible = true;
       }
     } catch (error) {
       console.error("Error updating account:", error);
-      this.error = "An error occurred while updating your account.";
-      this.successMessage = null;
+      this.errorMessage = "An error occurred while updating your account.";
+      this.isErrorModalVisible = true;
     }
   } else {
     this.error = "No broker ID found in localStorage.";

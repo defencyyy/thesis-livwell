@@ -276,6 +276,7 @@ def get_broker_data(request, broker_id):
 
 @csrf_exempt
 def update_broker_view(request, broker_id):
+    print("l")
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
