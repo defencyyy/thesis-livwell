@@ -506,8 +506,11 @@ body {
 .sidebar-header {
   display: flex;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #ddd;
+  padding: 17px;
+  height: 68px;
+  box-sizing: border-box;
+  margin-top: 5px;
+  margin-left: 20px;
 }
 
 .sidebar-logo {
