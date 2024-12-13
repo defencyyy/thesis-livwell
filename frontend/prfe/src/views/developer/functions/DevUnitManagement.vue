@@ -872,6 +872,7 @@ export default {
     isSaveButtonDisabled() {
       return this.newUnitFloorArea < this.newUnitLotArea;
     },
+
     sectionOptions() {
       // Ensure the site and sections are available
       if (this.site && this.site.sections) {
