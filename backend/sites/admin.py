@@ -35,17 +35,17 @@ class SiteAdminForm(forms.ModelForm):
             if commit:
                 site.save()
 
-            # After saving the site, create the sections
-            max_section_number = site.sections.count() + 1
-            for i in range(num_sections):
-                # Generate the section name based on the numbering type
-                section_name = Section(
-                    site=site,
-                    number=max_section_number,
-                    name=self.generate_next_section_name(site)  # Generate section name dynamically
-                )
-                section_name.save()
-                max_section_number += 1
+                # After saving the site, create the sections
+                max_section_number = site.sections.count() + 1
+                for i in range(num_sections):
+                    # Generate the section name based on the numbering type
+                    section_name = Section(
+                        site=site,
+                        number=max_section_number,
+                        name=self.generate_next_section_name(site)  # Generate section name dynamically
+                    )
+                    section_name.save()
+                    max_section_number += 1
 
         if commit:
             site.save()

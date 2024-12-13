@@ -45,10 +45,6 @@ urlpatterns = [
     path('sales/by-month/', views.sales_by_month, name='sales_by_month'),
     path('units/<int:unit_id>/details', views.get_unit_details, name='get_unit_details'),
 
-
-
-
-
     # PRBE
 
     # Developers

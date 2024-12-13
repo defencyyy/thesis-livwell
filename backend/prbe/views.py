@@ -569,7 +569,7 @@ def get_available_units(request):
                     'bedroom': unit.bedroom,
                     'bathroom': unit.bathroom,
                     'floor_area': unit.floor_area,
-                    'floor': unit.floor.floor_number,
+                    'section': unit.section.number,
                     'balcony': unit.balcony,
                     'type': unit_type_name,  # Add the unit type here
                     'view': unit.view,
@@ -601,7 +601,7 @@ def get_unit_details(request, unit_id):
 
         try:
             # Fetch the unit with the given unit ID
-            unit = Unit.objects.select_related('site', 'unit_type', 'floor').get(id=unit_id)
+            unit = Unit.objects.select_related('site', 'unit_type', 'section').get(id=unit_id)
 
             # Fetch unit images
             images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
@@ -617,7 +617,7 @@ def get_unit_details(request, unit_id):
                 'bedroom': unit.bedroom,
                 'bathroom': unit.bathroom,
                 'floor_area': unit.floor_area,
-                'floor': unit.floor.floor_number if unit.floor else None,
+                'section': unit.section.number if unit.section else None,
                 'balcony': unit.balcony,
                 'type': unit.unit_type.name if unit.unit_type else None,
                 'view': unit.view,
