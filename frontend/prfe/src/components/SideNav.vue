@@ -133,7 +133,7 @@ export default {
             icon: "fas fa-chart-line",
           },
           {
-            name: "Customers",
+            name: "Add Customers",
             link: "/broker/manage-customer",
             icon: "fas fa-users",
           },
