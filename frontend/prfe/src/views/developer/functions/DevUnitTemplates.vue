@@ -82,18 +82,20 @@
                         v-model="searchQuery"
                         type="text"
                         class="search-bar"
-                        placeholder="Search by template name"
+                        placeholder="Search Unit Template"
                         @input="filterTemplates"
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
-                    <BFormSelect
-                      v-model="viewFilter"
-                      @change="toggleView(viewFilter)"
-                    >
-                      <option value="active">Active</option>
-                      <option value="archived">Archived</option>
-                    </BFormSelect>
+                    <select
+                    v-model="viewFilter"
+                    @change="toggleView(viewFilter)"
+                    class="dropdown"
+                  >
+                    <option value="active">View: Active</option>
+                    <option value="archived">View: Archived</option>
+                  </select>
+      
                   </div>
                   <div class="right-section">
                     <button
@@ -111,7 +113,7 @@
             <div>
               <!-- Table Headers -->
               <div class="outside-headers">
-                <span class="header-item">Relative ID</span>
+                <span class="header-item">ID</span>
                 <span class="header-item">Unit Name</span>
                 <span class="header-item">Unit Type</span>
                 <span class="header-item">Price</span>
@@ -234,43 +236,69 @@
       v-model="isCreateModalOpen"
       title="Create Unit Template"
       hide-footer
+      hide-header
       centered
+      size="lg"
     >
-      <div class="p-3">
-        <form @submit.prevent="createTemplate" enctype="multipart/form-data">
-          <div class="row mb-3">
-            <!-- Name Field -->
-            <div class="form-group mb-3">
-              <label for="templateName">Name</label>
-              <input
-                type="text"
-                v-model="newTemplate.templateName"
-                class="form-control"
-                required
-              />
-            </div>
 
-            <!-- Description Field -->
-            <div class="form-group mb-3">
-              <label for="templateDescription">Description</label>
-              <textarea
-                v-model="newTemplate.templateDescription"
-                class="form-control"
-                rows="3"
-              ></textarea>
-            </div>
+    <div class="modal-title p-3">
+  <h5 class="mb-0">New Unit Template</h5>
+</div>
 
-            <!-- Unit Type Dropdown -->
-            <div class="form-group mb-3">
-              <label for="templateType">Unit Type</label>
-              <b-form-select
-                v-model="newTemplate.templateType"
-                :options="unitTypesOptions"
-                required
-              />
-            </div>
+<div class="p-3">
+  <form @submit.prevent="createTemplate" enctype="multipart/form-data">
+    <!-- Left and Right Sections -->
+    <div class="row">
+      <!-- Left Section -->
+      <div class="col-md-6">
+        <!-- Name Field -->
+        <div class="form-group mb-3">
+          <label for="templateName">Name</label>
+          <input
+            type="text"
+            v-model="newTemplate.templateName"
+            class="form-control"
+            required
+          />
+        </div>
 
-            <!-- Bedrooms Field -->
+        <!-- Description Field -->
+        <div class="form-group mb-3">
+          <label for="templateDescription">Description</label>
+          <textarea
+            v-model="newTemplate.templateDescription"
+            class="form-control"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Unit Type Dropdown -->
+        <div class="form-group mb-3">
+          <label for="templateType">Unit Type</label>
+          <b-form-select
+            v-model="newTemplate.templateType"
+            :options="unitTypesOptions"
+            required
+          />
+        </div>
+
+        <!-- Price Field -->
+        <div class="form-group mb-3">
+          <label for="templatePrice">Price</label>
+          <input
+            type="number"
+            v-model="newTemplate.templatePrice"
+            class="form-control"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Right Section -->
+      <div class="col-md-6">
+        <!-- Bedrooms and Bathrooms Fields -->
+        <div class="row">
+          <div class="col-md-6">
             <div class="form-group mb-3">
               <label for="templateBedrooms">Bedrooms</label>
               <input
@@ -280,8 +308,8 @@
                 required
               />
             </div>
-
-            <!-- Bathrooms Field -->
+          </div>
+          <div class="col-md-6">
             <div class="form-group mb-3">
               <label for="templateBathrooms">Bathrooms</label>
               <input
@@ -291,19 +319,12 @@
                 required
               />
             </div>
+          </div>
+        </div>
 
-            <!-- Price Field -->
-            <div class="form-group mb-3">
-              <label for="templatePrice">Price</label>
-              <input
-                type="number"
-                v-model="newTemplate.templatePrice"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- Floor Area Field -->
+        <!-- Floor Area and Lot Area Fields -->
+        <div class="row">
+          <div class="col-md-6">
             <div class="form-group mb-3">
               <label for="templateFloorArea">Floor Area</label>
               <input
@@ -312,8 +333,8 @@
                 class="form-control"
               />
             </div>
-
-            <!-- Lot Area Field -->
+          </div>
+          <div class="col-md-6">
             <div class="form-group mb-3">
               <label for="templateLotArea">Lot Area</label>
               <input
@@ -322,44 +343,46 @@
                 class="form-control"
               />
             </div>
-
-            <!-- Image Upload -->
-            <div class="form-group mb-3">
-              <label for="image">Upload Images</label>
-              <input
-                type="file"
-                @change="handleImageUpload"
-                class="form-control"
-                accept="image/*"
-                multiple
-              />
-            </div>
-
-            <!-- Image Previews -->
-            <div v-if="imagePreviews.length" class="image-previews">
-              <h5>Uploaded Images</h5>
-              <div class="d-flex gap-2">
-                <img
-                  v-for="(image, index) in imagePreviews"
-                  :key="index"
-                  :src="image"
-                  class="img-thumbnail"
-                  style="width: 100px; height: 100px"
-                />
-              </div>
-            </div>
           </div>
+        </div>
 
-          <!-- Modal Buttons -->
-          <div
-            class="d-flex justify-content-end gap-2 mt-30"
-            style="padding-top: 15px"
-          >
-            <button type="submit" class="btn-add">Create</button>
-            <button @click="closeCreateModal" class="btn-cancel">Cancel</button>
+        <!-- Image Upload -->
+        <div class="form-group mb-3">
+          <label for="image">Upload Images</label>
+          <input
+            type="file"
+            @change="handleImageUpload"
+            class="form-control"
+            accept="image/*"
+            multiple
+          />
+        </div>
+
+        <!-- Image Previews -->
+        <div v-if="imagePreviews.length" class="image-previews">
+          <div class="d-flex gap-2">
+            <img
+              v-for="(image, index) in imagePreviews"
+              :key="index"
+              :src="image"
+              class="img-thumbnail"
+              style="width: 100px; height: 100px"
+            />
           </div>
-        </form>
+        </div>
       </div>
+    </div>
+
+    <!-- Modal Buttons -->
+    <div
+      class="d-flex justify-content-end gap-2 mt-30"
+      style="padding-top: 15px"
+    >
+      <button type="submit" class="btn-add">Add New Template</button>
+      <button @click="closeCreateModal" class="btn-cancel">Cancel</button>
+    </div>
+  </form>
+</div>
     </b-modal>
 
     <!-- Edit Template Modal -->
@@ -932,11 +955,31 @@ body {
   margin-right: auto;
 }
 
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
 .template-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .template-table th,
@@ -945,6 +988,7 @@ body {
   text-align: left;
   vertical-align: middle;
   border: none;
+  padding: 7px;
   /* Remove borders from all cells */
 }
 
@@ -955,22 +999,22 @@ body {
 
 .template-table th:nth-child(1),
 .template-table td:nth-child(1) {
-  width: 12%;
+  width: 5%;
 }
 
 .template-table th:nth-child(2),
 .template-table td:nth-child(2) {
-  width: 12%;
+  width: 20%;
 }
 
 .template-table th:nth-child(3),
 .template-table td:nth-child(3) {
-  width: 12%;
+  width: 15%;
 }
 
 .template-table th:nth-child(4),
 .template-table td:nth-child(4) {
-  width: 12%;
+  width: 15%;
 }
 
 .template-table th:nth-child(5),
@@ -985,12 +1029,12 @@ body {
 
 .template-table th:nth-child(7),
 .template-table td:nth-child(7) {
-  width: 12%;
+  width: 15%;
 }
 
 .template-table th:nth-child(8),
 .template-table td:nth-child(8) {
-  width: 12%;
+  width: 6%;
 }
 
 .search-create {
@@ -1063,11 +1107,13 @@ body {
   border: none; /* Removes the default button border */
   color: inherit; /* Inherits the text color */
   font-weight: bold; /* Makes text bold */
+  font-size: 14px;
 }
 
 .nav-tabs .nav-link.active {
   color: #000; /* Active tab color */
   border-bottom: 2px solid #0d6efd;
+  font-size: 14px;
 }
 
 .title-wrapper {
@@ -1161,18 +1207,17 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 12% 12% 12% 12% 12% 12% 12% 12%;
+  grid-template-columns: 5% 20% 15% 15% 12% 12% 15% 6%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
-  width: 100%;
   max-width: 1100px;
 }
 
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
@@ -1202,5 +1247,10 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+}
+
+.form-group label {
+  font-size: 0.9rem; /* Lessen the font size */
+  color: #6c757d; /* Change color (muted gray) */
 }
 </style>

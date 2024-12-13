@@ -335,13 +335,15 @@ h5 {
 }
 
 .form-label {
+  display: block;
   font-size: 0.9rem;
   color: #6c757d;
+  text-align: left;
   /* Adjust the value to your preferred size */
 }
 
 .btn-update {
-  background-color: #42b983; /* Button primary color */
+  background-color: #0560fd; /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px; /* Adjust the border radius */

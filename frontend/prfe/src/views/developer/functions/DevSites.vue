@@ -9,26 +9,6 @@
             <div class="title-icon"></div>
             <div class="edit-title">Company Site Management</div>
           </div>
-
-          <div class="view-switch">
-            <div
-              class="view-icon"
-              :class="{ active: viewMode === 'grid' }"
-              @click="viewMode = 'grid'"
-            >
-              <i class="fa fa-th"></i>
-              <!-- Grid Icon -->
-            </div>
-            <div class="separator"></div>
-            <div
-              class="view-icon"
-              :class="{ active: viewMode === 'table' }"
-              @click="viewMode = 'table'"
-            >
-              <i class="fa fa-list"></i>
-              <!-- Table Icon -->
-            </div>
-          </div>
         </div>
 
         <div
@@ -79,33 +59,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Grid View -->
-        <div v-if="viewMode === 'grid'" class="site-grid">
-          <div
-            v-for="(site, index) in filteredSites"
-            :key="site.id || index"
-            class="site-card"
-            @click="openEditModal(site)"
-          >
-            <!-- Site Image -->
-            <img
-              :src="getPictureUrl(site.picture) || require('@/assets/home.png')"
-              alt="Site Image"
-              class="site-image"
-            />
-
-            <!-- Site Name -->
-            <h2 class="site-name">
-              {{ site.name || "Unknown" }}
-            </h2>
-
-            <!-- Site Location -->
-            <p class="site-location">
-              {{ site.location || "Location unavailable" }}
-            </p>
           </div>
         </div>
 

@@ -57,8 +57,14 @@
           v-model="isCreateModalOpen"
           title="Create New Unit Type"
           hide-footer
+          hide-header
           centered
         >
+
+        <div class="modal-title p-3">
+  <h5 class="mb-0">New Unit Type</h5>
+</div>
+<div class="p-3">
           <form @submit.prevent="createUnitType">
             <div class="form-group">
               <label for="unitTypeName">Unit Type Name:</label>
@@ -67,12 +73,13 @@
                 id="unitTypeName"
                 type="text"
                 class="form-control"
-                placeholder="Enter Unit Type"
+                placeholder="Enter Unit Type Name"
                 required
               />
             </div>
-            <div class="d-flex justify-content-end gap-2 mt-3">
-              <button type="submit" class="btn-add">Create</button>
+            <div class="d-flex justify-content-end gap-2 mt-3"
+            style="padding-top: 15px">
+              <button type="submit" class="btn-add">Add Unit Type</button>
               <button
                 type="button"
                 class="btn-cancel"
@@ -82,6 +89,7 @@
               </button>
             </div>
           </form>
+</div>
         </b-modal>
 
         <b-modal
@@ -162,16 +170,6 @@
           </div>
 
           <div class="unit-types-list">
-            <div class="title-wrapper">
-              <div class="title-left">
-                <div class="title-icon"></div>
-                <div class="edit-title">
-                  {{
-                    showArchived ? "Archived Unit Types" : "Existing Unit Types"
-                  }}
-                </div>
-              </div>
-            </div>
 
             <div>
               <div class="outside-headers">
@@ -591,11 +589,13 @@ input {
   border: none; /* Removes the default button border */
   color: inherit; /* Inherits the text color */
   font-weight: bold; /* Makes text bold */
+  font-size: 14px;
 }
 
 .nav-tabs .nav-link.active {
   color: #000; /* Active tab color */
   border-bottom: 2px solid #0d6efd;
+  font-size: 14px;
 }
 
 .title-wrapper {
@@ -715,14 +715,13 @@ input {
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
-  width: 100%;
   max-width: 1100px;
 }
 
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
@@ -732,7 +731,7 @@ input {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
-  table-layout: fixed;
+  font-size: 14px;
 }
 
 .types-table th,
@@ -741,7 +740,7 @@ input {
   text-align: left;
   vertical-align: middle;
   border: none;
-  padding: 10px;
+  padding: 7px;
   /* Remove borders from all cells */
 }
 
@@ -750,20 +749,14 @@ input {
   font-weight: bold;
 }
 
-.types-table th:nth-child(1),
-.types-table td:nth-child(1) {
-  /* Location column */
-  width: 50%;
-}
-
 .types-table th:nth-child(2),
 .types-table td:nth-child(2) {
   /* Location column */
   width: 25%;
 }
 
-.types-table th:nth-child(2),
-.types-table td:nth-child(2) {
+.types-table th:nth-child(3),
+.types-table td:nth-child(3) {
   /* Location column */
   width: 25%;
 }
@@ -801,5 +794,10 @@ input {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+}
+
+.form-group label {
+  font-size: 0.9rem; /* Lessen the font size */
+  color: #6c757d; /* Change color (muted gray) */
 }
 </style>

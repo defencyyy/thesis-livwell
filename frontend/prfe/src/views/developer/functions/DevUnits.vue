@@ -56,23 +56,6 @@
                 <div class="title-icon"></div>
                 <div class="edit-title">Sites</div>
               </div>
-              <div class="view-switch">
-                <div
-                  class="view-icon"
-                  :class="{ active: viewMode === 'grid' }"
-                  @click="viewMode = 'grid'"
-                >
-                  <i class="fa fa-th"></i>
-                </div>
-                <div class="separator"></div>
-                <div
-                  class="view-icon"
-                  :class="{ active: viewMode === 'table' }"
-                  @click="viewMode = 'table'"
-                >
-                  <i class="fa fa-list"></i>
-                </div>
-              </div>
             </div>
 
             <!-- Search and Filter Section -->
@@ -91,7 +74,7 @@
                         <input
                           type="text"
                           v-model="searchQuery"
-                          placeholder="Search by site name"
+                          placeholder="Search Site Name"
                           class="search-bar"
                         />
                         <i class="fa fa-search search-icon"></i>
@@ -114,53 +97,6 @@
               </div>
             </div>
 
-            <div v-if="viewMode === 'grid'" class="site-grid">
-              <div
-                v-for="site in filteredSites"
-                :key="site.id"
-                class="site-card"
-                @click="openSectionManagement(site)"
-              >
-                <img
-                  :src="
-                    getPictureUrl(site.picture) || require('@/assets/home.png')
-                  "
-                  alt="Site Image"
-                  class="site-image"
-                />
-                <h2 class="site-name">{{ site.name || "Unknown" }}</h2>
-                <p class="site-location">
-                  {{ site.location || "Location unavailable" }}
-                </p>
-                <div class="site-stats">
-                  <p>
-                    Sections:
-                    {{
-                      site.sections.length > 0 ? site.sections.length : "None"
-                    }}
-                  </p>
-                  <p>
-                    Units:
-                    {{ site.total_units > 0 ? site.total_units : "None" }}
-                  </p>
-                  <p v-if="site.total_units > 0">
-                    Available Units:
-                    {{
-                      site.available_units > 0
-                        ? site.available_units
-                        : "No Available Units"
-                    }}
-                  </p>
-                </div>
-                <button
-                  @click.stop="openSectionManagement(site)"
-                  class="button-bottom-right"
-                >
-                  Manage Sections
-                </button>
-              </div>
-            </div>
-
             <div v-if="viewMode === 'table'">
               <div class="outside-headers">
                 <span class="header-item">Name</span>
@@ -173,39 +109,38 @@
               </div>
               <div v-for="site in filteredSites" :key="site.id" class="card">
                 <div class="card-body">
-                  <table>
+                  <table class="site-table">
                     <tbody>
                       <tr>
                         <td>{{ site.name || "Unknown" }}</td>
                         <td>{{ site.location || "Location unavailable" }}</td>
-                        <td>{{ site.status || "Status unavailable" }}</td>
                         <td>
-                          <p>
-                            {{
-                              site.sections?.length > 0
-                                ? site.sections.length
-                                : "None"
-                            }}
-                          </p>
+                          {{
+                            site.status.toUpperCase() || "Status unavailable"
+                          }}
                         </td>
                         <td>
-                          <p>
-                            {{
-                              site.total_units > 0 ? site.total_units : "None"
-                            }}
-                          </p>
+                          {{
+                            site.sections?.length > 0
+                              ? site.sections.length
+                              : "None"
+                          }}
                         </td>
                         <td>
-                          <p>
-                            {{
-                              site.available_units > 0
-                                ? site.available_units
-                                : "None"
-                            }}
-                          </p>
+                          {{ site.total_units > 0 ? site.total_units : "None" }}
                         </td>
                         <td>
-                          <button @click.stop="openSectionManagement(site)">
+                          {{
+                            site.available_units > 0
+                              ? site.available_units
+                              : "None"
+                          }}
+                        </td>
+                        <td>
+                          <button
+                            @click.stop="openSectionManagement(site)"
+                            class="btn-manage"
+                          >
                             Manage Sections
                           </button>
                         </td>
@@ -216,64 +151,7 @@
               </div>
             </div>
           </div>
-
-          <hr />
         </div>
-        <!-- <div class="filters">
-          <b-form-group label="Select Site:">
-            <b-form-select
-              v-model="selectedSite"
-              :options="siteOptions"
-              required
-            />
-          </b-form-group>
-          <b-form-group label="Unit Number (optional):">
-            <b-form-input
-              v-model="unitNumberFilter"
-              placeholder="Search by Unit Number"
-            />
-          </b-form-group>
-          <b-form-group label="Unit Type (optional):">
-            <b-form-input
-              v-model="unitTypeFilter"
-              placeholder="Search by Unit Type"
-            />
-          </b-form-group>
-          <b-button @click="searchUnits" :disabled="!selectedSite">
-            Search
-          </b-button>
-        </div>
-
-        <div v-if="units.length > 0">
-          <h2>Units</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Unit Number</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="unit in units" :key="unit.id">
-                <td>{{ unit.unit_number }}</td>
-                <td>{{ unit.unit_title }}</td>
-                <td>{{ unit.status }}</td>
-                <td>
-                  <button @click="editUnit(unit)">Edit</button>
-                  <button @click="deleteUnit(unit.id)">Delete</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        Display a message if no units are found
-        <div v-else>
-          <h2>No Units Found</h2>
-        </div>
-        -->
       </div>
     </div>
   </div>
@@ -296,7 +174,7 @@ export default {
       sites: [],
       isLoading: false,
       errorMessage: null,
-      viewMode: "grid",
+      viewMode: "table",
       viewFilter: "active",
       selectedSite: null,
       unitNumberFilter: "",
@@ -504,11 +382,13 @@ body {
   border: none; /* Removes the default button border */
   color: inherit; /* Inherits the text color */
   font-weight: bold; /* Makes text bold */
+  font-size: 14px;
 }
 
 .nav-tabs .nav-link.active {
   color: #000; /* Active tab color */
   border-bottom: 2px solid #0d6efd;
+  font-size: 14px;
 }
 
 .content {
@@ -614,28 +494,22 @@ body {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
   height: 38px;
   /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
-  width: 80%;
+  width: 100%;
   max-width: 150px;
   background-color: white;
   color: #333;
-}
-
-.dropdown2 {
-  padding: 8px 12px;
-  height: 38px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  font-size: 14px;
-  width: 90%;
-  max-width: 150px;
-  background-color: white;
-  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 .btn-primary.add-button {
@@ -696,12 +570,8 @@ body {
   margin-right: 10px;
 }
 
-.site-info {
-  flex-direction: row;
-}
-
 .site-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
 }
 
@@ -715,6 +585,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .site-table th,
@@ -732,24 +603,38 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  width: 35%;
-  padding-right: 60px;
+  width: 25%;
+  padding-right: 10px;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  width: 20%;
+  width: 12%;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  width: 20%;
+  width: 12%;
+}
+
+.site-table th:nth-child(5),
+.site-table td:nth-child(5) {
+  width: 12%;
+}
+
+.site-table th:nth-child(6),
+.site-table td:nth-child(6) {
+  width: 12%;
+}
+.site-table th:nth-child(7),
+.site-table td:nth-child(7) {
+  width: 7%;
 }
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 35% 20% 20%;
-  padding: 0px 18px;
+  grid-template-columns: 20% 25% 12% 12% 12% 12% 7%;
+  padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;
 }
@@ -757,9 +642,20 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
+}
+
+.btn-manage {
+  background-color: #8b8b8b;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 8px;
+  font-size: 12px;
 }
 
 .form-group .form-label,
