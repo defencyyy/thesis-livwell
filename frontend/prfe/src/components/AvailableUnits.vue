@@ -423,7 +423,7 @@ export default {
     },
   availableFloors() {
     // Get unique floor values from available units
-    const floors = this.units.map(unit => unit.floor);
+    const floors = this.units.map(unit => unit.section);
     return [...new Set(floors)].sort(); // Remove duplicates and sort them
     },
   availableUnitTypes() {
@@ -442,7 +442,7 @@ export default {
         (this.selectedBalcony === 'has' && unit.balcony.toLowerCase() !== 'no balcony') ||
         (this.selectedBalcony === 'no' && unit.balcony.toLowerCase() === 'no balcony');
       const floorMatch =
-        this.selectedFloor === 'all' || unit.floor === this.selectedFloor;
+        this.selectedFloor === 'all' || unit.section === this.selectedFloor;
 
       const unitTypeMatch =
         this.selectedUnitType === 'all' || unit.type === this.selectedUnitType;
