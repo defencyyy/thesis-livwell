@@ -4,33 +4,50 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <!-- <button class="back-button" @click="$router.back()">
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Unit Management</div>
+          </div>
+          <!-- Header Section -->
+        
+            <button class="back-button" @click="$router.back()">
           <div class="back-container">
             <i class="fas fa-arrow-left"></i> Back
           </div>
-        </button> -->
-
+        </button>
+        
+        </div>
+      
         <div v-if="site" class="site-container">
           <!-- Left Section: Site Details -->
           <div class="site-details-section">
             <div class="site-picture">
-              <img :src="getPictureUrl(site.picture) || require('@/assets/home.png')
-                " alt="Site Image" class="site-image" />
+              <img :src="getPictureUrl(site.picture) || require('@/assets/home.png')" alt="Site Image"
+                class="site-image" />
             </div>
             <div class="site-info">
-              <h2>{{ site.name }}</h2>
-              <p>{{ site.description }}</p>
-              <p><strong>Location:</strong> {{ site.location }}</p>
-              <button class="add-units-button" @click="toggleAddUnitsModal">
-                Add Units
-              </button>
+              <div class="site-name">
+                <p><strong>{{ site.name }}</strong></p>
+              </div>
+
+              <div class="site-description-location">
+                <div class="description-icon">
+                  <i class="fas fa-info-circle"></i> <!-- Example icon for description -->
+                  <span>{{ site.description }}</span>
+                </div>
+                <div class="location-icon">
+                  <i class="fas fa-map-marker-alt"></i> <!-- Example icon for location -->
+                  <span>{{ site.location }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Right Section: Floors -->
           <div class="floors-section">
             <div class="card border-0 rounded-1 mx-auto" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
-              <div class="card-body">
+              <div class="card-body-toolbar">
                 <div class="row">
                   <div class="toolbar">
                     <div class="left-section">
@@ -69,30 +86,30 @@
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             ">
                 <div class="card-body">
-                  <table class="floor-info">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <span class="floor-number">
-                            Floor {{ floor.floor_number }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="floor-total-units"> {{ floor.total_units }}</span>
-                        </td>
-                        <td>
-                          <span class="floor-available-units">{{ floor.available_units }}</span>
-                        </td>
-                        <td>
-                          <div class="floor-actions d-flex gap-2">
-
-                            <button @click="openUnitManagement(floor)" class="btn-manage">Manage Units</button>
-
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div class="table-container">
+                    <table class="floor-info">
+                      <tbody>
+                        <tr>
+                          <td>
+                            <span class="floor-number">Floor {{ floor.floor_number }}</span>
+                          </td>
+                          <td>
+                            <span class="floor-total-units">{{ floor.total_units }}</span>
+                          </td>
+                          <td>
+                            <span class="floor-available-units">{{ floor.available_units }}</span>
+                          </td>
+                          <td>
+                            <div class="floor-actions d-flex gap-2">
+                              <button @click="openUnitManagement(floor)" class="btn-manage">
+                                Manage Units
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1354,8 +1371,48 @@ body {
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  display: flex;
+  /* Use flexbox to center the content */
+  align-items: center;
+  /* Center vertically */
+  flex-direction: column;
+  /* Stack the dashboard boxes and sales table vertically */
 }
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  width: 100%;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.total-broker {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+  font-weight: bold;
+}
+
 
 .toolbar {
   display: flex;
@@ -1372,13 +1429,15 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  
+
   /* Space between search bar and dropdown */
 }
 
 .left-section p {
-  margin: 0; /* Remove default margin */
-  line-height: 38px; /* Match the dropdown height */
+  margin: 0;
+  /* Remove default margin */
+  line-height: 38px;
+  /* Match the dropdown height */
 }
 
 .dropdown-container {
@@ -1419,10 +1478,14 @@ body {
   margin-right: auto;
 }
 
+.card-body-toolbar {
+  padding: 7px;
+}
+
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 40% 20% 27% 13% ;
+  grid-template-columns: 40% 20% 25% 15%;
   /* Match the column widths */
   padding: 0px 15px;
   margin: 20px auto 10px;
@@ -1464,13 +1527,13 @@ body {
 .floor-info th:nth-child(3),
 .floor-info td:nth-child(3) {
   /* Status column */
-  width: 27%;
+  width: 25%;
 }
 
 .floor-info th:nth-child(4),
 .floor-info td:nth-child(4) {
   /* Actions column */
-  width: 13%;
+  width: 15%;
 }
 
 /* Site Details */
@@ -1483,14 +1546,18 @@ body {
 
 .site-picture {
   flex: 1;
-  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .site-image {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  height: 300px;
+}
+
+.site-description-location {
+  text-align: left;
+  font-size: 14px;
 }
 
 .site-info {
@@ -1611,7 +1678,7 @@ button {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 13px;
   /* Adjust as needed */
   text-decoration: none;
 }
@@ -1631,6 +1698,15 @@ button {
 .site-container {
   display: flex;
   gap: 20px;
+  width: 100%;
+  max-width: 1100px;
+  align-items: flex-start;
+  /* Align items at the top */
+}
+
+.site-name {
+  font-size: 18px;
+  margin-bottom: 20px;
 }
 
 .site-details-section {
@@ -1684,18 +1760,47 @@ button {
   /* Adjust the border radius */
   padding: 10px;
   font-size: 14px;
-  height: 38px; /* Match dropdown height */
+  height: 38px;
+  /* Match dropdown height */
 
 }
 
 .btn-manage {
-  background-color: #0560fd;
+  background-color: #8b8b8b;
   /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
   /* Adjust the border radius */
-  padding: 8px;
-  font-size: 12 px;
+  padding: 7px;
+  font-size: 10 px;
+}
+
+.site-description-location {
+  display: flex;
+  flex-direction: column;
+  /* Stack description and location vertically */
+  gap: 20px;
+  /* Space between rows */
+
+}
+
+.description-icon,
+.location-icon {
+  display: flex;
+  align-items: flex-start;
+  /* Align icon and text vertically */
+  gap: 10px;
+  /* Space between icon and text */
+
+}
+
+.description-icon span,
+.location-icon span {
+  font-size: 13px;
+  /* Adjust text size */
+  color: #333;
+  /* Text color */
+
 }
 </style>
