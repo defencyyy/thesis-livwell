@@ -8,6 +8,7 @@
           <div class="title-icon"></div>
           <div class="edit-title">Account Settings</div>
         </div>
+
         <div
           class="card shadow-lg border-0 rounded-1 mx-auto"
           style="max-width: 900px"
@@ -111,13 +112,28 @@
                 <button type="submit" class="btn-update" :disabled="loading">
                   {{ loading ? "Updating..." : "Update" }}
                 </button>
-                <button type="button" class="btn-cancel" @click="cancelUpdate">
-                  Cancel
-                </button>
               </div>
             </form>
           </div>
         </div>
+
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -128,12 +144,14 @@ import { mapState } from "vuex";
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
+import { BModal } from "bootstrap-vue-3";
 
 export default {
   name: "DevFuncAccount",
   components: {
     SideNav,
     AppHeader,
+    BModal,
   },
   data() {
     return {
@@ -148,6 +166,9 @@ export default {
       error: null,
       successMessage: null,
       loading: false,
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
     };
   },
   computed: {
@@ -201,10 +222,15 @@ export default {
             },
           }
         );
-        this.successMessage = "Account updated successfully!";
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Account updated successfully!";
+        this.showNotification = true;
         this.resetPasswordFields();
       } catch {
-        this.error = "An error occurred while updating your account.";
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while updating your account.";
+        this.showNotification = true;
       } finally {
         this.loading = false;
       }
@@ -357,5 +383,29 @@ h5 {
   border: none;
   border-radius: 3px; /* Adjust the border radius */
   padding: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>

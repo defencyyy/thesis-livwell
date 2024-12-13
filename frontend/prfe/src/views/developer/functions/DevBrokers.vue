@@ -388,10 +388,51 @@
               </div>
             </form>
           </div>
+        </b-modal>
 
-          <!-- Error & Success Message -->
-          <p v-if="error" class="text-danger">{{ error }}</p>
-          <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+
+            <!-- Confirm Button -->
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+          </div>
         </b-modal>
       </div>
     </div>
@@ -437,6 +478,13 @@ export default {
       lastNameError: null,
       firstNameError: null,
       passwordError: null,
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // Renamed this from 'confirmAction'
+      confirmParams: [],
     };
   },
 
@@ -456,7 +504,6 @@ export default {
     filteredBrokers() {
       const brokers = this.showArchived ? this.archivedBrokers : this.brokers;
 
-      // Apply search filtering
       if (this.searchQuery) {
         return brokers.filter((broker) =>
           Object.values(broker)
@@ -507,6 +554,29 @@ export default {
   },
 
   methods: {
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action; // Use the renamed key here
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false; // Close modal on cancel
+    },
+
+    async confirmAction() {
+      try {
+        // Dynamically call the function stored in actionToConfirm with the provided params
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false; // Close modal after confirmation
+      } catch (error) {
+        this.showConfirmModal = false; // Close modal on error
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -562,7 +632,6 @@ export default {
             },
           }
         );
-        console.log("Brokers fetched:", response.data); // Log the response
         this.brokers = response.data;
       } catch (error) {
         console.error("Error fetching brokers:", error.response || error);
@@ -582,74 +651,104 @@ export default {
         this.contactNumberError = null;
       }
 
-      if (confirm("Are you sure you want to save these changes?")) {
-        try {
-          const payload = { ...this.editBroker };
-          if (!payload.password) {
-            delete payload.password; // Remove password if not updated
-          }
+      // Show confirmation modal
+      this.showConfirmation(
+        "Are you sure you want to save these changes?",
+        this.saveBrokerEdit,
+        [this.editBroker]
+      );
+    },
 
-          const response = await axios.put(
-            `http://localhost:8000/developer/brokers/${this.editBroker.id}/`,
-            payload,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
-          console.log("Edit successful:", response.data);
-          this.editModalVisible = false;
-          this.fetchBrokers(); // Refresh brokers list
-        } catch (error) {
-          console.error("Error updating broker:", error);
-          this.error = "Failed to update broker. Please try again.";
+    async saveBrokerEdit(broker) {
+      try {
+        const payload = { ...broker };
+        if (!payload.password) {
+          delete payload.password; // Remove password if not updated
         }
+
+        await axios.put(
+          `http://localhost:8000/developer/brokers/${broker.id}/`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Broker updated successfully!";
+        this.showNotification = true;
+        this.editModalVisible = false;
+        this.fetchBrokers(); // Refresh brokers list
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while updating the broker.";
+        this.showNotification = true;
       }
     },
 
     async archiveBroker(brokerId) {
-      if (confirm("Are you sure you want to archive this broker?")) {
-        try {
-          const response = await axios.put(
-            `http://localhost:8000/developer/brokers/${brokerId}/`,
-            { archived: true },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
-          console.log("Broker archived:", response.data);
-          alert("Broker archived successfully!");
-          // Refresh brokers list after archiving
-          this.fetchBrokers();
-        } catch (error) {
-          console.error("Error archiving broker:", error.response || error);
-          alert("Failed to archive broker. Please try again.");
-        }
+      // Show confirmation modal for archiving
+      this.showConfirmation(
+        "Are you sure you want to archive this broker?",
+        this.executeArchive,
+        [brokerId]
+      );
+    },
+
+    async executeArchive(brokerId) {
+      try {
+        await axios.put(
+          `http://localhost:8000/developer/brokers/${brokerId}/`,
+          { archived: true },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Broker archived successfully!";
+        this.showNotification = true;
+        this.fetchBrokers();
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while archiving broker.";
+        this.showNotification = true;
       }
     },
     async unarchiveBroker(brokerId) {
-      if (confirm("Are you sure you want to unarchive this broker?")) {
-        console.log("Attempting to unarchive broker:", brokerId);
-        try {
-          await axios.put(
-            `http://localhost:8000/developer/brokers/${brokerId}/`,
-            { archived: false },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
-          this.fetchArchivedBrokers();
-        } catch (error) {
-          console.error("Error unarchiving broker:", error.response || error);
-        }
-      }
+      // Show confirmation modal for unarchiving
+      this.showConfirmation(
+        "Are you sure you want to unarchive this broker?",
+        this.executeUnarchive,
+        [brokerId]
+      );
     },
 
+    async executeUnarchive(brokerId) {
+      try {
+        await axios.put(
+          `http://localhost:8000/developer/brokers/${brokerId}/`,
+          { archived: false },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Broker unarchived successfully!";
+        this.showNotification = true;
+        this.fetchArchivedBrokers();
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while unarchiving broker.";
+        this.showNotification = true;
+      }
+    },
     validateForm() {
       // Reset errors
       this.emailError = null;
@@ -695,7 +794,7 @@ export default {
     async addBroker() {
       if (this.validateForm()) {
         try {
-          const response = await axios.post(
+          await axios.post(
             "http://localhost:8000/developer/brokers/add/",
             {
               first_name: this.firstName,
@@ -710,14 +809,17 @@ export default {
               },
             }
           );
-          console.log("Broker added:", response.data);
-          alert("Broker added successfully!");
-
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Broker added successfully!";
+          this.showNotification = true;
+          this.showModal = false;
           this.fetchBrokers();
           this.resetForm(); // Reset form after successful submission
         } catch (error) {
-          console.error("Error adding broker:", error.response || error);
-          this.error = "Failed to add broker. Please try again.";
+          this.notificationTitle = "Error";
+          this.notificationMessage =
+            "An error occurred while adding the broker.";
+          this.showNotification = true;
         }
       }
     },
@@ -1075,5 +1177,29 @@ body {
 
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef; /* Light gray */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>
