@@ -178,9 +178,8 @@
                     <th>Unit Type</th>
                     <th>Status</th>
                     <th>Price</th>
-                    <th>Section Area</th>
-                    <th>Balcony</th>
-                    <th>View</th>
+                    <th>Floor Area</th>
+                    <th>Lot Area</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -199,11 +198,9 @@
                     <td>{{ formatCurrency(unit.price) }}</td>
                     <!-- Price -->
                     <td>{{ unit.floor_area }}</td>
-                    <!-- Section Area -->
-                    <td>{{ unit.balcony }}</td>
-                    <!-- Balcony -->
-                    <td>{{ unit.view }}</td>
-                    <!-- View -->
+                    <td>{{ unit.lot_area }}</td>
+                    <!-- Floor Area -->
+
                     <td>
                       <button @click="manageUnit(unit)">Edit</button>
                     </td>
