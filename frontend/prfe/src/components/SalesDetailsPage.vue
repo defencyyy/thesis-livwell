@@ -457,13 +457,22 @@ body {
   width: calc(100% - 250px);
   z-index: 1;
   height: 68px;
-  margin-top: 3px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow at the bottom */
 }
 
 .welcome-text {
   font-size: 18px;
 }
+
+.d-flex {
+  display: flex;
+}
+
+.d-flex .btn i {
+  font-size: 20px;
+  color: #fff;
+}
+
 
 .main-page {
   display: flex;
@@ -474,14 +483,19 @@ body {
 }
 
 .sidebar {
-  background-color: white;
+  position: fixed;
   width: 250px;
-  height: 100vh;
+  background-color: #ffffff;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
-  position: fixed;
+  transition: width 0.3s;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1); /* Adds shadow on the right */
   z-index: 2;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%); /* Hide the sidebar when collapsed */
 }
 
 .sidebar-header {
@@ -540,50 +554,100 @@ body {
   color: #343a40;
 }
 
+/* Main Content Responsiveness */
 .main-content {
   display: flex;
-  margin-left: 250px;
   flex-direction: column;
   flex: 1;
+  margin-left: 250px;
   margin-top: 60px;
+  padding: 20px;
+  box-sizing: border-box; /* Include padding in width calculation */
+  background-color: #fff; /* Ensure a clean background for content */
 }
 
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  text-align: left; /* Align text to the left for readability */
 }
 
+/* Adjustments for smaller screens */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 200px; /* Adjust for narrower sidebar */
+    padding: 15px;
+  }
+  .content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 720px) {
+  .main-content {
+    margin-left: 60px; /* Adjust for collapsed sidebar */
+    padding: 10px;
+  }
+  .content {
+    padding: 10px;
+    font-size: 14px; /* Reduce font size for smaller screens */
+  }
+}
+
+/* Specific styling for tables inside main content */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  font-size: 14px; /* Default table font size */
 }
 
-th,
-td {
-  padding: 12px;
+th, td {
+  padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-th {
-  background-color: #f8f8f8;
+@media (max-width: 720px) {
+  table {
+    font-size: 12px; /* Scale down table font size */
+  }
+  th, td {
+    padding: 8px;
+  }
 }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9;
+/* Ensure buttons in the main content are responsive */
+button {
+  padding: 8px 16px; /* Smaller padding for smaller screens */
+  font-size: 14px;
 }
 
-tr:hover {
-  background-color: #f1f1f1;
+@media (max-width: 720px) {
+  button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }
 
-.documents-table th {
-  text-align: center;
+/* Specific adjustments for document and payment content */
+.documents-table {
+  width: 100%;
+  margin-top: 15px;
 }
 
-/* juju */
+.documents-table th,
+.documents-table td {
+  padding: 10px;
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .documents-table th,
+  .documents-table td {
+    font-size: 12px;
+  }
+}
 
 /* Button */
 button {
@@ -621,4 +685,86 @@ button:hover {
 .details-card strong {
   font-weight: bold;
 }
+
+
+
+/* Media queries for responsiveness in HEADER */
+@media (max-width: 1440px) {
+  .top-bar {
+    left: 220px; /* Adjust for the narrower sidebar */
+    width: calc(100% - 220px);
+  }
+
+  .welcome-text {
+    font-size: 16px; /* Adjust font size */
+  }
+
+  .profile-icon {
+    font-size: 20px; /* Scale down icon */
+  }
+
+  .dropdown-menu {
+    width: 200px; /* Adjust dropdown width */
+  }
+}
+
+@media (max-width: 1024px) {
+  .top-bar {
+    left: 200px; /* Adjust for smaller sidebar */
+    width: calc(100% - 200px);
+    padding: 10px 20px; /* Adjust padding */
+  }
+
+  .welcome-text {
+    font-size: 15px; /* Scale down text */
+  }
+
+  .profile-icon {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .top-bar {
+    left: 60px; /* Adjust for collapsed sidebar */
+    width: calc(100% - 60px);
+    padding: 8px 15px; /* Minimal padding */
+  }
+
+  .welcome-text {
+    display: none; /* Hide welcome text for small screens */
+  }
+
+  .profile-icon {
+    font-size: 16px;
+  }
+
+  .d-flex .dropdown {
+    margin-left: 10px; /* Reduce spacing */
+  }
+}
+
+
+/* RESPONSIVENESS  IN SIDENAV*/
+/* Media queries for responsive behavior */
+
+
+@media (max-width: 720px) {
+  .sidebar {
+    width: 60px; /* Collapse sidebar */
+  }
+
+  #sidebar-title {
+    display: none; /* Hide title for small screens */
+  }
+
+  .menu-icon {
+    margin-right: 0; /* Center icon without extra space */
+  }
+
+  .item-name {
+    display: none; /* Hide text for small screens */
+  }
+}
+
 </style>
