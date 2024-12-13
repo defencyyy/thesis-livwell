@@ -2,11 +2,16 @@
   <div>
     <div :class="['sidebar']">
       <div class="sidebar-header">
-        <!-- Replace company logo with a Font Awesome icon or any other icon -->
-        <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
-        <!-- Font Awesome Icon -->
-        <h4 id="sidebar-title">{{ company.name || "Company Name" }}</h4>
+        <img
+          v-if="company?.logo"
+          :src="getLogoUrl(company.logo)"
+          class="sidebar-logo"
+          alt="Company Logo"
+        />
+        <i v-else class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
+        <h4 id="sidebar-title">{{ company?.name || "Company Name" }}</h4>
       </div>
+
       <nav class="sidebar-nav">
         <b-nav vertical pills>
           <template v-for="(item, index) in menuItems" :key="index">
@@ -79,20 +84,17 @@ export default {
             icon: "fas fa-chart-pie",
           },
           {
-            name: "Manage Company",
-            link: "/developer/company",
-            icon: "fas fa-building",
+            name: "View Customers",
+            link: "/developer/customers",
+            icon: "fas fa-users",
           },
+
           {
             name: "Manage Brokers",
             link: "/developer/brokers",
             icon: "fas fa-user-tie",
           },
-          {
-            name: "View Customers",
-            link: "/developer/customers",
-            icon: "fas fa-users",
-          },
+
           {
             name: "Manage Sites",
             link: "/developer/sites",
@@ -104,6 +106,11 @@ export default {
             icon: "fas fa-home",
           },
           {
+            name: "Manage Sales",
+            link: "/developer/sales",
+            icon: "fas fa-chart-line",
+          },
+          {
             name: "Manage Doc-Types",
             link: "/developer/documents",
             icon: "fas fa-folder-open",
@@ -113,10 +120,11 @@ export default {
             link: "/developer/milestones",
             icon: "fas fa-trophy",
           },
+
           {
-            name: "Manage Sales",
-            link: "/developer/sales",
-            icon: "fas fa-chart-line",
+            name: "Manage Company",
+            link: "/developer/company",
+            icon: "fas fa-building",
           },
         ];
       } else if (this.userRole === "broker") {
@@ -161,6 +169,7 @@ export default {
       return this.$route.path === item.link;
     },
   },
+  watch: {},
 };
 </script>
 

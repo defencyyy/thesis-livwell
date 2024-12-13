@@ -92,6 +92,15 @@ def login_view(request, user_role):
             user.last_login = now()
             user.save()
 
+            # Fetch company data if it exists
+            company = None
+            if user.company:
+                company = {
+                    "name": user.company.name,
+                    "logo": user.company.logo.url if user.company.logo else None,  # Ensure to get the URL of the image
+                }
+
+
             return JsonResponse({
                 "success": True,
                 "tokens": {
@@ -104,7 +113,9 @@ def login_view(request, user_role):
                     "email": user.email,
                     "contact_number": user.contact_number,
                     "user_role": user_role,
+                    "first_name": user.first_name,
                     "company_id": user.company.id,
+                    "company": company,  # Add the company details
                 }
             }, status=200)
 
