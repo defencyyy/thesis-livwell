@@ -638,12 +638,12 @@
         <!-- Delete -->
          <b-modal
           v-model="showDeleteModal"
-          title="Delete Confirmation"
+          title="Cancel Confirmation"
           hide-footer
           centered
         >
           <p>
-            Are you sure you want to delete this Sale affiliation for this
+            Are you sure you want to cancel this Sale affiliation for this
             customer?
           </p>
 
