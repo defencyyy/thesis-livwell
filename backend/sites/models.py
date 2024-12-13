@@ -68,11 +68,11 @@ class Site(models.Model):
         max_digits=10, decimal_places=2, null=True,
         help_text="Commission earned when the unit is sold"
     )
-    spot_discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    spot_discount_flat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    spot_discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, default=0)
+    spot_discount_flat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
-    reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
+    other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
     maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment (e.g., 60 months for 5 years max)")
 
     def __str__(self):
