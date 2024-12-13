@@ -211,7 +211,8 @@ methods: {
         this.errorMessage = "Failed to fetch customer data.";
       }
     },
-    async submitReservation() {
+  async submitReservation() {
+
   // Check if all required fields are filled, including the file
   if (
     !this.reservationForm.customerName ||
@@ -230,7 +231,8 @@ methods: {
     this.errorMessage = "Payment Amount Insufficient";
     this.isErrorModalVisible = true;
     return;
-  }
+      }
+
   
   const data = {
     customer_name: this.reservationForm.customerName,
@@ -247,8 +249,7 @@ methods: {
       : null, // Ensure file is present
   };
 
-  console.log(this.commission);
-  console.log("Data being sent to the API:", data);
+
 
   try {
     const response = await axios.post(
