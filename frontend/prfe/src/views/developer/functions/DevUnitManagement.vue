@@ -32,43 +32,45 @@
             </div>
           </div>
 
-          <!-- Floors Section -->
-          <div v-if="site.floors.length > 0">
-            <h3>Floors ({{ site.floors.length }})</h3>
-            <div class="floor-sort">
-              <label for="sortFloors">Sort Floors:</label>
+          <!-- Sections Section -->
+          <div v-if="site.sections.length > 0">
+            <h3>Sections ({{ site.sections.length }})</h3>
+            <div class="section-sort">
+              <label for="sortSections">Sort Sections:</label>
               <select
-                id="sortFloors"
-                v-model="floorSortOrder"
-                @change="sortFloors"
+                id="sortSections"
+                v-model="sectionSortOrder"
+                @change="sortSections"
               >
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
               </select>
             </div>
 
-            <div v-if="sortedFloors.length > 0" class="floor-list">
+            <div v-if="sortedSections.length > 0" class="section-list">
               <div
-                v-for="floor in sortedFloors"
-                :key="floor.id"
-                class="floor-card"
+                v-for="section in sortedSections"
+                :key="section.id"
+                class="section-card"
               >
-                <h4>Floor {{ floor.floor_number }}</h4>
+                <h4>Section {{ section.section_number }}</h4>
                 <div class="site-summary">
-                  <p><strong>Total Units:</strong> {{ floor.total_units }}</p>
+                  <p><strong>Total Units:</strong> {{ section.total_units }}</p>
                   <p>
                     <strong>Available Units:</strong>
-                    {{ floor.available_units }}
+                    {{ section.available_units }}
                   </p>
                 </div>
-                <button @click="openUnitManagement(floor)">Manage Units</button>
+                <button @click="openUnitManagement(section)">
+                  Manage Units
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- If no floors are available -->
+          <!-- If no sections are available -->
           <div v-else>
-            <p>No Floors Available</p>
+            <p>No Sections Available</p>
           </div>
         </div>
 
@@ -78,8 +80,8 @@
           title="Manage Units"
           @hide="closeUnitManagementModal"
         >
-          <button @click="openAddUnitModalForFloor(selectedFloor.id)">
-            Add Units to Floor
+          <button @click="openAddUnitModalForSection(selectedSection.id)">
+            Add Units to Section
           </button>
 
           <div class="unit-management-content">
@@ -126,7 +128,7 @@
                   <th>Unit Type</th>
                   <th>Status</th>
                   <th>Price</th>
-                  <th>Floor Area</th>
+                  <th>Section Area</th>
                   <th>Balcony</th>
                   <th>View</th>
                   <th>Actions</th>
@@ -147,7 +149,7 @@
                   <td>{{ formatCurrency(unit.price) }}</td>
                   <!-- Price -->
                   <td>{{ unit.floor_area }}</td>
-                  <!-- Floor Area -->
+                  <!-- Section Area -->
                   <td>{{ unit.balcony }}</td>
                   <!-- Balcony -->
                   <td>{{ unit.view }}</td>
@@ -160,7 +162,7 @@
             </table>
 
             <div v-else>
-              <p>No units available for this floor.</p>
+              <p>No units available for this section.</p>
             </div>
 
             <!-- Pagination -->
@@ -186,14 +188,14 @@
           @ok="addUnits"
         >
           <form @submit.prevent="addUnits">
-            <!-- Floor Selection (Multiple Selection) -->
+            <!-- Section Selection (Multiple Selection) -->
             <b-form-group
-              label="Floors:"
-              description="Select floors to add units to"
+              label="Sections:"
+              description="Select sections to add units to"
             >
               <b-form-select
-                v-model="newUnitFloors"
-                :options="floorOptions"
+                v-model="newUnitSections"
+                :options="sectionOptions"
                 required
                 multiple
               ></b-form-select>
@@ -265,8 +267,8 @@
               ></b-form-input>
             </b-form-group>
 
-            <!-- Floor Area -->
-            <b-form-group label="Floor Area (sq.m):">
+            <!-- Section Area -->
+            <b-form-group label="Section Area (sq.m):">
               <b-form-input
                 type="number"
                 v-model.number="newUnitFloorArea"
@@ -502,7 +504,7 @@
                 />
               </b-form-group>
 
-              <b-form-group label="Floor Area:">
+              <b-form-group label="Section Area:">
                 <b-form-input
                   v-model="selectedUnit.floor_area"
                   type="number"
@@ -544,23 +546,23 @@
           </template>
         </b-modal>
 
-        <!-- Add Units to Floor Modal -->
+        <!-- Add Units to Section Modal -->
         <b-modal
-          id="add-floor-units-modal"
-          title="Add Units to Floor"
-          v-model="showAddFloorUnitsModal"
+          id="add-section-units-modal"
+          title="Add Units to Section"
+          v-model="showAddSectionUnitsModal"
           ok-title="Save"
-          @ok="addFloorUnits(newUnitFloors[0])"
+          @ok="addSectionUnits(newUnitSections[0])"
         >
-          <form @submit.prevent="addFloorUnits(newUnitFloors[0])">
-            <!-- Only one floor (already set) -->
+          <form @submit.prevent="addSectionUnits(newUnitSections[0])">
+            <!-- Only one section (already set) -->
             <b-form-group
-              label="Floor:"
-              description="This floor will have new units added."
+              label="Section:"
+              description="This section will have new units added."
             >
               <b-form-select
-                v-model="newUnitFloors"
-                :options="floorOptions"
+                v-model="newUnitSections"
+                :options="sectionOptions"
                 required
                 disabled
               ></b-form-select>
@@ -632,8 +634,8 @@
               ></b-form-input>
             </b-form-group>
 
-            <!-- Floor Area -->
-            <b-form-group label="Floor Area (sq.m):">
+            <!-- Section Area -->
+            <b-form-group label="Section Area (sq.m):">
               <b-form-input
                 type="number"
                 v-model.number="newUnitFloorArea"
@@ -776,9 +778,9 @@ export default {
       showAddUnitsModal: false,
       unitTypes: [],
       site: null,
-      floors: [],
-      newUnitFloor: null,
-      newUnitFloors: [],
+      sections: [],
+      newUnitSection: null,
+      newUnitSections: [],
       newUnitQuantity: 1,
       newUnitType: null,
       newUnitTitle: "",
@@ -844,14 +846,14 @@ export default {
       unitsPerPage: 25,
       searchQuery: "",
       newUnitImages: [],
-      floorSortOrder: "asc",
+      sectionSortOrder: "asc",
       showEditUnitModal: false,
       selectedUnit: {},
       totalItems: 100, // Example: Set this value based on your API response or logic
       itemsPerPage: 10,
-      showAddFloorUnitsModal: false, // Track the modal visibility
+      showAddSectionUnitsModal: false, // Track the modal visibility
       showUnitManagementModal: false,
-      selectedFloor: {},
+      selectedSection: {},
       selectedStatus: null,
       selectedPriceRange: null,
       selectedUnitType: null,
@@ -870,29 +872,29 @@ export default {
     isSaveButtonDisabled() {
       return this.newUnitFloorArea < this.newUnitLotArea;
     },
-    floorOptions() {
-      // Ensure the site and floors are available
-      if (this.site && this.site.floors) {
-        // Clone the floors array to avoid mutating the original array
-        const floorsCopy = [...this.site.floors];
+    sectionOptions() {
+      // Ensure the site and sections are available
+      if (this.site && this.site.sections) {
+        // Clone the sections array to avoid mutating the original array
+        const sectionsCopy = [...this.site.sections];
 
-        // Sort the cloned floors array based on the selected order (asc or desc)
-        const sortedFloors = floorsCopy.sort((a, b) => {
-          // Ascending order (if `floorSortOrder` is 'asc')
-          if (this.floorSortOrder === "asc") {
-            return a.floor_number - b.floor_number;
+        // Sort the cloned sections array based on the selected order (asc or desc)
+        const sortedSections = sectionsCopy.sort((a, b) => {
+          // Ascending order (if `sectionSortOrder` is 'asc')
+          if (this.sectionSortOrder === "asc") {
+            return a.section_number - b.section_number;
           }
-          // Descending order (if `floorSortOrder` is 'desc')
-          return b.floor_number - a.floor_number;
+          // Descending order (if `sectionSortOrder` is 'desc')
+          return b.section_number - a.section_number;
         });
 
-        // Map the sorted floors to the options for the dropdown
-        return sortedFloors.map((floor) => ({
-          value: floor.id, // floor ID is the value sent to the backend
-          text: `Floor ${floor.floor_number}`, // floor number is displayed as text
+        // Map the sorted sections to the options for the dropdown
+        return sortedSections.map((section) => ({
+          value: section.id, // section ID is the value sent to the backend
+          text: `Section ${section.section_number}`, // section number is displayed as text
         }));
       } else {
-        return []; // Return an empty array if no site or floors are available
+        return []; // Return an empty array if no site or sections are available
       }
     },
     unitTypeOptions() {
@@ -973,12 +975,12 @@ export default {
     totalPages() {
       return Math.ceil(this.totalItems / this.itemsPerPage);
     },
-    sortedFloors() {
-      if (!this.site?.floors) return [];
-      return [...this.site.floors].sort((a, b) =>
-        this.floorSortOrder === "asc"
-          ? a.floor_number - b.floor_number
-          : b.floor_number - a.floor_number
+    sortedSections() {
+      if (!this.site?.sections) return [];
+      return [...this.site.sections].sort((a, b) =>
+        this.sectionSortOrder === "asc"
+          ? a.section_number - b.section_number
+          : b.section_number - a.section_number
       );
     },
   },
@@ -1004,19 +1006,19 @@ export default {
         );
         this.site = response.data.data;
 
-        if (this.site && this.site.floors) {
-          this.fetchFloorsData();
+        if (this.site && this.site.sections) {
+          this.fetchSectionsData();
         } else {
-          console.error("No floors data available");
+          console.error("No sections data available");
         }
       } catch (error) {
         console.error("Error fetching site details:", error);
       }
     },
-    async fetchFloorsData() {
+    async fetchSectionsData() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/floors/`, // Correct endpoint for floor data
+          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/sections/`, // Correct endpoint for section data
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1025,12 +1027,12 @@ export default {
         );
 
         if (response.data.success) {
-          this.floors = response.data.data; // This will be an array of floors with total and available unit counts
+          this.sections = response.data.data; // This will be an array of sections with total and available unit counts
         } else {
-          console.error("Error fetching floor data:", response.data.error);
+          console.error("Error fetching section data:", response.data.error);
         }
       } catch (error) {
-        console.error("Error fetching floors:", error);
+        console.error("Error fetching sections:", error);
       }
     },
     async fetchUnitTypes() {
@@ -1058,7 +1060,7 @@ export default {
       this.showAddUnitsModal = !this.showAddUnitsModal;
       if (!this.showAddUnitsModal) {
         // Reset fields when closing the modal
-        this.newUnitFloor = null;
+        this.newUnitSection = null;
         this.newUnitType = null;
         this.newUnitTitle = "";
         this.newUnitBedroom = 1;
@@ -1071,11 +1073,11 @@ export default {
         this.newUnitBalcony = "no balcony";
       }
     },
-    openAddUnitModalForFloor(floorId) {
-      this.newUnitFloors = [floorId]; // Set the floor ID in the array
-      this.showAddFloorUnitsModal = true; // Open the modal to add units to the specific floor
+    openAddUnitModalForSection(sectionId) {
+      this.newUnitSections = [sectionId]; // Set the section ID in the array
+      this.showAddSectionUnitsModal = true; // Open the modal to add units to the specific section
     },
-    async addFloorUnits(floorId) {
+    async addSectionUnits(sectionId) {
       // Validate form fields
       if (
         !this.newUnitType ||
@@ -1083,7 +1085,7 @@ export default {
         !this.newUnitLotArea ||
         !this.newUnitFloorArea ||
         !this.newUnitQuantity ||
-        !floorId
+        !sectionId
       ) {
         alert("Please fill in all the required fields.");
         return;
@@ -1112,8 +1114,8 @@ export default {
       formData.append("other_charges", this.newUnitOtherCharges);
       formData.append("vat_percentage", this.newUnitVatPercentage);
 
-      // Append the selected floor ID
-      formData.append("floor_ids[]", floorId); // Directly pass the floorId
+      // Append the selected section ID
+      formData.append("section_ids[]", sectionId); // Directly pass the sectionId
 
       // Log the selected images
       if (this.newUnitImages && this.newUnitImages.length) {
@@ -1150,13 +1152,13 @@ export default {
         console.log("Response from backend:", response);
 
         if (response.status === 201) {
-          this.openUnitManagement({ id: floorId });
+          this.openUnitManagement({ id: sectionId });
           this.fetchSiteDetails(); // Refresh site details
-          this.showAddFloorUnitsModal = false; // Close the modal
-          alert("Units successfully added to the floor!");
+          this.showAddSectionUnitsModal = false; // Close the modal
+          alert("Units successfully added to the section!");
         }
       } catch (error) {
-        console.error("Error adding units to floor:", error);
+        console.error("Error adding units to section:", error);
         alert("Failed to add the unit. Please try again.");
       }
     },
@@ -1164,7 +1166,7 @@ export default {
     async addUnits() {
       // Validate form fields
       if (
-        !this.newUnitFloors.length ||
+        !this.newUnitSections.length ||
         !this.newUnitType ||
         !this.newUnitPrice ||
         !this.newUnitLotArea ||
@@ -1198,12 +1200,12 @@ export default {
       formData.append("other_charges", this.newUnitOtherCharges);
       formData.append("vat_percentage", this.newUnitVatPercentage);
 
-      // Log the selected floor IDs
-      console.log("Selected floor IDs:", this.newUnitFloors);
+      // Log the selected section IDs
+      console.log("Selected section IDs:", this.newUnitSections);
 
-      // Append the selected floor IDs as an array
-      this.newUnitFloors.forEach((floorId) => {
-        formData.append("floor_ids[]", floorId);
+      // Append the selected section IDs as an array
+      this.newUnitSections.forEach((sectionId) => {
+        formData.append("section_ids[]", sectionId);
       });
 
       if (this.newUnitImages && this.newUnitImages.length) {
@@ -1256,23 +1258,23 @@ export default {
         alert("Failed to add the unit. Please try again.");
       }
     },
-    async openUnitManagement(floor) {
-      if (!floor.id) {
-        console.error("Invalid floor ID:", floor);
-        alert("Invalid floor ID.");
+    async openUnitManagement(section) {
+      if (!section.id) {
+        console.error("Invalid section ID:", section);
+        alert("Invalid section ID.");
         return;
       }
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/units/${this.$route.params.siteId}/floors/${floor.id}/`,
+          `http://localhost:8000/developer/units/${this.$route.params.siteId}/sections/${section.id}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        this.selectedFloor = floor;
+        this.selectedSection = section;
         this.unitsData = response.data.data;
         this.showUnitManagementModal = true;
       } catch (error) {
@@ -1517,14 +1519,14 @@ export default {
       this.currentPage = 1; // Reset pagination on new search
     },
 
-    sortFloors() {
-      if (this.floorSortOrder === "asc") {
-        this.sortedFloors = this.site.floors.sort(
-          (a, b) => a.floor_number - b.floor_number
+    sortSections() {
+      if (this.sectionSortOrder === "asc") {
+        this.sortedSections = this.site.sections.sort(
+          (a, b) => a.section_number - b.section_number
         );
-      } else if (this.floorSortOrder === "desc") {
-        this.sortedFloors = this.site.floors.sort(
-          (a, b) => b.floor_number - a.floor_number
+      } else if (this.sectionSortOrder === "desc") {
+        this.sortedSections = this.site.sections.sort(
+          (a, b) => b.section_number - a.section_number
         );
       }
     },
@@ -1607,7 +1609,7 @@ body {
 .site-info {
   flex: 1;
 }
-.floor-sort {
+.section-sort {
   margin-bottom: 10px;
 }
 
@@ -1626,13 +1628,13 @@ body {
   margin-bottom: 15px;
 }
 
-.floor-list {
+.section-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }
 
-.floor-card {
+.section-card {
   background-color: #f9f9f9;
   padding: 10px;
   border-radius: 8px;

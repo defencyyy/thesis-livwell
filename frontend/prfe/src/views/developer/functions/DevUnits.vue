@@ -75,52 +75,51 @@
               </div>
             </div>
 
-          <!-- Search and Filter Section -->
-          <div
-          class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-          >
-            <div class = "card-body">
-              <div class = "row">
-                <div class = "toolbar">
-                  <div class = "left-section">
-                    <div class = "search-bar-container">
-                      <input type = "text"
-                      v-model = "searchQuery" 
-                      placeholder="Search by site name"
-                      class = "search-bar">
-                      <i class="fa fa-search search-icon"></i>
-                    </div>
-                    <!-- Sort Dropdown -->
-                    <select
-                    v-model="sortBy"
-                    class = "dropdown"
-                    >
-                      <option value = "name">Name</option>
-                      <option value = "created_at">Date Created</option>
-                      <option value = "status">Status</option>
-                      <option value = "floors">Floors</option>
-                    </select>
+            <!-- Search and Filter Section -->
+            <div
+              class="card border-0 rounded-1 mx-auto"
+              style="
+                max-width: 1100px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              "
+            >
+              <div class="card-body">
+                <div class="row">
+                  <div class="toolbar">
+                    <div class="left-section">
+                      <div class="search-bar-container">
+                        <input
+                          type="text"
+                          v-model="searchQuery"
+                          placeholder="Search by site name"
+                          class="search-bar"
+                        />
+                        <i class="fa fa-search search-icon"></i>
+                      </div>
+                      <!-- Sort Dropdown -->
+                      <select v-model="sortBy" class="dropdown">
+                        <option value="name">Name</option>
+                        <option value="created_at">Date Created</option>
+                        <option value="status">Status</option>
+                        <option value="sections">Sections</option>
+                      </select>
 
-                    <select
-                    v-model="sortOrder"
-                    class = "dropdown"
-                    >
-                      <option value = "asc">Ascending</option>
-                      <option value = "desc">Descending</option>
-                    </select>
+                      <select v-model="sortOrder" class="dropdown">
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
             <div v-if="viewMode === 'grid'" class="site-grid">
               <div
                 v-for="site in filteredSites"
                 :key="site.id"
                 class="site-card"
-                @click="openFloorManagement(site)"
+                @click="openSectionManagement(site)"
               >
                 <img
                   :src="
@@ -135,8 +134,10 @@
                 </p>
                 <div class="site-stats">
                   <p>
-                    Floors:
-                    {{ site.floors.length > 0 ? site.floors.length : "None" }}
+                    Sections:
+                    {{
+                      site.sections.length > 0 ? site.sections.length : "None"
+                    }}
                   </p>
                   <p>
                     Units:
@@ -151,8 +152,11 @@
                     }}
                   </p>
                 </div>
-                <button @click.stop="openFloorManagement(site)" class = "button-bottom-right">
-                  Manage Floors
+                <button
+                  @click.stop="openSectionManagement(site)"
+                  class="button-bottom-right"
+                >
+                  Manage Sections
                 </button>
               </div>
             </div>
@@ -162,7 +166,7 @@
                 <span class="header-item">Name</span>
                 <span class="header-item">Location</span>
                 <span class="header-item">Status</span>
-                <span class="header-item">Floors</span>
+                <span class="header-item">Sections</span>
                 <span class="header-item">Units</span>
                 <span class="header-item">Available Units</span>
                 <span class="header-item">Actions</span>
@@ -178,8 +182,8 @@
                         <td>
                           <p>
                             {{
-                              site.floors?.length > 0
-                                ? site.floors.length
+                              site.sections?.length > 0
+                                ? site.sections.length
                                 : "None"
                             }}
                           </p>
@@ -201,8 +205,8 @@
                           </p>
                         </td>
                         <td>
-                          <button @click.stop="openFloorManagement(site)">
-                            Manage Floors
+                          <button @click.stop="openSectionManagement(site)">
+                            Manage Sections
                           </button>
                         </td>
                       </tr>
@@ -215,30 +219,30 @@
 
           <hr />
         </div>
-          <div class="filters">
-            <b-form-group label="Select Site:">
-              <b-form-select
-                v-model="selectedSite"
-                :options="siteOptions"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Unit Number (optional):">
-              <b-form-input
-                v-model="unitNumberFilter"
-                placeholder="Search by Unit Number"
-              />
-            </b-form-group>
-            <b-form-group label="Unit Type (optional):">
-              <b-form-input
-                v-model="unitTypeFilter"
-                placeholder="Search by Unit Type"
-              />
-            </b-form-group>
-            <b-button @click="searchUnits" :disabled="!selectedSite">
-              Search
-            </b-button>
-          </div>
+        <!-- <div class="filters">
+          <b-form-group label="Select Site:">
+            <b-form-select
+              v-model="selectedSite"
+              :options="siteOptions"
+              required
+            />
+          </b-form-group>
+          <b-form-group label="Unit Number (optional):">
+            <b-form-input
+              v-model="unitNumberFilter"
+              placeholder="Search by Unit Number"
+            />
+          </b-form-group>
+          <b-form-group label="Unit Type (optional):">
+            <b-form-input
+              v-model="unitTypeFilter"
+              placeholder="Search by Unit Type"
+            />
+          </b-form-group>
+          <b-button @click="searchUnits" :disabled="!selectedSite">
+            Search
+          </b-button>
+        </div>
 
         <div v-if="units.length > 0">
           <h2>Units</h2>
@@ -265,10 +269,11 @@
           </table>
         </div>
 
-        <!-- Display a message if no units are found -->
+        Display a message if no units are found
         <div v-else>
           <h2>No Units Found</h2>
         </div>
+        -->
       </div>
     </div>
   </div>
@@ -278,17 +283,12 @@
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
-import { BFormGroup, BFormSelect, BFormInput, BButton } from "bootstrap-vue-3";
 
 export default {
   name: "DevFuncUnits",
   components: {
     SideNav,
     AppHeader,
-    BFormGroup,
-    BFormSelect,
-    BFormInput,
-    BButton,
   },
   data() {
     return {
@@ -308,7 +308,7 @@ export default {
         { value: "name", text: "Name" },
         { value: "created_at", text: "Date Created" },
         { value: "status", text: "Status" },
-        { value: "floors", text: "Floors" },
+        { value: "sections", text: "Section" },
       ],
       sortOrderOptions: [
         { value: "asc", text: "Ascending" },
@@ -322,29 +322,20 @@ export default {
         site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
 
-      if (this.sortBy === "name") {
-        sitesToFilter.sort((a, b) => {
-          const comparison = a.name.localeCompare(b.name);
-          return this.sortOrder === "asc" ? comparison : -comparison;
-        });
-      } else if (this.sortBy === "created_at") {
-        sitesToFilter.sort((a, b) => {
-          const comparison = new Date(a.created_at) - new Date(b.created_at);
-          return this.sortOrder === "asc" ? comparison : -comparison;
-        });
-      } else if (this.sortBy === "status") {
-        sitesToFilter.sort((a, b) => {
-          const comparison = a.status.localeCompare(b.status);
-          return this.sortOrder === "asc" ? comparison : -comparison;
-        });
-      } else if (this.sortBy === "floors") {
-        sitesToFilter.sort((a, b) => {
-          const comparison = a.floors.length - b.floors.length;
-          return this.sortOrder === "asc" ? comparison : -comparison;
-        });
-      }
+      return sitesToFilter.sort((a, b) => {
+        let comparison = 0;
+        if (this.sortBy === "name") {
+          comparison = a.name.localeCompare(b.name);
+        } else if (this.sortBy === "created_at") {
+          comparison = new Date(a.created_at) - new Date(b.created_at);
+        } else if (this.sortBy === "status") {
+          comparison = a.status.localeCompare(b.status);
+        } else if (this.sortBy === "sections") {
+          comparison = a.sections.length - b.sections.length;
+        }
 
-      return sitesToFilter;
+        return this.sortOrder === "asc" ? comparison : -comparison;
+      });
     },
     siteOptions() {
       return this.sites
@@ -379,14 +370,21 @@ export default {
             },
           }
         );
-
         if (response.status === 200) {
           this.sites = response.data.data.map((site) => ({
             ...site,
             isArchived: site.isArchived ?? false,
             location: this.constructLocation(site),
-            floors: site.floors || [],
+            sections: site.sections || [],
             units: site.units || [],
+            total_units: site.sections.reduce(
+              (sum, section) => sum + section.total_units,
+              0
+            ),
+            available_units: site.sections.reduce(
+              (sum, section) => sum + section.available_units,
+              0
+            ),
           }));
         }
       } catch (error) {
@@ -400,15 +398,15 @@ export default {
       const addressParts = [site.province, site.municipality, site.barangay];
       return addressParts.filter(Boolean).join(", ");
     },
-    openFloorManagement(site) {
+    openSectionManagement(site) {
       this.$router.push({
         name: "DevUnitManagement",
         params: { siteId: site.id },
       });
     },
-    updateFloorAndUnitCounts() {
-      this.totalFloors = this.sites.reduce(
-        (sum, site) => sum + (site.floors?.length || 0),
+    updateSectionAndUnitCounts() {
+      this.totalSections = this.sites.reduce(
+        (sum, site) => sum + (site.sections?.length || 0),
         0
       );
     },
@@ -615,7 +613,6 @@ body {
   pointer-events: none;
 }
 
-
 .dropdown {
   padding: 8px 12px;
   height: 38px;
@@ -800,12 +797,12 @@ body {
 }
 
 .button-bottom-right {
-  padding: 10px 15px;   /* Optional: Adjust padding for button size */
+  padding: 10px 15px; /* Optional: Adjust padding for button size */
   background-color: #007bff; /* Optional: Change button color */
-  color: white;         /* Button text color */
-  border: none;         /* Remove border */
-  border-radius: 4px;   /* Rounded corners */
-  cursor: pointer;      /* Add pointer cursor */
+  color: white; /* Button text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Add pointer cursor */
 }
 
 .button-bottom-right:hover {

@@ -103,7 +103,6 @@ class Site(models.Model):
         return Unit.objects.filter(site=self, status='Available').count()
 
     def section_with_unit_counts(self):
-        # This method returns sections with unit counts and available unit counts.
         return (
             self.sections
             .annotate(

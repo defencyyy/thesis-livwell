@@ -1529,7 +1529,7 @@ export default {
       formData.append("province", this.editSite.province);
       formData.append("municipality", this.editSite.municipality);
       formData.append("barangay", this.editSite.barangay);
-      formData.append("address", this.editSite.address || "null");
+      formData.append("address", this.editSite.address || "");
       formData.append("postal_code", this.editSite.postalCode || "null");
       formData.append("status", this.editSite.status);
 
@@ -1629,13 +1629,10 @@ export default {
     },
     // Open the edit modal and prepare the data
     openEditModal(selectedSite) {
-      console.log("Selected Site:", selectedSite); // Debugging line to see the selected site
       this.selectedSite = selectedSite;
 
       // Get the length of the sections array
       const numberOfSections = this.selectedSite.sections.length;
-
-      console.log("Number of Sections:", numberOfSections); // Log the number of sections
 
       this.editSite = {
         ...this.selectedSite,
@@ -1644,7 +1641,6 @@ export default {
         postalCode: this.selectedSite.postal_code,
       };
 
-      console.log("Edit Site after cloning sections:", this.editSite);
       this.newSectionsToAdd = 0;
       this.showEditModal = true;
     },
@@ -1682,7 +1678,7 @@ export default {
         site.province,
         site.municipality,
         site.barangay,
-        site.postal_code ? `Postal Code: ${site.postal_code}` : null,
+        site.postal_code ? `Postal Code: ${site.postal_code}` : "",
       ];
       return addressParts.filter(Boolean).join(", "); // Join non-empty parts
     },
