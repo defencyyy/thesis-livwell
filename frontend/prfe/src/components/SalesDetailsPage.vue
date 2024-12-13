@@ -573,6 +573,17 @@ body {
 }
 
 /* Adjustments for smaller screens */
+@media (max-width: 1440px) {
+  .main-content {
+    margin-left: 200px; /* Adjust for sidebar (larger screens may need more space) */
+    padding: 20px;
+  }
+  .content {
+    padding: 20px;
+  }
+}
+
+
 @media (max-width: 1024px) {
   .main-content {
     margin-left: 200px; /* Adjust for narrower sidebar */
@@ -691,7 +702,7 @@ button:hover {
 /* Media queries for responsiveness in HEADER */
 @media (max-width: 1440px) {
   .top-bar {
-    left: 220px; /* Adjust for the narrower sidebar */
+    left: 200px; /* Adjust for the narrower sidebar */
     width: calc(100% - 220px);
   }
 
@@ -748,6 +759,42 @@ button:hover {
 /* RESPONSIVENESS  IN SIDENAV*/
 /* Media queries for responsive behavior */
 
+@media (max-width: 1440px) {
+  .sidebar {
+    width: 220px; /* Reduce sidebar width for medium screens */
+  }
+
+  #sidebar-title {
+    font-size: 1.1rem; /* Adjust font size */
+  }
+
+  .menu-icon {
+    width: 18px; /* Adjust icon size */
+  }
+
+  .item-name {
+    font-size: 13px; /* Adjust item font size */
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px; /* Reduce sidebar width further for smaller screens */
+  }
+
+  #sidebar-title {
+    font-size: 1rem;
+  }
+
+  .menu-icon {
+    width: 16px;
+  }
+
+  .item-name {
+    font-size: 12px;
+  }
+}
+
 
 @media (max-width: 720px) {
   .sidebar {
@@ -764,6 +811,68 @@ button:hover {
 
   .item-name {
     display: none; /* Hide text for small screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 50px; /* Narrower collapsed sidebar */
+  }
+
+  #sidebar-title {
+    display: none; /* Keep the title hidden */
+  }
+
+  .menu-icon {
+    font-size: 16px; /* Slightly smaller icons for compact view */
+    margin: 0 auto; /* Center the icons */
+  }
+
+  .item-name {
+    display: none; /* Hide text labels */
+  }
+
+  .main-content {
+    margin-left: 90px; /* Adjust for narrower sidebar */
+    padding: 8px; /* Reduce padding for more usable space */
+  }
+
+  .content {
+    padding: 8px;
+    font-size: 13px; /* Slightly smaller font size */
+  }
+
+  /* Tables should be scrollable to prevent overflow */
+  table {
+    display: block;
+    overflow-x: auto;
+    font-size: 12px; /* Reduce table font size */
+  }
+
+  th, td {
+    padding: 6px; /* Smaller cell padding */
+  }
+
+  /* Buttons */
+  button {
+    font-size: 12px; /* Compact button text */
+    padding: 6px 12px; /* Smaller button size */
+  }
+
+  /* Top bar adjustments */
+  .top-bar {
+    left: 50px; /* Align with sidebar */
+    width: calc(100% - 50px); /* Adjust width dynamically */
+    padding: 6px 10px; /* Minimal padding */
+  }
+
+  .welcome-text {
+    font-size: 12px; /* Smaller font for welcome text */
+  }
+
+  /* Hide non-essential elements for small screens */
+  .welcome-text {
+    display: none; /* Hide welcome text completely for extra space */
   }
 }
 
