@@ -174,82 +174,95 @@ export default {
       }
     },
     async updateAccount() {
-    const brokerId = this.getUserId;
-    // Validate password on client-side
-    if (this.password) {
-      if (this.password.length < 8) {
-        this.error = "Password must be at least 8 characters long.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/[A-Z]/.test(this.password)) {
-        this.error = "Password must contain at least one uppercase letter.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/[a-z]/.test(this.password)) {
-        this.error = "Password must contain at least one lowercase letter.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/\d/.test(this.password)) {
-        this.error = "Password must contain at least one number.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
-        this.error = "Password must contain at least one special character.";
-        this.successMessage = null;
-        return;
-      }
-      }
-    
+  const brokerId = this.getUserId;
 
-  if (this.password && this.password !== this.confirmNewPassword) {
-    this.error = "New passwords do not match.";
-    return;
-  }
-    if (brokerId) {
-      try {
-        const response = await fetch(`http://localhost:8000/broker/manage-account/${brokerId}/`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify({
-            current_password: this.currentPassword, 
-            username: this.username || undefined,
-            email: this.email || undefined,
-            contact_number: this.contactNumber || undefined,
-            password: this.password || undefined,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          this.error = errorData.message || "Failed to update account.";
-          this.successMessage = null;
-          return;
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          this.successMessage = "Account updated successfully!";
-          this.error = null;
-        } else {
-          this.error = data.message || "Failed to update account.";
-          this.successMessage = null;
-        }
-      } catch (error) {
-        console.error("Error updating account:", error);
-        this.error = "An error occurred while updating your account.";
-        this.successMessage = null;
-      }
-    } else {
-      this.error = "No broker ID found in localStorage.";
+  // Validate password on client-side
+  if (this.password) {
+    // Ensure current password is provided when trying to change the password
+    if (!this.currentPassword) {
+      this.error = "You must provide your current password to change your password.";
+      this.successMessage = null;
+      return;
     }
-  },
+    
+    if (this.password.length < 8) {
+      this.error = "Password must be at least 8 characters long.";
+      this.successMessage = null;
+      return;
+    }
+    if (!/[A-Z]/.test(this.password)) {
+      this.error = "Password must contain at least one uppercase letter.";
+      this.successMessage = null;
+      return;
+    }
+    if (!/[a-z]/.test(this.password)) {
+      this.error = "Password must contain at least one lowercase letter.";
+      this.successMessage = null;
+      return;
+    }
+    if (!/\d/.test(this.password)) {
+      this.error = "Password must contain at least one number.";
+      this.successMessage = null;
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
+      this.error = "Password must contain at least one special character.";
+      this.successMessage = null;
+      return;
+    }
+
+    if (this.password !== this.confirmNewPassword) {
+      this.error = "New passwords do not match.";
+      this.successMessage = null;
+      return;
+    }
+  }
+
+  if (brokerId) {
+    try {
+      const response = await fetch(`http://localhost:8000/broker/manage-account/${brokerId}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({
+          current_password: this.currentPassword || undefined, // Only include if provided
+          username: this.username || undefined,
+          email: this.email || undefined,
+          contact_number: this.contactNumber || undefined,
+          password: this.password || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.error = errorData.message || "Failed to update account.";
+        this.successMessage = null;
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        this.successMessage = "Account updated successfully!";
+        this.error = null;
+        // Optionally clear sensitive fields like current password
+        this.currentPassword = "";
+        this.password = "";
+        this.confirmNewPassword = "";
+      } else {
+        this.error = data.message || "Failed to update account.";
+        this.successMessage = null;
+      }
+    } catch (error) {
+      console.error("Error updating account:", error);
+      this.error = "An error occurred while updating your account.";
+      this.successMessage = null;
+    }
+  } else {
+    this.error = "No broker ID found in localStorage.";
+  }
+},
   },
 };
 </script>
