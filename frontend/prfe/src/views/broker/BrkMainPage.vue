@@ -135,6 +135,7 @@
 </template>
 
 
+
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
@@ -450,6 +451,7 @@ renderBarChart() {
 };
 </script>
 
+
 <style scoped>
 html,
 body {
@@ -674,17 +676,18 @@ canvas {
 }
 
 .dropdown-container select {
-  padding: 12px 10px;
+  padding: 6px 10px;
   font-size: 14px;
   font-weight: bold;
   border: none;
   border-radius: 2px;
-  background-color: #fff;
+  background-color: #d5d5d5;
   cursor: pointer;
   pointer-events: auto; 
   position: relative;
   top: -5px;
   right: 10px;
+  color: #000;
 }
 
 .bar-chart-header {
