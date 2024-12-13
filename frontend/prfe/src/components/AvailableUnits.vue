@@ -582,7 +582,7 @@ export default {
         this.isErrorModalVisible = true;
         return;
       }
-      if (this.reservationForm.paymentAmount < this.reservationFee) {
+      if (this.reservationForm.paymentAmount < this.selectedUnit.reservation_fee ) {
         this.errorMessage = "Payment Amount Insufficient";
         this.isErrorModalVisible = true;
         return;
@@ -601,10 +601,6 @@ export default {
           ? this.reservationForm.file.name
           : null, // Ensure file is present
       };
-      console.log(this.selectedUnit.commission);
-
-      console.log("Data being sent to the API:", data);
-
       try {
         const response = await axios.post(
           "http://localhost:8000/reserve-unit/",
