@@ -731,7 +731,7 @@ tr:hover {
 /* Button */
 button {
   padding: 10px 20px;
-  background-color: #4caf50;
+  background-color: #0560fd;
   color: white;
   border: none;
   border-radius: 5px;

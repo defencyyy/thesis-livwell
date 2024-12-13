@@ -899,17 +899,11 @@ body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   color: #fff;
   border: none;
   border-radius: 3px;
   padding: 10px;
-}
-
-.btn-add:hover {
-  background-color: #3e9c73;  /* Slightly darker green */
-  color: #fff;
-  border: none;
 }
 
 
@@ -1141,21 +1135,13 @@ button:hover {
 }
 
 .reserve-btn {
-  background-color: #28a745;
+  background-color: #0560fd;
   color: #fff;
-}
-
-.reserve-btn:hover {
-  background-color: #218838;
 }
 
 .schedule-btn {
-  background-color: #007bff;
+  background-color: #343a40;
   color: #fff;
-}
-
-.schedule-btn:hover {
-  background-color: #0056b3;
 }
 
 .filters {

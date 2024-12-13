@@ -1510,7 +1510,7 @@ html, body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   color: #fff;
   border: none;
   border-radius: 3px;
