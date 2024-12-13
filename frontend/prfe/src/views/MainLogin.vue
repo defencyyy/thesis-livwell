@@ -14,9 +14,11 @@
               />
               <hr class="border mb-4" />
               <h2 class="h1 mb-4 text-black">
-                Welcome to Livwell
+                Welcome to PLMP
               </h2>
               <p class="lead mb-5">
+              Property Listing Management Platform <br>
+              <br><br><br>
                Log in page
               </p>
             </div>
