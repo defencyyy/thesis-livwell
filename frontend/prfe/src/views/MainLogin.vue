@@ -19,7 +19,7 @@
               <p class="lead mb-5">
                 Property Listing Management Platform <br />
                 <br /><br /><br />
-                Log in page
+                Log in Page
               </p>
             </div>
           </div>
