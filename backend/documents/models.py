@@ -11,7 +11,8 @@ def document_file_upload_path(instance, filename):
     customer_code = instance.customer.customer_code if instance.customer else 'unknown_customer'
     customer_name = instance.customer.name if instance.customer else 'unknown_customer'
     
-    # Sanitize customer_name and document_type_name
+    company_name = re.sub(r'\s+', '', company_name) 
+    company_name = re.sub(r'[^\w\s-]', '', company_name) 
     customer_name = re.sub(r'\s+', '', customer_name)
     customer_name = re.sub(r'[^\w\s-]', '', customer_name)
     document_type_name = instance.document_type.name if instance.document_type else 'unknown_type'
