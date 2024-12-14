@@ -183,8 +183,12 @@ export default {
       const user = {
         id: data.user.id,
         user_role: data.user.user_role,
+        first_name: data.user.first_name,
         company_id: data.user.company_id,
-        company: data.user.company,
+        company: {
+          name: data.user.company.name, // Assuming `data.user.company` has a `name` field
+          logo: data.user.company.logo, // Assuming `data.user.company` has a `logo` field
+        },
       };
 
       this.$store.dispatch("login", {

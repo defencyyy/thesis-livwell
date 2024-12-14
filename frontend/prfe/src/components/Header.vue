@@ -1,7 +1,7 @@
 <template>
   <div class="top-bar">
     <div class="welcome-text">
-      Welcome Back, <b>{{ roleName }}!</b>
+      Welcome <b>{{ roleName }}!</b>
     </div>
     <div class="d-flex align-items-center">
       <!-- <button class="btn-bell">
@@ -56,6 +56,7 @@ export default {
   data() {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
+      firstName: localStorage.getItem("first_name") || "Guest", // Get first_name from localStorage
       roleName: "",
       profilePicture: "https://via.placeholder.com/40", // Default profile picture
       dropdownOptions: [],
@@ -67,7 +68,7 @@ export default {
   methods: {
     setHeaderContent() {
       if (this.userRole === "developer") {
-        this.roleName = "Developer";
+        this.roleName = `${this.firstName}`;
         this.profilePicture = "/assets/account.png"; // Example custom image
         this.dropdownOptions = [
           {
@@ -75,19 +76,9 @@ export default {
             link: "/developer/account",
             icon: "bi bi-gear",
           },
-          // {
-          //   name: "Display Settings",
-          //   link: "/developer/display-settings",
-          //   icon: "bi bi-moon",
-          // },
-          // {
-          //   name: "Help & Support",
-          //   link: "/developer/help",
-          //   icon: "bi bi-question-circle",
-          // },
         ];
       } else if (this.userRole === "broker") {
-        this.roleName = "Broker";
+        this.roleName = `${this.firstName}`;
         this.profilePicture = "/assets/broker-profile.png";
         this.dropdownOptions = [
           {
@@ -95,14 +86,9 @@ export default {
             link: "/broker/account",
             icon: "bi bi-gear",
           },
-          // {
-          //   name: "Help & Support",
-          //   link: "/broker/help",
-          //   icon: "bi bi-question-circle",
-          // },
         ];
       } else {
-        this.roleName = "Guest";
+        this.roleName = `${this.firstName}`;
         this.profilePicture = "https://via.placeholder.com/40";
         this.dropdownOptions = [
           { name: "Home", link: "/home", icon: "bi bi-house" },

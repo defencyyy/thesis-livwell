@@ -2,14 +2,20 @@
   <div>
     <div :class="['sidebar']">
       <div class="sidebar-header">
-        <!-- Replace company logo with a Font Awesome icon or any other icon -->
-        <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
-        <!-- Font Awesome Icon -->
-        <h4 id="sidebar-title">{{ company.name || "Company Name" }}</h4>
+        <img
+          v-if="company?.logo"
+          :src="getLogoUrl(company.logo)"
+          class="sidebar-logo"
+          alt="Company Logo"
+        />
+        <i v-else class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
+        <h4 id="sidebar-title">{{ company?.name || "Company Name" }}</h4>
       </div>
+
       <nav class="sidebar-nav">
         <b-nav vertical pills>
           <template v-for="(item, index) in menuItems" :key="index">
+            <!-- Normal menu item with icon and name -->
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
               <i
                 :class="['menu-icon', item.icon, { active: isActive(item) }]"
@@ -19,10 +25,24 @@
               </span>
             </b-nav-item>
 
+            <!-- Parent menu item with icon and name -->
             <div v-else>
-              <b-nav-item :to="item.link" exact custom class="parent-item">
-                {{ item.name }}
+              <b-nav-item
+                :to="item.link"
+                exact
+                custom
+                class="parent-item"
+                :class="{ active: isActive(item) }"
+              >
+                <i
+                  :class="['menu-icon', item.icon, { active: isActive(item) }]"
+                ></i>
+                <span :class="['item-name', { active: isActive(item) }]">
+                  {{ item.name }}
+                </span>
               </b-nav-item>
+
+              <!-- Child menu items with icon and name -->
               <div class="child-menu">
                 <b-nav-item
                   v-for="(child, idx) in item.children"
@@ -30,8 +50,21 @@
                   :to="child.link"
                   exact
                   custom
+                  :class="{
+                    active: isActive(child),
+                    'active-child': isChildActive(child),
+                  }"
                 >
-                  {{ child.name }}
+                  <i
+                    :class="[
+                      'menu-icon',
+                      child.icon,
+                      { active: isActive(child) },
+                    ]"
+                  ></i>
+                  <span :class="['item-name', { active: isActive(child) }]">
+                    {{ child.name }}
+                  </span>
                 </b-nav-item>
               </div>
             </div>
@@ -79,20 +112,17 @@ export default {
             icon: "fas fa-chart-pie",
           },
           {
-            name: "Manage Company",
-            link: "/developer/company",
-            icon: "fas fa-building",
+            name: "View Customers",
+            link: "/developer/customers",
+            icon: "fas fa-users",
           },
+
           {
             name: "Manage Brokers",
             link: "/developer/brokers",
             icon: "fas fa-user-tie",
           },
-          {
-            name: "View Customers",
-            link: "/developer/customers",
-            icon: "fas fa-users",
-          },
+
           {
             name: "Manage Sites",
             link: "/developer/sites",
@@ -102,6 +132,23 @@ export default {
             name: "Manage Units",
             link: "/developer/units",
             icon: "fas fa-home",
+            children: [
+              {
+                name: "Unit Templates",
+                link: "/developer/units/templates",
+                icon: "fas fa-chevron-right",
+              },
+              {
+                name: "Unit Types",
+                link: "/developer/units/types",
+                icon: "fas fa-chevron-right",
+              },
+            ],
+          },
+          {
+            name: "Manage Sales",
+            link: "/developer/sales",
+            icon: "fas fa-chart-line",
           },
           {
             name: "Manage Doc-Types",
@@ -113,10 +160,11 @@ export default {
             link: "/developer/milestones",
             icon: "fas fa-trophy",
           },
+
           {
-            name: "Manage Sales",
-            link: "/developer/sales",
-            icon: "fas fa-chart-line",
+            name: "Manage Company",
+            link: "/developer/company",
+            icon: "fas fa-building",
           },
         ];
       } else if (this.userRole === "broker") {
@@ -160,7 +208,21 @@ export default {
     isActive(item) {
       return this.$route.path === item.link;
     },
+
+    // Check if the current child item is active
+    isChildActive(child) {
+      return this.$route.path === child.link;
+    },
+
+    // Toggle the visibility of child items (for parent items with children)
+    toggleChildMenu(item) {
+      // If the item has children, toggle its 'active' state
+      if (item.children) {
+        item.active = !item.active;
+      }
+    },
   },
+  watch: {},
 };
 </script>
 
@@ -233,6 +295,27 @@ export default {
   color: white; /* Ensure color stays white on hover */
 }
 
+/* Child menu styling when the parent is active */
+.parent-item.active + .child-menu {
+  background-color: #f3f8ff; /* Light blue background for active child items */
+  border-radius: 8px; /* Add rounded corners to the child menu */
+}
+
+/* Remove extra padding for children */
+.child-menu {
+  padding-left: 22px; /* Ensure no padding for children */
+}
+
+/* Style for individual child items */
+.child-menu b-nav-item {
+  padding-left: 0; /* Remove extra padding for child nav items */
+}
+
+/* Optional: Styling for hover on child items */
+.child-menu b-nav-item:hover {
+  background-color: #f0f0f0; /* Light gray background for hover state */
+}
+
 /* RESPONSIVENESS */
 /* Media queries for responsive behavior */
 @media (max-width: 1440px) {
@@ -250,6 +333,11 @@ export default {
 
   .item-name {
     font-size: 13px; /* Adjust item font size */
+  }
+
+  /* Remove extra padding for children */
+  .child-menu {
+    padding-left: 10px; /* Ensure no padding for children */
   }
 }
 
@@ -286,6 +374,15 @@ export default {
 
   .item-name {
     display: none; /* Hide text for small screens */
+  }
+  /* Remove extra padding for children */
+  .child-menu {
+    padding-left: 0; /* Ensure no padding for children */
+  }
+
+  /* Style for individual child items */
+  .child-menu b-nav-item {
+    padding-left: 0 !important; /* Remove extra padding for child nav items */
   }
 }
 </style>

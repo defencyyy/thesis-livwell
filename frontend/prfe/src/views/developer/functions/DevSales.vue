@@ -92,20 +92,7 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
-                    <select
-                      v-model="selectedBroker"
-                      @change="filterSales"
-                      class="dropdown"
-                    >
-                      <option value="">All Brokers</option>
-                      <option
-                        v-for="broker in brokers"
-                        :key="broker.id"
-                        :value="broker.id"
-                      >
-                        {{ broker.first_name }} {{ broker.last_name }}
-                      </option>
-                    </select>
+
                     <select
                       v-model="selectedStatus"
                       @change="filterSales"
@@ -234,9 +221,10 @@
               class="d-flex justify-content-end gap-2 mt-3"
               style="padding-top: 15px"
             >
-              <button @click="confirmUpdate" class="btn btn-primary">
+              <button @click="showConfirmationModal" class="btn btn-primary">
                 Save Changes
               </button>
+
               <button
                 type="button"
                 @click="showModal = false"
@@ -245,6 +233,50 @@
                 Close
               </button>
             </div>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+
+            <!-- Confirm Button -->
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
           </div>
         </b-modal>
       </div>
@@ -262,7 +294,12 @@ import SalesChart from "@/components/DevSalesChart.vue";
 
 export default {
   name: "DevSales",
-  components: { SideNav, AppHeader, SalesChart, BModal },
+  components: {
+    SideNav,
+    AppHeader,
+    SalesChart,
+    BModal,
+  },
   data() {
     return {
       sales: [],
@@ -284,6 +321,14 @@ export default {
       totalUnits: 0,
       availableUnits: 0,
       soldUnits: 0,
+
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // Renamed this from 'confirmAction'
+      confirmParams: [],
     };
   },
   computed: {
@@ -302,6 +347,7 @@ export default {
     }
   },
   methods: {
+    // Fetch sales data
     async fetchSales() {
       try {
         const response = await axios.get(
@@ -314,14 +360,14 @@ export default {
         );
         this.sales = response.data.data || [];
         this.filteredSales = this.sales;
-
-        // Calculate initial statistics
         this.calculateSalesStatistics();
         this.extractEntities();
       } catch (error) {
         console.error("Error fetching sales data:", error);
       }
     },
+
+    // Fetch units data
     async fetchUnits() {
       try {
         const response = await axios.get(
@@ -334,22 +380,23 @@ export default {
         );
 
         const units = response.data.data || [];
-        this.totalUnits = units.length; // Total number of units
+        this.totalUnits = units.length;
         this.availableUnits = units.filter(
           (unit) => unit.status === "Available"
-        ).length; // Count available units
+        ).length;
       } catch (error) {
         console.error("Error fetching units data:", error);
       }
     },
 
+    // Calculate sales statistics
     calculateSalesStatistics() {
       const currentDate = new Date();
       let filteredSales = this.sales;
 
       if (this.salesPeriod === "monthly") {
         filteredSales = this.sales.filter((sale) => {
-          if (!sale.date_sold) return false; // Skip if `date_sold` is missing
+          if (!sale.date_sold) return false;
           const saleDate = new Date(sale.date_sold);
           return (
             saleDate.getMonth() === currentDate.getMonth() &&
@@ -358,28 +405,29 @@ export default {
         });
       } else if (this.salesPeriod === "yearly") {
         filteredSales = this.sales.filter((sale) => {
-          if (!sale.date_sold) return false; // Skip if `date_sold` is missing
+          if (!sale.date_sold) return false;
           const saleDate = new Date(sale.date_sold);
           return saleDate.getFullYear() === currentDate.getFullYear();
         });
       }
 
       this.displayedSales = filteredSales.length;
-
-      // Recalculate ongoing sales, total units, and sold units
       this.ongoingSales = this.sales.filter(
         (sale) => sale.status !== "Sold"
       ).length;
-      this.totalUnits = this.sales.length;
       this.soldUnits = this.sales.filter(
         (sale) => sale.status === "Sold"
       ).length;
     },
+
+    // Extract unique brokers, customers, and sites
     extractEntities() {
       this.brokers = [...new Set(this.sales.map((sale) => sale.broker))];
       this.customers = [...new Set(this.sales.map((sale) => sale.customer))];
       this.sites = [...new Set(this.sales.map((sale) => sale.site))];
     },
+
+    // Filter sales based on selected criteria
     filterSales() {
       let filtered = this.sales;
 
@@ -401,7 +449,6 @@ export default {
         );
       }
 
-      // Apply search filtering
       if (this.searchQuery) {
         filtered = filtered.filter(
           (sale) =>
@@ -414,7 +461,6 @@ export default {
         );
       }
 
-      // Filter by status
       if (this.selectedStatus) {
         filtered = filtered.filter(
           (sale) => sale.status === this.selectedStatus
@@ -423,14 +469,36 @@ export default {
 
       this.filteredSales = filtered;
     },
-    async updateSaleStatus() {
-      try {
-        console.log("Sending PUT request with data:", {
-          status: this.selectedSale.status,
-        });
 
+    // Show confirmation modal
+    showConfirmationModal() {
+      this.confirmMessage = `Are you sure you want to update the status to ${this.selectedSale.status}?`;
+      this.showConfirmModal = true;
+    },
+
+    // Handle the confirmation action
+    async confirmAction() {
+      try {
+        await this.confirmSaleAction(this.selectedSale.id);
+        this.showConfirmModal = false;
+      } catch (error) {
+        this.showConfirmModal = false;
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
+
+    // Cancel the action and close the confirmation modal
+    cancelAction() {
+      this.showConfirmModal = false;
+    },
+
+    // Confirm the sale action (e.g., updating the sale status)
+    async confirmSaleAction(saleId) {
+      try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sales/${this.selectedSale.id}/`,
+          `http://localhost:8000/developer/sales/${saleId}/`,
           { status: this.selectedSale.status },
           {
             headers: {
@@ -439,36 +507,49 @@ export default {
           }
         );
 
-        console.log("Response from API:", response.data);
-
         if (response.status === 200) {
-          alert("Sale status updated successfully!");
-          this.fetchSales(); // Refresh data
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Sale status updated successfully!";
+          this.showNotification = true;
+          this.fetchSales();
           this.closeModal();
         } else {
-          alert("Error updating sale status.");
+          this.notificationTitle = "Error";
+          this.notificationMessage =
+            "An error occurred while updating sale status.";
+          this.showNotification = true;
         }
       } catch (error) {
         console.error("Error updating sale status:", error);
-        alert("Failed to update sale status.");
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
       }
     },
+
+    // Open sales detail modal
     openSalesDetailModal(sale) {
-      console.log("Opening modal for sale:", sale);
-      this.selectedSale = { ...sale }; // Create a copy to avoid direct binding
+      this.selectedSale = { ...sale };
       this.showModal = true;
-      console.log("Modal state:", this.showModal);
     },
+
+    // Close the modal
     closeModal() {
       this.showModal = false;
       this.selectedSale = null;
     },
+
+    // Generate file URL
     getFileUrl(filePath) {
       return `http://localhost:8000${filePath}`;
     },
+
+    // Redirect to login page
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
+
+    // Get the CSS class for the sale status
     getStatusClass(status) {
       return {
         "status-pending-reservation": status === "Pending Reservation",
@@ -477,15 +558,8 @@ export default {
         "status-sold": status === "Sold",
       };
     },
-    confirmUpdate() {
-      if (
-        confirm(
-          `Are you sure you want to update the status to ${this.selectedSale.status}?`
-        )
-      ) {
-        this.updateSaleStatus();
-      }
-    },
+
+    // Format currency value
     formatCurrency(amount) {
       return new Intl.NumberFormat().format(amount);
     },
@@ -956,5 +1030,29 @@ body {
   border-radius: 4px;
   border: 1px solid #ddd;
   justify-content: space-between;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>
