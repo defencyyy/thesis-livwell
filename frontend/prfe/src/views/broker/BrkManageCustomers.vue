@@ -473,6 +473,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import AppHeader from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";

@@ -448,29 +448,41 @@ import axios from "axios";
 
 export default {
   name: "DeveloperBrokers",
+
   components: {
     SideNav,
     AppHeader,
     BModal,
   },
+
   data() {
     return {
+      // State management
       showModal: false,
+      showArchived: false,
       viewFilter: "active",
+
+      // Form fields
+      firstName: "",
+      lastName: "",
       email: "",
       contactNumber: "",
-      lastName: "",
-      firstName: "",
       password: "",
-      showArchived: false,
+
+      // Brokers data
       brokers: [],
       archivedBrokers: [],
       searchQuery: "",
-      currentPage: 1, // Current page number
-      itemsPerPage: 15, // Number of customers per page
+
+      // Pagination
+      currentPage: 1,
+      itemsPerPage: 15,
+
+      // Edit modal
       editModalVisible: false,
       editBroker: {},
-      // Error Tracking
+
+      // Error and notification tracking
       error: null,
       successMessage: null,
       emailError: null,
@@ -478,13 +490,17 @@ export default {
       lastNameError: null,
       firstNameError: null,
       passwordError: null,
+
+      // Confirmation modal
+      showConfirmModal: false,
+      confirmMessage: "",
+      actionToConfirm: null,
+      confirmParams: [],
+
+      // Notifications
       showNotification: false,
       notificationTitle: "",
       notificationMessage: "",
-      showConfirmModal: false, // Controls modal visibility
-      confirmMessage: "", // Stores the confirmation message
-      actionToConfirm: null, // Renamed this from 'confirmAction'
-      confirmParams: [],
     };
   },
 
@@ -493,17 +509,19 @@ export default {
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
-      loggedIn: (state) => state.loggedIn, // Vuex loggedIn state
+      loggedIn: (state) => state.loggedIn,
     }),
+
     vuexUserId() {
       return this.userId;
     },
+
     vuexCompanyId() {
       return this.companyId;
     },
+
     filteredBrokers() {
       const brokers = this.showArchived ? this.archivedBrokers : this.brokers;
-
       if (this.searchQuery) {
         return brokers.filter((broker) =>
           Object.values(broker)
@@ -512,14 +530,17 @@ export default {
             .includes(this.searchQuery.toLowerCase())
         );
       }
-
       return brokers;
     },
+
     paginatedBrokers() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-      const endIndex = startIndex + this.itemsPerPage;
-      return this.filteredBrokers.slice(startIndex, endIndex);
+      return this.filteredBrokers.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
     },
+
     totalPages() {
       return Math.ceil(this.filteredBrokers.length / this.itemsPerPage);
     },
@@ -527,11 +548,8 @@ export default {
 
   mounted() {
     this.fetchBrokers();
-    // Ensure user is logged in and has the correct role and companyId
     if (!this.loggedIn || this.userType !== "developer" || !this.companyId) {
       this.redirectToLogin();
-    } else {
-      this.fetchBrokers();
     }
   },
 
@@ -554,73 +572,51 @@ export default {
   },
 
   methods: {
+    // Confirmation methods
     showConfirmation(message, action, params) {
       this.confirmMessage = message;
-      this.actionToConfirm = action; // Use the renamed key here
+      this.actionToConfirm = action;
       this.confirmParams = params;
       this.showConfirmModal = true;
     },
 
     cancelAction() {
-      this.showConfirmModal = false; // Close modal on cancel
+      this.showConfirmModal = false;
     },
 
     async confirmAction() {
       try {
-        // Dynamically call the function stored in actionToConfirm with the provided params
         await this.actionToConfirm(...this.confirmParams);
-        this.showConfirmModal = false; // Close modal after confirmation
+        this.showConfirmModal = false;
       } catch (error) {
-        this.showConfirmModal = false; // Close modal on error
+        this.showConfirmModal = false;
         this.notificationTitle = "Error";
         this.notificationMessage = "An error occurred during the action.";
         this.showNotification = true;
       }
     },
+
+    // Navigation methods
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
     },
-    openEditModal(broker) {
-      if (!broker || !broker.id) {
-        console.error("Invalid broker object:", broker);
-        return;
-      }
-      this.editBroker = { ...broker };
-      this.editModalVisible = true;
-      this.resetForm(); // Reset error messages when modal opens
-    },
-    toggleView() {
-      this.showArchived = !this.showArchived;
-      if (this.showArchived) {
-        this.fetchArchivedBrokers();
-      } else {
-        this.fetchBrokers();
-      }
-    },
-    async fetchArchivedBrokers() {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/brokers/archived/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        this.archivedBrokers = response.data;
-      } catch (error) {
-        console.error("Error fetching archived brokers:", error);
-        this.error = "Failed to load archived brokers.";
-      }
+
+    redirectToLogin() {
+      this.$router.push({ name: "DevLogin" });
     },
 
+    toggleView() {
+      this.showArchived = !this.showArchived;
+      this.showArchived ? this.fetchArchivedBrokers() : this.fetchBrokers();
+    },
+
+    // Fetch data methods
     async fetchBrokers() {
-      const companyId = this.vuexCompanyId;
-      if (!companyId) {
+      if (!this.vuexCompanyId) {
         alert("Company ID not found. Please log in.");
-        this.$router.push({ name: "DevLogin" });
+        this.redirectToLogin();
         return;
       }
       try {
@@ -639,6 +635,34 @@ export default {
       }
     },
 
+    async fetchArchivedBrokers() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/brokers/archived/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.archivedBrokers = response.data;
+      } catch (error) {
+        console.error("Error fetching archived brokers:", error);
+        this.error = "Failed to load archived brokers.";
+      }
+    },
+
+    // Edit broker methods
+    openEditModal(broker) {
+      if (!broker || !broker.id) {
+        console.error("Invalid broker object:", broker);
+        return;
+      }
+      this.editBroker = { ...broker };
+      this.editModalVisible = true;
+      this.resetForm();
+    },
+
     async confirmEdit() {
       if (
         this.editBroker.contact_number &&
@@ -647,11 +671,8 @@ export default {
         this.contactNumberError =
           "Enter a valid phone number (9 to 15 digits).";
         return;
-      } else {
-        this.contactNumberError = null;
       }
-
-      // Show confirmation modal
+      this.contactNumberError = null;
       this.showConfirmation(
         "Are you sure you want to save these changes?",
         this.saveBrokerEdit,
@@ -662,10 +683,7 @@ export default {
     async saveBrokerEdit(broker) {
       try {
         const payload = { ...broker };
-        if (!payload.password) {
-          delete payload.password; // Remove password if not updated
-        }
-
+        if (!payload.password) delete payload.password;
         await axios.put(
           `http://localhost:8000/developer/brokers/${broker.id}/`,
           payload,
@@ -679,7 +697,7 @@ export default {
         this.notificationMessage = "Broker updated successfully!";
         this.showNotification = true;
         this.editModalVisible = false;
-        this.fetchBrokers(); // Refresh brokers list
+        this.fetchBrokers();
       } catch (error) {
         this.notificationTitle = "Error";
         this.notificationMessage =
@@ -688,8 +706,8 @@ export default {
       }
     },
 
+    // Archive and unarchive methods
     async archiveBroker(brokerId) {
-      // Show confirmation modal for archiving
       this.showConfirmation(
         "Are you sure you want to archive this broker?",
         this.executeArchive,
@@ -698,28 +716,10 @@ export default {
     },
 
     async executeArchive(brokerId) {
-      try {
-        await axios.put(
-          `http://localhost:8000/developer/brokers/${brokerId}/`,
-          { archived: true },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        this.notificationTitle = "Success";
-        this.notificationMessage = "Broker archived successfully!";
-        this.showNotification = true;
-        this.fetchBrokers();
-      } catch (error) {
-        this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while archiving broker.";
-        this.showNotification = true;
-      }
+      await this.updateBrokerArchiveStatus(brokerId, true);
     },
+
     async unarchiveBroker(brokerId) {
-      // Show confirmation modal for unarchiving
       this.showConfirmation(
         "Are you sure you want to unarchive this broker?",
         this.executeUnarchive,
@@ -728,10 +728,14 @@ export default {
     },
 
     async executeUnarchive(brokerId) {
+      await this.updateBrokerArchiveStatus(brokerId, false);
+    },
+
+    async updateBrokerArchiveStatus(brokerId, status) {
       try {
         await axios.put(
           `http://localhost:8000/developer/brokers/${brokerId}/`,
-          { archived: false },
+          { archived: status },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -739,106 +743,34 @@ export default {
           }
         );
         this.notificationTitle = "Success";
-        this.notificationMessage = "Broker unarchived successfully!";
+        this.notificationMessage = `Broker ${
+          status ? "archived" : "unarchived"
+        } successfully!`;
         this.showNotification = true;
-        this.fetchArchivedBrokers();
+        status ? this.fetchBrokers() : this.fetchArchivedBrokers();
       } catch (error) {
         this.notificationTitle = "Error";
-        this.notificationMessage =
-          "An error occurred while unarchiving broker.";
+        this.notificationMessage = `An error occurred while ${
+          status ? "archiving" : "unarchiving"
+        } the broker.`;
         this.showNotification = true;
       }
     },
-    validateForm() {
-      // Reset errors
-      this.emailError = null;
-      this.contactNumberError = null;
-      this.lastNameError = null;
-      this.firstNameError = null;
-      this.passwordError = null;
 
-      // Simple validation logic for each field
-      if (!this.email) {
-        this.emailError = "Email is required.";
-      } else if (!/\S+@\S+\.\S+/.test(this.email)) {
-        this.emailError = "Please enter a valid email address.";
-      }
-
-      if (!this.firstName) {
-        this.firstNameError = "First Name is required.";
-      }
-
-      if (!this.lastName) {
-        this.lastNameError = "Last Name is required.";
-      }
-
-      if (!this.password) {
-        this.passwordError = "Password is required.";
-      }
-
-      // Contact number validation only if it's not optional in edit mode
-      if (this.contactNumber && !/^\+?1?\d{9,15}$/.test(this.contactNumber)) {
-        this.contactNumberError =
-          "Enter a valid phone number (9 to 15 digits).";
-      }
-
-      return !(
-        this.emailError ||
-        this.contactNumberError ||
-        this.firstNameError ||
-        this.lastNameError ||
-        this.passwordError
-      );
-    },
-
-    async addBroker() {
-      if (this.validateForm()) {
-        try {
-          await axios.post(
-            "http://localhost:8000/developer/brokers/add/",
-            {
-              first_name: this.firstName,
-              last_name: this.lastName,
-              email: this.email,
-              password: this.password,
-              contact_number: this.contactNumber,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
-          this.notificationTitle = "Success";
-          this.notificationMessage = "Broker added successfully!";
-          this.showNotification = true;
-          this.showModal = false;
-          this.fetchBrokers();
-          this.resetForm(); // Reset form after successful submission
-        } catch (error) {
-          this.notificationTitle = "Error";
-          this.notificationMessage =
-            "An error occurred while adding the broker.";
-          this.showNotification = true;
-        }
-      }
-    },
-
+    // Form handling
     resetForm() {
-      this.firstName = "";
-      this.lastName = "";
-      this.email = "";
-      this.contactNumber = "";
-      this.password = "";
-      this.emailError = null;
-      this.contactNumberError = null;
-      this.firstNameError = null;
-      this.lastNameError = null;
-      this.passwordError = null;
-    },
-
-    redirectToLogin() {
-      this.$router.push({ name: "DevLogin" });
+      this.firstName =
+        this.lastName =
+        this.email =
+        this.contactNumber =
+        this.password =
+          "";
+      this.emailError =
+        this.contactNumberError =
+        this.firstNameError =
+        this.lastNameError =
+        this.passwordError =
+          null;
     },
   },
 };

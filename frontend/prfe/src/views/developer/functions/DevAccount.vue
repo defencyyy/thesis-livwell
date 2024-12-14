@@ -202,6 +202,7 @@ export default {
         this.error = "Error loading account details.";
       }
     },
+
     async updateAccount() {
       this.loading = true;
       try {
@@ -235,6 +236,7 @@ export default {
         this.loading = false;
       }
     },
+
     resetPasswordFields() {
       this.currentPassword = "";
       this.newPassword = "";
@@ -249,23 +251,19 @@ html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
-/* Ensure .main-page fills the available space */
+/* Main page container */
 .developer-account-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 
+/* Sidebar */
 .SideNav {
   width: 250px;
-  /* Set fixed width for the sidebar */
   position: fixed;
   top: 0;
   left: 0;
@@ -274,27 +272,26 @@ body {
   z-index: 1;
 }
 
+/* Header */
 .AppHeader {
   width: 100%;
   height: 60px;
-  /* Adjust height as needed */
   background-color: #343a40;
   display: flex;
   align-items: center;
   padding-left: 10px;
 }
 
+/* Main content */
 .main-content {
   display: flex;
   flex-direction: column;
   margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
 }
 
+/* Card styling */
 .card {
   border-radius: 16px;
   background-color: #fff;
@@ -306,58 +303,47 @@ body {
   padding: 2.5rem;
 }
 
+/* Title wrapper */
 .title-wrapper {
   display: flex;
-  /* Align line and title horizontally */
   align-items: center;
   width: 100%;
   max-width: 900px;
-
-  /* Ensure the title width matches the card's width */
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 20px;
-  /* Center the wrapper */
+  margin: 20px auto 0;
 }
 
 .edit-title {
-  color: #000000;
+  color: #000;
   margin-bottom: 0.8rem;
   text-align: left;
-  /* Align the text to the left */
 }
 
 .title-icon {
   width: 15px;
-  /* Short horizontal line */
   height: 5px;
-  /* Thin line */
   background-color: #343a40;
-  /* Line color */
   border-radius: 5px;
-  /* Rounded corners */
   margin-right: 10px;
-  /* Space between the icon and the title */
   margin-bottom: 15px;
 }
 
+/* Form layout */
 .row {
   display: flex;
   justify-content: space-between;
-  /* Ensures there's space between the columns */
 }
 
 .col-md-6 {
-  width: 47%; /* You can tweak the width to suit your design */
-  margin-bottom: 20px; /* Spacing between sections */
-  padding-right: 10px; /* Optional: add some padding to prevent overlap */
+  width: 47%;
+  margin-bottom: 20px;
+  padding-right: 10px;
 }
 
 h5 {
   text-align: left;
-  margin-bottom: 1rem; /* Adjust spacing below the title */
-  font-size: 1.1rem; /* Optional: Adjust font size if needed */
-  font-style: italic; /* Italicize the titles */
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-style: italic;
 }
 
 .form-label {
@@ -365,23 +351,23 @@ h5 {
   font-size: 0.9rem;
   color: #6c757d;
   text-align: left;
-  /* Adjust the value to your preferred size */
 }
 
+/* Buttons */
 .btn-update {
-  background-color: #0560fd; /* Button primary color */
+  background-color: #0560fd;
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
-  padding: 10px; /* Adjust the padding at the bottom */
+  border-radius: 3px;
+  padding: 10px;
   width: 100px;
 }
 
 .btn-cancel {
-  background-color: #343a40; /* Button primary color */
+  background-color: #343a40;
   color: #fff;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
+  border-radius: 3px;
   padding: 10px;
 }
 

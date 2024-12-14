@@ -1209,7 +1209,6 @@ def upload_document(request):
             # Debug: Print each file with its document type
             for i, file in enumerate(files):
                 document_type_id = document_type_ids[i]
-
                 document_type = get_object_or_404(DocumentType, id=document_type_id)
 
                 # Check if a document already exists for this customer, document type, and sales_id
@@ -1220,9 +1219,11 @@ def upload_document(request):
                 ).first()
 
                 if existing_document:
-                    # If the document already exists, update it with the new file
-                    existing_document.file = file
-                    existing_document.save()
+                    # If the document already exists, delete the old file first
+                    if existing_document.file:
+                        existing_document.file.delete()  # This removes the old file from storage
+                    existing_document.file = file  # Update with the new file
+                    existing_document.save()  # Save the updated document
                 else:
                     # If the document doesn't exist, create a new document for the specific sale
                     Document.objects.create(
@@ -1239,7 +1240,6 @@ def upload_document(request):
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=400)
-
 
 
 

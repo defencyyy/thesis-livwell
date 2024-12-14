@@ -15,14 +15,21 @@
           </div>
         </div>
 
-        <div class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
           <div class="card-body">
             <!-- Toolbar -->
             <div class="toolbar">
               <div class="left-section">
                 <div class="search-bar-container">
-                  <input type="text" v-model="searchQuery" placeholder="Search Customers" class="search-bar" />
+                  <input
+                    type="text"
+                    v-model="searchQuery"
+                    placeholder="Search Customers"
+                    class="search-bar"
+                  />
                   <i class="fa fa-search search-icon"></i>
                 </div>
               </div>
@@ -43,15 +50,23 @@
           </div>
 
           <!-- Conditional Rendering -->
-          <div v-if="currentCustomers.length === 0" class="no-customers-message">
+          <div
+            v-if="currentCustomers.length === 0"
+            class="no-customers-message"
+          >
             No customers found.
           </div>
 
-          <div v-else v-for="(customer, index) in currentCustomers" :key="customer.id || index"
-            class="card border-0 rounded-1 mx-auto my-2" style="
+          <div
+            v-else
+            v-for="(customer, index) in currentCustomers"
+            :key="customer.id || index"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            ">
+            "
+          >
             <div class="card-body">
               <table class="customer-table">
                 <tbody>
@@ -90,21 +105,24 @@
                         {{
                           customer.broker
                             ? customer.broker.first_name +
-                            " " +
-                            customer.broker.last_name
+                              " " +
+                              customer.broker.last_name
                             : "N/A"
                         }}
                       </span>
                     </td>
                     <td>
                       <div class="broker-actions d-flex gap-2">
-                        <button @click="viewCustomer(customer)" style="
+                        <button
+                          @click="viewCustomer(customer)"
+                          style="
                             border: none;
                             background-color: transparent;
                             color: #343a40;
                             cursor: pointer;
                             font-size: 18px;
-                          ">
+                          "
+                        >
                           <i class="fas fa-eye"></i>
                         </button>
                       </div>
@@ -116,14 +134,26 @@
           </div>
           <!-- Pagination -->
           <div class="pagination-controls">
-            <button :disabled="currentPage === 1" @click="prevPage" class="page-button">
+            <button
+              :disabled="currentPage === 1"
+              @click="prevPage"
+              class="page-button"
+            >
               Previous
             </button>
-            <button v-for="page in totalPages" :key="page" @click="changePage(page)"
-              :class="['page-button', { active: currentPage === page }]">
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="changePage(page)"
+              :class="['page-button', { active: currentPage === page }]"
+            >
               {{ page }}
             </button>
-            <button :disabled="currentPage === totalPages" @click="nextPage" class="page-button">
+            <button
+              :disabled="currentPage === totalPages"
+              @click="nextPage"
+              class="page-button"
+            >
               Next
             </button>
           </div>
@@ -131,77 +161,98 @@
       </div>
     </div>
 
-
     <!-- View Customer Modal -->
-    <b-modal v-model="showEditModal" title="Customer Details" hide-footer hide-header centered size="lg">
-
+    <b-modal
+      v-model="showEditModal"
+      title="Customer Details"
+      hide-footer
+      hide-header
+      centered
+      size="lg"
+    >
       <div class="modal-title p-3">
-        <h5 class="mb-0">Customer: {{ (currentCustomer.first_name || '').toUpperCase() }} {{ (currentCustomer.last_name
-          || '').toUpperCase() }}</h5>
-        <h5><em>Connected Units: {{ connectedUnitsCount }} </em> </h5>
+        <h5 class="mb-0">
+          Customer: {{ (currentCustomer.first_name || "").toUpperCase() }}
+          {{ (currentCustomer.last_name || "").toUpperCase() }}
+        </h5>
+        <h5>
+          <em>Connected Units: {{ connectedUnitsCount }} </em>
+        </h5>
       </div>
-
-      <!-- <div class="form-group">
-        <label for="editFullName" style="font-weight: bold">Full Name: </label>
-        <span id="editFullName">
-          {{ currentCustomer.first_name }} {{ currentCustomer.last_name }}
-        </span>
-      </div> -->
 
       <div class="modal-body">
         <!-- Broker Info -->
 
         <div>
-          <p style="margin-bottom: 5px;">
+          <p style="margin-bottom: 5px">
             <strong>Email: </strong>
             {{ currentCustomer.email }}
           </p>
-          <p style="margin-bottom: 5px;">
+          <p style="margin-bottom: 5px">
             <strong>Contact #: </strong>
             {{ currentCustomer.contact_number }}
           </p>
         </div>
 
-        <!-- <div class="form-group">
-        <label for="editEmail" style="font-weight: bold">Email: </label>
-        <span id="editEmail">{{ currentCustomer.email }}</span>
-      </div>
-      <div class="form-group">
-        <label for="editContact" style="font-weight: bold">Contact: </label>
-        <span id="editContact">{{ currentCustomer.contact_number }}</span>
-      </div> -->
-
         <!-- Spacer -->
-        <!-- <div style="margin-top: 20px"></div> -->
+        <div style="margin-top: 20px"></div>
 
         <!-- Submitted Documents -->
-        <!-- <h5>Submitted Documents</h5>
-        <div v-if="currentCustomer.documents && currentCustomer.documents.length">
+        <h5>Submitted Documents</h5>
+        <div
+          v-if="currentCustomer.documents && currentCustomer.documents.length"
+        >
           <ul>
-            <li v-for="document in currentCustomer.documents" :key="document.url">
+            <li
+              v-for="document in currentCustomer.documents"
+              :key="document.url"
+            >
               <span class="document-type">{{ document.type }}:</span>
 
-              <button @click="openDocumentModal(document)" class="btn btn-link">
-                {{ document.name }}
-              </button>
+              <!-- "View" button styled similarly to the other buttons
+              <button
+                @click="openDocumentModal(document)"
+                class="btn btn-sm btn-outline-primary"
+                aria-label="View document"
+              >
+                View
+              </button> -->
 
-              <a :href="document.url" target="_blank" class="btn btn-sm btn-outline-success"
-                aria-label="Open document in a new tab">
+              <a
+                :href="`http://localhost:8000${document.url}`"
+                target="_blank"
+                class="btn btn-sm btn-outline-success"
+                aria-label="Open document in a new tab"
+              >
                 Open in New Tab
               </a>
-
-              <a :href="document.url" :download="document.name" class="btn btn-sm btn-outline-success" aria-label="Download
-              document">
+              <a
+                :href="`http://localhost:8000${document.url}`"
+                :download="document.name || 'document'"
+                class="btn btn-sm btn-outline-success"
+                aria-label="Download document"
+              >
                 Download
               </a>
             </li>
           </ul>
         </div>
-        <div v-else>No documents available.</div> -->
+        <div v-else>No documents available.</div>
 
-        <b-modal v-model="showDocumentModal" title="View Document" hide-footer centered size="lg">
+        <b-modal
+          v-model="showDocumentModal"
+          title="View Document"
+          hide-footer
+          centered
+          size="lg"
+        >
           <div v-if="selectedDocument">
-            <iframe :src="selectedDocument.url" width="100%" height="500px" frameborder="0"></iframe>
+            <iframe
+              :src="selectedDocument.url"
+              width="100%"
+              height="500px"
+              frameborder="0"
+            ></iframe>
           </div>
           <div v-else>
             <p>No document to display.</p>
@@ -212,48 +263,34 @@
         <div style="margin-top: 20px"></div>
 
         <!-- Broker Info -->
-        <h6 v-if="currentCustomer.broker" style="color: #a3a3a3;"><em>**Broker Information**</em></h6>
+        <h6 v-if="currentCustomer.broker" style="color: #a3a3a3">
+          <em>**Broker Information**</em>
+        </h6>
         <div v-if="currentCustomer.broker">
-          <p style="margin-bottom: 5px;">
+          <p style="margin-bottom: 5px">
             <strong>Broker Name: </strong>
             {{ currentCustomer.broker.first_name }}
             {{ currentCustomer.broker.last_name }}
           </p>
-          <!-- <label for="brokerFullName" style="font-weight: bold">Broker Name:
-          </label>
-          <span id="brokerFullName">
-            {{ currentCustomer.broker.first_name }}
-            {{ currentCustomer.broker.last_name }}
-          </span> -->
         </div>
         <div v-if="currentCustomer.broker">
-          <p style="margin-bottom: 5px;">
+          <p style="margin-bottom: 5px">
             <strong>Broker Email: </strong>
             {{ currentCustomer.broker.email }}
           </p>
-          <!-- <label for="brokerEmail" style="font-weight: bold">Broker Email:
-          </label>
-          <span id="brokerEmail">{{ currentCustomer.broker.email }}</span> -->
         </div>
         <div v-if="currentCustomer.broker">
-          <p style="margin-bottom: 5px;">
+          <p style="margin-bottom: 5px">
             <strong>Broker Contact #: </strong>
-            {{
-              currentCustomer.broker.contact_number
-            }}
+            {{ currentCustomer.broker.contact_number }}
           </p>
-          <!-- <label for="brokerContact" style="font-weight: bold">Broker Contact:
-          </label>
-          <span id="brokerContact">{{
-            currentCustomer.broker.contact_number
-            }}</span> -->
         </div>
 
         <!-- Spacer -->
         <div style="margin-top: 20px"></div>
 
         <!-- Units Connected -->
-        <h6 style="color: #a3a3a3;"><em>**Connected Units**</em></h6>
+        <h6 style="color: #a3a3a3"><em>**Connected Units**</em></h6>
         <!-- Display count -->
         <div v-if="Object.keys(groupedSales).length">
           <table class="styled-table">
@@ -266,7 +303,10 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="(units, siteName) in groupedSales" :key="siteName">
+              <template
+                v-for="(units, siteName) in groupedSales"
+                :key="siteName"
+              >
                 <tr v-for="unit in units" :key="unit.id">
                   <td>{{ unit.title }}</td>
                   <td>{{ unit.unit_number }}</td>
@@ -278,8 +318,16 @@
           </table>
         </div>
         <div v-else>No connected units available.</div>
-        <div class="d-flex justify-content-end gap-3 mt-3" style="padding: 15px">
-          <button type="button" class="btn-cancel" @click="showEditModal = false" style="width: 100px">
+        <div
+          class="d-flex justify-content-end gap-3 mt-3"
+          style="padding: 15px"
+        >
+          <button
+            type="button"
+            class="btn-cancel"
+            @click="showEditModal = false"
+            style="width: 100px"
+          >
             Close
           </button>
         </div>
@@ -498,14 +546,17 @@ export default {
         this.error = "Failed to update customer.";
       }
     },
-    openDocumentModal(document) {
-      if (document && document.url) {
-        this.selectedDocument = document;
-        this.showDocumentModal = true;
-      } else {
-        console.error("Invalid document or missing URL:", document);
-      }
-    },
+    // openDocumentModal(document) {
+    //   if (document && document.url) {
+    //     // Prefix the document URL with 'http://localhost:8000'
+    //     const fullUrl = `http://localhost:8000${document.url}`;
+    //     this.selectedDocument = { ...document, url: fullUrl };
+    //     this.showDocumentModal = true;
+    //   } else {
+    //     console.error("Invalid document or missing URL:", document);
+    //   }
+    //   console.log(`Full URL: ${this.selectedDocument.url}`);
+    // },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
