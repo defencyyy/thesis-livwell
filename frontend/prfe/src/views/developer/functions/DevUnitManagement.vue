@@ -812,6 +812,50 @@
               </b-form-group>
             </form>
           </b-modal>
+          <b-modal
+            v-model="showNotification"
+            :title="notificationTitle"
+            hide-footer
+            centered
+          >
+            <p>{{ notificationMessage }}</p>
+            <div class="button-container">
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel-right"
+              >
+                Close
+              </button>
+            </div>
+          </b-modal>
+          <b-modal
+            v-model="showConfirmModal"
+            :title="'Confirmation'"
+            hide-footer
+            centered
+          >
+            <p>{{ confirmMessage }}</p>
+            <div class="button-container">
+              <!-- Cancel Button -->
+              <button
+                type="button"
+                @click="cancelAction"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+
+              <!-- Confirm Button -->
+              <button
+                type="button"
+                @click="confirmAction"
+                class="btn btn-primary"
+              >
+                Confirm
+              </button>
+            </div>
+          </b-modal>
         </div>
       </div>
     </div>
@@ -936,6 +980,13 @@ export default {
       imageEditIndex: null, // To track which image is being edited
       imageFile: [], // To store the new files selected for replacement
       isAddingImage: false,
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // Renamed this from 'confirmAction'
+      confirmParams: [],
     };
   },
   computed: {
@@ -1269,11 +1320,14 @@ export default {
         if (response.status === 201) {
           this.fetchSiteDetails(); // Refresh the site details
           this.showAddUnitsModal = false; // Close the modal
-          alert("Units successfully added!");
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit/s updated successfully!";
+          this.showNotification = true;
         }
       } catch (error) {
-        console.error("Error adding unit:", error);
-        alert("Failed to add the unit. Please try again.");
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.showNotification = true;
       }
     },
     toggleAddUnitsModal() {
@@ -1375,11 +1429,14 @@ export default {
           this.openUnitManagement({ id: sectionId });
           this.fetchSiteDetails(); // Refresh site details
           this.showAddSectionUnitsModal = false; // Close the modal
-          alert("Units successfully added to the section!");
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit/s updated successfully!";
+          this.showNotification = true;
         }
       } catch (error) {
-        console.error("Error adding units to section:", error);
-        alert("Failed to add the unit. Please try again.");
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.showNotification = true;
       }
     },
 
@@ -1453,51 +1510,61 @@ export default {
         this.showEditUnitModal = true; // Show modal for new unit creation
       }
     },
-
     async saveUnitChanges() {
-      const formData = new FormData();
-      formData.append("unit_number", this.selectedUnit.unit_number);
-      formData.append("unit_type_id", this.selectedUnit.unit_type);
-      formData.append("status", this.selectedUnit.status);
-      formData.append("price", this.selectedUnit.price);
-      formData.append("lot_area", this.selectedUnit.lot_area);
-      formData.append("floor_area", this.selectedUnit.floor_area);
-      formData.append("commission", this.selectedUnit.commission);
-      formData.append("balcony", this.selectedUnit.balcony); // Add balcony
-      formData.append("view", this.selectedUnit.view); // Add view
+      this.showConfirmation(
+        "Are you sure you want to save the changes to this unit?",
+        async () => {
+          const formData = new FormData();
+          formData.append("unit_number", this.selectedUnit.unit_number);
+          formData.append("unit_type_id", this.selectedUnit.unit_type);
+          formData.append("status", this.selectedUnit.status);
+          formData.append("price", this.selectedUnit.price);
+          formData.append("lot_area", this.selectedUnit.lot_area);
+          formData.append("floor_area", this.selectedUnit.floor_area);
+          formData.append("commission", this.selectedUnit.commission);
+          formData.append("balcony", this.selectedUnit.balcony);
+          formData.append("view", this.selectedUnit.view);
 
-      // Handle image files if any
-      this.selectedUnit.images.forEach((image, index) => {
-        if (this.imageFile[index]) {
-          formData.append(`image_${index}`, this.imageFile[index]);
-        }
-      });
-
-      try {
-        let response;
-
-        this.selectedUnit.id;
-        // If the unit has an id, it's an update (PUT request)
-        response = await axios.put(
-          `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
+          // Handle image files if any
+          if (this.selectedUnit.images && this.imageFile) {
+            this.selectedUnit.images.forEach((image, index) => {
+              if (this.imageFile[index]) {
+                formData.append(`image_${index}`, this.imageFile[index]);
+              }
+            });
           }
-        );
 
-        if (response.status === 200 || response.status === 201) {
-          this.showEditUnitModal = false;
-          this.fetchUnits(); // Fetch the updated list of units
-        }
-      } catch (error) {
-        console.error("Error saving unit changes:", error.response || error);
-      }
+          try {
+            let response;
+
+            // If the unit has an id, it's an update (PUT request)
+            response = await axios.put(
+              `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
+              formData,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                  )}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+              this.showEditUnitModal = false;
+              this.fetchUnits(); // Fetch the updated list of units
+            }
+          } catch (error) {
+            console.error(
+              "Error saving unit changes:",
+              error.response || error
+            );
+          }
+        },
+        []
+      );
     },
-
     // Method to toggle the image edit state (show/hide replace form)
     toggleImageEdit(index) {
       this.imageEditIndex = this.imageEditIndex === index ? null : index;
@@ -1599,6 +1666,30 @@ export default {
         }
       } catch (error) {
         console.error("Error deleting image:", error.response || error);
+      }
+    },
+
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action; // Use the renamed key here
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false; // Close modal on cancel
+    },
+
+    async confirmAction() {
+      try {
+        // Dynamically call the function stored in actionToConfirm with the provided params
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false; // Close modal after confirmation
+      } catch (error) {
+        this.showConfirmModal = false; // Close modal on error
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
       }
     },
 
@@ -2135,5 +2226,29 @@ button {
   /* Adjust text size */
   color: #333;
   /* Text color */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>
