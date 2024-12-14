@@ -36,17 +36,17 @@
                     </td>
                     <td>
                       <button
-                        @click="editDocumentType(docType)"
-                        class="btn btn-warning btn-sm"
-                      >
-                        Edit
+                          @click="editDocumentType(docType)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-edit"></i>
                       </button>
-                      <!-- <button
-                      @click="deleteDocumentType(docType.id)"
-                      class="btn btn-danger btn-sm"
-                    >
-                      Delete
-                    </button> -->
                     </td>
                   </tr>
                 </tbody>
@@ -61,60 +61,50 @@
         </div>
 
         <!-- Add/Edit Document Type Modal -->
-        <div v-if="showAddForm" class="modal show d-block" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Add New Document Type</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeForm"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                  <label for="documentTypeName" class="form-label">Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="documentTypeName"
-                    v-model="newDocumentType.name"
-                    placeholder="Enter document type name"
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="documentTypeDescription" class="form-label"
-                    >Description</label
-                  >
-                  <textarea
-                    class="form-control"
-                    id="documentTypeDescription"
-                    v-model="newDocumentType.description"
-                    rows="4"
-                    placeholder="Enter description"
-                  ></textarea>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeForm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  @click="saveDocumentType"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
+        <b-modal v-model = "showAddForm"
+        title = "Add New Document"
+        hide-footer
+        centered
+        >
+          <div class = "mb-3">
+            <label for="documentTypeName" class="form-label text-start">Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="documentTypeName"
+                v-model="newDocumentType.name"
+                placeholder="Enter document type name"
+              />
           </div>
-        </div>
+          <div class="mb-3">
+            <label for="documentTypeDescription" class="form-label text-start"
+              >Description</label
+            >
+            <textarea
+              class="form-control"
+              id="documentTypeDescription"
+              v-model="newDocumentType.description"
+              rows="4"
+              placeholder="Enter description"
+            ></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-3" style="padding-top: 15px">
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="saveDocumentType"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="closeForm"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -123,11 +113,12 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 
 export default {
   name: "DevDocuments",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
   data() {
     return {
       documentTypes: [], // List of document types
