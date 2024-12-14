@@ -141,17 +141,17 @@
           <div class="button-container">
             <button
               type="button"
-              @click="cancelAction"
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
               @click="confirmAction"
               class="btn btn-primary"
             >
               Confirm
+            </button>
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
             </button>
           </div>
         </b-modal>
@@ -244,7 +244,7 @@ export default {
     async saveDocumentType() {
       const message = this.newDocumentType.id
         ? "Do you want to save the changes to this document type?"
-        : "'Document Type' names can't be changed. Proceed?";
+        : "'Document type names can't be changed. Proceed?";
 
       const action = this.newDocumentType.id
         ? this.confirmSaveDocumentType

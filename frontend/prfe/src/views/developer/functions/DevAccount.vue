@@ -134,6 +134,33 @@
             </button>
           </div>
         </b-modal>
+
+        <!-- Confirmation Modal -->
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -169,6 +196,10 @@ export default {
       showNotification: false,
       notificationTitle: "",
       notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // Renamed this from 'confirmAction'
+      confirmParams: [],
     };
   },
   computed: {
@@ -204,6 +235,14 @@ export default {
     },
 
     async updateAccount() {
+      this.showConfirmation(
+        "Are you sure you want to update your account?",
+        this.performAccountUpdate,
+        []
+      );
+    },
+
+    async performAccountUpdate() {
       this.loading = true;
       try {
         await axios.put(
@@ -241,6 +280,29 @@ export default {
       this.currentPassword = "";
       this.newPassword = "";
       this.confirmNewPassword = "";
+    },
+
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action;
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false;
+    },
+
+    async confirmAction() {
+      try {
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false;
+      } catch (error) {
+        this.showConfirmModal = false;
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
     },
   },
 };

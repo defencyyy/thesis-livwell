@@ -105,19 +105,21 @@
         >
           <p>{{ confirmMessage }}</p>
           <div class="button-container">
-            <button
-              type="button"
-              @click="cancelAction"
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
+            <!-- Confirm Button -->
             <button
               type="button"
               @click="confirmAction"
               class="btn btn-primary"
             >
               Confirm
+            </button>
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
             </button>
           </div>
         </b-modal>
