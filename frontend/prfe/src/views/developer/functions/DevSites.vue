@@ -944,6 +944,50 @@
             </form>
           </div>
         </b-modal>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+
+            <!-- Confirm Button -->
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -965,6 +1009,7 @@ export default {
   },
   data() {
     return {
+      // View and UI-related data
       viewMode: "table",
       sortBy: "name",
       searchQuery: "",
@@ -997,8 +1042,10 @@ export default {
         reservation_fee: 50000,
         other_charges: 0,
       },
-      showSectionModal: false, // Updated from showFloorModal
+      showSectionModal: false, // Modal for adding/editing sections
       newSectionsToAdd: 0,
+
+      // Editing site-related data
       editSite: {
         id: "",
         name: "",
@@ -1024,6 +1071,8 @@ export default {
         reservation_fee: 0,
         other_charges: 0,
       },
+
+      // Current site and pagination related data
       currentSite: {
         id: "",
         name: "",
@@ -1036,12 +1085,10 @@ export default {
         picture: "",
         address: "",
         postalCode: 0,
-        // Section
         sections: [],
         section_label: "",
         number_of_sections: 0,
         numbering_type: "",
-        // Payment
         maximum_months: 0,
         commission: 0,
         spot_discount_percentage: 0,
@@ -1050,9 +1097,11 @@ export default {
         reservation_fee: 0,
         other_charges: 0,
       },
-      totalSections: 0, // Updated from totalFloors
+      totalSections: 0, // Total number of sections (formerly totalFloors)
       newSectionNumber: null,
       newSectionCount: null,
+
+      // Site lists and filters
       sites: [],
       archivedSites: [],
       regionOptions: [],
@@ -1063,35 +1112,50 @@ export default {
       selectedProvince: null,
       selectedMunicipality: null,
       selectedBarangay: null,
+
+      // Picture handling
       newPictureFile: null,
       imagePreview: null,
+
+      // Pagination
       currentPage: 1,
-      itemsPerPage: 15,
+      itemsPerPage: 10,
+
+      // Notifications
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // The action to confirm
+      confirmParams: [], // Parameters for the action
     };
   },
+
   computed: {
+    // Vuex store data
     ...mapState({
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
+
     vuexUserId() {
       return this.userId;
     },
     vuexCompanyId() {
       return this.companyId;
     },
+
+    // Filter sites based on the active/archived view
     filteredSites() {
-      // Determine whether to filter active or archived sites
       const sitesToFilter =
         this.viewFilter === "archived" ? this.archivedSites : this.sites;
 
-      // Apply search and sorting
       return sitesToFilter
-        .filter(
-          (site) =>
-            site?.name?.toLowerCase().includes(this.searchQuery.toLowerCase()) // Optional chaining for safety
-        )
+        .filter((site) =>
+          site?.name?.toLowerCase().includes(this.searchQuery.toLowerCase())
+        ) // Filter by search query
         .sort((a, b) => {
           const aName = a?.name || "";
           const bName = b?.name || "";
@@ -1100,194 +1164,69 @@ export default {
           const aCreatedAt = new Date(a?.created_at) || new Date(0); // Default to epoch if undefined
           const bCreatedAt = new Date(b?.created_at) || new Date(0);
 
-          if (this.sortBy === "name") {
-            return aName.localeCompare(bName);
-          } else if (this.sortBy === "status") {
+          // Sort by selected criteria
+          if (this.sortBy === "name") return aName.localeCompare(bName);
+          else if (this.sortBy === "status")
             return aStatus.localeCompare(bStatus);
-          } else if (this.sortBy === "creation") {
-            return aCreatedAt - bCreatedAt; // Sort by date (ascending)
-          }
+          else if (this.sortBy === "creation") return aCreatedAt - bCreatedAt;
           return 0; // Default case
         });
     },
+
+    // Count of sections for the current site
     numberOfSections() {
       return this.currentSite.sections.length;
     },
+
+    // Paginate filtered sites
     paginatedSites() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      return this.filteredSites.slice(startIndex, endIndex); // Use filteredSites here
+      return this.filteredSites.slice(startIndex, endIndex); // Slice filtered sites for pagination
     },
+
+    // Calculate the total number of pages
     totalPages() {
-      return Math.ceil(this.filteredSites.length / this.itemsPerPage); // Use filteredSites here
+      return Math.ceil(this.filteredSites.length / this.itemsPerPage); // Total pages based on filtered sites
     },
   },
+
+  mounted() {
+    this.fetchSites();
+    this.loadRegionData();
+
+    // If showing archived sites, fetch them
+    if (this.showArchived) {
+      this.fetchArchivedSites();
+    }
+  },
+
+  watch: {
+    showArchived() {
+      // Watch for archived view toggle (can be expanded in the future)
+    },
+  },
+
+  created() {
+    this.fetchStatusOptions(); // Fetch status options when the component is created
+  },
   methods: {
+    // Toggle visibility of dropdown for each site
     toggleDropdown(site) {
       this.visibleDropdown = this.visibleDropdown === site ? null : site; // Toggle visibility
     },
+
+    // Check if dropdown should be visible for the given site
     isDropdownVisible(site) {
       return this.visibleDropdown === site; // Check if dropdown should be shown for this site
     },
-    goToPage(pageNumber) {
-      if (pageNumber > 0 && pageNumber <= this.totalPages) {
-        this.currentPage = pageNumber;
-      }
-    },
-    formatStatus(status) {
-      return status
-        .split("_") // Split the string at underscores
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        ) // Capitalize each word
-        .join(" "); // Join the words back with spaces
-    },
-    revertStatusToOriginal(status) {
-      return status
-        .split(" ") // Split by space
-        .map((word) => word.toLowerCase()) // Convert each word to lowercase
-        .join("_"); // Join the words back with underscores
-    },
-    capitalizeFirstLetter(str) {
-      if (!str) return str;
-      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    },
-    async fetchSites() {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/sites/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        if (response.status === 200) {
-          this.sites = response.data.data.map((site) => ({
-            ...site,
-            name: site.name || "Unknown Site",
-            location: this.constructLocation(site), // Dynamically build location
-            isArchived: site.isArchived ?? false,
-            sections: site.sections || [], // Ensure floors is always an array
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching sites:", error.response || error);
-      }
-    },
-    async fetchArchivedSites() {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/sites/archived/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
 
-        if (response.status === 200) {
-          this.archivedSites = response.data.data.map((site) => ({
-            ...site,
-            location: this.constructLocation(site), // Build location dynamically
-          }));
-          console.log("Archived sites fetched:", this.archivedSites);
-        }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          const refreshedToken = await this.refreshAccessToken();
-          if (refreshedToken) {
-            this.fetchArchivedSites(); // Retry fetching archived sites
-          }
-        } else {
-          console.error(
-            "Error fetching archived sites:",
-            error.response || error
-          );
-        }
-      }
+    // Toggle between grid and table view modes
+    toggleView() {
+      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
-    async archiveSite(site) {
-      const siteId = site.id; // Get the site ID
-      console.log("Archiving site with ID:", siteId);
 
-      if (confirm("Are you sure you want to archive this site?")) {
-        try {
-          const response = await axios.put(
-            `http://localhost:8000/developer/sites/archived/${siteId}/`, // Correct endpoint for updating the site
-            {
-              name: site.name, // Pass the existing name or other required fields
-              description: site.description,
-              region: site.region,
-              province: site.province,
-              municipality: site.municipality,
-              barangay: site.barangay,
-              postal_code: site.postal_code,
-              picture: site.picture, // If you want to keep the picture
-              status: site.status,
-              maximum_months: site.maximum_months,
-              archived: true, // If you need to update the archive status
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-              params: { action: "archive" }, // Send action=archive as query parameter
-            }
-          );
-
-          if (response.status === 200) {
-            console.log("Site archived successfully.");
-            this.fetchSites();
-            this.fetchArchivedSites();
-          }
-        } catch (error) {
-          console.error("Error archiving site:", error.response?.data || error);
-        }
-      }
-    },
-    async unarchiveSite(site) {
-      const siteId = site.id; // Get the site ID
-      console.log("Unarchiving site with ID:", siteId);
-
-      if (confirm("Are you sure you want to unarchive this site?")) {
-        try {
-          const response = await axios.put(
-            `http://localhost:8000/developer/sites/archived/${siteId}/`, // Correct endpoint for updating the site
-            {
-              name: site.name, // Pass the existing name or other required fields
-              description: site.description,
-              region: site.region,
-              province: site.province,
-              municipality: site.municipality,
-              barangay: site.barangay,
-              postal_code: site.postal_code,
-              picture: site.picture, // If you want to keep the picture
-              status: site.status,
-              maximum_months: site.maximum_months,
-              archived: false, // Update the archived status to false (unarchive)
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-              params: { action: "unarchive" }, // Send action=unarchive as query parameter
-            }
-          );
-
-          if (response.status === 200) {
-            console.log("Site unarchived successfully.");
-            this.fetchSites(); // Refresh the site list
-            this.fetchArchivedSites(); // Refresh the archived site list
-          }
-        } catch (error) {
-          console.error(
-            "Error unarchiving site:",
-            error.response?.data || error
-          );
-        }
-      }
-    },
+    // Toggle visibility of archived sites and fetch them if necessary
     toggleArchived() {
       this.showArchived = !this.showArchived;
       console.log("Toggled archived view:", this.showArchived);
@@ -1297,14 +1236,61 @@ export default {
         this.fetchArchivedSites();
       }
     },
-    toggleView() {
-      this.viewMode = this.viewMode === "grid" ? "table" : "grid";
+
+    // Navigate to a specific page
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
     },
 
-    // Function to get the picture URL (for the current image)
+    // Fetch available status options
+    async fetchStatusOptions() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/status-options/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        this.statusOptions = Object.keys(response.data.status_options); // Extract keys (the stored values)
+      } catch (error) {
+        console.error("Error fetching status options:", error);
+      }
+    },
+
+    // Format status by capitalizing each word
+    formatStatus(status) {
+      return status
+        .split("_") // Split the string at underscores
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ) // Capitalize each word
+        .join(" "); // Join the words back with spaces
+    },
+
+    // Convert formatted status back to original format
+    revertStatusToOriginal(status) {
+      return status
+        .split(" ") // Split by space
+        .map((word) => word.toLowerCase()) // Convert each word to lowercase
+        .join("_"); // Join the words back with underscores
+    },
+
+    // Capitalize the first letter of a string
+    capitalizeFirstLetter(str) {
+      if (!str) return str;
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    },
+
+    // Function to generate picture URL from the picture path
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`; // Adjust the URL path as needed
     },
+
+    // Upload a picture for a specific site
     async uploadPicture(siteId, pictureFile) {
       const formData = new FormData();
       formData.append("picture", pictureFile);
@@ -1338,6 +1324,8 @@ export default {
         console.error("Error updating picture:", error.response || error);
       }
     },
+
+    // Handle picture upload event and update preview
     handlePictureUpload(event, mode) {
       const file = event.target.files[0];
       if (file) {
@@ -1356,7 +1344,203 @@ export default {
         this.imagePreview = null; // Clear preview if no file is selected
       }
     },
-    // Save new site, including floors
+
+    // Reset picture preview and clear file input
+    resetPicturePreview() {
+      this.newPictureFile = null;
+      this.imagePreview = null;
+      const fileInput = document.getElementById("picture"); // Get the file input element
+      if (fileInput) {
+        fileInput.value = ""; // Clear the file input
+      }
+    },
+
+    // Fetch sites and dynamically build location and sections
+    async fetchSites() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          this.sites = response.data.data.map((site) => ({
+            ...site,
+            name: site.name || "Unknown Site",
+            location: this.constructLocation(site),
+            isArchived: site.isArchived ?? false,
+            sections: site.sections || [],
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching sites:", error.response || error);
+      }
+    },
+
+    // Fetch archived sites and dynamically build location
+    async fetchArchivedSites() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/sites/archived/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.archivedSites = response.data.data.map((site) => ({
+            ...site,
+            location: this.constructLocation(site),
+          }));
+        }
+      } catch (error) {
+        if (error.response?.status === 401) {
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            this.fetchArchivedSites();
+          }
+        } else {
+          console.error(
+            "Error fetching archived sites:",
+            error.response || error
+          );
+        }
+      }
+    },
+    // Show confirmation modal
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action;
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    // Cancel confirmation action
+    cancelAction() {
+      this.showConfirmModal = false;
+    },
+
+    // Confirm the action
+    async confirmAction() {
+      try {
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false;
+      } catch (error) {
+        this.showConfirmModal = false;
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
+
+    // Archive a site
+    async archiveSite(site) {
+      const siteId = site.id;
+      this.showConfirmation(
+        "Are you sure you want to archive this site?",
+        this.executeArchiveSite,
+        [siteId, site]
+      );
+    },
+
+    // Unarchive a site
+    async unarchiveSite(site) {
+      const siteId = site.id;
+      this.showConfirmation(
+        "Are you sure you want to unarchive this site?",
+        this.executeUnarchiveSite,
+        [siteId, site]
+      );
+    },
+
+    // Execute archive action
+    async executeArchiveSite(siteId, site) {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/archived/${siteId}/`,
+          {
+            name: site.name,
+            description: site.description,
+            region: site.region,
+            province: site.province,
+            municipality: site.municipality,
+            barangay: site.barangay,
+            postal_code: site.postal_code,
+            picture: site.picture,
+            status: site.status,
+            maximum_months: site.maximum_months,
+            archived: true,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            params: { action: "archive" },
+          }
+        );
+
+        if (response.status === 200) {
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Site archived successfully!";
+          this.showNotification = true;
+          this.fetchSites();
+          this.fetchArchivedSites();
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while archiving the site.";
+        this.showNotification = true;
+      }
+    },
+
+    // Execute unarchive action
+    async executeUnarchiveSite(siteId, site) {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/developer/sites/archived/${siteId}/`,
+          {
+            name: site.name,
+            description: site.description,
+            region: site.region,
+            province: site.province,
+            municipality: site.municipality,
+            barangay: site.barangay,
+            postal_code: site.postal_code,
+            picture: site.picture,
+            status: site.status,
+            maximum_months: site.maximum_months,
+            archived: false,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            params: { action: "unarchive" },
+          }
+        );
+
+        if (response.status === 200) {
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Site unarchived successfully!";
+          this.showNotification = true;
+          this.fetchSites();
+          this.fetchArchivedSites();
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while unarchiving the site.";
+        this.showNotification = true;
+      }
+    },
+
+    // Save new site, including sections
     async addSite() {
       const formData = new FormData();
       formData.append("companyId", this.vuexCompanyId);
@@ -1368,14 +1552,14 @@ export default {
       formData.append("barangay", this.newSite.barangay);
       formData.append("address", this.newSite.address);
       formData.append("postal_code", this.newSite.postalCode);
+
       const formattedStatus = this.revertStatusToOriginal(this.newSite.status);
-      this.newSite.status = formattedStatus;
-      formData.append("status", this.newSite.status);
+      formData.append("status", formattedStatus);
 
       // Sections
-      formData.append("number_of_sections", this.newSite.number_of_sections); // Updated field
-      formData.append("numbering_type", this.newSite.numbering_type); // Added field
-      formData.append("section_label", this.newSite.section_label); // Added field
+      formData.append("number_of_sections", this.newSite.number_of_sections);
+      formData.append("numbering_type", this.newSite.numbering_type);
+      formData.append("section_label", this.newSite.section_label);
 
       // Payment Fields
       formData.append("maximum_months", this.newSite.maximum_months);
@@ -1393,7 +1577,7 @@ export default {
       formData.append("other_charges", this.newSite.other_charges || "");
 
       // Add Sections
-      if (this.newSite.sections && this.newSite.sections.length > 0) {
+      if (this.newSite.sections?.length) {
         this.newSite.sections.forEach((section, index) => {
           formData.append(
             `sections[${index}][sectionNumber]`,
@@ -1426,55 +1610,39 @@ export default {
               ? JSON.parse(response.data)
               : response.data;
           const siteId = parsedData.id;
-          console.log("New site created with ID:", siteId);
+
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Site created successfully!";
+          this.showNotification = true;
 
           if (siteId && pictureFile) {
             await this.uploadPicture(siteId, pictureFile);
           }
 
-          // Reset form and reload sites
-          //this.newSite = this.resetNewSite();
           this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
         }
       } catch (error) {
-        console.error("Error adding site:", error.response || error);
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while creating the site.";
+        this.showNotification = true;
       }
     },
-    addSections() {
-      // Find the last section number from the existing sections
-      let lastSectionNumber = 0;
-      if (this.editSite.sections.length > 0) {
-        lastSectionNumber = Math.max(
-          ...this.editSite.sections.map((section) => section.sectionNumber)
-        );
-      }
 
-      // Generate new sections, starting from the correct number
-      const newSections = [];
-      for (let i = 0; i < this.newSectionsToAdd; i++) {
-        // Make sure the new sections start from the last section number + 1
-        newSections.push({
-          sectionNumber: lastSectionNumber + i + 1, // Generate new section numbers
-          sectionLabel: this.editSite.section_label, // Section label from the input
-        });
-      }
-
-      // Append the new sections to the existing ones
-      this.editSite.sections.push(...newSections); // Add the new sections to the current ones
-      this.editSite.number_of_sections = this.editSite.sections.length; // Update the total section count
-
-      // Reset the input field after adding sections
-      this.newSectionsToAdd = 0;
-    },
+    // Trigger site update confirmation
     async updateSite() {
+      this.showConfirmation(
+        "Are you sure you want to update this site?",
+        this.executeUpdateSite,
+        [this.selectedSite]
+      );
+    },
+
+    // Execute site update
+    async executeUpdateSite() {
       const formData = new FormData();
 
-      // Log the editSite data for debugging
-      console.log("Data for updateSite:", this.editSite);
-
-      // Site fields
       formData.append("companyId", this.vuexCompanyId);
       formData.append("name", this.editSite.name);
       formData.append("description", this.editSite.description || "");
@@ -1485,8 +1653,6 @@ export default {
       formData.append("address", this.editSite.address || "");
       formData.append("postal_code", this.editSite.postalCode || "null");
       formData.append("status", this.editSite.status);
-
-      // Payment Fields
       formData.append("maximum_months", this.editSite.maximum_months);
       formData.append("commission", this.editSite.commission || "");
       formData.append(
@@ -1500,16 +1666,13 @@ export default {
       formData.append("vat_percentage", this.editSite.vat_percentage || "");
       formData.append("reservation_fee", this.editSite.reservation_fee || "");
       formData.append("other_charges", this.editSite.other_charges || "");
+      formData.append("number_of_sections", this.newSectionsToAdd);
+      formData.append("section_label", this.editSite.section_label || "");
 
-      // Sections - only append newly added sections
-      formData.append("number_of_sections", this.newSectionsToAdd); // Use newSectionsToAdd here
-      formData.append("section_label", this.editSite.section_label || ""); // Section label
-
-      // Append only the newly added sections
       if (this.newSectionsToAdd > 0) {
         const newSections = this.editSite.sections.slice(
           -this.newSectionsToAdd
-        ); // Get only the newly added sections
+        );
         newSections.forEach((section, index) => {
           formData.append(
             `sections[${index}][sectionNumber]`,
@@ -1522,7 +1685,6 @@ export default {
         });
       }
 
-      // Handle Picture (If there's a new picture, include it)
       const pictureFile =
         this.newPictureFile ||
         (this.editSite.picture && this.editSite.picture instanceof File
@@ -1530,15 +1692,12 @@ export default {
           : null);
 
       if (pictureFile && pictureFile instanceof File) {
-        formData.append("picture", pictureFile); // Append the file directly
+        formData.append("picture", pictureFile);
       }
-
-      // Log the formData content before making the request
-      console.log("Form Data being sent:", formData);
 
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.selectedSite.id}/`, // Ensure to use the selected site's ID
+          `http://localhost:8000/developer/sites/${this.selectedSite.id}/`,
           formData,
           {
             headers: {
@@ -1549,48 +1708,59 @@ export default {
         );
 
         if (response.status === 200) {
-          const parsedData =
-            typeof response.data === "string"
-              ? JSON.parse(response.data)
-              : response.data;
-          const siteId = parsedData.id;
-          console.log("Site updated with ID:", siteId);
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Site updated successfully!";
+          this.showNotification = true;
 
-          // Reset the picture preview and clear the file input
           this.resetPicturePreview();
-          this.newPictureFile = null; // Clear the file input field
+          this.newPictureFile = null;
 
-          // Reset the input field itself
           const fileInput = document.getElementById("picture");
           if (fileInput) {
-            fileInput.value = ""; // Reset the file input
+            fileInput.value = "";
           }
 
-          // Reset form and close the modal
           this.showEditModal = false;
-          this.fetchSites(); // Reload the list of sites after editing
+          this.fetchSites();
         }
       } catch (error) {
-        // Log full error details for debugging
-        console.error("Error editing site:", error.response || error);
-        if (error.response) {
-          console.log("Error Response Status:", error.response.status);
-          console.log("Error Response Data:", error.response.data);
-          console.log("Error Response Headers:", error.response.headers);
-        }
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while editing the site.";
+        this.showNotification = true;
       }
     },
+
+    // Add new sections to the site
+    addSections() {
+      let lastSectionNumber = 0;
+      if (this.editSite.sections.length > 0) {
+        lastSectionNumber = Math.max(
+          ...this.editSite.sections.map((section) => section.sectionNumber)
+        );
+      }
+
+      const newSections = [];
+      for (let i = 0; i < this.newSectionsToAdd; i++) {
+        newSections.push({
+          sectionNumber: lastSectionNumber + i + 1,
+          sectionLabel: this.editSite.section_label,
+        });
+      }
+
+      this.editSite.sections.push(...newSections);
+      this.editSite.number_of_sections = this.editSite.sections.length;
+      this.newSectionsToAdd = 0;
+    },
+
     // Open the edit modal and prepare the data
     openEditModal(selectedSite) {
       this.selectedSite = selectedSite;
-
-      // Get the length of the sections array
       const numberOfSections = this.selectedSite.sections.length;
 
       this.editSite = {
         ...this.selectedSite,
         sections: [...this.selectedSite.sections], // Clone sections array to avoid mutation
-        number_of_sections: numberOfSections, // Set the length of sections in the editSite object
+        number_of_sections: numberOfSections,
         postalCode: this.selectedSite.postal_code,
       };
 
@@ -1602,29 +1772,6 @@ export default {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
-    resetPicturePreview() {
-      this.newPictureFile = null;
-      this.imagePreview = null;
-      const fileInput = document.getElementById("picture"); // Get the file input element
-      if (fileInput) {
-        fileInput.value = ""; // Clear the file input
-      }
-    },
-    async fetchStatusOptions() {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/developer/sites/status-options/",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        this.statusOptions = Object.keys(response.data.status_options); // Extract keys (the stored values)
-      } catch (error) {
-        console.error("Error fetching status options:", error);
-      }
-    },
 
     constructLocation(site) {
       const addressParts = [
@@ -1633,120 +1780,78 @@ export default {
         site.barangay,
         site.postal_code ? `Postal Code: ${site.postal_code}` : "",
       ];
-      return addressParts.filter(Boolean).join(", "); // Join non-empty parts
+      return addressParts.filter(Boolean).join(", ");
     },
+
+    // Load region data
     async loadRegionData() {
       try {
         const response = await axios.get(
           "http://localhost:8000/developer/sites/locations/"
         );
-        this.regionData = response.data; // Store region data for further processing
-
-        // Sort region options: non-numeric values at the top, followed by numeric ones in ascending order
+        this.regionData = response.data;
         this.regionOptions = Object.keys(this.regionData).sort((a, b) => {
-          // Check if the keys are numeric
           const isANumeric = !isNaN(parseInt(a));
           const isBNumeric = !isNaN(parseInt(b));
 
-          // If both are numeric or both are non-numeric, sort numerically or lexicographically
           if (isANumeric && isBNumeric) {
-            return parseInt(a) - parseInt(b); // Numeric sorting
+            return parseInt(a) - parseInt(b);
           } else if (!isANumeric && !isBNumeric) {
-            return a.localeCompare(b); // Non-numeric sorting (lexicographically)
+            return a.localeCompare(b);
           } else {
-            // If one is numeric and the other is non-numeric, non-numeric goes first
             return isANumeric ? 1 : -1;
           }
         });
       } catch (error) {
-        console.error("Error loading region data:", error);
+        this.notificationTitle = "Error";
+        this.notificationMessage = "Error loading region data.";
+        this.showNotification = true;
       }
     },
+
+    // Load province data based on region
     loadProvinceData(regionCode) {
-      if (!regionCode) {
-        console.error("No region selected.");
-        return;
-      }
+      if (!regionCode) return;
 
-      const region = this.regionData[regionCode]; // Get the region using selectedRegion
+      const region = this.regionData[regionCode];
       if (region) {
-        this.provinceOptions = Object.keys(region.province_list); // Map available provinces from province_list
-
-        // Set the region to newSite
+        this.provinceOptions = Object.keys(region.province_list);
         this.newSite.region = regionCode;
-
-        // Clear previous municipality and barangay options
         this.municipalityOptions = [];
         this.barangayOptions = [];
-        this.newSite.province = ""; // Reset province in newSite
-        this.newSite.municipality = ""; // Reset municipality in newSite
-        this.newSite.barangay = ""; // Reset barangay in newSite
-      } else {
-        console.error("Invalid region selected.");
+        this.newSite.province = "";
+        this.newSite.municipality = "";
+        this.newSite.barangay = "";
       }
     },
+
+    // Load municipality data based on province
     loadMunicipalityData(provinceName) {
-      if (!this.newSite.region) {
-        console.error("No region selected.");
-        return;
-      }
-      if (!provinceName) {
-        console.error("No province selected.");
-        return;
-      }
+      if (!this.newSite.region || !provinceName) return;
 
-      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
-      if (region) {
-        const province = region.province_list[provinceName]; // Get the province using provinceName
-        if (province) {
-          this.municipalityOptions = Object.keys(province.municipality_list); // Map available municipalities from municipality_list
-
-          // Set the province to newSite
-          this.newSite.province = provinceName;
-
-          // Clear barangay options when a new province is selected
-          this.barangayOptions = [];
-          this.newSite.municipality = ""; // Reset municipality in newSite
-          this.newSite.barangay = ""; // Reset barangay in newSite
-        } else {
-          this.municipalityOptions = []; // Clear if no province found
-          this.barangayOptions = []; // Clear barangay options if no province is found
-        }
+      const region = this.regionData[this.newSite.region];
+      const province = region?.province_list[provinceName];
+      if (province) {
+        this.municipalityOptions = Object.keys(province.municipality_list);
+        this.newSite.province = provinceName;
+        this.barangayOptions = [];
+        this.newSite.municipality = "";
+        this.newSite.barangay = "";
       }
     },
+
+    // Load barangay data based on municipality
     loadBarangayData(municipalityName) {
-      if (!municipalityName) {
-        console.error("No municipality selected.");
-        return;
-      }
+      if (!municipalityName) return;
 
-      const region = this.regionData[this.newSite.region]; // Get the region using newSite.region
-      if (region) {
-        const province = region.province_list[this.newSite.province]; // Get the province using newSite.province
-        if (province) {
-          const municipality = province.municipality_list[municipalityName]; // Get municipality using municipalityName
-          if (municipality) {
-            this.barangayOptions = municipality.barangay_list || []; // Map available barangays from barangay_list
-
-            // Set the municipality to newSite
-            this.newSite.municipality = municipalityName;
-          }
-        }
+      const region = this.regionData[this.newSite.region];
+      const province = region?.province_list[this.newSite.province];
+      const municipality = province?.municipality_list[municipalityName];
+      if (municipality) {
+        this.barangayOptions = municipality.barangay_list || [];
+        this.newSite.municipality = municipalityName;
       }
     },
-  },
-  mounted() {
-    this.fetchSites();
-    this.loadRegionData();
-    if (this.showArchived) {
-      this.fetchArchivedSites();
-    }
-  },
-  watch: {
-    showArchived() {},
-  },
-  created() {
-    this.fetchStatusOptions(); // Fetch the status options when the component is created
   },
 };
 </script>
@@ -2174,5 +2279,29 @@ body {
 .page-button:hover:not(:disabled) {
   background-color: #e9ecef;
   /* Light gray */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>
