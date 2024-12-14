@@ -1061,40 +1061,20 @@ body {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -20px;
-  padding-right: 35px;
-  font-size: 14px;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 
-.pagination-controls {
-  display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 75px; /* Add padding to push it away from the edge */
+.page-item {
+  margin: 0 2px; /* Reduce spacing between buttons */
 }
 
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+.page-link {
+  padding: 4px 8px; /* Smaller button padding */
+  font-size: 14px; /* Match font size for consistency */
 }
 
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
 
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
-}
 </style>

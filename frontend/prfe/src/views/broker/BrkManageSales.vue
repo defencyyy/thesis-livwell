@@ -1739,9 +1739,21 @@ input[type="file"] {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -20px;
-  padding-right: 35px;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
+
+.page-item {
+  margin: 0 2px; /* Reduce spacing between buttons */
+}
+
+.page-link {
+  padding: 4px 8px; /* Smaller button padding */
+  font-size: 14px; /* Match font size for consistency */
+}
+
 
 .sales-box {
   min-width: 300px;
