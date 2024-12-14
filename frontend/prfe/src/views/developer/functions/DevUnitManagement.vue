@@ -1180,7 +1180,6 @@ export default {
         this.site = response.data.data;
 
         // Log the site object to see its properties
-        console.log(this.site);
 
         if (this.site && this.site.sections) {
           this.fetchSectionsData();
@@ -1270,7 +1269,6 @@ export default {
       formData.append("vat_percentage", this.newUnitVatPercentage);
 
       // Log the selected section IDs
-      console.log("Selected section IDs:", this.newUnitSections);
 
       // Append the selected section IDs as an array
       this.newUnitSections.forEach((sectionId) => {
@@ -1278,7 +1276,6 @@ export default {
       });
 
       if (this.newUnitImages && this.newUnitImages.length) {
-        console.log("Selected images:", this.newUnitImages);
         for (let i = 0; i < this.newUnitImages.length; i++) {
           const image = this.newUnitImages[i];
 
@@ -1290,16 +1287,9 @@ export default {
           formData.append(`primaries[${i}]`, image.primary || false);
 
           // Log the data for debugging
-          console.log(`Appending image ${i + 1}:`, image);
         }
       } else {
         console.log("No images selected.");
-      }
-
-      // Log FormData content for debugging
-      console.log("FormData contents before sending to backend:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
       }
 
       try {
@@ -1314,8 +1304,6 @@ export default {
             },
           }
         );
-
-        console.log("Response from backend:", response);
 
         if (response.status === 201) {
           this.fetchSiteDetails(); // Refresh the site details
@@ -1393,7 +1381,6 @@ export default {
 
       // Log the selected images
       if (this.newUnitImages && this.newUnitImages.length) {
-        console.log("Selected images:", this.newUnitImages);
         for (let i = 0; i < this.newUnitImages.length; i++) {
           const image = this.newUnitImages[i];
 
@@ -1405,7 +1392,6 @@ export default {
           formData.append(`primaries[${i}]`, image.primary || false);
 
           // Log the data for debugging
-          console.log(`Appending image ${i + 1}:`, image);
         }
       } else {
         console.log("No images selected.");
@@ -1422,8 +1408,6 @@ export default {
             },
           }
         );
-
-        console.log("Response from backend:", response);
 
         if (response.status === 201) {
           this.openUnitManagement({ id: sectionId });
@@ -1497,7 +1481,6 @@ export default {
       if (unit) {
         try {
           this.selectedUnit = unit; // Make sure selectedUnit is set
-          console.log("Selected Unit Images:", this.selectedUnit.images);
           this.showEditUnitModal = true; // Show the modal for editing
         } catch (error) {
           console.error(
@@ -1711,7 +1694,6 @@ export default {
     },
     handleFileChange(event) {
       this.newUnitImages = Array.from(event.target.files);
-      console.log("New unit images:", this.newUnitImages);
     },
     getUnitTypeName(unitTypeId) {
       // Find the unit type by id
