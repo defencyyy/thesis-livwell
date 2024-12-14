@@ -22,13 +22,8 @@
           <!-- Left Section: Site Details -->
           <div class="site-details-section">
             <div class="site-picture">
-              <img
-                :src="
-                  getPictureUrl(site.picture) || require('@/assets/home.png')
-                "
-                alt="Site Image"
-                class="site-image"
-              />
+              <img :src="getPictureUrl(site.picture) || require('@/assets/home.png')
+                " alt="Site Image" class="site-image" />
             </div>
             <div class="site-info">
               <div class="site-name">
@@ -54,10 +49,7 @@
 
           <!-- Right Section: Floors -->
           <div class="sections-section">
-            <div
-              class="card border-0 rounded-1 mx-auto"
-              style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-            >
+            <div class="card border-0 rounded-1 mx-auto" style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
               <div class="card-body-toolbar">
                 <div class="row">
                   <div class="toolbar">
@@ -68,12 +60,7 @@
                       </p>
                       <div class="section-sort">
                         <!-- <label for="sortSections">Sort Sections:</label> -->
-                        <select
-                          id="sortSections"
-                          v-model="sectionSortOrder"
-                          @change="sortSections"
-                          class="dropdown"
-                        >
+                        <select id="sortSections" v-model="sectionSortOrder" @change="sortSections" class="dropdown">
                           <option value="asc">Ascending</option>
                           <option value="desc">Descending</option>
                         </select>
@@ -96,12 +83,8 @@
                 <span class="header-item">Actions</span>
               </div>
 
-              <div
-                v-for="section in sortedSections"
-                :key="section.id"
-                class="card border-0 rounded-1 mx-auto my-2"
-                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-              >
+              <div v-for="section in sortedSections" :key="section.id" class="card border-0 rounded-1 mx-auto my-2"
+                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
                 <div class="table-container">
                   <table class="section-info">
                     <tbody>
@@ -124,10 +107,7 @@
                         </td>
                         <td>
                           <div class="section-actions d-flex gap-2">
-                            <button
-                              @click="openUnitManagement(section)"
-                              class="btn-manage"
-                            >
+                            <button @click="openUnitManagement(section)" class="btn-manage">
                               Manage Units
                             </button>
                           </div>
@@ -145,49 +125,28 @@
           </div>
 
           <!-- Unit Management Modal -->
-          <b-modal
-            v-model="showUnitManagementModal"
-            title="Manage Units"
-            @hide="closeUnitManagementModal"
-          >
+          <b-modal v-model="showUnitManagementModal" title="Manage Units" @hide="closeUnitManagementModal">
             <button @click="openAddUnitModalForSection(selectedSection.id)">
               Add Units to Section
             </button>
 
             <div class="unit-management-content">
               <div class="search-bar">
-                <b-form-input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Search units"
-                  @input="onSearch"
-                />
+                <b-form-input v-model="searchQuery" type="text" placeholder="Search units" @input="onSearch" />
               </div>
 
               <!-- Filter Options -->
               <b-form-group label="Status:">
-                <b-form-select
-                  v-model="selectedStatus"
-                  :options="statusOptions"
-                />
+                <b-form-select v-model="selectedStatus" :options="statusOptions" />
               </b-form-group>
               <b-form-group label="Price Range:">
-                <b-form-select
-                  v-model="selectedPriceRange"
-                  :options="priceRangeOptions"
-                />
+                <b-form-select v-model="selectedPriceRange" :options="priceRangeOptions" />
               </b-form-group>
               <b-form-group label="Unit Type:">
-                <b-form-select
-                  v-model="selectedUnitType"
-                  :options="unitTypeOptions"
-                />
+                <b-form-select v-model="selectedUnitType" :options="unitTypeOptions" />
               </b-form-group>
               <b-form-group label="Sort by:">
-                <b-form-select
-                  v-model="selectedSort"
-                  :options="sortOptions"
-                ></b-form-select>
+                <b-form-select v-model="selectedSort" :options="sortOptions"></b-form-select>
               </b-form-group>
 
               <!-- Unit Table -->
@@ -238,218 +197,162 @@
                   Previous
                 </button>
                 <span>Page {{ currentPage }} of {{ totalPages }}</span>
-                <button
-                  @click="nextPage"
-                  :disabled="currentPage === totalPages"
-                >
+                <button @click="nextPage" :disabled="currentPage === totalPages">
                   Next
                 </button>
               </div>
             </div>
           </b-modal>
 
-          <!-- Add Units Modal -->
-          <b-modal
-            id="add-units-modal"
-            title="Add Units"
-            v-model="showAddUnitsModal"
-            :disabled="isSaveButtonDisabled"
-            ok-title="Save"
-            @ok="addUnits"
-          >
-            <form @submit.prevent="addUnits">
-              <!-- Section Selection (Multiple Selection) -->
-              <b-form-group
-                label="Sections:"
-                description="Select sections to add units to"
-              >
-                <b-form-select
-                  v-model="newUnitSections"
-                  :options="sectionOptions"
-                  required
-                  multiple
-                ></b-form-select>
-              </b-form-group>
+          <b-modal id="add-units-modal" title="Add Units" v-model="showAddUnitsModal" :disabled="isSaveButtonDisabled"
+  ok-title="Save" @ok="addUnits" hide-footer hide-header centered size="xl">
 
-              <!-- Image Upload (Multiple Files) -->
-              <b-form-group
-                label="Upload Images:"
-                description="You can upload up to 5 images."
-              >
-                <input
-                  type="file"
-                  @change="handleFileChange"
-                  multiple
-                  accept="image/jpeg, image/png, image/jpg"
-                  class="form-control"
-                />
-              </b-form-group>
+  <div class="modal-title p-3">
+    <h5 class="mb-0">New Units</h5>
+  </div>
+  <div class="p-3">
+    <form @submit.prevent="addUnits">
+      <b-row>
+        <!-- Left Column: Unit Details -->
+        <b-col cols="12" md="6">
+          <!-- Section Selection (Multiple Selection) -->
+          <b-form-group label-for="unit-sections">
+            <b-row>
+              <b-col cols="12">
+                <small>Sections: (Select to add units)</small>
+                <div class="checkbox-container">
+                  <b-form-checkbox-group v-model="newUnitSections" :options="sectionOptions" name="section-checkbox"
+                    id="unit-sections" class="select-style"></b-form-checkbox-group>
+                </div>
+              </b-col>
+            </b-row>
+          </b-form-group>
 
-              <!-- Unit Type -->
-              <b-form-group
-                label="Unit Type:"
-                description="Select the type of unit"
-              >
-                <b-form-select
-                  v-model="newUnitType"
-                  :options="unitTypeOptions"
-                  required
-                ></b-form-select>
-              </b-form-group>
+          <!-- Unit Type and Quantity -->
+          <b-form-group>
+            <b-row>
+              <b-col cols="12" md="6">
+                <small>Unit Type</small>
+                <b-form-select v-model="newUnitType" :options="unitTypeOptions" required></b-form-select>
+              </b-col>
+              <b-col cols="12" md="6">
+                <small>Quantity</small>
+                <b-form-input type="number" v-model.number="newUnitQuantity" min="1" required></b-form-input>
+              </b-col>
+            </b-row>
+          </b-form-group>
 
-              <!-- Quantity -->
-              <b-form-group label="Quantity:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitQuantity"
-                  min="1"
-                  required
-                ></b-form-input>
-              </b-form-group>
+          <!-- Bedrooms, Bathrooms, and Balcony -->
+          <b-form-group >
+            <b-row>
+              <b-col cols="12" md="4">
+                <small>Bedroom</small>
+                <b-form-input type="number" v-model.number="newUnitBedroom" min="1" required></b-form-input>
+              </b-col>
+              <b-col cols="12" md="4">
+                <small>Bathroom</small>
+                <b-form-input type="number" v-model.number="newUnitBathroom" min="1" required></b-form-input>
+              </b-col>
+              <b-col cols="12" md="4">
+                <small>Balcony</small>
+                <b-form-select v-model="newUnitBalcony" :options="balconyOptions" required></b-form-select>
+              </b-col>
+            </b-row>
+          </b-form-group>
 
-              <!-- Additional Fields (Bedrooms, Bathrooms, etc.) -->
-              <b-form-group label="Bedrooms:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitBedroom"
-                  min="1"
-                  required
-                ></b-form-input>
-              </b-form-group>
+          <!-- Lot Area and Floor Area -->
+          <b-form-group >
+            <b-row>
+              <b-col cols="12" md="6">
+                <small>Lot Area</small>
+                <b-form-input type="number" v-model.number="newUnitLotArea" min="1" required></b-form-input>
+              </b-col>
+              <b-col cols="12" md="6">
+                <small>Floor Area</small>
+                <b-form-input type="number" v-model.number="newUnitFloorArea" min="1" required></b-form-input>
+              </b-col>
+            </b-row>
+          </b-form-group>
 
-              <!-- Bathroom -->
-              <b-form-group label="Bathrooms:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitBathroom"
-                  min="1"
-                  required
-                ></b-form-input>
-              </b-form-group>
+          <!-- Status and View -->
+          <b-form-group>
+            <b-row>
+              <b-col cols="12" md="6">
+                <small>Status</small>
+                <b-form-select v-model="newUnitStatus" :options="statusOptions" required></b-form-select>
+              </b-col>
+              <b-col cols="12" md="6">
+                <small>View</small>
+                <b-form-select v-model="newUnitView" :options="viewOptions" required></b-form-select>
+              </b-col>
+            </b-row>
+          </b-form-group>
+        </b-col>
 
-              <!-- Lot Area -->
-              <b-form-group label="Lot Area (sq.m):">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitLotArea"
-                  min="1"
-                  required
-                ></b-form-input>
-              </b-form-group>
+        <!-- Right Column: Price, Commission, Discounts, etc. -->
+        <b-col cols="12" md="6">
+          <!-- Price -->
+          <b-form-group>
+            <small>Price</small>
+            <b-form-input type="number" v-model.number="newUnitPrice" min="0" required></b-form-input>
+          </b-form-group>
 
-              <!-- Floor Area -->
-              <b-form-group label="Floor Area (sq.m):">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitFloorArea"
-                  min="1"
-                  required
-                ></b-form-input>
-              </b-form-group>
+          <!-- Reservation Fee and Commission -->
+          <b-form-group>
+            <b-row>
+              <b-col cols="12" md="6">
+                <small>Reservation</small>
+                <b-form-input type="number" v-model.number="newUnitReservationFee" min="0"></b-form-input>
+              </b-col>
+              <b-col cols="12" md="6">
+                <small>Commission</small>
+                <b-form-input type="number" v-model.number="newUnitCommission" min="0"></b-form-input>
+              </b-col>
+            </b-row>
+          </b-form-group>
 
-              <!-- Price -->
-              <b-form-group
-                label="Price:"
-                description="Enter the price of the unit"
-              >
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitPrice"
-                  min="0"
-                  required
-                ></b-form-input>
-              </b-form-group>
+          <!-- Spot Discount Percentage and Flat -->
+          <b-form-group>
+            <b-row>
+              <b-col cols="12" md="6">
+                <small>Spot Discount Percentage</small>
+                <b-form-input type="number" v-model.number="newUnitSpotDiscountPercentage" min="0"></b-form-input>
+              </b-col>
+              <b-col cols="12" md="6">
+                <small>Spot Discount Flat</small>
+                <b-form-input type="number" v-model.number="newUnitSpotDiscountFlat" min="0"></b-form-input>
+              </b-col>
+            </b-row>
+          </b-form-group>
 
-              <!-- Status -->
-              <b-form-group label="Status:">
-                <b-form-select
-                  v-model="newUnitStatus"
-                  :options="statusOptions"
-                  required
-                ></b-form-select>
-              </b-form-group>
+          <!-- VAT Percentage and Other Charges -->
+          <b-form-group>
+            <b-row>
+              <b-col cols="12" md="6">
+                <small>VAT Percentage</small>
+                <b-form-input type="number" v-model.number="newUnitVatPercentage" min="0"></b-form-input>
+              </b-col>
+              <b-col cols="12" md="6">
+                <small>Other Charges</small>
+                <b-form-input type="number" v-model.number="newUnitOtherCharges" min="0" ></b-form-input>
+              </b-col>
+            </b-row>
+          </b-form-group>
+        </b-col>
+      </b-row>
 
-              <!-- View -->
-              <b-form-group label="View:">
-                <b-form-select
-                  v-model="newUnitView"
-                  :options="viewOptions"
-                  required
-                ></b-form-select>
-              </b-form-group>
+      <!-- Image Upload (Multiple Files) -->
+      <b-form-group label="Upload Images:" description="You can upload up to 5 images.">
+        <input type="file" @change="handleFileChange" multiple accept="image/jpeg, image/png, image/jpg" class="form-control" />
+      </b-form-group>
+    </form>
+  </div>
+</b-modal>
 
-              <!-- Balcony -->
-              <b-form-group label="Balcony:">
-                <b-form-select
-                  v-model="newUnitBalcony"
-                  :options="balconyOptions"
-                  required
-                ></b-form-select>
-              </b-form-group>
 
-              <!-- Commission -->
-              <b-form-group label="Commission:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitCommission"
-                  min="0"
-                  required
-                ></b-form-input>
-              </b-form-group>
-
-              <!-- Spot Discount Percentage -->
-              <b-form-group label="Spot Discount Percentage:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitSpotDiscountPercentage"
-                  min="0"
-                ></b-form-input>
-              </b-form-group>
-
-              <!-- Spot Discount Flat -->
-              <b-form-group label="Spot Discount Flat:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitSpotDiscountFlat"
-                  min="0"
-                ></b-form-input>
-              </b-form-group>
-
-              <!-- Reservation Fee -->
-              <b-form-group label="Reservation Fee:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitReservationFee"
-                  min="0"
-                ></b-form-input>
-              </b-form-group>
-
-              <!-- Other Charges -->
-              <b-form-group label="Other Charges:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitOtherCharges"
-                  min="0"
-                ></b-form-input>
-              </b-form-group>
-
-              <!-- VAT Percentage -->
-              <b-form-group label="VAT Percentage:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitVatPercentage"
-                  min="0"
-                ></b-form-input>
-              </b-form-group>
-            </form>
-          </b-modal>
 
           <!-- View Selected Unit Modal -->
-          <b-modal
-            v-model="showEditUnitModal"
-            title="Edit Unit"
-            @hide="clearSelectedUnit"
-          >
+          <b-modal v-model="showEditUnitModal" title="Edit Unit" @hide="clearSelectedUnit">
             <template v-if="selectedUnit">
               <form>
                 <!-- Unit Images Section -->
@@ -457,58 +360,28 @@
                   <div v-if="selectedUnit.images && selectedUnit.images.length">
                     <b-row class="mb-3">
                       <!-- Loop through images and display them -->
-                      <b-col
-                        v-for="(image, index) in selectedUnit.images"
-                        :key="index"
-                        cols="12"
-                        sm="6"
-                        md="4"
-                        lg="3"
-                        class="mb-2"
-                      >
+                      <b-col v-for="(image, index) in selectedUnit.images" :key="index" cols="12" sm="6" md="4" lg="3"
+                        class="mb-2">
                         <div class="d-flex flex-column align-items-center">
-                          <b-img
-                            v-if="image && image.image"
-                            :src="getPictureUrl(image.image)"
-                            alt="Unit Image"
-                            thumbnail
-                            fluid
-                            class="unit-image-preview"
-                          />
+                          <b-img v-if="image && image.image" :src="getPictureUrl(image.image)" alt="Unit Image"
+                            thumbnail fluid class="unit-image-preview" />
                           <p v-else class="text-danger">Invalid image path</p>
 
                           <!-- Image Name, Update, and Delete buttons -->
                           <div class="text-center mt-2">
                             <span>{{ image.image_name || "Untitled" }}</span>
-                            <b-button
-                              size="sm"
-                              variant="primary"
-                              class="ml-2"
-                              @click="toggleImageEdit(index)"
-                            >
+                            <b-button size="sm" variant="primary" class="ml-2" @click="toggleImageEdit(index)">
                               Update
                             </b-button>
-                            <b-button
-                              size="sm"
-                              variant="danger"
-                              class="ml-2"
-                              @click="deleteImage(index)"
-                            >
+                            <b-button size="sm" variant="danger" class="ml-2" @click="deleteImage(index)">
                               Delete
                             </b-button>
                           </div>
 
                           <!-- Image Replace Form (Toggled) -->
                           <div v-if="imageEditIndex === index" class="mt-2">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              @change="onImageSelected(index, $event)"
-                            />
-                            <b-button
-                              variant="secondary"
-                              @click="replaceImage(index)"
-                            >
+                            <input type="file" accept="image/*" @change="onImageSelected(index, $event)" />
+                            <b-button variant="secondary" @click="replaceImage(index)">
                               Replace Image
                             </b-button>
                           </div>
@@ -519,22 +392,14 @@
                   <p v-else>No images available for this unit.</p>
 
                   <!-- Add Image Button if less than 5 images -->
-                  <div
-                    v-if="selectedUnit.images && selectedUnit.images.length < 5"
-                    class="mt-3"
-                  >
+                  <div v-if="selectedUnit.images && selectedUnit.images.length < 5" class="mt-3">
                     <b-button variant="primary" @click="triggerAddImage">
                       Add Image
                     </b-button>
 
                     <!-- Immediately show file input when Add Image is clicked -->
-                    <input
-                      v-if="isAddingImage"
-                      type="file"
-                      accept="image/*"
-                      @change="handleFileChangeImage"
-                      class="form-control mt-2"
-                    />
+                    <input v-if="isAddingImage" type="file" accept="image/*" @change="handleFileChangeImage"
+                      class="form-control mt-2" />
                   </div>
                 </b-form-group>
 
@@ -544,72 +409,39 @@
                 </b-form-group>
 
                 <b-form-group label="Unit Type:">
-                  <b-form-input
-                    :value="getUnitTypeName(selectedUnit.unit_type)"
-                    disabled
-                  />
+                  <b-form-input :value="getUnitTypeName(selectedUnit.unit_type)" disabled />
                 </b-form-group>
 
                 <b-form-group label="Status:">
-                  <b-form-select
-                    v-model="selectedUnit.status"
-                    :options="editStatusOptions"
-                    disabled
-                  />
+                  <b-form-select v-model="selectedUnit.status" :options="editStatusOptions" disabled />
                 </b-form-group>
 
                 <b-form-group label="Price:">
-                  <b-form-input
-                    v-model="selectedUnit.price"
-                    type="number"
-                    disabled
-                  />
+                  <b-form-input v-model="selectedUnit.price" type="number" disabled />
                 </b-form-group>
 
                 <b-form-group label="Lot Area:">
-                  <b-form-input
-                    v-model="selectedUnit.lot_area"
-                    type="number"
-                    disabled
-                  />
+                  <b-form-input v-model="selectedUnit.lot_area" type="number" disabled />
                 </b-form-group>
 
                 <b-form-group label="Floor Area:">
-                  <b-form-input
-                    v-model="selectedUnit.floor_area"
-                    type="number"
-                    disabled
-                  />
+                  <b-form-input v-model="selectedUnit.floor_area" type="number" disabled />
                 </b-form-group>
 
                 <b-form-group label="Commission:">
-                  <b-form-input
-                    v-model="selectedUnit.commission"
-                    type="number"
-                    disabled
-                  />
+                  <b-form-input v-model="selectedUnit.commission" type="number" disabled />
                 </b-form-group>
 
                 <b-form-group label="Balcony:">
-                  <b-form-select
-                    v-model="selectedUnit.balcony"
-                    :options="balconyOptions"
-                  ></b-form-select>
+                  <b-form-select v-model="selectedUnit.balcony" :options="balconyOptions"></b-form-select>
                 </b-form-group>
 
                 <b-form-group label="View:">
-                  <b-form-select
-                    v-model="selectedUnit.view"
-                    :options="viewOptions"
-                  ></b-form-select>
+                  <b-form-select v-model="selectedUnit.view" :options="viewOptions"></b-form-select>
                 </b-form-group>
 
                 <!-- Save Changes Button -->
-                <b-button
-                  variant="primary"
-                  @click="saveUnitChanges"
-                  class="mr-2"
-                >
+                <b-button variant="primary" @click="saveUnitChanges" class="mr-2">
                   Save Changes
                 </b-button>
               </form>
@@ -621,194 +453,98 @@
           </b-modal>
 
           <!-- Add Units to Section Modal -->
-          <b-modal
-            id="add-section-units-modal"
-            title="Add Units to Section"
-            v-model="showAddSectionUnitsModal"
-            ok-title="Save"
-            @ok="addSectionUnits(newUnitSections[0])"
-          >
+          <b-modal id="add-section-units-modal" title="Add Units to Section" v-model="showAddSectionUnitsModal"
+            ok-title="Save" @ok="addSectionUnits(newUnitSections[0])">
             <form @submit.prevent="addSectionUnits(newUnitSections[0])">
               <!-- Only one section (already set) -->
-              <b-form-group
-                label="Section:"
-                description="This section will have new units added."
-              >
-                <b-form-select
-                  v-model="newUnitSections"
-                  :options="sectionOptions"
-                  required
-                  disabled
-                ></b-form-select>
+              <b-form-group label="Section:" description="This section will have new units added.">
+                <b-form-select v-model="newUnitSections" :options="sectionOptions" required disabled></b-form-select>
               </b-form-group>
 
               <!-- Image Upload (Multiple Files) -->
-              <b-form-group
-                label="Upload Images:"
-                description="You can upload up to 5 images."
-              >
-                <input
-                  type="file"
-                  @change="handleFileChange"
-                  multiple
-                  accept="image/jpeg, image/png, image/jpg"
-                  class="form-control"
-                />
+              <b-form-group label="Upload Images:" description="You can upload up to 5 images.">
+                <input type="file" @change="handleFileChange" multiple accept="image/jpeg, image/png, image/jpg"
+                  class="form-control" />
               </b-form-group>
 
               <!-- Unit Type -->
-              <b-form-group
-                label="Unit Type:"
-                description="Select the type of unit"
-              >
-                <b-form-select
-                  v-model="newUnitType"
-                  :options="unitTypeOptions"
-                  required
-                ></b-form-select>
+              <b-form-group label="Unit Type:" description="Select the type of unit">
+                <b-form-select v-model="newUnitType" :options="unitTypeOptions" required></b-form-select>
               </b-form-group>
 
               <!-- Quantity -->
               <b-form-group label="Quantity:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitQuantity"
-                  min="1"
-                  required
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitQuantity" min="1" required></b-form-input>
               </b-form-group>
 
               <!-- Additional Fields (Bedrooms, Bathrooms, etc.) -->
               <b-form-group label="Bedrooms:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitBedroom"
-                  min="1"
-                  required
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitBedroom" min="1" required></b-form-input>
               </b-form-group>
 
               <!-- Bathroom -->
               <b-form-group label="Bathrooms:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitBathroom"
-                  min="1"
-                  required
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitBathroom" min="1" required></b-form-input>
               </b-form-group>
 
               <!-- Lot Area -->
               <b-form-group label="Lot Area (sq.m):">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitLotArea"
-                  min="1"
-                  required
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitLotArea" min="1" required></b-form-input>
               </b-form-group>
 
               <!-- Floor Area -->
               <b-form-group label="Floor Area (sq.m):">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitFloorArea"
-                  min="1"
-                  required
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitFloorArea" min="1" required></b-form-input>
               </b-form-group>
 
               <!-- Price -->
-              <b-form-group
-                label="Price:"
-                description="Enter the price of the unit"
-              >
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitPrice"
-                  min="0"
-                  required
-                ></b-form-input>
+              <b-form-group label="Price:" description="Enter the price of the unit">
+                <b-form-input type="number" v-model.number="newUnitPrice" min="0" required></b-form-input>
               </b-form-group>
 
               <!-- Status -->
               <b-form-group label="Status:">
-                <b-form-select
-                  v-model="newUnitStatus"
-                  :options="statusOptions"
-                  required
-                ></b-form-select>
+                <b-form-select v-model="newUnitStatus" :options="statusOptions" required></b-form-select>
               </b-form-group>
 
               <!-- View -->
               <b-form-group label="View:">
-                <b-form-select
-                  v-model="newUnitView"
-                  :options="viewOptions"
-                ></b-form-select>
+                <b-form-select v-model="newUnitView" :options="viewOptions"></b-form-select>
               </b-form-group>
 
               <!-- Balcony -->
               <b-form-group label="Balcony:">
-                <b-form-select
-                  v-model="newUnitBalcony"
-                  :options="balconyOptions"
-                ></b-form-select>
+                <b-form-select v-model="newUnitBalcony" :options="balconyOptions"></b-form-select>
               </b-form-group>
 
               <!-- Commission -->
               <b-form-group label="Commission:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitCommission"
-                  min="0"
-                  required
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitCommission" min="0" required></b-form-input>
               </b-form-group>
 
               <!-- Spot Discount Percentage -->
               <b-form-group label="Spot Discount Percentage:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitSpotDiscountPercentage"
-                  min="0"
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitSpotDiscountPercentage" min="0"></b-form-input>
               </b-form-group>
 
               <!-- Spot Discount Flat -->
               <b-form-group label="Spot Discount Flat:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitSpotDiscountFlat"
-                  min="0"
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitSpotDiscountFlat" min="0"></b-form-input>
               </b-form-group>
 
               <!-- Reservation Fee -->
               <b-form-group label="Reservation Fee:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitReservationFee"
-                  min="0"
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitReservationFee" min="0"></b-form-input>
               </b-form-group>
 
               <!-- Other Charges -->
               <b-form-group label="Other Charges:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitOtherCharges"
-                  min="0"
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitOtherCharges" min="0"></b-form-input>
               </b-form-group>
 
               <!-- VAT Percentage -->
               <b-form-group label="VAT Percentage:">
-                <b-form-input
-                  type="number"
-                  v-model.number="newUnitVatPercentage"
-                  min="0"
-                ></b-form-input>
+                <b-form-input type="number" v-model.number="newUnitVatPercentage" min="0"></b-form-input>
               </b-form-group>
             </form>
           </b-modal>
@@ -910,8 +646,8 @@ export default {
         { value: "west", text: "West" },
       ],
       balconyOptions: [
-        { value: "has balcony", text: "Has Balcony" },
-        { value: "no balcony", text: "No Balcony" },
+        { value: "has balcony", text: "Yes" },
+        { value: "no balcony", text: "No" },
       ],
       totalUnits: 0,
       totalAvailableUnits: 0,
@@ -1767,7 +1503,7 @@ body {
 .left-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 30px;
 
   /* Space between search bar and dropdown */
 }
@@ -1787,7 +1523,6 @@ body {
   appearance: none;
   padding: 8px 12px;
   height: 38px;
-  margin-top: 5px;
   /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -1808,6 +1543,7 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
   margin-top: 0;
+  padding: 15px;
   max-width: 1100px;
   width: 100%;
   /* Ensures the card and grid align */
@@ -1816,9 +1552,6 @@ body {
   margin-right: auto;
 }
 
-.card-body-toolbar {
-  padding: 7px;
-}
 
 .outside-headers {
   display: grid;
@@ -1902,9 +1635,6 @@ body {
   flex: 1;
 }
 
-.section-sort {
-  margin-bottom: 10px;
-}
 
 .site-details {
   text-align: center;
@@ -2136,4 +1866,37 @@ button {
   color: #333;
   /* Text color */
 }
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  justify-content: flex-start; /* Align items at the top */
+  align-items: stretch; /* Ensure full width alignment */
+  max-height: 115px; /* Increase max-height for better visibility */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  padding: 5px;
+  border: 1px solid #dee2e6; /* Optional: Customize border as needed */
+  box-sizing: border-box; /* Ensure padding doesn't break layout */
+}
+
+
+/* Flexbox layout for horizontally aligned items */
+.select-style {
+  display: grid;
+  grid-template-columns: 20% 20% 20% 20% 20%;
+  /* Allow items to wrap to the next line */
+}
+
+/* Each checkbox will take up 1/5 of the container width (to fit 5 per row) */
+.select-style .custom-checkbox {
+  flex: 1 1 calc(20% - 10px);
+  /* 5 items per row with space between */
+}
+
+.b-form-checkbox {
+  margin: 0;
+  /* Remove any extra margin around checkboxes */
+}
+
 </style>

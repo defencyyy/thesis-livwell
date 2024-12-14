@@ -141,7 +141,7 @@
                             @click.stop="openSectionManagement(site)"
                             class="btn-manage"
                           >
-                            Manage Sections
+                            Manage
                           </button>
                         </td>
                       </tr>
