@@ -331,12 +331,17 @@
                     </td>
 
                     <td>
-                      <button
-                        @click="viewBrokerMilestones(broker)"
-                        class="btn btn-info btn-sm"
-                      >
-                        View
-                      </button>
+                      <div class="broker-actions d-flex gap-2">
+                        <button @click="viewBrokerMilestones(broker)" style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          ">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
                       <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
                             Delete
                           </button> -->
