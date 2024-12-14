@@ -49,15 +49,33 @@
                           </span>
                         </td>
                         <td>
-                          <button
+                          <div class="broker-actions d-flex gap-2">
+                            <button
                             @click="editMilestone(milestone)"
-                            class="btn btn-warning btn-sm"
-                          >
-                            Edit
-                          </button>
-                          <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
-                            Delete
-                          </button> -->
+                            style="
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            "
+                            >
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <!-- <button
+                              @click="deleteMilestone(milestone.id)"
+                              style="
+                                border: none;
+                                background-color: transparent;
+                                color: #343a40;
+                                cursor: pointer;
+                                font-size: 18px;
+                              "
+                            >
+                              <i class="fas fa-archive"></i>
+                            </button> -->
+                          </div>
+                    
                         </td>
                       </tr>
                     </tbody>
