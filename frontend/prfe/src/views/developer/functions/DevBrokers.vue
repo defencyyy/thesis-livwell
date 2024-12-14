@@ -1050,7 +1050,7 @@ body {
   justify-content: flex-end; /* Align to the right */
   margin-top: 20px; /* Add spacing from the content above */
   gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  padding-right: 75px; /* Add padding to push it away from the edge */
 }
 
 .page-button {
