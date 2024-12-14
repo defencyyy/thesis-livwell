@@ -1045,6 +1045,7 @@ input[type="file"] {
   justify-content: flex-end;
   margin-top: -20px;
   padding-right: 35px;
+  font-size: 14px;
 }
 
 /* General Styles for Small Screens */
