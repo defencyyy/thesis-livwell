@@ -221,6 +221,7 @@ class Unit(models.Model):
 
     def __str__(self):
         return f"{self.site.name} - {self.unit_title}"
+
 class UnitTemplate(models.Model):
     unit_type = models.ForeignKey(
         'UnitType', 

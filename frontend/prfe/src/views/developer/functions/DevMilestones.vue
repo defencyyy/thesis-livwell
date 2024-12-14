@@ -51,18 +51,18 @@
                         <td>
                           <div class="broker-actions d-flex gap-2">
                             <button
-                            @click="editMilestone(milestone)"
-                            style="
-                              border: none;
-                              background-color: transparent;
-                              color: #343a40;
-                              cursor: pointer;
-                              font-size: 18px;
-                            "
+                              @click="editMilestone(milestone)"
+                              style="
+                                border: none;
+                                background-color: transparent;
+                                color: #343a40;
+                                cursor: pointer;
+                                font-size: 18px;
+                              "
                             >
                               <i class="fas fa-edit"></i>
                             </button>
-                            <button
+                            <!-- <button
                               @click="deleteMilestone(milestone.id)"
                               style="
                                 border: none;
@@ -73,9 +73,8 @@
                               "
                             >
                               <i class="fas fa-archive"></i>
-                            </button>
+                            </button> -->
                           </div>
-                    
                         </td>
                       </tr>
                     </tbody>
@@ -128,21 +127,6 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
-                    <!-- <select v-model="selectedBroker" @change="filterSales" class="dropdown">
-                      <option value="">All Brokers</option>
-                      <option v-for="broker in brokers" :key="broker.id" :value="broker.id">
-                        {{ broker.first_name }} {{ broker.last_name }}
-                      </option>
-                    </select>
-                    <select v-model="selectedStatus" @change="filterSales" class="dropdown">
-                      <option value="">All Status</option>
-                      <option value="Pending Reservation">
-                        Pending Reservation
-                      </option>
-                      <option value="Reserved">Reserved</option>
-                      <option value="Pending Sold">Pending Sold</option>
-                      <option value="Sold">Sold</option>
-                    </select> -->
                   </div>
                 </div>
               </div>
@@ -157,7 +141,7 @@
           hide-footer
           centered
           size="lg"
-          title="Add/Edit Milestone"
+          :title="newMilestone.id ? 'Edit Milestone' : 'Add Milestone'"
           @hide="closeForm"
         >
           <!-- Modal Title -->
@@ -227,6 +211,7 @@
                     class="form-select"
                     v-model="newMilestone.type"
                     @change="onMilestoneTypeChange"
+                    :disabled="newMilestone.id"
                   >
                     <option value="sales">Sales</option>
                     <option value="commission">Commission</option>
@@ -244,6 +229,7 @@
                     id="salesThreshold"
                     v-model="newMilestone.sales_threshold"
                     placeholder="Enter sales threshold"
+                    :disabled="newMilestone.id"
                   />
                 </div>
 
@@ -257,6 +243,7 @@
                     id="commissionThreshold"
                     v-model="newMilestone.commission_threshold"
                     placeholder="Enter commission threshold"
+                    :disabled="newMilestone.id"
                   />
                 </div>
               </div>
@@ -278,10 +265,6 @@
             </button>
           </div>
         </b-modal>
-
-        <!-- <div class="mb-3">
-          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search brokers by name" />
-        </div> -->
 
         <!-- Table for displaying brokers -->
         <div style="max-width: 1100px; width: 100%">
@@ -332,19 +315,19 @@
 
                     <td>
                       <div class="broker-actions d-flex gap-2">
-                        <button @click="viewBrokerMilestones(broker)" style="
+                        <button
+                          @click="viewBrokerMilestones(broker)"
+                          style="
                             border: none;
                             background-color: transparent;
                             color: #343a40;
                             cursor: pointer;
                             font-size: 18px;
-                          ">
+                          "
+                        >
                           <i class="fas fa-eye"></i>
                         </button>
                       </div>
-                      <!-- <button @click="deleteMilestone(milestone.id)" class="btn btn-danger btn-sm">
-                            Delete
-                          </button> -->
                     </td>
                   </tr>
                 </tbody>
@@ -432,6 +415,50 @@
             </div>
           </div>
         </b-modal>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+
+            <!-- Confirm Button -->
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -466,6 +493,15 @@ export default {
       searchQuery: "",
       showBrokerModal: false, // This will handle the modal visibility
       selectedBroker: null,
+
+      // Notifications
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // Renamed this from 'confirmAction'
+      confirmParams: [],
     };
   },
   computed: {
@@ -579,74 +615,54 @@ export default {
 
     async fetchBrokerProgress() {
       this.brokers.forEach((broker) => {
-        console.log(broker); // Log broker data
-
-        // No need to check if `broker.sales` is an array, just use the properties
         broker.salesCompleted = this.getSalesCompleted(broker);
         broker.salesMilestoneCount = this.getSalesMilestoneCount(broker);
         broker.commissionsCollected = this.getCommissionsCollected(broker);
         broker.commissionMilestoneCount =
           this.getCommissionMilestoneCount(broker);
-
-        console.log(broker); // Log updated broker data
       });
     },
+
     getSalesCompleted(broker) {
-      console.log("Getting total_sales for broker:", broker);
-      console.log("Total sales from backend:", broker.total_sales);
       return broker.total_sales; // Using the total_sales property from the backend
     },
 
     getSalesMilestoneCount(broker) {
-      console.log("Getting sales milestone count for broker:", broker);
       const milestone = this.milestones.find((m) => m.type === "sales");
-      console.log("Found milestone:", milestone);
       if (milestone) {
         const milestoneReached =
           broker.total_sales >= milestone.sales_threshold;
-        console.log("Sales threshold:", milestone.sales_threshold);
-        console.log("Broker total_sales:", broker.total_sales);
-        console.log("Milestone reached:", milestoneReached);
         return milestoneReached ? 1 : 0;
       }
-      console.log("No milestone found for sales type");
       return 0;
     },
 
     getCommissionsCollected(broker) {
-      console.log("Getting total_commissions for broker:", broker);
-      console.log("Total commissions from backend:", broker.total_commissions);
       return broker.total_commissions; // Using the total_commissions property from the backend
     },
 
     getCommissionMilestoneCount(broker) {
-      console.log("Getting commission milestone count for broker:", broker);
       const milestone = this.milestones.find((m) => m.type === "commission");
-      console.log("Found commission milestone:", milestone);
       if (milestone) {
         const commissionThresholdReached =
           broker.total_commissions >= milestone.commission_threshold;
-        console.log("Commission threshold:", milestone.commission_threshold);
-        console.log("Broker total_commissions:", broker.total_commissions);
-        console.log(
-          "Commission milestone reached:",
-          commissionThresholdReached
-        );
         return commissionThresholdReached ? 1 : 0;
       }
-      console.log("No commission milestone found");
       return 0;
     },
+
     // Action to view broker's milestones
     viewBrokerMilestones(broker) {
       this.selectedBroker = broker;
       this.showBrokerModal = true;
     },
+
     // Method to close the broker modal
     closeBrokerModal() {
       this.showBrokerModal = false;
       this.selectedBroker = null;
     },
+
     // Method to check if a broker has completed a milestone
     checkMilestoneCompletion(milestone, broker) {
       if (milestone.type === "sales") {
@@ -665,6 +681,7 @@ export default {
       }
       return 0;
     },
+
     // Check if broker meets the milestone
     brokerMeetsMilestone(broker) {
       const milestone = this.milestones.find(
@@ -699,26 +716,34 @@ export default {
       try {
         const response = await axiosInstance.post(url, milestoneData);
         if (response.status === 201) {
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Milestone created successfully.";
+          this.showNotification = true;
           this.fetchMilestones();
           this.closeForm();
         }
       } catch (error) {
-        this.errorMessage = "Failed to create milestone.";
-        console.error("Error saving new milestone:", error);
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occured while creating the new milestone.";
+        this.showNotification = true;
       }
     },
 
     // Update an existing milestone
-    async updateMilestone() {
-      if (
-        !window.confirm(
-          "Are you sure you want to edit this milestone? Unsaved changes will be lost."
-        )
-      ) {
-        return; // Exit if the user cancels
-      }
+    updateMilestone() {
+      // Show the confirmation modal instead of using window.confirm
+      const message = "Unsaved changes will be lost. Proceed?";
+      const action = this.confirmUpdateMilestone; // The function that handles the update
+      const params = [this.newMilestone.id]; // Pass the necessary parameters (milestone ID)
+
+      this.showConfirmation(message, action, params);
+    },
+
+    // Action to confirm the update
+    async confirmUpdateMilestone(milestoneId) {
       const axiosInstance = this.getAxiosInstance();
-      const url = `http://localhost:8000/developer/milestones/${this.newMilestone.id}/`;
+      const url = `http://localhost:8000/developer/milestones/${milestoneId}/`;
 
       // Add the company ID from Vuex state to the milestone
       const milestoneData = { ...this.newMilestone, company: this.companyId };
@@ -726,21 +751,32 @@ export default {
       try {
         const response = await axiosInstance.put(url, milestoneData);
         if (response.status === 200) {
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Milestone updated successfully.";
+          this.showNotification = true;
           this.fetchMilestones();
           this.closeForm();
         }
       } catch (error) {
-        this.errorMessage = "Failed to update milestone.";
-        console.error("Error updating milestone:", error);
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while editing the milestone.";
+        this.showNotification = true;
       }
     },
 
     // Delete a milestone
-    async deleteMilestone(milestoneId) {
-      if (!window.confirm("Are you sure you want to delete this milestone?")) {
-        return; // Exit if the user cancels
-      }
+    deleteMilestone(milestoneId) {
+      // Show the confirmation modal before deleting
+      const message = "Are you sure you want to delete this milestone?";
+      const action = this.confirmDeleteMilestone; // The function that handles the deletion
+      const params = [milestoneId]; // Pass the necessary parameters (milestone ID)
 
+      this.showConfirmation(message, action, params);
+    },
+
+    // Action to confirm the deletion
+    async confirmDeleteMilestone(milestoneId) {
       const axiosInstance = this.getAxiosInstance();
       const url = `http://localhost:8000/developer/milestones/${milestoneId}/`;
 
@@ -752,6 +788,27 @@ export default {
       } catch (error) {
         this.errorMessage = "Failed to delete milestone.";
         console.error("Error deleting milestone:", error);
+      }
+    },
+
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action;
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+    cancelAction() {
+      this.showConfirmModal = false;
+    },
+    async confirmAction() {
+      try {
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false; // Close modal after confirmation
+      } catch (error) {
+        this.showConfirmModal = false; // Close modal on error
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
       }
     },
 
@@ -770,6 +827,7 @@ export default {
         this.newMilestone.commission_threshold = null;
       }
     },
+
     formatCurrency(value) {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -1171,5 +1229,29 @@ td {
 .styled-table th {
   cursor: pointer;
   /* Optional if you add sortable columns */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>

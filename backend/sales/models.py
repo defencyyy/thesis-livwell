@@ -45,7 +45,7 @@ class Sale(models.Model):
 
     # Commission field
     commission = models.DecimalField(
-        max_digits=10, 
+        max_digits=20, 
         decimal_places=2, 
         null=True, 
         blank=True, 
@@ -54,17 +54,19 @@ class Sale(models.Model):
 
     def save(self, *args, **kwargs):
         # Automatically set date_sold if the status is set to "Sold"
-        if self.status == 'Sold' and self.date_sold is None:
-            self.date_sold = date.today()
         
-        # Automatically set commission if the unit is sold
+        
+        # Check if unit's commission is valid before saving it to sale
         if self.status == 'Sold':
-            if self.commission is None:
-                self.commission = self.unit.commission  # The commission comes from the unit's commission
+            self.commission = self.unit.commission  # Assign commission from the unit
+
+            if self.date_sold is None:
+                self.date_sold = date.today()
         else:
             # Reset commission to 0 if status is not "Sold"
             self.commission = 0
 
+        # Save the instance with the updated commission value
         super().save(*args, **kwargs)
 
     is_archived = models.BooleanField(default=False)
