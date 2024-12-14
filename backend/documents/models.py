@@ -16,6 +16,7 @@ def document_file_upload_path(instance, filename):
     customer_name = re.sub(r'\s+', '', customer_name)
     customer_name = re.sub(r'[^\w\s-]', '', customer_name)
     document_type_name = instance.document_type.name if instance.document_type else 'unknown_type'
+    document_type_name = re.sub(r'\s+', '', document_type_name)
     document_type_name = re.sub(r'[^\w\s-]', '', document_type_name)
     
     # Ensure filename has a default value if None
