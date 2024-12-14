@@ -62,7 +62,7 @@
                             >
                               <i class="fas fa-edit"></i>
                             </button>
-                            <!-- <button
+                            <button
                               @click="deleteMilestone(milestone.id)"
                               style="
                                 border: none;
@@ -73,7 +73,7 @@
                               "
                             >
                               <i class="fas fa-archive"></i>
-                            </button> -->
+                            </button>
                           </div>
                     
                         </td>
