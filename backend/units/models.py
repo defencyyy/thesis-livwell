@@ -221,7 +221,6 @@ class Unit(models.Model):
 
     def __str__(self):
         return f"{self.site.name} - {self.unit_title}"
-
 class UnitTemplate(models.Model):
     unit_type = models.ForeignKey(
         'UnitType', 
@@ -232,7 +231,7 @@ class UnitTemplate(models.Model):
         help_text="Type of the Unit (e.g., Studio, 1 Bedroom, etc.)",
     )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)  # Removed 'unique=True' here
     bedroom = models.PositiveIntegerField(default=1)
     bathroom = models.PositiveIntegerField(default=1)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -245,7 +244,12 @@ class UnitTemplate(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     relative_id = models.CharField(max_length=255, blank=True, null=True)
     primary_image = models.ForeignKey('UnitImage', null=True, blank=True, on_delete=models.SET_NULL, related_name='primary_for_templates', help_text="Primary image for the template")
-    is_archived = models.BooleanField(default=False) 
+    is_archived = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'name'], name='unique_unit_template_per_company')
+        ]
 
     def clean(self):
         # Ensure floor_area is greater than or equal to lot_area
@@ -265,10 +269,8 @@ class UnitTemplate(models.Model):
         self.price = convert_to_decimal(self.price)
         self.floor_area = convert_to_decimal(self.floor_area)
         self.lot_area = convert_to_decimal(self.lot_area)
-    
-
+        
         super().clean()  # Call the parent class's clean method
-
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -285,7 +287,7 @@ class UnitTemplate(models.Model):
             "balcony": self.balcony,
             "commission": self.commission,
         }
-
+    
 def validate_image_size(image):
     filesize = image.file.size
     limit = 5 * 1024 * 1024  # Limit image size to 5 MB

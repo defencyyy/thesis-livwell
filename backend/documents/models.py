@@ -36,8 +36,13 @@ def document_file_upload_path(instance, filename):
 # DocumentType model for dynamically adding document types
 class DocumentType(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=50, unique=True)  # e.g., 'Contract', 'Deed', 'Brochure'
+    name = models.CharField(max_length=50)  # Removed 'unique=True' here
     description = models.TextField(blank=True, null=True)  # Optional description of the document type
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'name'], name='unique_document_type_per_company')
+        ]
 
     def __str__(self):
         return self.name
