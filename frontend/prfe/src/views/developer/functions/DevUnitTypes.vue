@@ -4,47 +4,6 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <!-- Actions -->
-        <div class="actions" v-if="!isLoading && !errorMessage">
-          <div class="nav nav-tabs">
-            <!-- Manage Units Tab -->
-            <button
-              class="nav-link"
-              id="units-tab"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              @click="redirectToUnits"
-            >
-              Manage Units
-            </button>
-
-            <!-- Manage Unit Templates Tab -->
-            <button
-              class="nav-link"
-              id="unit-templates-tab"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              @click="redirectToUnitTemplates"
-            >
-              Manage Unit Templates
-            </button>
-
-            <!-- Manage Unit Types Tab -->
-            <button
-              class="nav-link active"
-              id="unit-types-tab"
-              type="button"
-              role="tab"
-              aria-selected="true"
-              @click="redirectToUnitTypes"
-            >
-              Manage Unit Types
-            </button>
-          </div>
-        </div>
-
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
@@ -60,36 +19,37 @@
           hide-header
           centered
         >
-
-        <div class="modal-title p-3">
-  <h5 class="mb-0">New Unit Type</h5>
-</div>
-<div class="p-3">
-          <form @submit.prevent="createUnitType">
-            <div class="form-group">
-              <label for="unitTypeName">Unit Type Name:</label>
-              <input
-                v-model="newUnitType.name"
-                id="unitTypeName"
-                type="text"
-                class="form-control"
-                placeholder="Enter Unit Type Name"
-                required
-              />
-            </div>
-            <div class="d-flex justify-content-end gap-2 mt-3"
-            style="padding-top: 15px">
-              <button type="submit" class="btn-add">Add Unit Type</button>
-              <button
-                type="button"
-                class="btn-cancel"
-                @click="isCreateModalOpen = false"
+          <div class="modal-title p-3">
+            <h5 class="mb-0">New Unit Type</h5>
+          </div>
+          <div class="p-3">
+            <form @submit.prevent="createUnitType">
+              <div class="form-group">
+                <label for="unitTypeName">Unit Type Name:</label>
+                <input
+                  v-model="newUnitType.name"
+                  id="unitTypeName"
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Unit Type Name"
+                  required
+                />
+              </div>
+              <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
               >
-                Cancel
-              </button>
-            </div>
-          </form>
-</div>
+                <button type="submit" class="btn-add">Add Unit Type</button>
+                <button
+                  type="button"
+                  class="btn-cancel"
+                  @click="isCreateModalOpen = false"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </b-modal>
 
         <b-modal
@@ -170,7 +130,6 @@
           </div>
 
           <div class="unit-types-list">
-
             <div>
               <div class="outside-headers">
                 <span class="header-item">Name</span>
@@ -343,17 +302,6 @@ export default {
       }
     },
 
-    redirectToUnits() {
-      this.$router.push({ name: "DevFuncUnits" });
-    },
-
-    redirectToUnitTemplates() {
-      this.$router.push({ name: "DevUnitTemplates" });
-    },
-
-    redirectToUnitTypes() {
-      this.$router.push({ name: "DevUnitTypes" });
-    },
     async fetchUnitTypes() {
       try {
         console.log("Fetching unit types...");

@@ -15,6 +15,7 @@
       <nav class="sidebar-nav">
         <b-nav vertical pills>
           <template v-for="(item, index) in menuItems" :key="index">
+            <!-- Normal menu item with icon and name -->
             <b-nav-item v-if="!item.children" :to="item.link" exact custom>
               <i
                 :class="['menu-icon', item.icon, { active: isActive(item) }]"
@@ -24,10 +25,24 @@
               </span>
             </b-nav-item>
 
+            <!-- Parent menu item with icon and name -->
             <div v-else>
-              <b-nav-item :to="item.link" exact custom class="parent-item">
-                {{ item.name }}
+              <b-nav-item
+                :to="item.link"
+                exact
+                custom
+                class="parent-item"
+                :class="{ active: isActive(item) }"
+              >
+                <i
+                  :class="['menu-icon', item.icon, { active: isActive(item) }]"
+                ></i>
+                <span :class="['item-name', { active: isActive(item) }]">
+                  {{ item.name }}
+                </span>
               </b-nav-item>
+
+              <!-- Child menu items with icon and name -->
               <div class="child-menu">
                 <b-nav-item
                   v-for="(child, idx) in item.children"
@@ -35,8 +50,21 @@
                   :to="child.link"
                   exact
                   custom
+                  :class="{
+                    active: isActive(child),
+                    'active-child': isChildActive(child),
+                  }"
                 >
-                  {{ child.name }}
+                  <i
+                    :class="[
+                      'menu-icon',
+                      child.icon,
+                      { active: isActive(child) },
+                    ]"
+                  ></i>
+                  <span :class="['item-name', { active: isActive(child) }]">
+                    {{ child.name }}
+                  </span>
                 </b-nav-item>
               </div>
             </div>
@@ -104,6 +132,18 @@ export default {
             name: "Manage Units",
             link: "/developer/units",
             icon: "fas fa-home",
+            children: [
+              {
+                name: "Unit Templates",
+                link: "/developer/units/templates",
+                icon: "fas fa-chevron-right",
+              },
+              {
+                name: "Unit Types",
+                link: "/developer/units/types",
+                icon: "fas fa-chevron-right",
+              },
+            ],
           },
           {
             name: "Manage Sales",
@@ -167,6 +207,19 @@ export default {
     },
     isActive(item) {
       return this.$route.path === item.link;
+    },
+
+    // Check if the current child item is active
+    isChildActive(child) {
+      return this.$route.path === child.link;
+    },
+
+    // Toggle the visibility of child items (for parent items with children)
+    toggleChildMenu(item) {
+      // If the item has children, toggle its 'active' state
+      if (item.children) {
+        item.active = !item.active;
+      }
     },
   },
   watch: {},
@@ -242,6 +295,27 @@ export default {
   color: white; /* Ensure color stays white on hover */
 }
 
+/* Child menu styling when the parent is active */
+.parent-item.active + .child-menu {
+  background-color: #f3f8ff; /* Light blue background for active child items */
+  border-radius: 8px; /* Add rounded corners to the child menu */
+}
+
+/* Remove extra padding for children */
+.child-menu {
+  padding-left: 22px; /* Ensure no padding for children */
+}
+
+/* Style for individual child items */
+.child-menu b-nav-item {
+  padding-left: 0; /* Remove extra padding for child nav items */
+}
+
+/* Optional: Styling for hover on child items */
+.child-menu b-nav-item:hover {
+  background-color: #f0f0f0; /* Light gray background for hover state */
+}
+
 /* RESPONSIVENESS */
 /* Media queries for responsive behavior */
 @media (max-width: 1440px) {
@@ -259,6 +333,11 @@ export default {
 
   .item-name {
     font-size: 13px; /* Adjust item font size */
+  }
+
+  /* Remove extra padding for children */
+  .child-menu {
+    padding-left: 10px; /* Ensure no padding for children */
   }
 }
 
@@ -295,6 +374,15 @@ export default {
 
   .item-name {
     display: none; /* Hide text for small screens */
+  }
+  /* Remove extra padding for children */
+  .child-menu {
+    padding-left: 0; /* Ensure no padding for children */
+  }
+
+  /* Style for individual child items */
+  .child-menu b-nav-item {
+    padding-left: 0 !important; /* Remove extra padding for child nav items */
   }
 }
 </style>

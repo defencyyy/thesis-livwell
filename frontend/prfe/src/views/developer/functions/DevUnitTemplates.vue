@@ -12,48 +12,6 @@
             {{ errorMessage }}
           </div>
 
-          <!-- Actions -->
-
-          <div class="actions" v-if="!isLoading && !errorMessage">
-            <div class="nav nav-tabs">
-              <!-- Manage Units Tab -->
-              <button
-                class="nav-link"
-                id="units-tab"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                @click="redirectToUnits"
-              >
-                Manage Units
-              </button>
-
-              <!-- Manage Unit Templates Tab -->
-              <button
-                class="nav-link active"
-                id="unit-templates-tab"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                @click="redirectToUnitTemplates"
-              >
-                Manage Unit Templates
-              </button>
-
-              <!-- Manage Unit Types Tab -->
-              <button
-                class="nav-link"
-                id="unit-types-tab"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                @click="redirectToUnitTypes"
-              >
-                Manage Unit Types
-              </button>
-            </div>
-          </div>
-
           <!-- Unit Templates Section -->
           <div v-if="view === 'templates'">
             <div class="title-wrapper">
@@ -88,14 +46,13 @@
                       <i class="fa fa-search search-icon"></i>
                     </div>
                     <select
-                    v-model="viewFilter"
-                    @change="toggleView(viewFilter)"
-                    class="dropdown"
-                  >
-                    <option value="active">View: Active</option>
-                    <option value="archived">View: Archived</option>
-                  </select>
-      
+                      v-model="viewFilter"
+                      @change="toggleView(viewFilter)"
+                      class="dropdown"
+                    >
+                      <option value="active">View: Active</option>
+                      <option value="archived">View: Archived</option>
+                    </select>
                   </div>
                   <div class="right-section">
                     <button
@@ -240,149 +197,148 @@
       centered
       size="lg"
     >
-
-    <div class="modal-title p-3">
-  <h5 class="mb-0">New Unit Template</h5>
-</div>
-
-<div class="p-3">
-  <form @submit.prevent="createTemplate" enctype="multipart/form-data">
-    <!-- Left and Right Sections -->
-    <div class="row">
-      <!-- Left Section -->
-      <div class="col-md-6">
-        <!-- Name Field -->
-        <div class="form-group mb-3">
-          <label for="templateName">Name</label>
-          <input
-            type="text"
-            v-model="newTemplate.templateName"
-            class="form-control"
-            required
-          />
-        </div>
-
-        <!-- Description Field -->
-        <div class="form-group mb-3">
-          <label for="templateDescription">Description</label>
-          <textarea
-            v-model="newTemplate.templateDescription"
-            class="form-control"
-            rows="3"
-          ></textarea>
-        </div>
-
-        <!-- Unit Type Dropdown -->
-        <div class="form-group mb-3">
-          <label for="templateType">Unit Type</label>
-          <b-form-select
-            v-model="newTemplate.templateType"
-            :options="unitTypesOptions"
-            required
-          />
-        </div>
-
-        <!-- Price Field -->
-        <div class="form-group mb-3">
-          <label for="templatePrice">Price</label>
-          <input
-            type="number"
-            v-model="newTemplate.templatePrice"
-            class="form-control"
-            required
-          />
-        </div>
+      <div class="modal-title p-3">
+        <h5 class="mb-0">New Unit Template</h5>
       </div>
 
-      <!-- Right Section -->
-      <div class="col-md-6">
-        <!-- Bedrooms and Bathrooms Fields -->
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group mb-3">
-              <label for="templateBedrooms">Bedrooms</label>
-              <input
-                type="number"
-                v-model="newTemplate.templateBedroom"
-                class="form-control"
-                required
-              />
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group mb-3">
-              <label for="templateBathrooms">Bathrooms</label>
-              <input
-                type="number"
-                v-model="newTemplate.templateBathroom"
-                class="form-control"
-                required
-              />
-            </div>
-          </div>
-        </div>
+      <div class="p-3">
+        <form @submit.prevent="createTemplate" enctype="multipart/form-data">
+          <!-- Left and Right Sections -->
+          <div class="row">
+            <!-- Left Section -->
+            <div class="col-md-6">
+              <!-- Name Field -->
+              <div class="form-group mb-3">
+                <label for="templateName">Name</label>
+                <input
+                  type="text"
+                  v-model="newTemplate.templateName"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-        <!-- Floor Area and Lot Area Fields -->
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group mb-3">
-              <label for="templateFloorArea">Floor Area</label>
-              <input
-                type="number"
-                v-model="newTemplate.templateFloorArea"
-                class="form-control"
-              />
+              <!-- Description Field -->
+              <div class="form-group mb-3">
+                <label for="templateDescription">Description</label>
+                <textarea
+                  v-model="newTemplate.templateDescription"
+                  class="form-control"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <!-- Unit Type Dropdown -->
+              <div class="form-group mb-3">
+                <label for="templateType">Unit Type</label>
+                <b-form-select
+                  v-model="newTemplate.templateType"
+                  :options="unitTypesOptions"
+                  required
+                />
+              </div>
+
+              <!-- Price Field -->
+              <div class="form-group mb-3">
+                <label for="templatePrice">Price</label>
+                <input
+                  type="number"
+                  v-model="newTemplate.templatePrice"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Right Section -->
+            <div class="col-md-6">
+              <!-- Bedrooms and Bathrooms Fields -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="templateBedrooms">Bedrooms</label>
+                    <input
+                      type="number"
+                      v-model="newTemplate.templateBedroom"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="templateBathrooms">Bathrooms</label>
+                    <input
+                      type="number"
+                      v-model="newTemplate.templateBathroom"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floor Area and Lot Area Fields -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="templateFloorArea">Floor Area</label>
+                    <input
+                      type="number"
+                      v-model="newTemplate.templateFloorArea"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="templateLotArea">Lot Area</label>
+                    <input
+                      type="number"
+                      v-model="newTemplate.templateLotArea"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Upload -->
+              <div class="form-group mb-3">
+                <label for="image">Upload Images</label>
+                <input
+                  type="file"
+                  @change="handleImageUpload"
+                  class="form-control"
+                  accept="image/*"
+                  multiple
+                />
+              </div>
+
+              <!-- Image Previews -->
+              <div v-if="imagePreviews.length" class="image-previews">
+                <div class="d-flex gap-2">
+                  <img
+                    v-for="(image, index) in imagePreviews"
+                    :key="index"
+                    :src="image"
+                    class="img-thumbnail"
+                    style="width: 100px; height: 100px"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="form-group mb-3">
-              <label for="templateLotArea">Lot Area</label>
-              <input
-                type="number"
-                v-model="newTemplate.templateLotArea"
-                class="form-control"
-              />
-            </div>
-          </div>
-        </div>
 
-        <!-- Image Upload -->
-        <div class="form-group mb-3">
-          <label for="image">Upload Images</label>
-          <input
-            type="file"
-            @change="handleImageUpload"
-            class="form-control"
-            accept="image/*"
-            multiple
-          />
-        </div>
-
-        <!-- Image Previews -->
-        <div v-if="imagePreviews.length" class="image-previews">
-          <div class="d-flex gap-2">
-            <img
-              v-for="(image, index) in imagePreviews"
-              :key="index"
-              :src="image"
-              class="img-thumbnail"
-              style="width: 100px; height: 100px"
-            />
+          <!-- Modal Buttons -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
+            <button type="submit" class="btn-add">Add New Template</button>
+            <button @click="closeCreateModal" class="btn-cancel">Cancel</button>
           </div>
-        </div>
+        </form>
       </div>
-    </div>
-
-    <!-- Modal Buttons -->
-    <div
-      class="d-flex justify-content-end gap-2 mt-30"
-      style="padding-top: 15px"
-    >
-      <button type="submit" class="btn-add">Add New Template</button>
-      <button @click="closeCreateModal" class="btn-cancel">Cancel</button>
-    </div>
-  </form>
-</div>
     </b-modal>
 
     <!-- Edit Template Modal -->
@@ -603,17 +559,6 @@ export default {
       } else if (this.viewFilter === "archived") {
         this.showArchived = true; // Shows archived templates
       }
-    },
-    redirectToUnits() {
-      this.$router.push({ name: "DevFuncUnits" });
-    },
-
-    redirectToUnitTemplates() {
-      this.$router.push({ name: "DevUnitTemplates" });
-    },
-
-    redirectToUnitTypes() {
-      this.$router.push({ name: "DevUnitTypes" });
     },
 
     openCreateTemplateModal() {

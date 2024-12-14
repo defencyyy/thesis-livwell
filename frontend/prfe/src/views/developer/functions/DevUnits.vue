@@ -5,149 +5,93 @@
       <AppHeader />
       <div class="content">
         <div class="dashboard-container">
+          <!-- Loading and Error Message -->
           <div v-if="isLoading" class="loading-indicator">Loading...</div>
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
           </div>
 
-          <div class="actions" v-if="!isLoading && !errorMessage">
-            <div class="nav nav-tabs">
-              <!-- Manage Units Tab -->
-              <button
-                class="nav-link active"
-                id="units-tab"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                @click="redirectToUnits"
-              >
-                Manage Units
-              </button>
-
-              <!-- Manage Unit Templates Tab -->
-              <button
-                class="nav-link"
-                id="unit-templates-tab"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                @click="redirectToUnitTemplates"
-              >
-                Manage Unit Templates
-              </button>
-
-              <!-- Manage Unit Types Tab -->
-              <button
-                class="nav-link"
-                id="unit-types-tab"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                @click="redirectToUnitTypes"
-              >
-                Manage Unit Types
-              </button>
+          <!-- Sites Section -->
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title">Sites</div>
             </div>
           </div>
 
-          <div>
-            <div class="title-wrapper">
-              <div class="title-left">
-                <div class="title-icon"></div>
-                <div class="edit-title">Sites</div>
-              </div>
-            </div>
-
-            <!-- Search and Filter Section -->
-            <div
-              class="card border-0 rounded-1 mx-auto"
-              style="
-                max-width: 1100px;
-                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-              "
-            >
-              <div class="card-body">
-                <div class="row">
-                  <div class="toolbar">
-                    <div class="left-section">
-                      <div class="search-bar-container">
-                        <input
-                          type="text"
-                          v-model="searchQuery"
-                          placeholder="Search Site Name"
-                          class="search-bar"
-                        />
-                        <i class="fa fa-search search-icon"></i>
-                      </div>
-                      <!-- Sort Dropdown -->
-                      <select v-model="sortBy" class="dropdown">
-                        <option value="name">Name</option>
-                        <option value="created_at">Date Created</option>
-                        <option value="status">Status</option>
-                        <option value="sections">Sections</option>
-                      </select>
-
-                      <select v-model="sortOrder" class="dropdown">
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                      </select>
+          <!-- Search and Filter Section -->
+          <div
+            class="card border-0 rounded-1 mx-auto"
+            style="
+              max-width: 1100px;
+              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div class="card-body">
+              <div class="row">
+                <div class="toolbar">
+                  <div class="left-section">
+                    <div class="search-bar-container">
+                      <input
+                        type="text"
+                        v-model="searchQuery"
+                        placeholder="Search Site Name"
+                        class="search-bar"
+                      />
+                      <i class="fa fa-search search-icon"></i>
                     </div>
+                    <!-- Sort Dropdown -->
+                    <select v-model="sortBy" class="dropdown">
+                      <option value="name">Name</option>
+                      <option value="created_at">Date Created</option>
+                      <option value="status">Status</option>
+                      <option value="sections">Sections</option>
+                    </select>
+                    <select v-model="sortOrder" class="dropdown">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div v-if="viewMode === 'table'">
-              <div class="outside-headers">
-                <span class="header-item">Name</span>
-                <span class="header-item">Location</span>
-                <span class="header-item">Status</span>
-                <span class="header-item">Sections</span>
-                <span class="header-item">Units</span>
-                <span class="header-item">Available Units</span>
-                <span class="header-item">Actions</span>
-              </div>
-              <div v-for="site in filteredSites" :key="site.id" class="card">
-                <div class="card-body">
-                  <table class="site-table">
-                    <tbody>
-                      <tr>
-                        <td>{{ site.name || "Unknown" }}</td>
-                        <td>{{ site.location || "Location unavailable" }}</td>
-                        <td>
-                          {{
-                            site.status.toUpperCase() || "Status unavailable"
-                          }}
-                        </td>
-                        <td>
-                          {{
-                            site.sections?.length > 0
-                              ? site.sections.length
-                              : "None"
-                          }}
-                        </td>
-                        <td>
-                          {{ site.total_units > 0 ? site.total_units : "None" }}
-                        </td>
-                        <td>
-                          {{
-                            site.available_units > 0
-                              ? site.available_units
-                              : "None"
-                          }}
-                        </td>
-                        <td>
-                          <button
-                            @click.stop="openSectionManagement(site)"
-                            class="btn-manage"
-                          >
-                            Manage Sections
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          <!-- Sites Table -->
+          <div v-if="viewMode === 'table'">
+            <div class="outside-headers">
+              <span class="header-item">Name</span>
+              <span class="header-item">Location</span>
+              <span class="header-item">Status</span>
+              <span class="header-item">Sections</span>
+              <span class="header-item">Units</span>
+              <span class="header-item">Available Units</span>
+              <span class="header-item">Actions</span>
+            </div>
+            <div v-for="site in filteredSites" :key="site.id" class="card">
+              <div class="card-body">
+                <table class="site-table">
+                  <tbody>
+                    <tr>
+                      <td>{{ site.name || "Unknown" }}</td>
+                      <td>{{ site.location || "Location unavailable" }}</td>
+                      <td>
+                        {{ site.status.toUpperCase() || "Status unavailable" }}
+                      </td>
+                      <td>{{ site.sections?.length || "None" }}</td>
+                      <td>{{ site.total_units || "None" }}</td>
+                      <td>{{ site.available_units || "None" }}</td>
+                      <td>
+                        <button
+                          @click.stop="openSectionManagement(site)"
+                          class="btn-manage"
+                        >
+                          Manage Sections
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -175,67 +119,39 @@ export default {
       isLoading: false,
       errorMessage: null,
       viewMode: "table",
-      viewFilter: "active",
-      selectedSite: null,
-      unitNumberFilter: "",
-      unitTypeFilter: "",
       searchQuery: "", // Search query for site name
       sortBy: "name", // Default sorting option
       sortOrder: "asc", // Default sorting order (Ascending)
-      sortOptions: [
-        { value: "name", text: "Name" },
-        { value: "created_at", text: "Date Created" },
-        { value: "status", text: "Status" },
-        { value: "sections", text: "Section" },
-      ],
-      sortOrderOptions: [
-        { value: "asc", text: "Ascending" },
-        { value: "desc", text: "Descending" },
-      ],
     };
   },
   computed: {
     filteredSites() {
-      let sitesToFilter = this.sites.filter((site) =>
-        site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-
-      return sitesToFilter.sort((a, b) => {
-        let comparison = 0;
-        if (this.sortBy === "name") {
-          comparison = a.name.localeCompare(b.name);
-        } else if (this.sortBy === "created_at") {
-          comparison = new Date(a.created_at) - new Date(b.created_at);
-        } else if (this.sortBy === "status") {
-          comparison = a.status.localeCompare(b.status);
-        } else if (this.sortBy === "sections") {
-          comparison = a.sections.length - b.sections.length;
-        }
-
-        return this.sortOrder === "asc" ? comparison : -comparison;
-      });
+      return this.sites
+        .filter((site) =>
+          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        )
+        .sort((a, b) => this.compareSites(a, b));
     },
     siteOptions() {
       return this.sites
-        .map((site) => ({
-          value: site.id,
-          text: site.name,
-        }))
+        .map((site) => ({ value: site.id, text: site.name }))
         .sort((a, b) => a.text.localeCompare(b.text)); // Sort options alphabetically
     },
   },
   methods: {
+    compareSites(a, b) {
+      let comparison = 0;
+      if (this.sortBy === "name") comparison = a.name.localeCompare(b.name);
+      if (this.sortBy === "created_at")
+        comparison = new Date(a.created_at) - new Date(b.created_at);
+      if (this.sortBy === "status")
+        comparison = a.status.localeCompare(b.status);
+      if (this.sortBy === "sections")
+        comparison = a.sections.length - b.sections.length;
+      return this.sortOrder === "asc" ? comparison : -comparison;
+    },
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
-    },
-    redirectToUnits() {
-      this.$router.push({ name: "DevFuncUnits" });
-    },
-    redirectToUnitTemplates() {
-      this.$router.push({ name: "DevUnitTemplates" });
-    },
-    redirectToUnitTypes() {
-      this.$router.push({ name: "DevUnitTypes" });
     },
     async fetchSites() {
       try {
@@ -266,8 +182,8 @@ export default {
           }));
         }
       } catch (error) {
-        console.error("Error fetching sites:", error.response || error);
         this.errorMessage = "Failed to load sites.";
+        console.error("Error fetching sites:", error.response || error);
       } finally {
         this.isLoading = false;
       }
@@ -293,29 +209,25 @@ export default {
         this.errorMessage = "Please select a site before searching.";
         return;
       }
-
       try {
         this.isLoading = true;
-        const params = {
-          siteId: this.selectedSite,
-          unitNumber: this.unitNumberFilter,
-          unitType: this.unitTypeFilter,
-        };
-
         const response = await axios.get(
           "http://localhost:8000/developer/units/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-            params,
+            params: {
+              siteId: this.selectedSite,
+              unitNumber: this.unitNumberFilter,
+              unitType: this.unitTypeFilter,
+            },
           }
         );
-
         this.units = response.data.data || [];
       } catch (error) {
-        console.error("Error fetching units data:", error);
         this.errorMessage = "Failed to load units.";
+        console.error("Error fetching units data:", error);
       } finally {
         this.isLoading = false;
       }
@@ -325,7 +237,6 @@ export default {
         this.errorMessage = "Please select a site before searching.";
         return;
       }
-
       this.fetchUnits();
     },
   },
