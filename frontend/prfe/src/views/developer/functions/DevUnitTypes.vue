@@ -59,7 +59,7 @@
           hide-footer
           centered
         >
-          <form @submit.prevent="updateUnitType">
+          <form @submit.prevent="updateUnitTypeWithConfirmation">
             <div class="form-group">
               <label for="editUnitTypeName">Unit Type Name:</label>
               <input
@@ -226,6 +226,51 @@
             </div>
           </div>
         </div>
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+
+            <!-- Confirm Button -->
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+          </div>
+        </b-modal>
+
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -236,7 +281,7 @@ import axios from "axios";
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { BModal } from "bootstrap-vue-3";
-import { mapState } from "vuex"; // Import mapState from Vuex
+import { mapState } from "vuex";
 
 export default {
   components: { SideNav, AppHeader, BModal },
@@ -246,25 +291,26 @@ export default {
       isLoading: false,
       errorMessage: "",
       unitTypes: [],
-      newUnitType: {
-        name: "",
-      },
+      newUnitType: { name: "" },
       isEditModalOpen: false,
-      editedUnitType: {
-        id: null,
-        name: "",
-      },
-      showArchived: false, // Flag to toggle between archived and active unit types
-      searchQuery: "", // Search query for filtering unit types
+      editedUnitType: { id: null, name: "" },
+      showArchived: false,
+      searchQuery: "",
       isCreateModalOpen: false,
-      viewFilter: "active", // Add this line
+      viewFilter: "active",
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false,
+      confirmMessage: "",
+      actionToConfirm: null,
+      confirmParams: [],
     };
   },
+
   computed: {
     ...mapState(["companyId"]),
-    // Filter and sort unit types based on the search query and archived status
     filteredUnitTypes() {
-      // Filter by name and archived status
       const filtered = this.unitTypes.filter((unitType) => {
         const matchesSearch = unitType.name
           .toLowerCase()
@@ -275,7 +321,6 @@ export default {
         return matchesSearch && isArchived;
       });
 
-      // Sort to show default unit types first, then custom ones
       return filtered.sort((a, b) => {
         if (a.is_custom && !b.is_custom) return 1;
         if (!a.is_custom && b.is_custom) return -1;
@@ -283,7 +328,9 @@ export default {
       });
     },
   },
+
   methods: {
+    // Modal Controls
     openCreateTypeModal() {
       this.isCreateModalOpen = true;
     },
@@ -295,16 +342,12 @@ export default {
     },
 
     toggleView() {
-      if (this.viewFilter === "active") {
-        this.showArchived = false; // Set showArchived to false for Active
-      } else if (this.viewFilter === "archived") {
-        this.showArchived = true; // Set showArchived to true for Archived
-      }
+      this.showArchived = this.viewFilter === "archived";
     },
 
+    // Fetch Unit Types
     async fetchUnitTypes() {
       try {
-        console.log("Fetching unit types...");
         const response = await axios.get(
           "http://localhost:8000/developer/units/types/",
           {
@@ -314,28 +357,20 @@ export default {
             },
           }
         );
-        console.log("Unit types fetched successfully:", response.data);
-
-        if (response.status === 200) {
-          this.unitTypes = response.data.data; // Update based on actual response structure
-        } else {
-          console.error("Error fetching unit types:", response);
-          alert("Error fetching unit types.");
-        }
+        this.unitTypes = response.data.data;
       } catch (error) {
-        console.error("Error fetching unit types:", error);
         alert("An error occurred while fetching unit types.");
       } finally {
         this.loading = false;
       }
     },
 
-    // Create new unit type with debug info
+    // Create Unit Type
     async createUnitType() {
       const data = {
         name: this.newUnitType.name,
         is_custom: true,
-        company_id: this.companyId, // Pass companyId from Vuex
+        company_id: this.companyId,
       };
 
       try {
@@ -349,24 +384,40 @@ export default {
             },
           }
         );
-        console.log("Unit type created successfully:", response.data);
 
         if (response.status === 201) {
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit-Type created successfully!";
+          this.showNotification = true;
+
           this.unitTypes.push(response.data.data);
           this.newUnitType.name = "";
-          this.isCreateModalOpen = false; // Close the modal correctly
+          this.isCreateModalOpen = false;
         } else {
-          alert("Error creating unit type.");
+          this.notificationTitle = "Error";
+          this.notificationMessage =
+            "An error occurred while creating unit-type.";
+          this.showNotification = true;
         }
       } catch (error) {
-        console.error("Error creating unit type:", error);
-        alert("An error occurred while creating unit type.");
+        this.notificationTitle = "Error";
+        this.notificationMessage = "Error creating unit type.";
+        this.showNotification = true;
       }
     },
-    // Update the unit type
-    async updateUnitType() {
+
+    // Update Unit Type
+    updateUnitTypeWithConfirmation() {
+      this.showConfirmation(
+        `Are you sure you want to update this unit type to "${this.editedUnitType.name}"?`,
+        this.updateUnitTypeConfirmed,
+        []
+      );
+    },
+
+    async updateUnitTypeConfirmed() {
       try {
-        const response = await axios.put(
+        await axios.put(
           `http://localhost:8000/developer/units/types/${this.editedUnitType.id}/`,
           { name: this.editedUnitType.name },
           {
@@ -376,77 +427,118 @@ export default {
             },
           }
         );
-        console.log("Unit type updated successfully:", response.data);
-        alert("Unit type updated successfully!");
 
-        // Refresh unit types list
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Unit type updated successfully!";
+        this.showNotification = true;
+
         this.fetchUnitTypes();
         this.isEditModalOpen = false;
       } catch (error) {
-        console.error("Error updating unit type:", error);
-        alert("Failed to update unit type. Please try again.");
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Failed to update unit type. Please try again.";
+        this.showNotification = true;
       }
     },
 
-    // Archive a unit type with debug info
-    async archiveUnitType(unitTypeId) {
-      if (confirm("Are you sure you want to archive this unit type?")) {
-        try {
-          console.log(`Archiving unit type with ID: ${unitTypeId}`);
-          const response = await axios.put(
-            `http://localhost:8000/developer/units/types/${unitTypeId}/`,
-            { is_archived: true },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("Unit type archived successfully:", response.data);
-          alert("Unit type archived successfully!");
+    // Archive Unit Type
+    archiveUnitType(unitTypeId) {
+      this.showConfirmation(
+        "Are you sure you want to archive this unit type?",
+        this.archiveUnitTypeConfirmed,
+        [unitTypeId]
+      );
+    },
 
-          // Re-fetch the unit types to ensure the UI is up-to-date
-          this.fetchUnitTypes();
-        } catch (error) {
-          console.error("Error archiving unit type:", error.response || error);
-          alert("Failed to archive unit type. Please try again.");
-        }
+    async archiveUnitTypeConfirmed(unitTypeId) {
+      try {
+        await axios.put(
+          `http://localhost:8000/developer/units/types/${unitTypeId}/`,
+          { is_archived: true },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Unit type archived successfully!";
+        this.showNotification = true;
+
+        this.fetchUnitTypes();
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Failed to archive unit type. Please try again.";
+        this.showNotification = true;
       }
     },
 
-    // Unarchive a unit type with debug info
-    async unarchiveUnitType(unitTypeId) {
-      if (confirm("Are you sure you want to unarchive this unit type?")) {
-        try {
-          console.log(`Unarchiving unit type with ID: ${unitTypeId}`);
-          const response = await axios.put(
-            `http://localhost:8000/developer/units/types/${unitTypeId}/`,
-            { is_archived: false }, // Set to false to unarchive
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("Unit type unarchived successfully:", response.data);
-          alert("Unit type unarchived successfully!");
+    // Unarchive Unit Type
+    unarchiveUnitType(unitTypeId) {
+      this.showConfirmation(
+        "Are you sure you want to unarchive this unit type?",
+        this.unarchiveUnitTypeConfirmed,
+        [unitTypeId]
+      );
+    },
 
-          // Re-fetch the unit types to ensure the UI is up-to-date
-          this.fetchUnitTypes();
-        } catch (error) {
-          console.error(
-            "Error unarchiving unit type:",
-            error.response || error
-          );
-          alert("Failed to unarchive unit type. Please try again.");
-        }
+    async unarchiveUnitTypeConfirmed(unitTypeId) {
+      try {
+        await axios.put(
+          `http://localhost:8000/developer/units/types/${unitTypeId}/`,
+          { is_archived: false },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Unit type unarchived successfully!";
+        this.showNotification = true;
+
+        this.fetchUnitTypes();
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Failed to unarchive unit type. Please try again.";
+        this.showNotification = true;
       }
+    },
+
+    // Confirmation Modal
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action;
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    async confirmAction() {
+      try {
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false;
+      } catch (error) {
+        this.showConfirmModal = false;
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false;
     },
   },
+
   created() {
-    this.fetchUnitTypes(); // Fetch the unit types when the component is created
+    this.fetchUnitTypes();
   },
 };
 </script>
@@ -747,5 +839,28 @@ input {
 .form-group label {
   font-size: 0.9rem; /* Lessen the font size */
   color: #6c757d; /* Change color (muted gray) */
+}
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>
