@@ -147,32 +147,45 @@
             </div>
           </div>
         </div>
+
         <!-- Pagination Controls -->
-        <div class="pagination-controls">
-          <button
-            @click="goToPage(currentPage - 1)"
-            :disabled="currentPage === 1"
-            class="page-button"
-          >
-            Previous
-          </button>
-          <span v-for="page in totalPages" :key="page">
-            <button
-              @click="goToPage(page)"
-              :class="{ active: page === currentPage }"
-              class="page-button"
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li :class="['page-item', { disabled: currentPage === 1 }]">
+              <a 
+                class="page-link" 
+                href="#" 
+                @click.prevent="goToPage(currentPage - 1)"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li 
+              v-for="page in totalPages" 
+              :key="page" 
+              :class="['page-item', { active: page === currentPage }]"
             >
-              {{ page }}
-            </button>
-          </span>
-          <button
-            @click="goToPage(currentPage + 1)"
-            :disabled="currentPage === totalPages"
-            class="page-button"
-          >
-            Next
-          </button>
-        </div>
+              <a 
+                class="page-link" 
+                href="#" 
+                @click.prevent="goToPage(page)"
+              >
+                {{ page }}
+              </a>
+            </li>
+            <li :class="['page-item', { disabled: currentPage === totalPages }]">
+              <a 
+                class="page-link" 
+                href="#" 
+                @click.prevent="goToPage(currentPage + 1)"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
 
         <!-- Editing Brokers -->
         <b-modal
@@ -1042,6 +1055,14 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -20px;
+  padding-right: 35px;
   font-size: 14px;
 }
 

@@ -115,18 +115,44 @@
             </div>
           </div>
           <!-- Pagination -->
-          <div class="pagination-controls">
-            <button :disabled="currentPage === 1" @click="prevPage" class="page-button">
-              Previous
-            </button>
-            <button v-for="page in totalPages" :key="page" @click="changePage(page)"
-              :class="['page-button', { active: currentPage === page }]">
-              {{ page }}
-            </button>
-            <button :disabled="currentPage === totalPages" @click="nextPage" class="page-button">
-              Next
-            </button>
-          </div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a 
+                  class="page-link" 
+                  href="#" 
+                  @click.prevent="prevPage"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li 
+                v-for="page in totalPages" 
+                :key="page" 
+                :class="['page-item', { active: currentPage === page }]"
+              >
+                <a 
+                  class="page-link" 
+                  href="#" 
+                  @click.prevent="changePage(page)"
+                >
+                  {{ page }}
+                </a>
+              </li>
+              <li :class="['page-item', { disabled: currentPage === totalPages }]">
+                <a 
+                  class="page-link" 
+                  href="#" 
+                  @click.prevent="nextPage"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+
         </div>
       </div>
     </div>
@@ -306,7 +332,7 @@ export default {
     return {
       customers: [],
       searchQuery: "",
-      customersPerPage: 5,
+      customersPerPage: 15,
       currentPage: 1,
       showEditModal: false,
       connectedUnitsCount: 0,
@@ -776,92 +802,10 @@ body {
 
 .pagination {
   display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.pagination button {
-  margin: 0 5px;
-}
-
-.pagination .active {
-  font-weight: bold;
-}
-
-.pagination-controls {
-  display: flex;
   justify-content: flex-end;
-  /* Align to the right */
-  margin-top: 20px;
-  /* Add spacing from the content above */
-  gap: 10px;
-  /* Spacing between buttons */
-  padding-right: 20px;
-  /* Add padding to push it away from the edge */
-}
-
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px;
-  /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef;
-  /* Light gray */
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: flex-end;
-  /* Align to the right */
-  margin-top: 20px;
-  /* Add spacing from the content above */
-  gap: 10px;
-  /* Spacing between buttons */
-  padding-right: 20px;
-  /* Add padding to push it away from the edge */
-}
-
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px;
-  /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef;
-  /* Light gray */
+  margin-top: -20px;
+  padding-right: 35px;
+  font-size: 14px;
 }
 
 .modal-title {
