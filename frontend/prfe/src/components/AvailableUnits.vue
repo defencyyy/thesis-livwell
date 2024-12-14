@@ -412,7 +412,7 @@ export default {
       selectedFloor: 'all',
       selectedUnitType: 'all', // Default unit type filter
       currentPage: 1, // Current page number
-      itemsPerPage: 5, // Number of customers per page
+      itemsPerPage: 20, // Number of customers per page
     };
   },
 
