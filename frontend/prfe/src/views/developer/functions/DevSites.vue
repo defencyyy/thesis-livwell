@@ -924,7 +924,7 @@
               >
                 <button
                   type="submit"
-                  class="btn btn-success"
+                  class="btn-add"
                   style="width: 150px"
                 >
                   Save Changes
