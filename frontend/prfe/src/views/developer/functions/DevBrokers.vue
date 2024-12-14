@@ -290,7 +290,7 @@
           </div>
         </b-modal>
         <!-- Pagination -->
-        <div class="pagination" v-if="filteredBrokers.length > brokersPerPage">
+        <div class="pagination" v-if="filteredBrokers.length > itemsPerPage">
           <button
             v-for="page in totalPages"
             :key="page"
@@ -487,7 +487,7 @@ export default {
 
       // Pagination
       currentPage: 1,
-      itemsPerPage: 15,
+      itemsPerPage: 10,
 
       // Edit modal
       editModalVisible: false,

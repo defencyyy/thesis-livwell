@@ -469,9 +469,44 @@
         </form>
       </div>
     </b-modal>
+    <b-modal
+      v-model="showNotification"
+      :title="notificationTitle"
+      hide-footer
+      centered
+    >
+      <p>{{ notificationMessage }}</p>
+      <div class="button-container">
+        <button
+          type="button"
+          @click="showNotification = false"
+          class="btn-cancel-right"
+        >
+          Close
+        </button>
+      </div>
+    </b-modal>
+    <b-modal
+      v-model="showConfirmModal"
+      :title="'Confirmation'"
+      hide-footer
+      centered
+    >
+      <p>{{ confirmMessage }}</p>
+      <div class="button-container">
+        <!-- Cancel Button -->
+        <button type="button" @click="cancelAction" class="btn btn-secondary">
+          Cancel
+        </button>
+
+        <!-- Confirm Button -->
+        <button type="button" @click="confirmAction" class="btn btn-primary">
+          Confirm
+        </button>
+      </div>
+    </b-modal>
   </div>
 </template>
-
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
@@ -482,14 +517,27 @@ import { BFormSelect, BModal } from "bootstrap-vue-3";
 export default {
   name: "DevUnitTemplates",
   components: { SideNav, AppHeader, BModal, BFormSelect },
+
   data() {
     return {
       view: "templates",
       templates: [],
+      unitTypes: [],
       isLoading: false,
       errorMessage: null,
       searchQuery: "",
       selectedTemplate: null,
+      selectedImages: [],
+      imagePreviews: [],
+      showArchived: false,
+      viewFilter: "active",
+
+      // Modal States
+      isCreateModalOpen: false,
+      isEditModalOpen: false,
+      showConfirmModal: false,
+
+      // New Template
       newTemplate: {
         name: "",
         description: "",
@@ -500,22 +548,24 @@ export default {
         floor_area: 0,
         lot_area: 0,
       },
-      imagePreviews: [], // To hold image preview URLs
-      selectedImages: [],
-      isCreateModalOpen: false,
-      isEditModalOpen: false,
-      unitTypes: [],
-      templateStatus: "", // This will hold the selected status ("active" or "archived")
-      showArchived: false, // Set initial state to false for active templates
-      viewFilter: "active", // Initially, show active templates
 
-      // The array to hold the unit types (this will come from your backend or be defined statically)
+      // Notifications
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+
+      // Confirmation Modal
+      confirmMessage: "",
+      actionToConfirm: null,
+      confirmParams: [],
     };
   },
+
   computed: {
     ...mapState({
-      companyId: (state) => state.companyId, // Using Vuex to access company ID
+      companyId: (state) => state.companyId,
     }),
+
     unitTypesOptions() {
       return [
         { value: null, text: "Select Unit Type" },
@@ -527,13 +577,11 @@ export default {
     },
 
     filteredTemplates() {
-      let filtered = this.templates.filter((template) => {
-        // Filter by search query
+      return this.templates.filter((template) => {
         const matchesSearch = template.name
           .toLowerCase()
           .includes(this.searchQuery.toLowerCase());
 
-        // Filter by archived status
         const isArchived =
           this.viewFilter === "archived"
             ? template.is_archived
@@ -541,12 +589,12 @@ export default {
 
         return matchesSearch && isArchived;
       });
-
-      return filtered;
     },
+
     archivedTemplates() {
       return this.templates.filter((template) => template.is_archived);
     },
+
     activeTemplates() {
       return this.templates.filter((template) => !template.is_archived);
     },
@@ -606,46 +654,45 @@ export default {
     },
 
     async createTemplate() {
-      // Validate form fields (add checks based on required fields for templates)
-      if (
-        !this.newTemplate.templateName || // Replace with actual template fields
-        !this.newTemplate.templateType || // Add all required template fields here
-        !this.newTemplate.templatePrice
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create a FormData object to send both template data and images
-      const formData = new FormData();
-
-      // Append form data fields for the template
-      formData.append("name", this.newTemplate.templateName);
-      formData.append("unit_type", this.newTemplate.templateType);
-      formData.append("description", this.newTemplate.templateDescription);
-      formData.append("price", this.newTemplate.templatePrice);
-      formData.append("lot_area", this.newTemplate.templateLotArea);
-      formData.append("floor_area", this.newTemplate.templateFloorArea);
-      // Add fields from your template form here.
-
-      // If there are selected images, append them
-      if (this.selectedImages && this.selectedImages.length) {
-        console.log("Selected images:", this.selectedImages);
-        this.selectedImages.forEach((file) => {
-          formData.append("images", file); // Use a simple name
-        });
-      } else {
-        console.log("No images selected.");
-      }
-
-      // Log FormData content for debugging
-      console.log("FormData contents before sending to backend:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
       try {
-        // Send the FormData to the backend
+        // Validate form fields (add checks based on required fields for templates)
+        if (
+          !this.newTemplate.templateName || // Replace with actual template fields
+          !this.newTemplate.templateType || // Add all required template fields here
+          !this.newTemplate.templatePrice
+        ) {
+          alert("Please fill in all the required fields.");
+          return;
+        }
+
+        // Create a FormData object to send both template data and images
+        const formData = new FormData();
+
+        // Append form data fields for the template
+        formData.append("name", this.newTemplate.templateName);
+        formData.append("unit_type", this.newTemplate.templateType);
+        formData.append("description", this.newTemplate.templateDescription);
+        formData.append("price", this.newTemplate.templatePrice);
+        formData.append("lot_area", this.newTemplate.templateLotArea);
+        formData.append("floor_area", this.newTemplate.templateFloorArea);
+        // Add fields from your template form here.
+
+        // If there are selected images, append them
+        if (this.selectedImages && this.selectedImages.length) {
+          console.log("Selected images:", this.selectedImages);
+          this.selectedImages.forEach((file) => {
+            formData.append("images", file); // Use a simple name
+          });
+        } else {
+          console.log("No images selected.");
+        }
+
+        // Log FormData content for debugging
+        console.log("FormData contents before sending to backend:");
+        for (let pair of formData.entries()) {
+          console.log(pair[0], pair[1]);
+        }
+
         const response = await axios.post(
           "http://localhost:8000/developer/units/templates/",
           formData,
@@ -657,126 +704,167 @@ export default {
           }
         );
 
-        // Check the response status
-        if (response.status === 201) {
-          // Assuming this.templates is an array that holds all the created templates
-          this.templates.push(response.data.data); // Push the new template data into the templates array
-          this.closeCreateModal(); // Close the modal after success
-          alert("Template created successfully!");
-        }
+        this.templates.push(response.data.data);
+        this.closeCreateModal();
+
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Template created successfully!";
+        this.showNotification = true;
       } catch (error) {
         console.error("Error creating template:", error);
-        alert("Failed to create template. Please try again.");
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Failed to create template. Please try again.";
+        this.showNotification = true;
       }
     },
-
     async saveTemplateChanges() {
-      if (!this.selectedTemplate) return;
+      this.showConfirmation(
+        "Are you sure you want to save these changes?",
+        async () => {
+          try {
+            const formData = new FormData();
+            formData.append("name", this.selectedTemplate.name);
+            formData.append("unit_type", this.selectedTemplate.unit_type);
+            formData.append("description", this.selectedTemplate.description);
+            formData.append("price", this.selectedTemplate.price);
+            formData.append("lot_area", this.selectedTemplate.lot_area);
+            formData.append("floor_area", this.selectedTemplate.floor_area);
 
-      const formData = new FormData();
+            if (this.selectedImages.length) {
+              this.selectedImages.forEach((file) => {
+                formData.append("images", file);
+              });
+            }
 
-      // Log the selected template object for debugging
-      console.log("Selected template: ", this.selectedTemplate);
-      // Make sure the keys match
-      formData.append("name", this.selectedTemplate.name); // Ensure 'name' matches the v-model in the template
-      formData.append("unit_type", this.selectedTemplate.unit_type); // Ensure 'unit_type' matches the v-model in the template
-      formData.append("description", this.selectedTemplate.description); // Ensure 'description' matches the v-model in the template
-      formData.append("price", this.selectedTemplate.price); // Ensure 'price' matches the v-model in the template
-      formData.append("lot_area", this.selectedTemplate.lot_area); // Ensure 'lot_area' matches the v-model in the template
-      formData.append("floor_area", this.selectedTemplate.floor_area); // Ensure 'floor_area' matches the v-model in the template
+            const response = await axios.put(
+              `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
+              formData,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                  )}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
 
-      if (this.selectedImages && this.selectedImages.length) {
-        this.selectedImages.forEach((file) => {
-          formData.append("images", file);
-        });
-      }
+            const index = this.templates.findIndex(
+              (template) => template.id === this.selectedTemplate.id
+            );
+            if (index !== -1) {
+              this.templates[index] = response.data.data;
+            }
 
-      // Log formData to verify the content being sent
-      console.log("FormData being sent: ", formData);
+            this.closeEditModal();
 
+            this.notificationTitle = "Success";
+            this.notificationMessage = "Template updated successfully!";
+            this.showNotification = true;
+          } catch (error) {
+            console.error("Error updating template:", error);
+            this.notificationTitle = "Error";
+            this.notificationMessage =
+              "Failed to update template. Please try again.";
+            this.showNotification = true;
+          }
+        },
+        []
+      );
+    },
+    async archiveTemplate(templateId) {
+      this.showConfirmation(
+        "Are you sure you want to archive this template?",
+        this.performArchiveTemplate,
+        [templateId]
+      );
+    },
+
+    async performArchiveTemplate(templateId) {
       try {
-        const response = await axios.put(
-          `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
-          formData,
+        await axios.put(
+          `http://localhost:8000/developer/units/templates/${templateId}/`,
+          { is_archived: true },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json",
             },
           }
         );
 
-        const index = this.templates.findIndex(
-          (template) => template.id === this.selectedTemplate.id
-        );
-        if (index !== -1) {
-          this.templates[index] = response.data.data;
-        }
+        this.fetchTemplates();
 
-        this.closeEditModal();
-        alert("Template updated successfully!");
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Template archived successfully!";
+        this.showNotification = true;
       } catch (error) {
-        console.error(
-          "Error saving template changes:",
-          error.response ? error.response.data : error
-        );
-        alert("Failed to update template.");
-      }
-    },
-    // Archive a template
-    async archiveTemplate(templateId) {
-      if (confirm("Are you sure you want to archive this template?")) {
-        try {
-          console.log(`Archiving template with ID: ${templateId}`);
-          const response = await axios.put(
-            `http://localhost:8000/developer/units/templates/${templateId}/`,
-            { is_archived: true }, // Set to true to archive
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("Template archived successfully:", response.data);
-          alert("Template archived successfully!");
-
-          // Re-fetch the templates to ensure the UI is up-to-date
-          this.fetchTemplates();
-        } catch (error) {
-          console.error("Error archiving template:", error.response || error);
-          alert("Failed to archive template. Please try again.");
-        }
+        console.error("Error archiving template:", error);
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Failed to archive template. Please try again.";
+        this.showNotification = true;
       }
     },
 
-    // Unarchive a template
     async unarchiveTemplate(templateId) {
-      if (confirm("Are you sure you want to unarchive this template?")) {
-        try {
-          console.log(`Unarchiving template with ID: ${templateId}`);
-          const response = await axios.put(
-            `http://localhost:8000/developer/units/templates/${templateId}/`,
-            { is_archived: false }, // Set to false to unarchive
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("Template unarchived successfully:", response.data);
-          alert("Template unarchived successfully!");
-
-          // Re-fetch the templates to ensure the UI is up-to-date
-          this.fetchTemplates();
-        } catch (error) {
-          console.error("Error unarchiving template:", error.response || error);
-          alert("Failed to unarchive template. Please try again.");
-        }
-      }
+      this.showConfirmation(
+        "Are you sure you want to unarchive this template?",
+        this.performUnarchiveTemplate,
+        [templateId]
+      );
     },
 
+    async performUnarchiveTemplate(templateId) {
+      try {
+        await axios.put(
+          `http://localhost:8000/developer/units/templates/${templateId}/`,
+          { is_archived: false },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        this.fetchTemplates();
+
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Template unarchived successfully!";
+        this.showNotification = true;
+      } catch (error) {
+        console.error("Error unarchiving template:", error);
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Failed to unarchive template. Please try again.";
+        this.showNotification = true;
+      }
+    },
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action; // Use the renamed key here
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false; // Close modal on cancel
+    },
+
+    async confirmAction() {
+      try {
+        // Dynamically call the function stored in actionToConfirm with the provided params
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false; // Close modal after confirmation
+      } catch (error) {
+        this.showConfirmModal = false; // Close modal on error
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
     // Fetch Unit Templates
     async fetchTemplates() {
       try {
@@ -1197,5 +1285,29 @@ body {
 .form-group label {
   font-size: 0.9rem; /* Lessen the font size */
   color: #6c757d; /* Change color (muted gray) */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>

@@ -33,7 +33,6 @@ export default {
     };
   },
   mounted() {
-    console.log("Initial sales data:", this.salesData); // Add this line
     Chart.register(...registerables);
     if (this.salesData && this.salesData.length > 0) {
       this.localSalesData = this.salesData;

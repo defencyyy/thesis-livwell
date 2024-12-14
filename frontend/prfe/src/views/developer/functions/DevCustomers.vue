@@ -478,7 +478,6 @@ export default {
             },
           }
         );
-        console.log("Fetched customers:", response.data);
         this.customers = response.data;
       } catch (error) {
         console.error("Error fetching customers:", error);
@@ -512,7 +511,6 @@ export default {
             },
           }
         );
-        console.log("Fetched documents:", response.data);
         this.currentCustomer.documents = response.data.data.map((doc) => ({
           name: doc.file.split("/").pop(), // Extract file name
           url: doc.file,
@@ -541,7 +539,6 @@ export default {
     },
     async updateCustomer() {
       try {
-        console.log("Updating customer with ID:", this.currentCustomer.id);
         await axios.put(
           `http://localhost:8000/developer/customers/${this.currentCustomer.id}/`,
           {
