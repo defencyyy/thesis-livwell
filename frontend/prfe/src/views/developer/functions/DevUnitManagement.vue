@@ -338,13 +338,27 @@
               </b-col>
             </b-row>
           </b-form-group>
-        </b-col>
-      </b-row>
-
-      <!-- Image Upload (Multiple Files) -->
-      <b-form-group label="Upload Images:" description="You can upload up to 5 images.">
+          <b-form-group>
+            <small>Upload Photos (Max:5)</small>
         <input type="file" @change="handleFileChange" multiple accept="image/jpeg, image/png, image/jpg" class="form-control" />
       </b-form-group>
+        </b-col>
+      </b-row>
+      <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px"
+              >
+                <button type="submit" class="btn-add" style="width: 150px">
+                  Add New Site
+                </button>
+                <button
+                  type="button"
+                  @click="showAddUnitsModal = false"
+                  class="btn-cancel"
+                >
+                  Cancel
+                </button>
+      </div>
     </form>
   </div>
 </b-modal>
@@ -1827,8 +1841,18 @@ button {
   /* Adjust the border radius */
   padding: 10px;
   font-size: 14px;
-  height: 38px;
   /* Match dropdown height */
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 14px;
 }
 
 .btn-manage {
