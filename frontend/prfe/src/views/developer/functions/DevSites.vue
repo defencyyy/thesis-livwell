@@ -1659,6 +1659,7 @@ export default {
         this.showNotification = true;
       }
     },
+
     resetForm() {
       this.newSite = {
         name: "",

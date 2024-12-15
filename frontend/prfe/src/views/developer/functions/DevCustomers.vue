@@ -32,7 +32,29 @@
                   />
                   <i class="fa fa-search search-icon"></i>
                 </div>
+                <!-- Sort Dropdown -->
+                <select v-model="sortBy" class="dropdown">
+                  <option value="customer_code">Sort: ID</option>
+                  <option value="last_name">Sort: Name</option>
+                </select>
+
+                <!-- Sort Order Dropdown -->
+                <select v-model="sortOrder" class="dropdown">
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+
+                <!-- Active vs Archived View Filter -->
+                <select
+                  v-model="viewFilter"
+                  @change="toggleArchived"
+                  class="dropdown2"
+                >
+                  <option value="active">View: Active</option>
+                  <option value="archived">View: Archived</option>
+                </select>
               </div>
+
               <div class="right-section"></div>
             </div>
           </div>
@@ -369,8 +391,13 @@ export default {
   },
   data() {
     return {
-      customers: [],
-      searchQuery: "",
+      customers: [], // Array to hold active customers
+      archivedCustomers: [], // Array to hold archived customers
+      searchQuery: "", // Search input query
+      sortBy: "customer_code", // Default sort by name
+      sortOrder: "asc", // Default sort order (ascending)
+      viewFilter: "active", // Default view to show active customers
+      showArchived: false, // Flag to toggle between archived and active customers
       customersPerPage: 15,
       currentPage: 1,
       showEditModal: false,
@@ -398,16 +425,56 @@ export default {
       loggedIn: (state) => state.loggedIn,
     }),
     filteredCustomers() {
-      return this.customers.filter(
+      const customersToFilter =
+        this.viewFilter === "archived"
+          ? this.archivedCustomers
+          : this.customers;
+
+      if (!Array.isArray(customersToFilter)) {
+        console.error("Expected an array but got:", customersToFilter);
+        return []; // Return an empty array if data is not an array
+      }
+
+      // Filter by search query
+      const filtered = customersToFilter.filter(
         (customer) =>
-          customer.first_name
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
+          customer?.last_name &&
           customer.last_name
             .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          customer.email.toLowerCase().includes(this.searchQuery.toLowerCase())
+            .includes(this.searchQuery.toLowerCase())
       );
+
+      return filtered.sort((a, b) => {
+        const aName = a?.last_name || "";
+        const bName = b?.last_name || "";
+        const aCustomerCode = a?.customer_code || "";
+        const bCustomerCode = b?.customer_code || "";
+
+        let comparison = 0;
+
+        // Sorting logic for customer code
+        if (this.sortBy === "customer_code") {
+          // Make sure both customer codes are valid
+          if (aCustomerCode && bCustomerCode) {
+            const aCodeNumber = parseInt(aCustomerCode.split("-")[1], 10);
+            const bCodeNumber = parseInt(bCustomerCode.split("-")[1], 10);
+            comparison = aCodeNumber - bCodeNumber; // Compare the numeric part of the customer code
+          } else {
+            comparison = aCustomerCode.localeCompare(bCustomerCode); // Default to string comparison if not numeric
+          }
+        }
+        // Sorting logic for name
+        else if (this.sortBy === "last_name") {
+          comparison = aName.localeCompare(bName);
+        }
+        // Sorting logic for ID (if you also want to support sorting by ID)
+        else if (this.sortBy === "id") {
+          comparison = a.id - b.id;
+        }
+
+        // Return comparison in ascending or descending order based on `sortOrder`
+        return this.sortOrder === "desc" ? -comparison : comparison;
+      });
     },
     totalPages() {
       return Math.ceil(this.filteredCustomers.length / this.customersPerPage);
@@ -435,6 +502,11 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCustomers();
+
+      // If showing archived customers, fetch them
+      if (this.showArchived) {
+        this.fetchArchivedCustomers();
+      }
     }
   },
   watch: {
@@ -459,6 +531,7 @@ export default {
         0
       );
     },
+    showArchived() {},
   },
   methods: {
     changePage(page) {
@@ -474,20 +547,77 @@ export default {
         this.currentPage++;
       }
     },
+    // Toggle visibility of archived customers and fetch them if necessary
+    toggleArchived() {
+      this.showArchived = !this.showArchived;
+      console.log("Toggled archived view:", this.showArchived);
+
+      if (this.showArchived && this.archivedCustomers.length === 0) {
+        // Fetch archived customers only when switching to archived view
+        this.fetchArchivedCustomers();
+      } else if (!this.showArchived && this.customers.length === 0) {
+        // Fetch regular customers if switching back to active view
+        this.fetchCustomers();
+      }
+    },
+    // Fetch customers and dynamically build additional properties
     async fetchCustomers() {
       try {
+        const archived = this.viewFilter === "archived" ? true : false;
         const response = await axios.get(
           "http://localhost:8000/developer/customers/",
           {
+            params: {
+              archived: archived, // Use the archived parameter to fetch based on the view filter
+            },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        this.customers = response.data;
+
+        if (response.status === 200) {
+          this.customers = response.data.data.map((customer) => ({
+            ...customer,
+            name: customer.name || "Unknown Customer", // Default name if missing
+            isArchived: customer.isArchived ?? false, // Add 'isArchived' if missing
+            customer_code: customer.customer_code || "No Code", // Handle missing customer_code
+          }));
+        }
       } catch (error) {
-        console.error("Error fetching customers:", error);
-        this.error = "Failed to load customers.";
+        console.error("Error fetching customers:", error.response || error);
+      }
+    },
+
+    // Fetch archived customers and dynamically build additional properties
+    async fetchArchivedCustomers() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/customers/",
+          {
+            params: {
+              archived: true, // Always fetch archived customers
+            },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.archivedCustomers = response.data.data.map((customer) => ({
+            ...customer,
+            name: customer.name || "Unknown Customer", // Default name if missing
+            isArchived: customer.isArchived ?? true, // Make sure archived status is correct
+            customer_code: customer.customer_code || "No Code", // Handle missing customer_code
+            created_at: new Date(customer.created_at) || new Date(0), // Ensure valid date
+          }));
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching archived customers:",
+          error.response || error
+        );
       }
     },
     async viewCustomer(customer) {
@@ -756,6 +886,48 @@ body {
   /* Prevent the icon from blocking clicks in the input */
 }
 
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.dropdown2 {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 90%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
 .card {
   border-radius: 16px;
   background-color: #fff;
@@ -812,13 +984,13 @@ body {
 .customer-table th:nth-child(4),
 .customer-table td:nth-child(4) {
   /* Actions column */
-  width: 19%;
+  width: 17%;
 }
 
 .customer-table th:nth-child(5),
 .customer-table td:nth-child(5) {
   /* Actions column */
-  width: 5%;
+  width: 7%;
 }
 
 .customer-table th:nth-child(5),
@@ -836,7 +1008,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 5% 27% 19% 19% 5% 19% 7%;
+  grid-template-columns: 5% 27% 19% 17% 7% 19% 7%;
   /* Match the column widths */
   padding: 0px 15px;
   margin: 20px auto 10px;
