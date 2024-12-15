@@ -57,7 +57,6 @@
             </div>
           </div>
 
-          <!-- Sites Table -->
           <div v-if="viewMode === 'table'">
             <div class="outside-headers">
               <span class="header-item">Name</span>
@@ -78,15 +77,29 @@
                       <td>
                         {{ site.status.toUpperCase() || "Status unavailable" }}
                       </td>
-                      <td>{{ site.sections?.length || "None" }}</td>
-                      <td>{{ site.total_units || "None" }}</td>
-                      <td>{{ site.available_units || "None" }}</td>
+                      <td>
+                        {{
+                          site.sections?.length > 0
+                            ? site.sections.length
+                            : "None"
+                        }}
+                      </td>
+                      <td>
+                        {{ site.total_units > 0 ? site.total_units : "None" }}
+                      </td>
+                      <td>
+                        {{
+                          site.available_units > 0
+                            ? site.available_units
+                            : "None"
+                        }}
+                      </td>
                       <td>
                         <button
                           @click.stop="openSectionManagement(site)"
                           class="btn-manage"
                         >
-                          Manage Sections
+                          Manage Section
                         </button>
                       </td>
                     </tr>
