@@ -51,6 +51,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'vat_percentage',
             'reservation_fee',
             'other_charges',
+            'relative_id',
         ]
         read_only_fields = ['id', 'created_at']
 

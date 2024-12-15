@@ -35,7 +35,13 @@
                   <select v-model="sortBy" class="dropdown">
                     <option value="name">Sort: Name</option>
                     <option value="status">Sort: Status</option>
-                    <option value="creation">Sort: Date Created</option>
+                    <option value="creation">Sort: Date</option>
+                  </select>
+
+                  <!-- Sort Order Dropdown -->
+                  <select v-model="sortOrder" class="dropdown">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
                   </select>
 
                   <select
@@ -66,6 +72,7 @@
         <div v-if="viewMode === 'table'">
           <!-- Headers outside the card -->
           <div class="outside-headers">
+            <span class="header-item">ID</span>
             <span class="header-item">Name</span>
             <span class="header-item">Location</span>
             <span class="header-item">Status</span>
@@ -86,6 +93,9 @@
               <table class="site-table">
                 <tbody>
                   <tr>
+                    <td class="site-relative-id">
+                      {{ site.relative_id || "N/A" }}
+                    </td>
                     <td>
                       <div class="site-info">
                         <img
@@ -93,7 +103,7 @@
                             getPictureUrl(site.picture) ||
                             require('@/assets/home.png')
                           "
-                          alt="Site Image"
+                          alt="N/A"
                           class="table-image"
                         />
                         <span class="site-name">
@@ -1014,6 +1024,7 @@ export default {
       // View and UI-related data
       viewMode: "table",
       sortBy: "name",
+      sortOrder: "asc",
       searchQuery: "",
       visibleDropdown: null,
       viewFilter: "active",
@@ -1149,7 +1160,6 @@ export default {
       return this.companyId;
     },
 
-    // Filter sites based on the active/archived view
     filteredSites() {
       const sitesToFilter =
         this.viewFilter === "archived" ? this.archivedSites : this.sites;
@@ -1166,12 +1176,19 @@ export default {
           const aCreatedAt = new Date(a?.created_at) || new Date(0); // Default to epoch if undefined
           const bCreatedAt = new Date(b?.created_at) || new Date(0);
 
+          let comparison = 0;
+
           // Sort by selected criteria
-          if (this.sortBy === "name") return aName.localeCompare(bName);
-          else if (this.sortBy === "status")
-            return aStatus.localeCompare(bStatus);
-          else if (this.sortBy === "creation") return aCreatedAt - bCreatedAt;
-          return 0; // Default case
+          if (this.sortBy === "name") {
+            comparison = aName.localeCompare(bName);
+          } else if (this.sortBy === "status") {
+            comparison = aStatus.localeCompare(bStatus);
+          } else if (this.sortBy === "creation") {
+            comparison = aCreatedAt - bCreatedAt;
+          }
+
+          // If the selected order is "desc", reverse the comparison result
+          return this.sortOrder === "desc" ? -comparison : comparison;
         });
     },
 
@@ -1379,6 +1396,7 @@ export default {
             location: this.constructLocation(site),
             isArchived: site.isArchived ?? false,
             sections: site.sections || [],
+            relative_id: site.relative_id || null,
           }));
         }
       } catch (error) {
@@ -1603,11 +1621,6 @@ export default {
         console.warn("No picture file selected for upload."); // Debug warning
       }
 
-      // Debug: Log all FormData entries
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
       try {
         const response = await axios.post(
           "http://localhost:8000/developer/sites/",
@@ -1634,7 +1647,7 @@ export default {
           if (siteId && pictureFile) {
             await this.uploadPicture(siteId, pictureFile);
           }
-
+          this.resetForm();
           this.imagePreview = null;
           this.showAddModal = false;
           this.fetchSites();
@@ -1645,6 +1658,34 @@ export default {
         this.notificationMessage = "An error occurred while creating the site.";
         this.showNotification = true;
       }
+    },
+    resetForm() {
+      this.newSite = {
+        name: "",
+        description: "",
+        region: "",
+        province: "",
+        municipality: "",
+        barangay: "",
+        address: "",
+        postalCode: "",
+        status: "preselling",
+        number_of_sections: 1,
+        numbering_type: "numeric",
+        section_label: "floor",
+        maximum_months: 60,
+        commission: null,
+        spot_discount_percentage: null,
+        spot_discount_flat: null,
+        vat_percentage: 12.0,
+        reservation_fee: null,
+        other_charges: null,
+        sections: [],
+      };
+
+      this.newPictureFile = null;
+      this.imagePreview = null;
+      this.newSectionsToAdd = 0; // Reset the section counter
     },
     // Trigger site update confirmation
     async updateSite() {
@@ -2187,18 +2228,24 @@ body {
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
   /* Location column */
-  width: 43%;
+  width: 27%;
   padding-right: 60px;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
   /* Status column */
-  width: 20%;
+  width: 40%;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
+  /* Actions column */
+  width: 20%;
+}
+
+.site-table th:nth-child(5),
+.site-table td:nth-child(5) {
   /* Actions column */
   width: 7%;
 }
@@ -2206,7 +2253,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 30% 43% 20% 7%;
+  grid-template-columns: 6% 27% 40% 20% 7%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;

@@ -74,6 +74,21 @@ class Site(models.Model):
     reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
     maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment (e.g., 60 months for 5 years max)")
+    relative_id = models.IntegerField(unique=True, null=True, blank=True)
+
+    def get_next_relative_id(self):
+        # Get the last assigned relative_id
+        last_site = Site.objects.order_by('-relative_id').first()
+        next_id = 1
+
+        if last_site and last_site.relative_id is not None:
+            next_id = last_site.relative_id + 1
+        
+        # Ensure the generated relative_id is unique
+        while Site.objects.filter(relative_id=next_id).exists():
+            next_id += 1  # Increment until a unique relative_id is found
+        
+        return next_id
 
     def __str__(self):
         return self.name
@@ -153,6 +168,17 @@ class Site(models.Model):
         
         Unit.objects.bulk_create(created_units)
         return len(created_units)
+    
+    def save(self, *args, **kwargs):
+        if self.relative_id is None:
+            # Automatically set relative_id if not already set
+            self.relative_id = self.get_next_relative_id()
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'name'], name='unique_site_per_company')
+        ]
 
 class Section(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="sections")
