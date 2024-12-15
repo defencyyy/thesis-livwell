@@ -515,7 +515,7 @@
                   <ul>
                     <li>
                     <strong>Reservation Agreement</strong><br>
-                    <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
+                    <input type="file" @change="handleFileChange" id="reservationAgreement"   ref="reservationAgreementInput"  required/>
                     </li>
                     <li v-for="document in documentTypes" :key="document.id">
                       <strong>{{ document.name }}</strong>
@@ -691,7 +691,6 @@
             <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
           </div>
         </b-modal>
-
         </div>
       </div>
     </div>
@@ -1058,6 +1057,8 @@ sortedAndFilteredCustomers() {
       const fileInput = event.target.files[0];
       if (fileInput) {
         this.file = fileInput;
+        this.$refs.reservationAgreementInput.setCustomValidity("");
+
       }
     },
 
@@ -1067,14 +1068,16 @@ sortedAndFilteredCustomers() {
 
       // Check if the selected payment plan is "Spot Cash" and validate required fields
       if (!this.file) {
-        this.errorMessage =
-          "All fields are required except the payment reference.";
+        this.$refs.reservationAgreementInput.setCustomValidity("Please upload the required reservation agreement file.");
+        this.$refs.reservationAgreementInput.reportValidity();
         this.loading = false;
         return; // Stop further processing if validation fails
       }
       if (  this.selectedPaymentPlan === "Deffered Payment" &&(this.netDownpayment < 0 || this.spreadDownpaymentPercentage <= 0)
       ) {
-        this.errorMessage = "Please specify a valid spread downpayment percentage";
+        this.notificationTitle = "Error!";
+        this.notificationMessage = "Please specify a valid spread downpayment percentage!";
+        this.showNotification = true; // Show the notification modal
         this.loading = false;
         return; // Stop further processing if validation fails
       }
@@ -1124,17 +1127,17 @@ sortedAndFilteredCustomers() {
         );
 
         if (response.data.success) {
-          alert("Sales agreement submitted successfully!");
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Sales agreement submitted successfully!";
+          this.showNotification = true; // Show the notification modal
           this.closeModal(); // Close the modal after submission
         } else {
           alert("Error: " + response.data.message);
         }
       } catch (error) {
-        console.error("Error during submission:", error);
-        alert(
-          "Error: " +
-            (error.response ? error.response.data.message : error.message)
-        );
+        this.notificationTitle = "Error!";
+        this.notificationMessage = error.response.data.message || "Failed to add customer.";
+        this.showNotification = true; // Show the notification modal
       } finally {
         this.loading = false;
       }

@@ -289,18 +289,6 @@
             <p v-if="error" class="text-danger">{{ error }}</p>
           </div>
         </b-modal>
-        <!-- Pagination -->
-        <div class="pagination" v-if="filteredBrokers.length > itemsPerPage">
-          <button
-            v-for="page in totalPages"
-            :key="page"
-            @click="currentPage = page"
-            :class="{ active: currentPage === page }"
-          >
-            {{ page }}
-          </button>
-        </div>
-
         <!-- Modal for Adding Broker -->
         <b-modal v-model="showModal" hide-header hide-footer centered>
           <div class="modal-title p-3">

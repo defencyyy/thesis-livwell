@@ -805,6 +805,12 @@ export default {
         }
       });
     },
+      resetForm() {
+      this.email = '';
+      this.contactNumber = '';
+      this.lastName = '';
+      this.firstName = '';
+    },
     getCookie(name) {
       let value = "; " + document.cookie;
       let parts = value.split("; " + name + "=");

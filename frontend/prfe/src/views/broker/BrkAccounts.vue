@@ -191,45 +191,39 @@ export default {
 
       }
     },
-    async updateAccount() {
-  const brokerId = this.getUserId;
-
+async updateAccount() {
+      const brokerId = this.getUserId;
+      if (this.username === ""&&this.email===""&&this.contactNumber===""&&this.password==="") {
+        this.showModalWithMessage("No changes found.", false);
+        return;
+      }
   // Validate password on client-side
-  if (this.password) {
-    // Ensure current password is provided when trying to change the password
-    if (!this.currentPassword) {
-      this.showModalWithMessage("You must provide your current password to change your password.", false);
-      return;
-    }
-    
-    if (this.password.length < 8) {
-      this.showModalWithMessage("Password must contain at least 8 characters long.", false);
-      return;
-    }
-    if (!/[A-Z]/.test(this.password)) {
-      this.showModalWithMessage("Password must contain at least one uppercase letter.", false);
-      return;
-    }
-    if (!/[a-z]/.test(this.password)) {
-      this.showModalWithMessage("Password must contain at least one lowercase letter.", false);
-      return;
-    }
-    if (!/\d/.test(this.password)) {
-      this.showModalWithMessage("Password must contain at least one number.", false);
-      return;
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
-      this.errorMessage = "Password must contain at least one special character.";
-      this.showModalWithMessage("Password must contain at least one special character.", false);
-
-      return;
-    }
-
-    if (this.password !== this.confirmNewPassword) {
-      this.showModalWithMessage("New passwords do not match.", false);
-      return;
-    }
+ if (this.password) {
+  // Ensure current password is provided when trying to change the password
+  if (!this.currentPassword) {
+    this.showModalWithMessage(
+      "You must provide your current password to change your password.",
+      false
+    );
+    return;
   }
+
+  // Define a regex to validate all password criteria
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+  if (!passwordRegex.test(this.password)) {
+    this.showModalWithMessage(
+      "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.",
+      false
+    );
+    return;
+  }
+
+  if (this.password !== this.confirmNewPassword) {
+    this.showModalWithMessage("New passwords do not match.", false);
+    return;
+  }
+}
 
   if (brokerId) {
     try {
