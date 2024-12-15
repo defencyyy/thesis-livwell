@@ -41,11 +41,12 @@
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
+            <span class="header-item">ID</span>
             <span class="header-item">Name</span>
             <span class="header-item">Email</span>
             <span class="header-item">Contact</span>
+            <span class="header-item">Units</span>
             <span class="header-item">Broker Name</span>
-            <!-- <span class="header-item">Units Connected</span> -->
             <span class="header-item">Actions</span>
           </div>
 
@@ -72,6 +73,11 @@
                 <tbody>
                   <tr>
                     <td>
+                      <span class="customer-id">
+                        {{ customer.customer_code.replace("CUST-", "") }}
+                      </span>
+                    </td>
+                    <td>
                       <span class="customer-name">
                         {{ customer.first_name + " " + customer.last_name }}
                       </span>
@@ -87,7 +93,7 @@
                         {{ customer.contact_number }}
                       </span>
                     </td>
-                    <!-- <td>
+                    <td>
                       <span class="customer-units">
                         {{
                           customer.broker_sales
@@ -99,7 +105,7 @@
                             : 0
                         }}
                       </span>
-                    </td> -->
+                    </td>
                     <td>
                       <span class="customer-broker">
                         {{
@@ -794,19 +800,31 @@ body {
 .customer-table th:nth-child(2),
 .customer-table td:nth-child(2) {
   /* Location column */
-  width: 22%;
+  width: 27%;
 }
 
 .customer-table th:nth-child(3),
 .customer-table td:nth-child(3) {
   /* Status column */
-  width: 22%;
+  width: 19%;
 }
 
 .customer-table th:nth-child(4),
 .customer-table td:nth-child(4) {
   /* Actions column */
-  width: 22%;
+  width: 19%;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  /* Actions column */
+  width: 5%;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  /* Actions column */
+  width: 19%;
 }
 
 .customer-table th:nth-child(5),
@@ -818,7 +836,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 27% 22% 22% 22% 7%;
+  grid-template-columns: 5% 27% 19% 19% 5% 19% 7%;
   /* Match the column widths */
   padding: 0px 15px;
   margin: 20px auto 10px;
