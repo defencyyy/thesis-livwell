@@ -598,6 +598,10 @@
             v-model="showEditUnitModal"
             title="Edit Unit"
             @hide="clearSelectedUnit"
+            hide-header
+            hide-footer
+            centered
+            size="lg"
           >
             <template v-if="selectedUnit">
               <form>
