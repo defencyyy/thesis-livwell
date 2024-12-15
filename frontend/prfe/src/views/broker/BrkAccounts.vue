@@ -195,40 +195,36 @@ export default {
   const brokerId = this.getUserId;
 
   // Validate password on client-side
-  if (this.password) {
-    // Ensure current password is provided when trying to change the password
-    if (!this.currentPassword) {
-      this.showModalWithMessage("You must provide your current password to change your password.", false);
-      return;
-    }
-    
-    if (this.password.length < 8) {
-      this.showModalWithMessage("Password must contain at least 8 characters long.", false);
-      return;
-    }
-    if (!/[A-Z]/.test(this.password)) {
-      this.showModalWithMessage("Password must contain at least one uppercase letter.", false);
-      return;
-    }
-    if (!/[a-z]/.test(this.password)) {
-      this.showModalWithMessage("Password must contain at least one lowercase letter.", false);
-      return;
-    }
-    if (!/\d/.test(this.password)) {
-      this.showModalWithMessage("Password must contain at least one number.", false);
-      return;
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
-      this.errorMessage = "Password must contain at least one special character.";
-      this.showModalWithMessage("Password must contain at least one special character.", false);
+ if (this.password) {
+  // Ensure current password is provided when trying to change the password
+  if (!this.currentPassword) {
+    this.showModalWithMessage(
+      "You must provide your current password to change your password.",
+      false
+    );
+    return;
+  }
 
-      return;
-    }
+  // Define a regex to validate all password criteria
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
-    if (this.password !== this.confirmNewPassword) {
-      this.showModalWithMessage("New passwords do not match.", false);
+  if (!passwordRegex.test(this.password)) {
+    this.showModalWithMessage(
+      "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.",
+      false
+    );
+    return;
+  }
+
+  if (this.password !== this.confirmNewPassword) {
+    this.showModalWithMessage("New passwords do not match.", false);
+    return;
+  }
+}
+
+    if (this.currentPassword === this.currentPassword && this.password === "") {
+      this.showModalWithMessage("No changes made.", false);
       return;
-    }
   }
 
   if (brokerId) {
