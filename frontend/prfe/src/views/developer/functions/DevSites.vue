@@ -357,7 +357,7 @@
                     >
                     <input
                       type="file"
-                      @change="handlePictureUpload"
+                      @change="handlePictureUpload($event, 'add')"
                       id="sitePicture"
                       class="form-control"
                       accept="image/*"
@@ -1330,20 +1330,24 @@ export default {
     // Handle picture upload event and update preview
     handlePictureUpload(event, mode) {
       const file = event.target.files[0];
+      console.log("Selected file:", file); // Debug log for selected file
+
       if (file) {
         // Set the image preview to the file's URL for preview
         this.imagePreview = URL.createObjectURL(file);
+        console.log("Image preview URL:", this.imagePreview); // Debug log for preview URL
 
         // Handle picture update depending on the mode (edit or add)
         if (mode === "edit") {
-          // In edit mode, we store the file in newPictureFile for the update
           this.newPictureFile = file;
+          console.log("File set for edit:", this.newPictureFile); // Debug log for edit mode
         } else if (mode === "add") {
-          // In add mode, we set the file to the newSite.picture
           this.newSite.picture = file;
+          console.log("File set for add:", this.newSite.picture); // Debug log for add mode
         }
       } else {
-        this.imagePreview = null; // Clear preview if no file is selected
+        this.imagePreview = null;
+        console.warn("No file selected"); // Warn if no file is selected
       }
     },
 
@@ -1542,7 +1546,6 @@ export default {
       }
     },
 
-    // Save new site, including sections
     async addSite() {
       const formData = new FormData();
       formData.append("companyId", this.vuexCompanyId);
@@ -1557,6 +1560,9 @@ export default {
 
       const formattedStatus = this.revertStatusToOriginal(this.newSite.status);
       formData.append("status", formattedStatus);
+
+      // Debug: Log formatted status
+      console.log("Formatted status:", formattedStatus);
 
       // Sections
       formData.append("number_of_sections", this.newSite.number_of_sections);
@@ -1592,6 +1598,14 @@ export default {
       const pictureFile = this.newPictureFile || this.newSite.picture;
       if (pictureFile) {
         formData.append("picture", pictureFile);
+        console.log("Picture file before appending:", pictureFile); // Debug log
+      } else {
+        console.warn("No picture file selected for upload."); // Debug warning
+      }
+
+      // Debug: Log all FormData entries
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
       }
 
       try {
@@ -1626,12 +1640,12 @@ export default {
           this.fetchSites();
         }
       } catch (error) {
+        console.error("Error response:", error.response || error); // Debug log for error response
         this.notificationTitle = "Error";
         this.notificationMessage = "An error occurred while creating the site.";
         this.showNotification = true;
       }
     },
-
     // Trigger site update confirmation
     async updateSite() {
       this.showConfirmation(

@@ -47,7 +47,7 @@ class SiteListView(APIView):
         sites = Site.objects.filter(company=company, archived=show_archived)
         serializer = SiteSerializer(sites, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
+   
     def post(self, request):
         company = get_developer_company(request)
         if not company:
@@ -57,25 +57,44 @@ class SiteListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Copy data to modify it
-        data = request.data.copy()  # Make a mutable copy to avoid QueryDict issues
-        data['company'] = company.id
+        try:
+            # Handle non-file data separately (avoiding deepcopy issues with files)
+            data = {key: value for key, value in request.data.items() if not isinstance(value, list)}
+            data['company'] = company.id  # Add company ID
+            
+            # Handle sections data separately
+            sections_data = data.pop('sections', [])
 
-        # Handle floors in the request
-        sections_data = data.pop('sections', [])
-        serializer = SiteSerializer(data=data)
+            # Handle files separately
+            files = request.FILES  # Get the files (e.g., images)
+            logger.debug("Request data (non-file): %s", data)
+            logger.debug("Request files: %s", files)
+
+            # Manually pass only non-file data to the serializer
+            serializer = SiteSerializer(data=data)
+            
+            if serializer.is_valid():
+                site = serializer.save()
+
+                # Manually associate files with the saved site instance
+                for field, file in files.items():
+                    setattr(site, field, file)
+                site.save()
+
+                # Create sections associated with the site
+                for section_data in sections_data:
+                    Section.objects.create(site=site, **section_data)
+
+                return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            else:
+                logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
+                return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
-        if serializer.is_valid():
-            site = serializer.save()
-
-            # Create the sections associated with the site
-            for section_data in sections_data:
-                Section.objects.create(site=site, **section_data)
-
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-
-        logger.error(f"Serializer validation failed. Errors: {serializer.errors}")
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # Capture the full traceback in case of an error
+            logger.error("An error occurred during POST request: %s", e)
+            logger.error("Traceback: %s", traceback.format_exc())  # Logs the full traceback
+            return Response({"error": "An error occurred while processing your request."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SiteDetailView(APIView):
