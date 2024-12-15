@@ -691,7 +691,6 @@
             <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
           </div>
         </b-modal>
-
         </div>
       </div>
     </div>
@@ -1076,7 +1075,9 @@ sortedAndFilteredCustomers() {
       }
       if (  this.selectedPaymentPlan === "Deffered Payment" &&(this.netDownpayment < 0 || this.spreadDownpaymentPercentage <= 0)
       ) {
-        this.errorMessage = "Please specify a valid spread downpayment percentage";
+        this.notificationTitle = "Error!";
+        this.notificationMessage = "Please specify a valid spread downpayment percentage!";
+        this.showNotification = true; // Show the notification modal
         this.loading = false;
         return; // Stop further processing if validation fails
       }
@@ -1126,17 +1127,17 @@ sortedAndFilteredCustomers() {
         );
 
         if (response.data.success) {
-          alert("Sales agreement submitted successfully!");
+          this.notificationTitle = "Success!";
+          this.notificationMessage = "Sales agreement submitted successfully!";
+          this.showNotification = true; // Show the notification modal
           this.closeModal(); // Close the modal after submission
         } else {
           alert("Error: " + response.data.message);
         }
       } catch (error) {
-        console.error("Error during submission:", error);
-        alert(
-          "Error: " +
-            (error.response ? error.response.data.message : error.message)
-        );
+        this.notificationTitle = "Error!";
+        this.notificationMessage = error.response.data.message || "Failed to add customer.";
+        this.showNotification = true; // Show the notification modal
       } finally {
         this.loading = false;
       }
