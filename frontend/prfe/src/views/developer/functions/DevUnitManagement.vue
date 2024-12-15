@@ -142,31 +142,32 @@
               <b-row class="align-items-center">
   <!-- Search Bar -->
   <b-col cols="12" md="4" class="search-bar">
-    <small>Search Unit</small>
+    <small style="font-size: 12px; color: #6c757d; padding: 2px;">Search Unit</small>
     <b-form-input 
       v-model="searchQuery" 
       type="text" 
       placeholder="Search units" 
       @input="onSearch" 
+      style="font-size: 14px;"
     />
   </b-col>
 
   <!-- Filter Options -->
   <b-col cols="6" md="2">
-    <small >Sort</small>
-    <b-form-select v-model="selectedSort" :options="sortOptions" placeholder="Sort by" />
+    <small style="font-size: 12px; color: #6c757d; padding: 2px;">Sort</small>
+    <b-form-select v-model="selectedSort" :options="sortOptions" placeholder="Sort by"  style="font-size: 14px;"/>
   </b-col>
   <b-col cols="6" md="2">
-    <small>Price Range</small>
-    <b-form-select v-model="selectedPriceRange" :options="priceRangeOptions" placeholder="Price Range" />
+    <small style="font-size: 12px; color: #6c757d; padding: 2px;">Price Range</small>
+    <b-form-select v-model="selectedPriceRange" :options="priceRangeOptions" placeholder="Price Range"  style="font-size: 14px;"/>
   </b-col>
   <b-col cols="6" md="2">
-    <small>Unit Type</small>
-    <b-form-select v-model="selectedUnitType" :options="unitTypeOptions" placeholder="Unit Type" />
+    <small style="font-size: 12px; color: #6c757d; padding: 2px;">Unit Type</small>
+    <b-form-select v-model="selectedUnitType" :options="unitTypeOptions" placeholder="Unit Type"  style="font-size: 14px;"/>
   </b-col>
   <b-col cols="6" md="2">
-    <small>Status</small>
-    <b-form-select v-model="selectedStatus" :options="statusOptions" placeholder="Status" />
+    <small style="font-size: 12px; color: #6c757d; padding: 2px;">Status</small>
+    <b-form-select v-model="selectedStatus" :options="statusOptions" placeholder="Status"  style="font-size: 14px;"/>
   </b-col>
 </b-row>
 
@@ -202,7 +203,18 @@
                     <!-- Floor Area -->
 
                     <td>
-                      <button @click="manageUnit(unit)">Edit</button>
+                      <button
+                          @click="manageUnit(unit)"
+                          style="
+                            border: none;
+                            background-color: transparent;
+                            color: #343a40;
+                            cursor: pointer;
+                            font-size: 18px;
+                          "
+                        >
+                          <i class="fas fa-edit"></i>
+                        </button>
                     </td>
                   </tr>
                 </tbody>
@@ -213,7 +225,7 @@
               </div>
 
               <!-- Pagination -->
-              <div class="pagination-controls">
+              <!-- <div class="pagination-controls">
                 <button @click="previousPage" :disabled="currentPage === 1">
                   Previous
                 </button>
@@ -221,8 +233,23 @@
                 <button @click="nextPage" :disabled="currentPage === totalPages">
                   Next
                 </button>
+              </div> -->
+
+              <div
+                class="d-flex justify-content-end gap-2 mt-3"
+                style="padding-top: 15px;"
+              >
+                <button
+                  type="button"
+                  @click="showUnitManagementModal = false"
+                  class="btn-cancel"
+                >
+                  Close
+                </button>
               </div>
+
             </div>
+
           </b-modal>
 
           <b-modal id="add-units-modal" title="Add Units" v-model="showAddUnitsModal" :disabled="isSaveButtonDisabled"
@@ -253,7 +280,7 @@
           <b-form-group>
             <b-row>
               <b-col cols="12" md="6">
-                <small>Unit Type</small>
+                  
                 <b-form-select v-model="newUnitType" :options="unitTypeOptions" required></b-form-select>
               </b-col>
               <b-col cols="12" md="6">
@@ -1943,7 +1970,7 @@ button {
 .styled-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 30px 0;
   font-size: 14px;
   text-align: center;
 }
