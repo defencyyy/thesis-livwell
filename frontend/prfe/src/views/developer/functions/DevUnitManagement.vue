@@ -125,32 +125,53 @@
           </div>
 
           <!-- Unit Management Modal -->
-          <b-modal v-model="showUnitManagementModal" title="Manage Units" @hide="closeUnitManagementModal">
-            <button @click="openAddUnitModalForSection(selectedSection.id)">
-              Add Units to Section
+          <b-modal v-model="showUnitManagementModal" title="Manage Units" @hide="closeUnitManagementModal" hide-footer hide-header centered size="lg">
+
+            <div class="modal-title p-3 d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                Modal Title
+              </h5>
+
+              <button class="btn-add" @click="openAddUnitModalForSection(selectedSection.id)">
+              Add Units
             </button>
+            </div>
+        
 
-            <div class="unit-management-content">
-              <div class="search-bar">
-                <b-form-input v-model="searchQuery" type="text" placeholder="Search units" @input="onSearch" />
-              </div>
+            <div class="unit-management-content p-3">
+              <b-row class="align-items-center">
+  <!-- Search Bar -->
+  <b-col cols="12" md="4" class="search-bar">
+    <small>Search Unit</small>
+    <b-form-input 
+      v-model="searchQuery" 
+      type="text" 
+      placeholder="Search units" 
+      @input="onSearch" 
+    />
+  </b-col>
 
-              <!-- Filter Options -->
-              <b-form-group label="Status:">
-                <b-form-select v-model="selectedStatus" :options="statusOptions" />
-              </b-form-group>
-              <b-form-group label="Price Range:">
-                <b-form-select v-model="selectedPriceRange" :options="priceRangeOptions" />
-              </b-form-group>
-              <b-form-group label="Unit Type:">
-                <b-form-select v-model="selectedUnitType" :options="unitTypeOptions" />
-              </b-form-group>
-              <b-form-group label="Sort by:">
-                <b-form-select v-model="selectedSort" :options="sortOptions"></b-form-select>
-              </b-form-group>
+  <!-- Filter Options -->
+  <b-col cols="6" md="2">
+    <small >Sort</small>
+    <b-form-select v-model="selectedSort" :options="sortOptions" placeholder="Sort by" />
+  </b-col>
+  <b-col cols="6" md="2">
+    <small>Price Range</small>
+    <b-form-select v-model="selectedPriceRange" :options="priceRangeOptions" placeholder="Price Range" />
+  </b-col>
+  <b-col cols="6" md="2">
+    <small>Unit Type</small>
+    <b-form-select v-model="selectedUnitType" :options="unitTypeOptions" placeholder="Unit Type" />
+  </b-col>
+  <b-col cols="6" md="2">
+    <small>Status</small>
+    <b-form-select v-model="selectedStatus" :options="statusOptions" placeholder="Status" />
+  </b-col>
+</b-row>
 
               <!-- Unit Table -->
-              <table v-if="filteredUnits.length" class="unit-table">
+              <table v-if="filteredUnits.length" class="styled-table">
                 <thead>
                   <tr>
                     <th>Unit Number</th>
@@ -1733,10 +1754,6 @@ button {
   background-color: #f2f2f2;
 }
 
-.search-bar {
-  margin-bottom: 20px;
-  text-align: center;
-}
 
 .pagination-controls {
   text-align: center;
@@ -1923,4 +1940,36 @@ button {
   /* Remove any extra margin around checkboxes */
 }
 
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.styled-table thead tr {
+  background-color: #eff4fb;
+  color: #333;
+  font-weight: bold;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.styled-table td.text-center {
+  text-align: center;
+}
+
+.styled-table th {
+  cursor: pointer;
+  /* Optional if you add sortable columns */
+}
 </style>
