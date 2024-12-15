@@ -229,7 +229,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="unit in filteredUnits" :key="unit.id">
+                  <tr v-for="unit in paginatedUnits" :key="unit.id">
                     <td>{{ unit.unit_number }}</td>
                     <td>
                       {{
@@ -257,19 +257,42 @@
                 <p>No units available for this section.</p>
               </div>
 
-              <!-- Pagination -->
-              <div class="pagination-controls">
-                <button @click="previousPage" :disabled="currentPage === 1">
-                  Previous
-                </button>
-                <span>Page {{ currentPage }} of {{ totalPages }}</span>
-                <button
-                  @click="nextPage"
-                  :disabled="currentPage === totalPages"
-                >
-                  Next
-                </button>
-              </div>
+              <!-- Pagination Controls -->
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li :class="['page-item', { disabled: currentPage === 1 }]">
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(currentPage - 1)"
+                      aria-label="Previous"
+                    >
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                  <li
+                    v-for="page in totalPage"
+                    :key="page"
+                    :class="['page-item', { active: page === currentPage }]"
+                  >
+                    <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                      {{ page }}
+                    </a>
+                  </li>
+                  <li
+                    :class="['page-item', { disabled: currentPage === totalPages }]"
+                  >
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(currentPage + 1)"
+                      aria-label="Next"
+                    >
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </b-modal>
 
@@ -1039,7 +1062,7 @@ export default {
       unitFields: [],
       unitsData: [],
       currentPage: 1,
-      unitsPerPage: 25,
+      unitsPerPage: 10,
       searchQuery: "",
       newUnitImages: [],
       sectionSortOrder: "asc",
@@ -1192,7 +1215,17 @@ export default {
 
       return units;
     },
+     paginatedUnits() {
+      const startIndex = (this.currentPage - 1) * this.unitsPerPage;
+      return this.filteredUnits.slice(
+        startIndex,
+        startIndex + this.unitsPerPage
+      );
+    },
 
+    totalPage() {
+      return Math.ceil(this.filteredUnits.length / this.unitsPerPage);
+    },
     totalPages() {
       return Math.ceil(this.totalItems / this.itemsPerPage);
     },
@@ -1215,6 +1248,12 @@ export default {
     this.fetchUnits();
   },
   methods: {
+  // Navigation methods
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPage) {
+        this.currentPage = pageNumber;
+      }
+    },
     sectionOptionsForSection(section) {
       let sectionName = section.name || `Section ${section.number}`;
 
@@ -2370,5 +2409,13 @@ button {
 .styled-table th {
   cursor: pointer;
   /* Optional if you add sortable columns */
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 </style>
