@@ -1,7 +1,7 @@
 <template>
   <div class="top-bar">
     <div class="welcome-text">
-      Welcome <b>{{ roleName }}!</b>
+      Welcome, <b>{{ roleName }}!</b>
     </div>
     <div class="d-flex align-items-center">
       <!-- <button class="btn-bell">
