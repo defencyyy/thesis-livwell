@@ -191,9 +191,12 @@ export default {
 
       }
     },
-    async updateAccount() {
-  const brokerId = this.getUserId;
-
+async updateAccount() {
+      const brokerId = this.getUserId;
+      if (this.username === ""&&this.email===""&&this.contactNumber===""&&this.password==="") {
+        this.showModalWithMessage("No changes found.", false);
+        return;
+      }
   // Validate password on client-side
  if (this.password) {
   // Ensure current password is provided when trying to change the password
@@ -221,11 +224,6 @@ export default {
     return;
   }
 }
-
-    if (this.currentPassword === this.currentPassword && this.password === "") {
-      this.showModalWithMessage("No changes made.", false);
-      return;
-  }
 
   if (brokerId) {
     try {
