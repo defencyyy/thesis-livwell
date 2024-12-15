@@ -515,7 +515,7 @@
                   <ul>
                     <li>
                     <strong>Reservation Agreement</strong><br>
-                    <input type="file" @change="handleFileChange" id="reservationAgreement" required/>
+                    <input type="file" @change="handleFileChange" id="reservationAgreement"   ref="reservationAgreementInput"  required/>
                     </li>
                     <li v-for="document in documentTypes" :key="document.id">
                       <strong>{{ document.name }}</strong>
@@ -1058,6 +1058,8 @@ sortedAndFilteredCustomers() {
       const fileInput = event.target.files[0];
       if (fileInput) {
         this.file = fileInput;
+        this.$refs.reservationAgreementInput.setCustomValidity("");
+
       }
     },
 
@@ -1067,8 +1069,8 @@ sortedAndFilteredCustomers() {
 
       // Check if the selected payment plan is "Spot Cash" and validate required fields
       if (!this.file) {
-        this.errorMessage =
-          "All fields are required except the payment reference.";
+        this.$refs.reservationAgreementInput.setCustomValidity("Please upload the required reservation agreement file.");
+        this.$refs.reservationAgreementInput.reportValidity();
         this.loading = false;
         return; // Stop further processing if validation fails
       }
