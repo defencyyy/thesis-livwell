@@ -69,6 +69,9 @@ def login_view(request, user_role):
                     {"success": False, "message": "Username and password are required."},
                     status=400
                 )
+            
+            # Normalize username to lowercase
+            username = username.lower()
 
             # Fetch the user based on user_role
             if user_role == 'developer':

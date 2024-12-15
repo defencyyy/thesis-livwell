@@ -56,6 +56,7 @@ class DeveloperAccountView(APIView):
 
         return JsonResponse({"success": True, "message": "Account updated successfully."})
 
+
 class VerifyPasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

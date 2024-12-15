@@ -70,14 +70,15 @@ class Developer(AbstractBaseUser, PermissionsMixin):
             self.password = make_password(self.password)
         self.username = self.username.lower()  # Ensure username is always lowercase
 
-        # Check if the username already exists in Developer model
-        if Developer.objects.filter(username=self.username).exists():
-            raise ValidationError("This username is already taken by a developer.")
+        # Only check for username conflict when creating or updating a developer, not during login
+        if not self.pk:  # Check if the user is being created (i.e., not a pre-existing user)
+            if Developer.objects.filter(username=self.username).exists():
+                raise ValidationError("This username is already taken by a developer.")
+            if Broker.objects.filter(username=self.username).exists():
+                raise ValidationError("This username is already taken by a broker.")
 
-        # Check if the username exists in Broker model (replace `Broker` with the actual model name)
-        if Broker.objects.filter(username=self.username).exists():
-            raise ValidationError("This username is already taken by a broker.")
         super().save(*args, **kwargs)
+
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
