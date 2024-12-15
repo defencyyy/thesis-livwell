@@ -767,6 +767,81 @@ export default {
       }
     },
 
+    async addBroker() {
+      if (this.validateForm()) {
+        try {
+          await axios.post(
+            "http://localhost:8000/developer/brokers/add/",
+            {
+              first_name: this.firstName,
+              last_name: this.lastName,
+              email: this.email,
+              password: this.password,
+              contact_number: this.contactNumber,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+
+          this.resetForm();
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Broker created successfully!";
+          this.showNotification = true;
+          this.showModal = false;
+          this.fetchBrokers();
+        } catch (error) {
+          this.notificationTitle = "Error";
+          this.notificationMessage = "An error occurred while adding broker.";
+          this.showNotification = true;
+        }
+      }
+    },
+
+    validateForm() {
+      // Reset errors
+      this.emailError = null;
+      this.contactNumberError = null;
+      this.lastNameError = null;
+      this.firstNameError = null;
+      this.passwordError = null;
+
+      // Simple validation logic for each field
+      if (!this.email) {
+        this.emailError = "Email is required.";
+      } else if (!/\S+@\S+\.\S+/.test(this.email)) {
+        this.emailError = "Please enter a valid email address.";
+      }
+
+      if (!this.firstName) {
+        this.firstNameError = "First Name is required.";
+      }
+
+      if (!this.lastName) {
+        this.lastNameError = "Last Name is required.";
+      }
+
+      if (!this.password) {
+        this.passwordError = "Password is required.";
+      }
+
+      // Contact number validation only if it's not optional in edit mode
+      if (this.contactNumber && !/^\+?1?\d{9,15}$/.test(this.contactNumber)) {
+        this.contactNumberError =
+          "Enter a valid phone number (9 to 15 digits).";
+      }
+
+      return !(
+        this.emailError ||
+        this.contactNumberError ||
+        this.firstNameError ||
+        this.lastNameError ||
+        this.passwordError
+      );
+    },
+
     // Form handling
     resetForm() {
       this.firstName =
