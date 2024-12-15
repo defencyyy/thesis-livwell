@@ -1,19 +1,27 @@
 <template>
   <div>
     <!-- Header -->
-    <div class="header">
-      <div class="top-bar">
-        <div class="welcome-text">Welcome Back, <b>Customer!</b></div>
+    <div>
+      <!-- Header -->
+      <div class="header">
+        <div class="top-bar">
+          <!-- Add conditional rendering to prevent errors -->
+          <div v-if="salesDetail?.customer_name" class="welcome-text">
+            Welcome Back, <b>{{ salesDetail.customer_name }}!</b>
+          </div>
+          <div v-else class="welcome-text">Welcome Back!</div>
+        </div>
       </div>
     </div>
-
     <div class="main-page">
       <!-- Side Bar -->
       <div class="sidebar">
         <div class="sidebar-header">
           <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
           <!-- Font Awesome Icon -->
-          <h4 id="sidebar-title">{{ "Company Name" }}</h4>
+          <h4 id="sidebar-title">
+            {{ salesDetail?.company_name || "Company Name" }}
+          </h4>
         </div>
         <nav class="sidebar-nav">
           <b-nav vertical pills>
@@ -120,7 +128,7 @@
 
           <!-- Payment Schedule Content -->
           <div v-if="activeTab === 'payment-schedule'" class="tab-content">
-            <div class="detailed-schedule">
+            <div>
               <div class="container mt-5">
                 <div class="mb-4">
                   <h3
@@ -137,45 +145,112 @@
                   </p>
                 </div>
                 <div class="mb-4">
-                  <p class="text-start" style="margin-bottom: 1px">
+                  <div
+                    v-if="salesDetail.payment_plan === 'Spot Cash'"
+                    class="additional-box1"
+                  >
+                    <div class="summary-item">
+                      <span class="label">Total Amount Due:</span>
+                      <span class="value"
+                        >₱{{ netFullPayment.toFixed(2) }}
+                      </span>
+                    </div>
+                    <!-- <p v-if="salesDetail.payment_plan === 'Spot Cash'" class="text-start" style="margin-bottom: 1px">
                     <strong>Total Amount Due: </strong>₱{{
-                      balanceUponTurnover.toFixed(2)
+                      netFullPayment.toFixed(2)
                     }}
-                  </p>
+                  </p> -->
+                  </div>
+
                   <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
-                    <p class="text-start">
-                      <strong>Installment Terms: </strong
-                      >{{ salesDetail.payable_months }} months
-                    </p>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Payment Type</th>
-                          <th>Amount (₱)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Spot Downpayment</td>
-                          <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Spread Downpayment</td>
-                          <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-                        </tr>
-                        <tr
-                          v-for="month in salesDetail.payable_months"
-                          :key="month"
-                        >
-                          <td>Month {{ month }} Payment</td>
-                          <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-                        </tr>
-                        <tr>
-                          <td>Balance Upon Turnover</td>
-                          <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div class="payment-container">
+                      <div class="summary-and-info">
+                        <div class="payment-schedule-summary">
+                          <div class="summary-item">
+                            <span class="label">Balance Upon Turnover: </span>
+                            <span class="value"
+                              >₱{{ balanceUponTurnover.toFixed(2) }}
+                            </span>
+                          </div>
+                          <hr class="separator" />
+                          <div class="summary-item">
+                            <span class="label">Installment Terms:</span>
+                            <span class="value"
+                              >{{ salesDetail.payable_months }} months
+                            </span>
+                          </div>
+                        </div>
+                        <div class="additional-box">
+                          <h4><center>Monthly Amortization (6.5%)</center></h4>
+                          <div class="summary-item">
+                            <span class="label">10 years</span>
+                            <span class="value"
+                              >₱{{ amortization10Years.toFixed(2) }}</span
+                            >
+                          </div>
+                          <hr class="separator" />
+                          <div class="summary-item">
+                            <span class="label">15 years</span>
+                            <span class="value"
+                              >₱{{ amortization15Years.toFixed(2) }}</span
+                            >
+                          </div>
+                          <hr class="separator" />
+                          <div class="summary-item">
+                            <span class="label">20 years</span>
+                            <span class="value"
+                              >₱{{ amortization20Years.toFixed(2) }}</span
+                            >
+                          </div>
+                          <hr class="separator" />
+                          <div class="summary-item">
+                            <span class="label">25 years</span>
+                            <span class="value"
+                              >₱{{ amortization25Years.toFixed(2) }}</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="detailed-schedule">
+                        <table class="payment-table">
+                          <thead>
+                            <tr>
+                              <th>Payment Type</th>
+                              <th class="amount-column">Amount (₱)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Spot Downpayment</td>
+                              <td class="amount-column highlight">
+                                ₱{{ spotDownpayment.toFixed(2) }}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Spread Downpayment</td>
+                              <td class="amount-column highlight">
+                                ₱{{ spreadDownpayment.toFixed(2) }}
+                              </td>
+                            </tr>
+                            <tr
+                              v-for="month in salesDetail.payable_months"
+                              :key="month"
+                            >
+                              <td>Month {{ month }} Payment</td>
+                              <td class="amount-column">
+                                ₱{{ payablePerMonth.toFixed(2) }}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Balance Upon Turnover</td>
+                              <td class="amount-column highlight">
+                                ₱{{ balanceUponTurnover.toFixed(2) }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -189,6 +264,7 @@
 
 <script>
 import { BNav, BNavItem } from "bootstrap-vue-3";
+import { mapState } from "vuex";
 
 export default {
   name: "SalesDetails",
@@ -219,11 +295,41 @@ export default {
     this.fetchSalesDetail(salesDetailUuid);
     this.fetchDocumentTypes(); // Fetch the document types on component creation
   },
+  computed: {
+    ...mapState({
+      userId: (state) => state.userId || null,
+      userType: (state) => state.userType || null,
+      companyId: (state) => state.companyId || null,
+      loggedIn: (state) => state.loggedIn, // Use Vuex loggedIn state
+    }),
+    amortization10Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 10);
+    },
+    amortization15Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 15);
+    },
+    amortization20Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 20);
+    },
+    amortization25Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 25);
+    },
+  },
   methods: {
+    calculateAmortization(balance, years) {
+      const interestRate = 6.5 / 100; // 6.5% annual interest
+      const monthlyRate = interestRate / 12; // Monthly interest rate
+      const totalMonths = years * 12; // Total number of months
+      return (
+        (balance * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))) /
+        (Math.pow(1 + monthlyRate, totalMonths) - 1)
+      );
+    },
     setActiveTab(tab) {
       this.activeTab = tab;
     },
     async fetchDocuments() {
+      console.log("l");
       try {
         const response = await fetch(
           `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
@@ -352,7 +458,9 @@ export default {
     // Fetch Document Types
     async fetchDocumentTypes() {
       try {
-        const response = await fetch("http://localhost:8000/document-types/");
+        const response = await fetch(
+          `http://localhost:8000/document-types/?company_id=${this.companyId}`
+        );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
@@ -397,12 +505,20 @@ body {
   width: calc(100% - 250px);
   z-index: 1;
   height: 68px;
-  margin-top: 3px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow at the bottom */
 }
 
 .welcome-text {
   font-size: 18px;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.d-flex .btn i {
+  font-size: 20px;
+  color: #fff;
 }
 
 .main-page {
@@ -414,21 +530,29 @@ body {
 }
 
 .sidebar {
-  background-color: white;
+  position: fixed;
   width: 250px;
-  height: 100vh;
+  background-color: #ffffff;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
-  position: fixed;
+  transition: width 0.3s;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1); /* Adds shadow on the right */
   z-index: 2;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%); /* Hide the sidebar when collapsed */
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #ddd;
+  padding: 17px;
+  height: 68px;
+  box-sizing: border-box;
+  margin-top: 5px;
+  margin-left: 20px;
 }
 
 .sidebar-logo {
@@ -480,55 +604,242 @@ body {
   color: #343a40;
 }
 
+/* Main Content Responsiveness */
 .main-content {
   display: flex;
-  margin-left: 250px;
   flex-direction: column;
   flex: 1;
+  margin-left: 250px;
   margin-top: 60px;
+  padding: 20px;
+  box-sizing: border-box; /* Include padding in width calculation */
+  background-color: #fff; /* Ensure a clean background for content */
 }
 
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  text-align: left; /* Align text to the left for readability */
 }
 
+/* Adjustments for smaller screens */
+@media (max-width: 1440px) {
+  .main-content {
+    margin-left: 200px; /* Adjust for sidebar (larger screens may need more space) */
+    padding: 20px;
+  }
+  .content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 200px; /* Adjust for narrower sidebar */
+    padding: 15px;
+  }
+  .content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 720px) {
+  .main-content {
+    margin-left: 60px; /* Adjust for collapsed sidebar */
+    padding: 10px;
+  }
+  .content {
+    padding: 10px;
+    font-size: 14px; /* Reduce font size for smaller screens */
+  }
+}
+
+/* Specific styling for tables inside main content */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  font-size: 14px; /* Default table font size */
 }
 
 th,
 td {
-  padding: 12px;
+  padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-th {
-  background-color: #f8f8f8;
+@media (max-width: 720px) {
+  table {
+    font-size: 12px; /* Scale down table font size */
+  }
+  th,
+  td {
+    padding: 8px;
+  }
 }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9;
+/* Ensure buttons in the main content are responsive */
+button {
+  padding: 8px 16px; /* Smaller padding for smaller screens */
+  font-size: 14px;
 }
 
-tr:hover {
-  background-color: #f1f1f1;
+@media (max-width: 720px) {
+  button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }
 
-.documents-table th {
+/* Specific adjustments for document and payment content */
+.documents-table {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.payment-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping for responsiveness */
+  justify-content: space-between;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.summary-and-info {
+  display: flex;
+  flex-direction: column; /* Stack summary and additional box */
+  gap: 20px;
+  flex: 1; /* Flex item for dynamic width */
+  max-width: 400px;
+}
+
+.payment-schedule-summary,
+.detailed-schedule,
+.additional-box,
+.additional-box1 {
+  min-width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow-y: auto; /* Add scroll if content exceeds height */
+}
+
+.payment-schedule-summary {
+  background: #f9f9f9;
+  height: 130px;
+  max-width: 400px;
+  margin-left: 1px !important;
+}
+
+.additional-box {
+  background: #f9f9f9;
+  text-align: left;
+  margin-top: -5px;
+  max-width: 400px;
+  height: 270px;
+  margin-left: 1px !important;
+}
+
+.additional-box1 {
+  background: #f9f9f9;
+  text-align: left;
+  margin-top: -5px;
+  max-width: 400px;
+  height: 90px;
+  margin-left: 1px !important;
+}
+
+.detailed-schedule {
+  flex: 1; /* Flex item for dynamic width */
+  height: 415px;
+  min-width: 300px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.summary-item .label {
+  color: #555;
+}
+
+.summary-item .value {
+  font-weight: bold;
+  color: #000;
+}
+
+.summary-item.highlight .value {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.separator {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  margin-top: 10px;
+}
+
+.payment-table th,
+.payment-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.payment-table thead th {
+  background-color: #007bff;
+  color: white;
   text-align: center;
 }
 
+.payment-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.payment-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.amount-column {
+  text-align: right;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #007bff;
+}
+
 /* juju */
+.documents-table th,
+.documents-table td {
+  padding: 10px;
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .documents-table th,
+  .documents-table td {
+    font-size: 12px;
+  }
+}
 
 /* Button */
 button {
   padding: 10px 20px;
-  background-color: #4caf50;
+  background-color: #0560fd;
   color: white;
   border: none;
   border-radius: 5px;
@@ -560,5 +871,181 @@ button:hover {
 
 .details-card strong {
   font-weight: bold;
+}
+
+/* Media queries for responsiveness in HEADER */
+@media (max-width: 1440px) {
+  .top-bar {
+    left: 200px; /* Adjust for the narrower sidebar */
+    width: calc(100% - 220px);
+  }
+
+  .welcome-text {
+    font-size: 16px; /* Adjust font size */
+  }
+
+  .profile-icon {
+    font-size: 20px; /* Scale down icon */
+  }
+
+  .dropdown-menu {
+    width: 200px; /* Adjust dropdown width */
+  }
+}
+
+@media (max-width: 1024px) {
+  .top-bar {
+    left: 200px; /* Adjust for smaller sidebar */
+    width: calc(100% - 200px);
+    padding: 10px 20px; /* Adjust padding */
+  }
+
+  .welcome-text {
+    font-size: 15px; /* Scale down text */
+  }
+
+  .profile-icon {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .top-bar {
+    left: 60px; /* Adjust for collapsed sidebar */
+    width: calc(100% - 60px);
+    padding: 8px 15px; /* Minimal padding */
+  }
+
+  .welcome-text {
+    display: none; /* Hide welcome text for small screens */
+  }
+
+  .profile-icon {
+    font-size: 16px;
+  }
+
+  .d-flex .dropdown {
+    margin-left: 10px; /* Reduce spacing */
+  }
+}
+
+/* RESPONSIVENESS  IN SIDENAV*/
+/* Media queries for responsive behavior */
+
+@media (max-width: 1440px) {
+  .sidebar {
+    width: 220px; /* Reduce sidebar width for medium screens */
+  }
+
+  #sidebar-title {
+    font-size: 1.1rem; /* Adjust font size */
+  }
+
+  .menu-icon {
+    width: 18px; /* Adjust icon size */
+  }
+
+  .item-name {
+    font-size: 13px; /* Adjust item font size */
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px; /* Reduce sidebar width further for smaller screens */
+  }
+
+  #sidebar-title {
+    font-size: 1rem;
+  }
+
+  .menu-icon {
+    width: 16px;
+  }
+
+  .item-name {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .sidebar {
+    width: 60px; /* Collapse sidebar */
+  }
+
+  #sidebar-title {
+    display: none; /* Hide title for small screens */
+  }
+
+  .menu-icon {
+    margin-right: 0; /* Center icon without extra space */
+  }
+
+  .item-name {
+    display: none; /* Hide text for small screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 50px; /* Narrower collapsed sidebar */
+  }
+
+  #sidebar-title {
+    display: none; /* Keep the title hidden */
+  }
+
+  .menu-icon {
+    font-size: 16px; /* Slightly smaller icons for compact view */
+    margin: 0 auto; /* Center the icons */
+  }
+
+  .item-name {
+    display: none; /* Hide text labels */
+  }
+
+  .main-content {
+    margin-left: 90px; /* Adjust for narrower sidebar */
+    padding: 8px; /* Reduce padding for more usable space */
+  }
+
+  .content {
+    padding: 8px;
+    font-size: 13px; /* Slightly smaller font size */
+  }
+
+  /* Tables should be scrollable to prevent overflow */
+  table {
+    display: block;
+    overflow-x: auto;
+    font-size: 12px; /* Reduce table font size */
+  }
+
+  th,
+  td {
+    padding: 6px; /* Smaller cell padding */
+  }
+
+  /* Buttons */
+  button {
+    font-size: 12px; /* Compact button text */
+    padding: 6px 12px; /* Smaller button size */
+  }
+
+  /* Top bar adjustments */
+  .top-bar {
+    left: 50px; /* Align with sidebar */
+    width: calc(100% - 50px); /* Adjust width dynamically */
+    padding: 6px 10px; /* Minimal padding */
+  }
+
+  .welcome-text {
+    font-size: 12px; /* Smaller font for welcome text */
+  }
+
+  /* Hide non-essential elements for small screens */
+  .welcome-text {
+    display: none; /* Hide welcome text completely for extra space */
+  }
 }
 </style>

@@ -4,15 +4,23 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <button class="back-button" @click="$router.back()">
-          <div class="back-container">
-            <i class="fas fa-arrow-left"></i> Back
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">Unit Management</div>
           </div>
-        </button>
+          <!-- Header Section -->
 
-        <div v-if="site" class="site-details">
-          <!-- Site Overview -->
-          <div class="site-overview">
+          <button class="back-button" @click="$router.back()">
+            <div class="back-container">
+              <i class="fas fa-arrow-left"></i> Back
+            </div>
+          </button>
+        </div>
+
+        <div v-if="site" class="site-container">
+          <!-- Left Section: Site Details -->
+          <div class="site-details-section">
             <div class="site-picture">
               <img
                 :src="
@@ -23,719 +31,973 @@
               />
             </div>
             <div class="site-info">
-              <h2>{{ site.name }}</h2>
-              <p>{{ site.description }}</p>
-              <p><strong>Location:</strong> {{ site.location }}</p>
-              <button class="add-units-button" @click="toggleAddUnitsModal">
-                Add Units
-              </button>
-            </div>
-          </div>
+              <div class="site-name">
+                <p>
+                  <strong>{{ site.name }}</strong>
+                </p>
+              </div>
 
-          <!-- Floors Section -->
-          <div v-if="site.floors.length > 0">
-            <h3>Floors ({{ site.floors.length }})</h3>
-            <div class="floor-sort">
-              <label for="sortFloors">Sort Floors:</label>
-              <select
-                id="sortFloors"
-                v-model="floorSortOrder"
-                @change="sortFloors"
-              >
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-              </select>
-            </div>
-
-            <div v-if="sortedFloors.length > 0" class="floor-list">
-              <div
-                v-for="floor in sortedFloors"
-                :key="floor.id"
-                class="floor-card"
-              >
-                <h4>Floor {{ floor.floor_number }}</h4>
-                <div class="site-summary">
-                  <p><strong>Total Units:</strong> {{ floor.total_units }}</p>
-                  <p>
-                    <strong>Available Units:</strong>
-                    {{ floor.available_units }}
-                  </p>
+              <div class="site-description-location">
+                <div class="description-icon">
+                  <i class="fas fa-info-circle"></i>
+                  <!-- Example icon for description -->
+                  <span>{{ site.description }}</span>
                 </div>
-                <button @click="openUnitManagement(floor)">Manage Units</button>
+                <div class="location-icon">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <!-- Example icon for location -->
+                  <span>{{ site.location }}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- If no floors are available -->
-          <div v-else>
-            <p>No Floors Available</p>
-          </div>
-        </div>
-
-        <!-- Unit Management Modal -->
-        <b-modal
-          v-model="showUnitManagementModal"
-          title="Manage Units"
-          @hide="closeUnitManagementModal"
-        >
-          <button @click="openAddUnitModalForFloor(selectedFloor.id)">
-            Add Units to Floor
-          </button>
-
-          <div class="unit-management-content">
-            <div class="search-bar">
-              <b-form-input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search units"
-                @input="onSearch"
-              />
+          <!-- Right Section: Floors -->
+          <div class="sections-section">
+            <div
+              class="card border-0 rounded-1 mx-auto"
+              style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+            >
+              <div class="card-body-toolbar">
+                <div class="row">
+                  <div class="toolbar">
+                    <div class="left-section">
+                      <p>
+                        <strong>Total Sections: </strong>
+                        {{ site.sections.length }}
+                      </p>
+                      <div class="section-sort">
+                        <!-- <label for="sortSections">Sort Sections:</label> -->
+                        <select
+                          id="sortSections"
+                          v-model="sectionSortOrder"
+                          @change="sortSections"
+                          class="dropdown"
+                        >
+                          <option value="asc">Ascending</option>
+                          <option value="desc">Descending</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="right-section">
+                      <button class="btn-add" @click="toggleAddUnitsModal">
+                        Add Units
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+            <div v-if="sortedSections.length > 0" class="section-table">
+              <div class="outside-headers">
+                <span class="header-item">Section #</span>
+                <span class="header-item">Total Units</span>
+                <span class="header-item">Available Units</span>
+                <span class="header-item">Actions</span>
+              </div>
 
-            <!-- Filter Options -->
-            <b-form-group label="Status:">
-              <b-form-select
-                v-model="selectedStatus"
-                :options="statusOptions"
-              />
-            </b-form-group>
-            <b-form-group label="Price Range:">
-              <b-form-select
-                v-model="selectedPriceRange"
-                :options="priceRangeOptions"
-              />
-            </b-form-group>
-            <b-form-group label="Unit Type:">
-              <b-form-select
-                v-model="selectedUnitType"
-                :options="unitTypeOptions"
-              />
-            </b-form-group>
-            <b-form-group label="Sort by:">
-              <b-form-select
-                v-model="selectedSort"
-                :options="sortOptions"
-              ></b-form-select>
-            </b-form-group>
-
-            <!-- Unit Table -->
-            <table v-if="filteredUnits.length" class="unit-table">
-              <thead>
-                <tr>
-                  <th>Unit Number</th>
-                  <th>Unit Type</th>
-                  <th>Status</th>
-                  <th>Price</th>
-                  <th>Floor Area</th>
-                  <th>Balcony</th>
-                  <th>View</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="unit in filteredUnits" :key="unit.id">
-                  <td>{{ unit.unit_number }}</td>
-                  <td>
-                    {{
-                      unitTypes.find((type) => type.id === unit.unit_type)
-                        ?.name || "Unknown"
-                    }}
-                  </td>
-                  <!-- Unit Type -->
-                  <td>{{ unit.status }}</td>
-                  <!-- Status -->
-                  <td>{{ formatCurrency(unit.price) }}</td>
-                  <!-- Price -->
-                  <td>{{ unit.floor_area }}</td>
-                  <!-- Floor Area -->
-                  <td>{{ unit.balcony }}</td>
-                  <!-- Balcony -->
-                  <td>{{ unit.view }}</td>
-                  <!-- View -->
-                  <td>
-                    <button @click="manageUnit(unit)">Edit</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+              <div
+                v-for="section in sortedSections"
+                :key="section.id"
+                class="card border-0 rounded-1 mx-auto my-2"
+                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+              >
+                <div class="table-container">
+                  <table class="section-info">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="section-number">
+                            <!-- Use sectionOptions method to display the section name dynamically -->
+                            {{ sectionOptionsForSection(section) }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="section-total-units">
+                            {{ section.total_units }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="section-available-units">
+                            {{ section.available_units }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="section-actions d-flex gap-2">
+                            <button
+                              @click="openUnitManagement(section)"
+                              class="btn-manage"
+                            >
+                              Manage Units
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
 
             <div v-else>
-              <p>No units available for this floor.</p>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination-controls">
-              <button @click="previousPage" :disabled="currentPage === 1">
-                Previous
-              </button>
-              <span>Page {{ currentPage }} of {{ totalPages }}</span>
-              <button @click="nextPage" :disabled="currentPage === totalPages">
-                Next
-              </button>
+              <p>No Sections Available</p>
             </div>
           </div>
-        </b-modal>
 
-        <!-- Add Units Modal -->
-        <b-modal
-          id="add-units-modal"
-          title="Add Units"
-          v-model="showAddUnitsModal"
-          :disabled="isSaveButtonDisabled"
-          ok-title="Save"
-          @ok="addUnits"
-        >
-          <form @submit.prevent="addUnits">
-            <!-- Floor Selection (Multiple Selection) -->
-            <b-form-group
-              label="Floors:"
-              description="Select floors to add units to"
+          <!-- Unit Management Modal -->
+          <b-modal
+            v-model="showUnitManagementModal"
+            title="Manage Units"
+            @hide="closeUnitManagementModal"
+            hide-footer
+            hide-header
+            centered
+            size="lg"
+          >
+            <div
+              class="modal-title p-3 d-flex justify-content-between align-items-center"
             >
-              <b-form-select
-                v-model="newUnitFloors"
-                :options="floorOptions"
-                required
-                multiple
-              ></b-form-select>
-            </b-form-group>
+              <h5 class="mb-0">Modal Title</h5>
 
-            <!-- Image Upload (Multiple Files) -->
-            <b-form-group
-              label="Upload Images:"
-              description="You can upload up to 5 images."
-            >
-              <input
-                type="file"
-                @change="handleFileChange"
-                multiple
-                accept="image/jpeg, image/png, image/jpg"
-                class="form-control"
-              />
-            </b-form-group>
+              <button
+                class="btn-add"
+                @click="openAddUnitModalForSection(selectedSection.id)"
+              >
+                Add Units
+              </button>
+            </div>
 
-            <!-- Unit Type -->
-            <b-form-group
-              label="Unit Type:"
-              description="Select the type of unit"
-            >
-              <b-form-select
-                v-model="newUnitType"
-                :options="unitTypeOptions"
-                required
-              ></b-form-select>
-            </b-form-group>
-
-            <!-- Quantity -->
-            <b-form-group label="Quantity:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitQuantity"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Additional Fields (Bedrooms, Bathrooms, etc.) -->
-            <b-form-group label="Bedrooms:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitBedroom"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Bathroom -->
-            <b-form-group label="Bathrooms:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitBathroom"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Lot Area -->
-            <b-form-group label="Lot Area (sq.m):">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitLotArea"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Floor Area -->
-            <b-form-group label="Floor Area (sq.m):">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitFloorArea"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Price -->
-            <b-form-group
-              label="Price:"
-              description="Enter the price of the unit"
-            >
-              <b-form-input
-                type="number"
-                v-model.number="newUnitPrice"
-                min="0"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Status -->
-            <b-form-group label="Status:">
-              <b-form-select
-                v-model="newUnitStatus"
-                :options="statusOptions"
-                required
-              ></b-form-select>
-            </b-form-group>
-
-            <!-- View -->
-            <b-form-group label="View:">
-              <b-form-select
-                v-model="newUnitView"
-                :options="viewOptions"
-                required
-              ></b-form-select>
-            </b-form-group>
-
-            <!-- Balcony -->
-            <b-form-group label="Balcony:">
-              <b-form-select
-                v-model="newUnitBalcony"
-                :options="balconyOptions"
-                required
-              ></b-form-select>
-            </b-form-group>
-
-            <!-- Commission -->
-            <b-form-group label="Commission:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitCommission"
-                min="0"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Spot Discount Percentage -->
-            <b-form-group label="Spot Discount Percentage:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitSpotDiscountPercentage"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Spot Discount Flat -->
-            <b-form-group label="Spot Discount Flat:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitSpotDiscountFlat"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Reservation Fee -->
-            <b-form-group label="Reservation Fee:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitReservationFee"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- Other Charges -->
-            <b-form-group label="Other Charges:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitOtherCharges"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
-
-            <!-- VAT Percentage -->
-            <b-form-group label="VAT Percentage:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitVatPercentage"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
-          </form>
-        </b-modal>
-
-        <!-- View Selected Unit Modal -->
-        <b-modal
-          v-model="showEditUnitModal"
-          title="Edit Unit"
-          @hide="clearSelectedUnit"
-        >
-          <template v-if="selectedUnit">
-            <form>
-              <!-- Unit Images Section -->
-              <b-form-group label="Unit Images:">
-                <div v-if="selectedUnit.images && selectedUnit.images.length">
-                  <b-row class="mb-3">
-                    <!-- Loop through images and display them -->
-                    <b-col
-                      v-for="(image, index) in selectedUnit.images"
-                      :key="index"
-                      cols="12"
-                      sm="6"
-                      md="4"
-                      lg="3"
-                      class="mb-2"
-                    >
-                      <div class="d-flex flex-column align-items-center">
-                        <b-img
-                          v-if="image && image.image"
-                          :src="getPictureUrl(image.image)"
-                          alt="Unit Image"
-                          thumbnail
-                          fluid
-                          class="unit-image-preview"
-                        />
-                        <p v-else class="text-danger">Invalid image path</p>
-
-                        <!-- Image Name, Update, and Delete buttons -->
-                        <div class="text-center mt-2">
-                          <span>{{ image.image_name || "Untitled" }}</span>
-                          <b-button
-                            size="sm"
-                            variant="primary"
-                            class="ml-2"
-                            @click="toggleImageEdit(index)"
-                          >
-                            Update
-                          </b-button>
-                          <b-button
-                            size="sm"
-                            variant="danger"
-                            class="ml-2"
-                            @click="deleteImage(index)"
-                          >
-                            Delete
-                          </b-button>
-                        </div>
-
-                        <!-- Image Replace Form (Toggled) -->
-                        <div v-if="imageEditIndex === index" class="mt-2">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            @change="onImageSelected(index, $event)"
-                          />
-                          <b-button
-                            variant="secondary"
-                            @click="replaceImage(index)"
-                          >
-                            Replace Image
-                          </b-button>
-                        </div>
-                      </div>
-                    </b-col>
-                  </b-row>
-                </div>
-                <p v-else>No images available for this unit.</p>
-
-                <!-- Add Image Button if less than 5 images -->
-                <div
-                  v-if="selectedUnit.images && selectedUnit.images.length < 5"
-                  class="mt-3"
-                >
-                  <b-button variant="primary" @click="triggerAddImage">
-                    Add Image
-                  </b-button>
-
-                  <!-- Immediately show file input when Add Image is clicked -->
-                  <input
-                    v-if="isAddingImage"
-                    type="file"
-                    accept="image/*"
-                    @change="handleFileChangeImage"
-                    class="form-control mt-2"
+            <div class="unit-management-content p-3">
+              <b-row class="align-items-center">
+                <!-- Search Bar -->
+                <b-col cols="12" md="4" class="search-bar">
+                  <small style="font-size: 12px; color: #6c757d; padding: 2px"
+                    >Search Unit</small
+                  >
+                  <b-form-input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Search units"
+                    @input="onSearch"
+                    style="font-size: 14px"
                   />
+                </b-col>
+
+                <!-- Filter Options -->
+                <b-col cols="6" md="2">
+                  <small style="font-size: 12px; color: #6c757d; padding: 2px"
+                    >Sort</small
+                  >
+                  <b-form-select
+                    v-model="selectedSort"
+                    :options="sortOptions"
+                    placeholder="Sort by"
+                    style="font-size: 14px"
+                  />
+                </b-col>
+                <b-col cols="6" md="2">
+                  <small style="font-size: 12px; color: #6c757d; padding: 2px"
+                    >Price Range</small
+                  >
+                  <b-form-select
+                    v-model="selectedPriceRange"
+                    :options="priceRangeOptions"
+                    placeholder="Price Range"
+                    style="font-size: 14px"
+                  />
+                </b-col>
+                <b-col cols="6" md="2">
+                  <small style="font-size: 12px; color: #6c757d; padding: 2px"
+                    >Unit Type</small
+                  >
+                  <b-form-select
+                    v-model="selectedUnitType"
+                    :options="unitTypeOptions"
+                    placeholder="Unit Type"
+                    style="font-size: 14px"
+                  />
+                </b-col>
+                <b-col cols="6" md="2">
+                  <small style="font-size: 12px; color: #6c757d; padding: 2px"
+                    >Status</small
+                  >
+                  <b-form-select
+                    v-model="selectedStatus"
+                    :options="statusOptions"
+                    placeholder="Status"
+                    style="font-size: 14px"
+                  />
+                </b-col>
+              </b-row>
+
+              <!-- Unit Table -->
+              <table v-if="filteredUnits.length" class="styled-table">
+                <thead>
+                  <tr>
+                    <th>Unit Number</th>
+                    <th>Unit Type</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Floor Area</th>
+                    <th>Lot Area</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="unit in paginatedUnits" :key="unit.id">
+                    <td>{{ unit.unit_number }}</td>
+                    <td>
+                      {{
+                        unitTypes.find((type) => type.id === unit.unit_type)
+                          ?.name || "Unknown"
+                      }}
+                    </td>
+                    <!-- Unit Type -->
+                    <td>{{ unit.status }}</td>
+                    <!-- Status -->
+                    <td>{{ formatCurrency(unit.price) }}</td>
+                    <!-- Price -->
+                    <td>{{ unit.floor_area }}</td>
+                    <td>{{ unit.lot_area }}</td>
+                    <!-- Floor Area -->
+
+                    <td>
+                      <button
+                        @click="manageUnit(unit)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div v-else>
+                <p>No units available for this section.</p>
+              </div>
+
+              <!-- Pagination Controls -->
+              <div>
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                    <li :class="['page-item', { disabled: currentPage === 1 }]">
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="goToPage(currentPage - 1)"
+                        aria-label="Previous"
+                      >
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
+                    <li
+                      v-for="page in totalPage"
+                      :key="page"
+                      :class="['page-item', { active: page === currentPage }]"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="goToPage(page)"
+                      >
+                        {{ page }}
+                      </a>
+                    </li>
+                    <li
+                      :class="[
+                        'page-item',
+                        { disabled: currentPage === totalPages },
+                      ]"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="goToPage(currentPage + 1)"
+                        aria-label="Next"
+                      >
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+                <div
+                  class="d-flex justify-content-end gap-2 mt-3"
+                  style="padding-top: 15px"
+                >
+                  <button
+                    type="button"
+                    @click="showUnitManagementModal = false"
+                    class="btn-cancel"
+                    style="width: 150px"
+                  >
+                    Close
+                  </button>
                 </div>
-              </b-form-group>
+              </div>
+            </div>
+          </b-modal>
 
-              <!-- Unit Information -->
-              <b-form-group label="Unit Number:">
-                <b-form-input v-model="selectedUnit.unit_number" disabled />
-              </b-form-group>
+          <b-modal
+            id="add-units-modal"
+            title="Add Units"
+            v-model="showAddUnitsModal"
+            :disabled="isSaveButtonDisabled"
+            ok-title="Save"
+            @ok="addUnits"
+            hide-footer
+            hide-header
+            centered
+            size="xl"
+          >
+            <div class="modal-title p-3">
+              <h5 class="mb-0">New Units</h5>
+            </div>
+            <div class="p-3">
+              <form @submit.prevent="addUnits">
+                <b-row>
+                  <!-- Left Column: Unit Details -->
+                  <b-col cols="12" md="6">
+                    <!-- Section Selection (Multiple Selection) -->
+                    <b-form-group label-for="unit-sections">
+                      <b-row>
+                        <b-col cols="12">
+                          <small>Sections: (Select to add units)</small>
+                          <div class="checkbox-container">
+                            <b-form-checkbox-group
+                              v-model="newUnitSections"
+                              :options="sectionOptions"
+                              name="section-checkbox"
+                              id="unit-sections"
+                              class="select-style"
+                            ></b-form-checkbox-group>
+                          </div>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-              <b-form-group label="Unit Type:">
-                <b-form-input
-                  :value="getUnitTypeName(selectedUnit.unit_type)"
-                  disabled
-                />
-              </b-form-group>
+                    <!-- Unit Type and Quantity -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Unit type</small>
+                          <b-form-select
+                            v-model="newUnitType"
+                            :options="unitTypeOptions"
+                            required
+                          ></b-form-select>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Quantity</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitQuantity"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-              <b-form-group label="Status:">
-                <b-form-select
-                  v-model="selectedUnit.status"
-                  :options="editStatusOptions"
-                  disabled
-                />
-              </b-form-group>
+                    <!-- Bedrooms, Bathrooms, and Balcony -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="4">
+                          <small>Bedroom</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitBedroom"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="4">
+                          <small>Bathroom</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitBathroom"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="4">
+                          <small>Balcony</small>
+                          <b-form-select
+                            v-model="newUnitBalcony"
+                            :options="balconyOptions"
+                            required
+                          ></b-form-select>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-              <b-form-group label="Price:">
-                <b-form-input
-                  v-model="selectedUnit.price"
-                  type="number"
-                  disabled
-                />
-              </b-form-group>
+                    <!-- Lot Area and Floor Area -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Lot Area</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitLotArea"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Floor Area</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitFloorArea"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-              <b-form-group label="Lot Area:">
-                <b-form-input
-                  v-model="selectedUnit.lot_area"
-                  type="number"
-                  disabled
-                />
-              </b-form-group>
+                    <!-- Status and View -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Status</small>
+                          <b-form-select
+                            v-model="newUnitStatus"
+                            :options="statusOptions"
+                            required
+                          ></b-form-select>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>View</small>
+                          <b-form-select
+                            v-model="newUnitView"
+                            :options="viewOptions"
+                            required
+                          ></b-form-select>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+                  </b-col>
 
-              <b-form-group label="Floor Area:">
-                <b-form-input
-                  v-model="selectedUnit.floor_area"
-                  type="number"
-                  disabled
-                />
-              </b-form-group>
+                  <!-- Right Column: Price, Commission, Discounts, etc. -->
+                  <b-col cols="12" md="6">
+                    <!-- Price -->
+                    <b-form-group>
+                      <small>Price</small>
+                      <b-form-input
+                        type="number"
+                        v-model.number="newUnitPrice"
+                        min="0"
+                        required
+                      ></b-form-input>
+                    </b-form-group>
 
-              <b-form-group label="Commission:">
-                <b-form-input
-                  v-model="selectedUnit.commission"
-                  type="number"
-                  disabled
-                />
-              </b-form-group>
+                    <!-- Reservation Fee and Commission -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Reservation</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitReservationFee"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Commission</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitCommission"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-              <b-form-group label="Balcony:">
-                <b-form-select
-                  v-model="selectedUnit.balcony"
-                  :options="balconyOptions"
-                ></b-form-select>
-              </b-form-group>
+                    <!-- Spot Discount Percentage and Flat -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Spot Discount Percentage</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitSpotDiscountPercentage"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Spot Discount Flat</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitSpotDiscountFlat"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-              <b-form-group label="View:">
-                <b-form-select
-                  v-model="selectedUnit.view"
-                  :options="viewOptions"
-                ></b-form-select>
-              </b-form-group>
+                    <!-- VAT Percentage and Other Charges -->
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>VAT Percentage</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitVatPercentage"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Other Charges</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitOtherCharges"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+                    <b-form-group>
+                      <small>Upload Photos (Max:5)</small>
+                      <input
+                        type="file"
+                        @change="handleFileChange"
+                        multiple
+                        accept="image/jpeg, image/png, image/jpg"
+                        class="form-control"
+                      />
+                    </b-form-group>
+                  </b-col>
+                </b-row>
+                <div
+                  class="d-flex justify-content-end gap-2 mt-3"
+                  style="padding-top: 15px"
+                >
+                  <button type="submit" class="btn-add" style="width: 150px">
+                    Add New Units
+                  </button>
+                  <button
+                    type="button"
+                    @click="showAddUnitsModal = false"
+                    class="btn-cancel"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </b-modal>
 
-              <!-- Save Changes Button -->
-              <b-button variant="primary" @click="saveUnitChanges" class="mr-2">
-                Save Changes
-              </b-button>
-            </form>
-          </template>
+          <!-- View Selected Unit Modal -->
+          <b-modal
+            v-model="showEditUnitModal"
+            title="Edit Unit"
+            @hide="clearSelectedUnit"
+            hide-header
+            hide-footer
+            centered
+            size="lg"
+          >
+            <template v-if="selectedUnit">
+              <form>
+                <!-- Unit Images Section -->
+                <b-form-group label="Unit Images:">
+                  <div v-if="selectedUnit.images && selectedUnit.images.length">
+                    <b-row class="mb-3">
+                      <!-- Loop through images and display them -->
+                      <b-col
+                        v-for="(image, index) in selectedUnit.images"
+                        :key="index"
+                        cols="12"
+                        sm="6"
+                        md="4"
+                        lg="3"
+                        class="mb-2"
+                      >
+                        <div class="d-flex flex-column align-items-center">
+                          <b-img
+                            v-if="image && image.image"
+                            :src="getPictureUrl(image.image)"
+                            alt="Unit Image"
+                            thumbnail
+                            fluid
+                            class="unit-image-preview"
+                          />
+                          <p v-else class="text-danger">Invalid image path</p>
 
-          <template v-else>
-            <p>Loading unit details...</p>
-          </template>
-        </b-modal>
+                          <!-- Image Name, Update, and Delete buttons -->
+                          <div class="text-center mt-2">
+                            <span>{{ image.image_name || "Untitled" }}</span>
+                            <b-button
+                              size="sm"
+                              variant="primary"
+                              class="ml-2"
+                              @click="toggleImageEdit(index)"
+                            >
+                              Update
+                            </b-button>
+                            <b-button
+                              size="sm"
+                              variant="danger"
+                              class="ml-2"
+                              @click="deleteImage(index)"
+                            >
+                              Delete
+                            </b-button>
+                          </div>
 
-        <!-- Add Units to Floor Modal -->
-        <b-modal
-          id="add-floor-units-modal"
-          title="Add Units to Floor"
-          v-model="showAddFloorUnitsModal"
-          ok-title="Save"
-          @ok="addFloorUnits(newUnitFloors[0])"
-        >
-          <form @submit.prevent="addFloorUnits(newUnitFloors[0])">
-            <!-- Only one floor (already set) -->
-            <b-form-group
-              label="Floor:"
-              description="This floor will have new units added."
-            >
-              <b-form-select
-                v-model="newUnitFloors"
-                :options="floorOptions"
-                required
-                disabled
-              ></b-form-select>
-            </b-form-group>
+                          <!-- Image Replace Form (Toggled) -->
+                          <div v-if="imageEditIndex === index" class="mt-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              @change="onImageSelected(index, $event)"
+                            />
+                            <b-button
+                              variant="secondary"
+                              @click="replaceImage(index)"
+                            >
+                              Replace Image
+                            </b-button>
+                          </div>
+                        </div>
+                      </b-col>
+                    </b-row>
+                  </div>
+                  <p v-else>No images available for this unit.</p>
 
-            <!-- Image Upload (Multiple Files) -->
-            <b-form-group
-              label="Upload Images:"
-              description="You can upload up to 5 images."
-            >
-              <input
-                type="file"
-                @change="handleFileChange"
-                multiple
-                accept="image/jpeg, image/png, image/jpg"
-                class="form-control"
-              />
-            </b-form-group>
+                  <!-- Add Image Button if less than 5 images -->
+                  <div
+                    v-if="selectedUnit.images && selectedUnit.images.length < 5"
+                    class="mt-3"
+                  >
+                    <b-button variant="primary" @click="triggerAddImage">
+                      Add Image
+                    </b-button>
 
-            <!-- Unit Type -->
-            <b-form-group
-              label="Unit Type:"
-              description="Select the type of unit"
-            >
-              <b-form-select
-                v-model="newUnitType"
-                :options="unitTypeOptions"
-                required
-              ></b-form-select>
-            </b-form-group>
+                    <!-- Immediately show file input when Add Image is clicked -->
+                    <input
+                      v-if="isAddingImage"
+                      type="file"
+                      accept="image/*"
+                      @change="handleFileChangeImage"
+                      class="form-control mt-2"
+                    />
+                  </div>
+                </b-form-group>
 
-            <!-- Quantity -->
-            <b-form-group label="Quantity:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitQuantity"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <!-- Unit Information -->
+                <b-form-group label="Unit Number:">
+                  <b-form-input v-model="selectedUnit.unit_number" disabled />
+                </b-form-group>
 
-            <!-- Additional Fields (Bedrooms, Bathrooms, etc.) -->
-            <b-form-group label="Bedrooms:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitBedroom"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <b-form-group label="Unit Type:">
+                  <b-form-input
+                    :value="getUnitTypeName(selectedUnit.unit_type)"
+                    disabled
+                  />
+                </b-form-group>
 
-            <!-- Bathroom -->
-            <b-form-group label="Bathrooms:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitBathroom"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <b-form-group label="Status:">
+                  <b-form-select
+                    v-model="selectedUnit.status"
+                    :options="editStatusOptions"
+                    disabled
+                  />
+                </b-form-group>
 
-            <!-- Lot Area -->
-            <b-form-group label="Lot Area (sq.m):">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitLotArea"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <b-form-group label="Price:">
+                  <b-form-input
+                    v-model="selectedUnit.price"
+                    type="number"
+                    disabled
+                  />
+                </b-form-group>
 
-            <!-- Floor Area -->
-            <b-form-group label="Floor Area (sq.m):">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitFloorArea"
-                min="1"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <b-form-group label="Lot Area:">
+                  <b-form-input
+                    v-model="selectedUnit.lot_area"
+                    type="number"
+                    disabled
+                  />
+                </b-form-group>
 
-            <!-- Price -->
-            <b-form-group
-              label="Price:"
-              description="Enter the price of the unit"
-            >
-              <b-form-input
-                type="number"
-                v-model.number="newUnitPrice"
-                min="0"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <b-form-group label="Floor Area:">
+                  <b-form-input
+                    v-model="selectedUnit.floor_area"
+                    type="number"
+                    disabled
+                  />
+                </b-form-group>
 
-            <!-- Status -->
-            <b-form-group label="Status:">
-              <b-form-select
-                v-model="newUnitStatus"
-                :options="statusOptions"
-                required
-              ></b-form-select>
-            </b-form-group>
+                <b-form-group label="Commission:">
+                  <b-form-input
+                    v-model="selectedUnit.commission"
+                    type="number"
+                    disabled
+                  />
+                </b-form-group>
 
-            <!-- View -->
-            <b-form-group label="View:">
-              <b-form-select
-                v-model="newUnitView"
-                :options="viewOptions"
-              ></b-form-select>
-            </b-form-group>
+                <b-form-group label="Balcony:">
+                  <b-form-select
+                    v-model="selectedUnit.balcony"
+                    :options="balconyOptions"
+                  ></b-form-select>
+                </b-form-group>
 
-            <!-- Balcony -->
-            <b-form-group label="Balcony:">
-              <b-form-select
-                v-model="newUnitBalcony"
-                :options="balconyOptions"
-              ></b-form-select>
-            </b-form-group>
+                <b-form-group label="View:">
+                  <b-form-select
+                    v-model="selectedUnit.view"
+                    :options="viewOptions"
+                  ></b-form-select>
+                </b-form-group>
 
-            <!-- Commission -->
-            <b-form-group label="Commission:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitCommission"
-                min="0"
-                required
-              ></b-form-input>
-            </b-form-group>
+                <!-- Save Changes Button -->
+                <b-button
+                  variant="primary"
+                  @click="saveUnitChanges"
+                  class="mr-2"
+                >
+                  Save Changes
+                </b-button>
+              </form>
+            </template>
 
-            <!-- Spot Discount Percentage -->
-            <b-form-group label="Spot Discount Percentage:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitSpotDiscountPercentage"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
+            <template v-else>
+              <p>Loading unit details...</p>
+            </template>
+          </b-modal>
 
-            <!-- Spot Discount Flat -->
-            <b-form-group label="Spot Discount Flat:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitSpotDiscountFlat"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
+          <!-- Add Units to Section Modal -->
+          <b-modal
+            id="add-section-units-modal"
+            title="Add Units to Section"
+            v-model="showAddSectionUnitsModal"
+            ok-title="Save"
+            @ok="addSectionUnits(newUnitSections[0])"
+            hide-footer
+            hide-header
+            centered
+            size="xl"
+          >
+            <!-- Modal Title -->
+            <div class="modal-title p-3">
+              <h5 class="mb-0">Add Units to Section</h5>
+            </div>
 
-            <!-- Reservation Fee -->
-            <b-form-group label="Reservation Fee:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitReservationFee"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
+            <div class="p-3">
+              <form @submit.prevent="addSectionUnits(newUnitSections[0])">
+                <b-row>
+                  <!-- Unit Type and Quantity -->
+                  <b-col cols="12" md="6">
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Unit Type</small>
+                          <b-form-select
+                            v-model="newUnitType"
+                            :options="unitTypeOptions"
+                            required
+                          ></b-form-select>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Quantity</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitQuantity"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-            <!-- Other Charges -->
-            <b-form-group label="Other Charges:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitOtherCharges"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="4">
+                          <small>Bedrooms</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitBedroom"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="4">
+                          <small>Bathrooms</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitBathroom"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="4">
+                          <small>Balcony</small>
+                          <b-form-select
+                            v-model="newUnitBalcony"
+                            :options="balconyOptions"
+                          ></b-form-select>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
 
-            <!-- VAT Percentage -->
-            <b-form-group label="VAT Percentage:">
-              <b-form-input
-                type="number"
-                v-model.number="newUnitVatPercentage"
-                min="0"
-              ></b-form-input>
-            </b-form-group>
-          </form>
-        </b-modal>
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Lot Area (sq.m)</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitLotArea"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Floor Area (sq.m)</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitFloorArea"
+                            min="1"
+                            required
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Status</small>
+                          <b-form-select
+                            v-model="newUnitStatus"
+                            :options="statusOptions"
+                            required
+                          ></b-form-select>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>View</small>
+
+                          <b-form-select
+                            v-model="newUnitView"
+                            :options="viewOptions"
+                          ></b-form-select>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+
+                    <b-form-group>
+                      <small>Price</small>
+                      <b-form-input
+                        type="number"
+                        v-model.number="newUnitPrice"
+                        min="0"
+                        required
+                      ></b-form-input>
+                    </b-form-group>
+                  </b-col>
+
+                  <!-- Price and Commission -->
+                  <b-col cols="12" md="6">
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Reservation Fee</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitReservationFee"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Commission</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitCommission"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>Spot Discount Percentage</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitSpotDiscountPercentage"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Spot Discount Flat</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitSpotDiscountFlat"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+
+                    <b-form-group>
+                      <b-row>
+                        <b-col cols="12" md="6">
+                          <small>VAT Percentage</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitVatPercentage"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                        <b-col cols="12" md="6">
+                          <small>Other Charges</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitOtherCharges"
+                            min="0"
+                          ></b-form-input>
+                        </b-col>
+                      </b-row>
+                    </b-form-group>
+
+                    <!-- Image Upload -->
+                    <b-form-group>
+                      <small>Upload Images (Max: 5)</small>
+                      <input
+                        type="file"
+                        @change="handleFileChange"
+                        multiple
+                        accept="image/jpeg, image/png, image/jpg"
+                        class="form-control"
+                      />
+                    </b-form-group>
+                  </b-col>
+                </b-row>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                  <button type="submit" class="btn-add" style="width: 150px">
+                    Add New Units
+                  </button>
+                  <button
+                    type="button"
+                    @click="showAddSectionUnitsModal = false"
+                    class="btn-cancel"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </b-modal>
+        </div>
       </div>
     </div>
   </div>
@@ -776,9 +1038,9 @@ export default {
       showAddUnitsModal: false,
       unitTypes: [],
       site: null,
-      floors: [],
-      newUnitFloor: null,
-      newUnitFloors: [],
+      sections: [],
+      newUnitSection: null,
+      newUnitSections: [],
       newUnitQuantity: 1,
       newUnitType: null,
       newUnitTitle: "",
@@ -833,25 +1095,25 @@ export default {
         { value: "west", text: "West" },
       ],
       balconyOptions: [
-        { value: "has balcony", text: "Has Balcony" },
-        { value: "no balcony", text: "No Balcony" },
+        { value: "has balcony", text: "Yes" },
+        { value: "no balcony", text: "No" },
       ],
       totalUnits: 0,
       totalAvailableUnits: 0,
       unitFields: [],
       unitsData: [],
       currentPage: 1,
-      unitsPerPage: 25,
+      unitsPerPage: 10,
       searchQuery: "",
       newUnitImages: [],
-      floorSortOrder: "asc",
+      sectionSortOrder: "asc",
       showEditUnitModal: false,
       selectedUnit: {},
       totalItems: 100, // Example: Set this value based on your API response or logic
       itemsPerPage: 10,
-      showAddFloorUnitsModal: false, // Track the modal visibility
+      showAddSectionUnitsModal: false, // Track the modal visibility
       showUnitManagementModal: false,
-      selectedFloor: {},
+      selectedSection: {},
       selectedStatus: null,
       selectedPriceRange: null,
       selectedUnitType: null,
@@ -859,6 +1121,13 @@ export default {
       imageEditIndex: null, // To track which image is being edited
       imageFile: [], // To store the new files selected for replacement
       isAddingImage: false,
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false, // Controls modal visibility
+      confirmMessage: "", // Stores the confirmation message
+      actionToConfirm: null, // Renamed this from 'confirmAction'
+      confirmParams: [],
     };
   },
   computed: {
@@ -870,34 +1139,52 @@ export default {
     isSaveButtonDisabled() {
       return this.newUnitFloorArea < this.newUnitLotArea;
     },
-    floorOptions() {
-      // Ensure the site and floors are available
-      if (this.site && this.site.floors) {
-        // Clone the floors array to avoid mutating the original array
-        const floorsCopy = [...this.site.floors];
 
-        // Sort the cloned floors array based on the selected order (asc or desc)
-        const sortedFloors = floorsCopy.sort((a, b) => {
-          // Ascending order (if `floorSortOrder` is 'asc')
-          if (this.floorSortOrder === "asc") {
-            return a.floor_number - b.floor_number;
+    sectionOptions() {
+      if (this.site && this.site.sections) {
+        const sectionsCopy = [...this.site.sections];
+        const sortedSections = sectionsCopy.sort((a, b) => {
+          if (this.sectionSortOrder === "asc") {
+            return a.number - b.number;
           }
-          // Descending order (if `floorSortOrder` is 'desc')
-          return b.floor_number - a.floor_number;
+          return b.number - a.number;
         });
 
-        // Map the sorted floors to the options for the dropdown
-        return sortedFloors.map((floor) => ({
-          value: floor.id, // floor ID is the value sent to the backend
-          text: `Floor ${floor.floor_number}`, // floor number is displayed as text
-        }));
+        return sortedSections.map((section) => {
+          let sectionName = section.name || `Section ${section.number}`;
+
+          // Adjust naming based on the site's `section_label`
+          if (this.site.section_label === "block") {
+            if (section.number > 0) {
+              sectionName = `Block ${String.fromCharCode(
+                65 + section.number - 1
+              )} (${section.number})`;
+            } else {
+              sectionName = `Block ${section.number}`;
+            }
+          } else if (this.site.section_label === "level") {
+            // Customize naming for level-based section_label
+            sectionName = `Level ${section.number}`;
+          } else if (this.site.section_label === "floor") {
+            // Customize naming for floor-based section_label
+            sectionName = `Floor ${section.number}`;
+          } else {
+            // Default case (e.g., section_label not recognized)
+            sectionName = `Section ${section.number}`;
+          }
+
+          return {
+            value: section.id,
+            text: sectionName,
+          };
+        });
       } else {
-        return []; // Return an empty array if no site or floors are available
+        return [];
       }
     },
     unitTypeOptions() {
       return [
-        { value: null, text: "Default" },
+        { value: null, text: "Select" },
         ...this.unitTypes.map((type) => ({
           value: type.id,
           text: type.name,
@@ -935,7 +1222,7 @@ export default {
         units = units.filter((unit) => {
           const price = unit.price;
           // Price range filters based on selected range
-          if (priceRange === "1-5") return price >= 1000000 && price <= 5000000;
+          if (priceRange === "1-5") return price >= 1 && price <= 5000000;
           if (priceRange === "5-10")
             return price >= 5000001 && price <= 10000000;
           if (priceRange === "10-15")
@@ -969,16 +1256,26 @@ export default {
 
       return units;
     },
+    paginatedUnits() {
+      const startIndex = (this.currentPage - 1) * this.unitsPerPage;
+      return this.filteredUnits.slice(
+        startIndex,
+        startIndex + this.unitsPerPage
+      );
+    },
 
+    totalPage() {
+      return Math.ceil(this.filteredUnits.length / this.unitsPerPage);
+    },
     totalPages() {
       return Math.ceil(this.totalItems / this.itemsPerPage);
     },
-    sortedFloors() {
-      if (!this.site?.floors) return [];
-      return [...this.site.floors].sort((a, b) =>
-        this.floorSortOrder === "asc"
-          ? a.floor_number - b.floor_number
-          : b.floor_number - a.floor_number
+    sortedSections() {
+      if (!this.site?.sections) return [];
+      return [...this.site.sections].sort((a, b) =>
+        this.sectionSortOrder === "asc"
+          ? a.number - b.number
+          : b.number - a.number
       );
     },
   },
@@ -992,6 +1289,41 @@ export default {
     this.fetchUnits();
   },
   methods: {
+    // Navigation methods
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPage) {
+        this.currentPage = pageNumber;
+      }
+    },
+    sectionOptionsForSection(section) {
+      let sectionName = section.name || `Section ${section.number}`;
+
+      // Adjust naming based on the site's `section_label`
+      if (this.site.section_label === "block") {
+        if (section.number > 0) {
+          sectionName = `Block ${String.fromCharCode(
+            65 + section.number - 1
+          )} (${section.number})`;
+        } else {
+          sectionName = `Block ${section.number}`;
+        }
+      } else if (this.site.section_label === "unit") {
+        // Customize naming for unit-based section_label
+        sectionName = `Unit ${section.number}`;
+      } else if (this.site.section_label === "level") {
+        // Customize naming for level-based section_label
+        sectionName = `Level ${section.number}`;
+      } else if (this.site.section_label === "floor") {
+        // Customize naming for floor-based section_label
+        sectionName = `Floor ${section.number}`;
+      } else {
+        // Default case (e.g., section_label not recognized)
+        sectionName = `Section ${section.number}`;
+      }
+
+      return sectionName;
+    },
+
     async fetchSiteDetails() {
       try {
         const response = await axios.get(
@@ -1004,19 +1336,21 @@ export default {
         );
         this.site = response.data.data;
 
-        if (this.site && this.site.floors) {
-          this.fetchFloorsData();
+        // Log the site object to see its properties
+
+        if (this.site && this.site.sections) {
+          this.fetchSectionsData();
         } else {
-          console.error("No floors data available");
+          console.error("No sections data available");
         }
       } catch (error) {
         console.error("Error fetching site details:", error);
       }
     },
-    async fetchFloorsData() {
+    async fetchSectionsData() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/floors/`, // Correct endpoint for floor data
+          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/sections/`, // Correct endpoint for section data
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1025,12 +1359,12 @@ export default {
         );
 
         if (response.data.success) {
-          this.floors = response.data.data; // This will be an array of floors with total and available unit counts
+          this.sections = response.data.data; // This will be an array of sections with total and available unit counts
         } else {
-          console.error("Error fetching floor data:", response.data.error);
+          console.error("Error fetching section data:", response.data.error);
         }
       } catch (error) {
-        console.error("Error fetching floors:", error);
+        console.error("Error fetching sections:", error);
       }
     },
     async fetchUnitTypes() {
@@ -1054,117 +1388,10 @@ export default {
         alert("An error occurred while fetching unit types.");
       }
     },
-    toggleAddUnitsModal() {
-      this.showAddUnitsModal = !this.showAddUnitsModal;
-      if (!this.showAddUnitsModal) {
-        // Reset fields when closing the modal
-        this.newUnitFloor = null;
-        this.newUnitType = null;
-        this.newUnitTitle = "";
-        this.newUnitBedroom = 1;
-        this.newUnitBathroom = 1;
-        this.newUnitLotArea = null;
-        this.newUnitFloorArea = null;
-        this.newUnitPrice = null;
-        this.newUnitStatus = "Available";
-        this.newUnitView = null;
-        this.newUnitBalcony = "no balcony";
-      }
-    },
-    openAddUnitModalForFloor(floorId) {
-      this.newUnitFloors = [floorId]; // Set the floor ID in the array
-      this.showAddFloorUnitsModal = true; // Open the modal to add units to the specific floor
-    },
-    async addFloorUnits(floorId) {
-      // Validate form fields
-      if (
-        !this.newUnitType ||
-        !this.newUnitPrice ||
-        !this.newUnitLotArea ||
-        !this.newUnitFloorArea ||
-        !this.newUnitQuantity ||
-        !floorId
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create FormData to send both unit data and images
-      const formData = new FormData();
-      formData.append("quantity", this.newUnitQuantity);
-      formData.append("unit_type_id", this.newUnitType);
-      formData.append("unit_title", this.newUnitTitle);
-      formData.append("bedroom", this.newUnitBedroom);
-      formData.append("bathroom", this.newUnitBathroom);
-      formData.append("lot_area", this.newUnitLotArea);
-      formData.append("floor_area", this.newUnitFloorArea);
-      formData.append("price", this.newUnitPrice);
-      formData.append("status", this.newUnitStatus);
-      formData.append("view", this.newUnitView);
-      formData.append("balcony", this.newUnitBalcony);
-      formData.append("commission", this.newUnitCommission);
-      formData.append(
-        "spot_discount_percentage",
-        this.newUnitSpotDiscountPercentage
-      );
-      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
-      formData.append("reservation_fee", this.newUnitReservationFee);
-      formData.append("other_charges", this.newUnitOtherCharges);
-      formData.append("vat_percentage", this.newUnitVatPercentage);
-
-      // Append the selected floor ID
-      formData.append("floor_ids[]", floorId); // Directly pass the floorId
-
-      // Log the selected images
-      if (this.newUnitImages && this.newUnitImages.length) {
-        console.log("Selected images:", this.newUnitImages);
-        for (let i = 0; i < this.newUnitImages.length; i++) {
-          const image = this.newUnitImages[i];
-
-          // Append image file with a unique key based on index
-          formData.append(`images[${i}]`, image);
-
-          // Append image type and primary flag with unique keys as well
-          formData.append(`image_types[${i}]`, image.image_type || "Unit");
-          formData.append(`primaries[${i}]`, image.primary || false);
-
-          // Log the data for debugging
-          console.log(`Appending image ${i + 1}:`, image);
-        }
-      } else {
-        console.log("No images selected.");
-      }
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        console.log("Response from backend:", response);
-
-        if (response.status === 201) {
-          this.openUnitManagement({ id: floorId });
-          this.fetchSiteDetails(); // Refresh site details
-          this.showAddFloorUnitsModal = false; // Close the modal
-          alert("Units successfully added to the floor!");
-        }
-      } catch (error) {
-        console.error("Error adding units to floor:", error);
-        alert("Failed to add the unit. Please try again.");
-      }
-    },
-
     async addUnits() {
       // Validate form fields
       if (
-        !this.newUnitFloors.length ||
+        !this.newUnitSections.length ||
         !this.newUnitType ||
         !this.newUnitPrice ||
         !this.newUnitLotArea ||
@@ -1198,16 +1425,14 @@ export default {
       formData.append("other_charges", this.newUnitOtherCharges);
       formData.append("vat_percentage", this.newUnitVatPercentage);
 
-      // Log the selected floor IDs
-      console.log("Selected floor IDs:", this.newUnitFloors);
+      // Log the selected section IDs
 
-      // Append the selected floor IDs as an array
-      this.newUnitFloors.forEach((floorId) => {
-        formData.append("floor_ids[]", floorId);
+      // Append the selected section IDs as an array
+      this.newUnitSections.forEach((sectionId) => {
+        formData.append("section_ids[]", sectionId);
       });
 
       if (this.newUnitImages && this.newUnitImages.length) {
-        console.log("Selected images:", this.newUnitImages);
         for (let i = 0; i < this.newUnitImages.length; i++) {
           const image = this.newUnitImages[i];
 
@@ -1219,16 +1444,9 @@ export default {
           formData.append(`primaries[${i}]`, image.primary || false);
 
           // Log the data for debugging
-          console.log(`Appending image ${i + 1}:`, image);
         }
       } else {
         console.log("No images selected.");
-      }
-
-      // Log FormData content for debugging
-      console.log("FormData contents before sending to backend:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
       }
 
       try {
@@ -1244,35 +1462,142 @@ export default {
           }
         );
 
-        console.log("Response from backend:", response);
-
         if (response.status === 201) {
           this.fetchSiteDetails(); // Refresh the site details
           this.showAddUnitsModal = false; // Close the modal
-          alert("Units successfully added!");
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit/s updated successfully!";
+          this.showNotification = true;
         }
       } catch (error) {
-        console.error("Error adding unit:", error);
-        alert("Failed to add the unit. Please try again.");
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.showNotification = true;
       }
     },
-    async openUnitManagement(floor) {
-      if (!floor.id) {
-        console.error("Invalid floor ID:", floor);
-        alert("Invalid floor ID.");
+    toggleAddUnitsModal() {
+      this.showAddUnitsModal = !this.showAddUnitsModal;
+      if (!this.showAddUnitsModal) {
+        // Reset fields when closing the modal
+        this.newUnitSection = null;
+        this.newUnitType = null;
+        this.newUnitTitle = "";
+        this.newUnitBedroom = 1;
+        this.newUnitBathroom = 1;
+        this.newUnitLotArea = null;
+        this.newUnitFloorArea = null;
+        this.newUnitPrice = null;
+        this.newUnitStatus = "Available";
+        this.newUnitView = null;
+        this.newUnitBalcony = "no balcony";
+      }
+    },
+    openAddUnitModalForSection(sectionId) {
+      this.newUnitSections = [sectionId]; // Set the section ID in the array
+      this.showAddSectionUnitsModal = true; // Open the modal to add units to the specific section
+    },
+    async addSectionUnits(sectionId) {
+      // Validate form fields
+      if (
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitLotArea ||
+        !this.newUnitFloorArea ||
+        !this.newUnitQuantity ||
+        !sectionId
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+
+      // Create FormData to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Append the selected section ID
+      formData.append("section_ids[]", sectionId); // Directly pass the sectionId
+
+      // Log the selected images
+      if (this.newUnitImages && this.newUnitImages.length) {
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          this.openUnitManagement({ id: sectionId });
+          this.fetchSiteDetails(); // Refresh site details
+          this.showAddSectionUnitsModal = false; // Close the modal
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit/s updated successfully!";
+          this.showNotification = true;
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.showNotification = true;
+      }
+    },
+
+    async openUnitManagement(section) {
+      if (!section.id) {
+        console.error("Invalid section ID:", section);
+        alert("Invalid section ID.");
         return;
       }
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/units/${this.$route.params.siteId}/floors/${floor.id}/`,
+          `http://localhost:8000/developer/units/${this.$route.params.siteId}/sections/${section.id}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        this.selectedFloor = floor;
+        this.selectedSection = section;
         this.unitsData = response.data.data;
         this.showUnitManagementModal = true;
       } catch (error) {
@@ -1313,7 +1638,6 @@ export default {
       if (unit) {
         try {
           this.selectedUnit = unit; // Make sure selectedUnit is set
-          console.log("Selected Unit Images:", this.selectedUnit.images);
           this.showEditUnitModal = true; // Show the modal for editing
         } catch (error) {
           console.error(
@@ -1326,51 +1650,61 @@ export default {
         this.showEditUnitModal = true; // Show modal for new unit creation
       }
     },
-
     async saveUnitChanges() {
-      const formData = new FormData();
-      formData.append("unit_number", this.selectedUnit.unit_number);
-      formData.append("unit_type_id", this.selectedUnit.unit_type);
-      formData.append("status", this.selectedUnit.status);
-      formData.append("price", this.selectedUnit.price);
-      formData.append("lot_area", this.selectedUnit.lot_area);
-      formData.append("floor_area", this.selectedUnit.floor_area);
-      formData.append("commission", this.selectedUnit.commission);
-      formData.append("balcony", this.selectedUnit.balcony); // Add balcony
-      formData.append("view", this.selectedUnit.view); // Add view
+      this.showConfirmation(
+        "Are you sure you want to save the changes to this unit?",
+        async () => {
+          const formData = new FormData();
+          formData.append("unit_number", this.selectedUnit.unit_number);
+          formData.append("unit_type_id", this.selectedUnit.unit_type);
+          formData.append("status", this.selectedUnit.status);
+          formData.append("price", this.selectedUnit.price);
+          formData.append("lot_area", this.selectedUnit.lot_area);
+          formData.append("floor_area", this.selectedUnit.floor_area);
+          formData.append("commission", this.selectedUnit.commission);
+          formData.append("balcony", this.selectedUnit.balcony);
+          formData.append("view", this.selectedUnit.view);
 
-      // Handle image files if any
-      this.selectedUnit.images.forEach((image, index) => {
-        if (this.imageFile[index]) {
-          formData.append(`image_${index}`, this.imageFile[index]);
-        }
-      });
-
-      try {
-        let response;
-
-        this.selectedUnit.id;
-        // If the unit has an id, it's an update (PUT request)
-        response = await axios.put(
-          `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
+          // Handle image files if any
+          if (this.selectedUnit.images && this.imageFile) {
+            this.selectedUnit.images.forEach((image, index) => {
+              if (this.imageFile[index]) {
+                formData.append(`image_${index}`, this.imageFile[index]);
+              }
+            });
           }
-        );
 
-        if (response.status === 200 || response.status === 201) {
-          this.showEditUnitModal = false;
-          this.fetchUnits(); // Fetch the updated list of units
-        }
-      } catch (error) {
-        console.error("Error saving unit changes:", error.response || error);
-      }
+          try {
+            let response;
+
+            // If the unit has an id, it's an update (PUT request)
+            response = await axios.put(
+              `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
+              formData,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                  )}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+              this.showEditUnitModal = false;
+              this.fetchUnits(); // Fetch the updated list of units
+            }
+          } catch (error) {
+            console.error(
+              "Error saving unit changes:",
+              error.response || error
+            );
+          }
+        },
+        []
+      );
     },
-
     // Method to toggle the image edit state (show/hide replace form)
     toggleImageEdit(index) {
       this.imageEditIndex = this.imageEditIndex === index ? null : index;
@@ -1475,6 +1809,30 @@ export default {
       }
     },
 
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action; // Use the renamed key here
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false; // Close modal on cancel
+    },
+
+    async confirmAction() {
+      try {
+        // Dynamically call the function stored in actionToConfirm with the provided params
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false; // Close modal after confirmation
+      } catch (error) {
+        this.showConfirmModal = false; // Close modal on error
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
+
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
     },
@@ -1493,7 +1851,6 @@ export default {
     },
     handleFileChange(event) {
       this.newUnitImages = Array.from(event.target.files);
-      console.log("New unit images:", this.newUnitImages);
     },
     getUnitTypeName(unitTypeId) {
       // Find the unit type by id
@@ -1517,14 +1874,14 @@ export default {
       this.currentPage = 1; // Reset pagination on new search
     },
 
-    sortFloors() {
-      if (this.floorSortOrder === "asc") {
-        this.sortedFloors = this.site.floors.sort(
-          (a, b) => a.floor_number - b.floor_number
+    sortSections() {
+      if (this.sectionSortOrder === "asc") {
+        this.sortedSections = this.site.sections.sort(
+          (a, b) => a.number - b.number
         );
-      } else if (this.floorSortOrder === "desc") {
-        this.sortedFloors = this.site.floors.sort(
-          (a, b) => b.floor_number - a.floor_number
+      } else if (this.sectionSortOrder === "desc") {
+        this.sortedSections = this.site.sections.sort(
+          (a, b) => b.number - a.number
         );
       }
     },
@@ -1548,7 +1905,7 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  background-color: #ebebeb;
+  background-color: #e8f0fa;
 }
 
 /* Side Navigation */
@@ -1584,7 +1941,163 @@ body {
 .content {
   flex: 1;
   padding: 20px;
-  text-align: center;
+  display: flex;
+  /* Use flexbox to center the content */
+  align-items: center;
+  /* Center vertically */
+  flex-direction: column;
+  /* Stack the dashboard boxes and sales table vertically */
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  width: 100%;
+  margin: 20px auto;
+  /* Center the wrapper */
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.total-broker {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
+  font-weight: bold;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+  /* Space on the left side */
+  padding-right: 20px;
+  /* Space on the right side */
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+
+  /* Space between search bar and dropdown */
+}
+
+.left-section p {
+  margin: 0;
+  /* Remove default margin */
+  line-height: 38px;
+  /* Match the dropdown height */
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.card {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-top: 0;
+  padding: 15px;
+  max-width: 1100px;
+  width: 100%;
+  /* Ensures the card and grid align */
+  margin-left: auto;
+  /* Centers the card */
+  margin-right: auto;
+}
+
+.outside-headers {
+  display: grid;
+  /* Change to grid layout */
+  grid-template-columns: 40% 20% 25% 15%;
+  /* Match the column widths */
+  padding: 0px 15px;
+  margin: 20px auto 10px;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+.section-info {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+  font-size: 14px;
+}
+
+.section-info th,
+.section-info td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  padding: 0;
+}
+
+.section-info th:nth-child(2),
+.section-info td:nth-child(2) {
+  /* Location column */
+  width: 20%;
+}
+
+.section-info th:nth-child(3),
+.section-info td:nth-child(3) {
+  /* Status column */
+  width: 25%;
+}
+
+.section-info th:nth-child(4),
+.section-info td:nth-child(4) {
+  /* Actions column */
+  width: 15%;
 }
 
 /* Site Details */
@@ -1594,21 +2107,25 @@ body {
   align-items: flex-start;
   margin-bottom: 20px;
 }
+
 .site-picture {
   flex: 1;
-  margin-right: 20px;
+  margin-bottom: 20px;
 }
+
 .site-image {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  height: 300px;
 }
+
+.site-description-location {
+  text-align: left;
+  font-size: 14px;
+}
+
 .site-info {
   flex: 1;
-}
-.floor-sort {
-  margin-bottom: 10px;
 }
 
 .site-details {
@@ -1626,13 +2143,13 @@ body {
   margin-bottom: 15px;
 }
 
-.floor-list {
+.section-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }
 
-.floor-card {
+.section-card {
   background-color: #f9f9f9;
   padding: 10px;
   border-radius: 8px;
@@ -1682,23 +2199,23 @@ button {
   border-collapse: collapse;
   margin: 20px 0;
 }
+
 .unit-table th,
 .unit-table td {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: center;
 }
+
 .unit-table th {
   background-color: #f2f2f2;
 }
-.search-bar {
-  margin-bottom: 20px;
-  text-align: center;
-}
+
 .pagination-controls {
   text-align: center;
   margin-top: 20px;
 }
+
 button {
   background-color: #0560fd;
   color: white;
@@ -1716,18 +2233,238 @@ button {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-size: 16px; /* Adjust as needed */
+  font-size: 13px;
+  /* Adjust as needed */
   text-decoration: none;
 }
 
 .back-button:disabled {
   cursor: not-allowed;
-  opacity: 0.6; /* Make it slightly transparent when disabled */
+  opacity: 0.6;
+  /* Make it slightly transparent when disabled */
 }
 
 .unit-image-preview {
   max-height: 150px;
   object-fit: cover;
   border: 1px solid #ccc;
+}
+
+.site-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 1100px;
+  align-items: flex-start;
+  /* Align items at the top */
+}
+
+.site-name {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.site-details-section {
+  flex: 1;
+  /* Left section takes 1/4th of the space */
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sections-section {
+  flex: 3;
+  /* Right section takes 3/4th of the space */
+}
+
+.section-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.site-image {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.add-units-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-units-button:hover {
+  background-color: #0056b3;
+}
+
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 14px;
+  /* Match dropdown height */
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 14px;
+}
+
+.btn-manage {
+  background-color: #8b8b8b;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 7px;
+  font-size: 10 px;
+}
+
+.site-description-location {
+  display: flex;
+  flex-direction: column;
+  /* Stack description and location vertically */
+  gap: 20px;
+  /* Space between rows */
+}
+
+.description-icon,
+.location-icon {
+  display: flex;
+  align-items: flex-start;
+  /* Align icon and text vertically */
+  gap: 10px;
+  /* Space between icon and text */
+}
+
+.description-icon span,
+.location-icon span {
+  font-size: 13px;
+  /* Adjust text size */
+  color: #333;
+  /* Text color */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column;
+  /* Stack items vertically */
+  justify-content: flex-start;
+  /* Align items at the top */
+  align-items: stretch;
+  /* Ensure full width alignment */
+  max-height: 115px;
+  /* Increase max-height for better visibility */
+  overflow-y: auto;
+  /* Enable vertical scrolling */
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
+  padding: 5px;
+  border: 1px solid #dee2e6;
+  /* Optional: Customize border as needed */
+  box-sizing: border-box;
+  /* Ensure padding doesn't break layout */
+}
+
+/* Flexbox layout for horizontally aligned items */
+.select-style {
+  display: grid;
+  grid-template-columns: 20% 20% 20% 20% 20%;
+  /* Allow items to wrap to the next line */
+}
+
+/* Each checkbox will take up 1/5 of the container width (to fit 5 per row) */
+.select-style .custom-checkbox {
+  flex: 1 1 calc(20% - 10px);
+  /* 5 items per row with space between */
+}
+
+.b-form-checkbox {
+  margin: 0;
+  /* Remove any extra margin around checkboxes */
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 30px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.styled-table thead tr {
+  background-color: #eff4fb;
+  color: #333;
+  font-weight: bold;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.styled-table td.text-center {
+  text-align: center;
+}
+
+.styled-table th {
+  cursor: pointer;
+  /* Optional if you add sortable columns */
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 </style>

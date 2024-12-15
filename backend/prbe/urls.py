@@ -8,11 +8,12 @@ from . import views
 
 urlpatterns = [
     path('admin/', custom_admin_site.urls),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    # Route for reset password (this is where users will be redirected with the reset token)
+    path('reset-password/<str:token>/', views.reset_password, name='reset_password'),
 
     # Brokers
     path('broker/login/', views.login_view_broker, name='broker_login'),
-    path('broker/reset-password/', views.send_password_reset_email, name='broker_reset_password'),
-    path('broker/reset-pass/<int:uid>/<str:token>/', views.BrkResetPass, name='BrkResetPass'),
     path('broker/manage-accounts/<int:broker_id>/', views.get_broker_data, name='get_broker_data'),
     path('broker/manage-account/<int:broker_id>/', views.update_broker_view, name='update_broker'),
     path('customers/', views.add_customer, name='add_customer'),
@@ -42,16 +43,11 @@ urlpatterns = [
     path('delete_sale/<int:sale_id>/', views.delete_sale, name='delete_sale'),
     path('delete_customer/<int:customer_id>/', views.delete_customer, name='delete_customer'),
     path('sales/by-month/', views.sales_by_month, name='sales_by_month'),
-
-
-
+    path('units/<int:unit_id>/details', views.get_unit_details, name='get_unit_details'),
 
     # PRBE
 
     # Developers
-    path('developer/reset-password/', views.send_dev_password_reset_email, name='developer_reset_password'),  
-    path('developer/reset-pass/<int:uid>/<str:token>/', views.DevResetPass, name='DevResetPass'),
-
     # API Endpoints
     path('api/token/developer/', views.login_view_developer, name='login_developer'),
     path('api/token/devlogout/', views.dev_logout_view, name='developer_logout'),

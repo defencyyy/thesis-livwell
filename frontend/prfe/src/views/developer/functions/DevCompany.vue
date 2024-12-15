@@ -20,8 +20,8 @@
                     v-if="company.logo"
                     :src="getLogoUrl(company.logo)"
                     alt="Company Logo"
-                    class="img-fluid rounded-circle shadow-sm"
-                    style="width: 200px; height: 200px; object-fit: cover"
+                    class="img-fluid shadow-sm rounded"
+                    style="width: 100%; height: 100%; object-fit: contain"
                   />
                   <span v-else>No Logo Available</span>
                 </div>
@@ -59,7 +59,16 @@
                   class="d-flex justify-content-end"
                   style="padding-top: 15px"
                 >
-                  <button @click="updateCompany" class="btn-save">
+                  <button
+                    @click="
+                      showConfirmation(
+                        'Are you sure you want to save these changes?',
+                        updateCompany,
+                        []
+                      )
+                    "
+                    class="btn-save"
+                  >
                     Save Changes
                   </button>
                 </div>
@@ -67,6 +76,53 @@
             </div>
           </div>
         </div>
+
+        <!-- Notification Modal -->
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
+
+        <!-- Confirmation Modal -->
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <!-- Confirm Button -->
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -77,16 +133,25 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+import { BModal } from "bootstrap-vue-3";
 
 export default {
   name: "DevCompany",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
+
   data() {
     return {
       company: {},
       newLogo: null,
-      previewLogo: null,
-      error: null,
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+
+      // Modal confirmation states
+      showConfirmModal: false,
+      confirmMessage: "",
+      actionToConfirm: null,
+      confirmParams: [],
     };
   },
 
@@ -95,7 +160,7 @@ export default {
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
-      loggedIn: (state) => state.loggedIn, // Vuex loggedIn state
+      loggedIn: (state) => state.loggedIn,
     }),
     vuexUserId() {
       return this.userId;
@@ -120,9 +185,9 @@ export default {
   },
 
   methods: {
+    // Fetch company data
     async fetchCompany() {
       const companyId = this.vuexCompanyId;
-
       if (!companyId) {
         alert("Company ID not found. Please log in.");
         this.redirectToLogin();
@@ -150,30 +215,58 @@ export default {
       }
     },
 
-    handleTokenRefreshFailure() {
-      alert("Session expired. Please log in again.");
-      this.$store.dispatch("logout");
-      this.$router.push({ name: "DevLogin" });
+    // Show the confirmation modal with dynamic message and action
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action;
+      this.confirmParams = params;
+      this.showConfirmModal = true;
     },
 
+    // Cancel the action
+    cancelAction() {
+      this.showConfirmModal = false; // Close modal on cancel
+    },
+
+    // Confirm the action
+    async confirmAction() {
+      try {
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false; // Close modal after confirmation
+      } catch (error) {
+        this.showConfirmModal = false; // Close modal on error
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred during the action.";
+        this.showNotification = true;
+      }
+    },
+
+    // Handle file change
+    onFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.newLogo = file;
+      }
+    },
+
+    // Get logo URL
+    getLogoUrl(logo) {
+      return `http://localhost:8000${logo}`;
+    },
+
+    // Update company details
     async updateCompany() {
       try {
-        // Log the company.description to verify the value being saved
-        console.log("Description to update:", this.company.description);
-
         const formData = new FormData();
 
-        // Only append the description if it has changed
         if (this.company.description !== this.company.originalDescription) {
-          formData.append("description", this.company.description); // Update with the new description
+          formData.append("description", this.company.description);
         }
 
-        // Only append the logo if it was selected
         if (this.newLogo) {
-          formData.append("logo", this.newLogo); // Include logo if selected
+          formData.append("logo", this.newLogo);
         }
 
-        // Make the PUT request to update the company
         const response = await axios.put(
           "http://localhost:8000/developer/company/edit/",
           formData,
@@ -186,32 +279,26 @@ export default {
         );
 
         if (response.status === 200) {
-          alert("Company updated successfully!");
-          this.company.originalDescription = this.company.description; // Save the current description as the original one
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Company updated successfully!";
+          this.showNotification = true;
+          this.company.originalDescription = this.company.description;
           this.fetchCompany();
         } else {
-          alert("Error updating company.");
+          this.notificationTitle = "Error";
+          this.notificationMessage =
+            "An error occurred while updating the company.";
+          this.showNotification = true;
         }
       } catch (error) {
         console.error("Error updating company:", error);
-        alert(
-          error.response?.data?.error ||
-            "Error updating company. Please try again."
-        );
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An unexpected error occurred.";
+        this.showNotification = true;
       }
     },
 
-    onFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.newLogo = file;
-      }
-    },
-
-    getLogoUrl(logo) {
-      return `http://localhost:8000${logo}`;
-    },
-
+    // Redirect to login page
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
@@ -220,27 +307,23 @@ export default {
 </script>
 
 <style scoped>
+/* Global styles */
 html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
 }
 
-/* Ensure .main-page fills the available space */
+/* Developer page styles */
 .developer-company-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #eff4fb;
-  /* Gray background */
 }
 
 .SideNav {
   width: 250px;
-  /* Set fixed width for the sidebar */
   position: fixed;
   top: 0;
   left: 0;
@@ -251,7 +334,6 @@ body {
 .AppHeader {
   width: 100%;
   height: 60px;
-  /* Adjust height as needed */
   display: flex;
   align-items: center;
   padding-left: 10px;
@@ -262,10 +344,7 @@ body {
   flex-direction: column;
   margin-top: 30px;
   margin-left: 250px;
-  /* Offset for header height */
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
 }
 
 .card {
@@ -279,55 +358,42 @@ body {
   padding: 2.5rem;
 }
 
+/* Title wrapper and text styles */
 .title-wrapper {
   display: flex;
-  /* Align line and title horizontally */
   align-items: center;
-  width: 100%;
+  margin-top: 20px;
   max-width: 900px;
-
-  /* Ensure the title width matches the card's width */
   margin-left: auto;
   margin-right: auto;
-  margin-top: 20px;
-  /* Center the wrapper */
 }
 
 .edit-title {
-  color: #000000;
+  color: #000;
   margin-bottom: 0.8rem;
   text-align: left;
   font-weight: bold;
-  /* Align the text to the left */
 }
 
 .title-icon {
   width: 15px;
-  /* Short horizontal line */
   height: 5px;
-  /* Thin line */
   background-color: #343a40;
-  /* Line color */
   border-radius: 5px;
-  /* Rounded corners */
   margin-right: 10px;
-  /* Space between the icon and the title */
   margin-bottom: 15px;
 }
 
-/* Styling for the file input and image preview section */
+/* Input and textarea styles */
 input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
 }
 
-/* Styling for the text area */
 textarea {
   border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 1rem;
   padding: 10px;
-  transition: border-color 0.3s ease;
 }
 
 textarea:focus {
@@ -335,7 +401,15 @@ textarea:focus {
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Button Styling */
+/* Button styles */
+.btn-save {
+  background-color: #0560fd;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
 .btn-primary {
   background-color: #007bff;
   border-color: #007bff;
@@ -347,16 +421,27 @@ textarea:focus {
   border-color: #004085;
 }
 
-.user-info {
-  margin-bottom: 20px;
-  text-align: left;
+.button-container {
+  display: flex;
+  justify-content: flex-end;
 }
 
-.btn-save {
-  background-color: #0560fd; /* Button primary color */
-  color: #fff;
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
   border: none;
-  border-radius: 3px; /* Adjust the border radius */
-  padding: 10px;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
 }
 </style>

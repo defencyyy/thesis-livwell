@@ -32,21 +32,43 @@
                   />
                   <i class="fa fa-search search-icon"></i>
                 </div>
+                <!-- Sort Dropdown -->
+                <select v-model="sortBy" class="dropdown">
+                  <option value="customer_code">Sort: ID</option>
+                  <option value="last_name">Sort: Name</option>
+                </select>
+
+                <!-- Sort Order Dropdown -->
+                <select v-model="sortOrder" class="dropdown">
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+
+                <!-- Active vs Archived View Filter -->
+                <select
+                  v-model="viewFilter"
+                  @change="toggleArchived"
+                  class="dropdown2"
+                >
+                  <option value="active">View: Active</option>
+                  <option value="archived">View: Archived</option>
+                </select>
               </div>
+
               <div class="right-section"></div>
             </div>
           </div>
         </div>
 
-        <!-- Broker Table -->
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
+            <span class="header-item">ID</span>
             <span class="header-item">Name</span>
             <span class="header-item">Email</span>
             <span class="header-item">Contact</span>
+            <span class="header-item">Units</span>
             <span class="header-item">Broker Name</span>
-            <!-- <span class="header-item">Units Connected</span> -->
             <span class="header-item">Actions</span>
           </div>
 
@@ -73,6 +95,11 @@
                 <tbody>
                   <tr>
                     <td>
+                      <span class="customer-id">
+                        {{ customer.customer_code.replace("CUST-", "") }}
+                      </span>
+                    </td>
+                    <td>
                       <span class="customer-name">
                         {{ customer.first_name + " " + customer.last_name }}
                       </span>
@@ -88,7 +115,7 @@
                         {{ customer.contact_number }}
                       </span>
                     </td>
-                    <!-- <td>
+                    <td>
                       <span class="customer-units">
                         {{
                           customer.broker_sales
@@ -100,7 +127,7 @@
                             : 0
                         }}
                       </span>
-                    </td> -->
+                    </td>
                     <td>
                       <span class="customer-broker">
                         {{
@@ -133,165 +160,217 @@
               </table>
             </div>
           </div>
-        <!-- Pagination -->
-        <div class="pagination-controls">
-          <button
-            :disabled="currentPage === 1"
-            @click="prevPage"
-            class="page-button"
-          >
-            Previous
-          </button>
-          <button
-            v-for="page in totalPages"
-            :key="page"
-            @click="changePage(page)"
-            :class="['page-button', { active: currentPage === page }]"
-          >
-            {{ page }}
-          </button>
-          <button
-            :disabled="currentPage === totalPages"
-            @click="nextPage"
-            class="page-button"
-          >
-            Next
-          </button>
-        </div>
+          <!-- Pagination -->
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="prevPage"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: currentPage === page }]"
+              >
+                <a class="page-link" href="#" @click.prevent="changePage(page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="nextPage"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
+
     <!-- View Customer Modal -->
     <b-modal
       v-model="showEditModal"
       title="Customer Details"
       hide-footer
+      hide-header
       centered
+      size="lg"
     >
-      <!-- Customer Info -->
-      <h5>Customer Information</h5>
-      <div class="form-group">
-        <label for="editFullName" style="font-weight: bold">Full Name: </label>
-        <span id="editFullName">
-          {{ currentCustomer.first_name }} {{ currentCustomer.last_name }}
-        </span>
-      </div>
-      <div class="form-group">
-        <label for="editEmail" style="font-weight: bold">Email: </label>
-        <span id="editEmail">{{ currentCustomer.email }}</span>
-      </div>
-      <div class="form-group">
-        <label for="editContact" style="font-weight: bold">Contact: </label>
-        <span id="editContact">{{ currentCustomer.contact_number }}</span>
+      <div class="modal-title p-3">
+        <h5 class="mb-0">
+          Customer: {{ (currentCustomer.first_name || "").toUpperCase() }}
+          {{ (currentCustomer.last_name || "").toUpperCase() }}
+        </h5>
+        <h5>
+          <em>Connected Units: {{ connectedUnitsCount }} </em>
+        </h5>
       </div>
 
-      <!-- Spacer -->
-      <div style="margin-top: 20px"></div>
+      <div class="modal-body">
+        <!-- Broker Info -->
 
-      <!-- Submitted Documents -->
-      <h5>Submitted Documents</h5>
-      <div v-if="currentCustomer.documents && currentCustomer.documents.length">
-        <ul>
-          <li v-for="document in currentCustomer.documents" :key="document.url">
-            <span class="document-type">{{ document.type }}:</span>
-
-            <!-- Button to open the document in a modal -->
-            <button @click="openDocumentModal(document)" class="btn btn-link">
-              {{ document.name }}
-            </button>
-
-            <!-- Open document in a new tab -->
-            <a
-              :href="document.url"
-              target="_blank"
-              class="btn btn-sm btn-outline-success"
-              aria-label="Open document in a new tab"
-            >
-              Open in New Tab
-            </a>
-
-            <!-- Download the document -->
-            <a
-              :href="document.url"
-              :download="document.name"
-              class="btn btn-sm btn-outline-success"
-              aria-label="Download
-              document"
-            >
-              Download
-            </a>
-          </li>
-        </ul>
-      </div>
-      <div v-else>No documents available.</div>
-
-      <b-modal
-        v-model="showDocumentModal"
-        title="View Document"
-        hide-footer
-        centered
-        size="lg"
-      >
-        <div v-if="selectedDocument">
-          <iframe
-            :src="selectedDocument.url"
-            width="100%"
-            height="500px"
-            frameborder="0"
-          ></iframe>
+        <div>
+          <p style="margin-bottom: 5px">
+            <strong>Email: </strong>
+            {{ currentCustomer.email }}
+          </p>
+          <p style="margin-bottom: 5px">
+            <strong>Contact #: </strong>
+            {{ currentCustomer.contact_number }}
+          </p>
         </div>
-        <div v-else>
-          <p>No document to display.</p>
-        </div>
-      </b-modal>
 
-      <!-- Spacer -->
-      <div style="margin-top: 20px"></div>
+        <!-- Spacer -->
+        <div style="margin-top: 20px"></div>
 
-      <!-- Broker Info -->
-      <h5 v-if="currentCustomer.broker">Broker Information</h5>
-      <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerFullName" style="font-weight: bold"
-          >Broker Name:
-        </label>
-        <span id="brokerFullName">
-          {{ currentCustomer.broker.first_name }}
-          {{ currentCustomer.broker.last_name }}
-        </span>
-      </div>
-      <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerEmail" style="font-weight: bold"
-          >Broker Email:
-        </label>
-        <span id="brokerEmail">{{ currentCustomer.broker.email }}</span>
-      </div>
-      <div v-if="currentCustomer.broker" class="form-group">
-        <label for="brokerContact" style="font-weight: bold"
-          >Broker Contact:
-        </label>
-        <span id="brokerContact">{{
-          currentCustomer.broker.contact_number
-        }}</span>
-      </div>
-
-      <!-- Spacer -->
-      <div style="margin-top: 20px"></div>
-
-      <!-- Units Connected -->
-      <h5>Connected Units ({{ connectedUnitsCount }} units)</h5>
-      <!-- Display count -->
-      <div v-if="Object.keys(groupedSales).length">
-        <div v-for="(units, siteName) in groupedSales" :key="siteName">
-          <h6>Site: {{ siteName }}</h6>
+        <!-- Submitted Documents -->
+        <h5>Submitted Documents</h5>
+        <div
+          v-if="currentCustomer.documents && currentCustomer.documents.length"
+        >
           <ul>
-            <li v-for="unit in units" :key="unit.id">
-              {{ unit.title }} (Room: {{ unit.unit_number }} - Status:
-              {{ unit.status }})
+            <li
+              v-for="document in currentCustomer.documents"
+              :key="document.url"
+            >
+              <span class="document-type">{{ document.type }}:</span>
+
+              <!-- "View" button styled similarly to the other buttons
+              <button
+                @click="openDocumentModal(document)"
+                class="btn btn-sm btn-outline-primary"
+                aria-label="View document"
+              >
+                View
+              </button> -->
+
+              <a
+                :href="`http://localhost:8000${document.url}`"
+                target="_blank"
+                class="btn btn-sm btn-outline-success"
+                aria-label="Open document in a new tab"
+              >
+                Open in New Tab
+              </a>
+              <a
+                :href="`http://localhost:8000${document.url}`"
+                :download="document.name || 'document'"
+                class="btn btn-sm btn-outline-success"
+                aria-label="Download document"
+              >
+                Download
+              </a>
             </li>
           </ul>
         </div>
+        <div v-else>No documents available.</div>
+
+        <b-modal
+          v-model="showDocumentModal"
+          title="View Document"
+          hide-footer
+          centered
+          size="lg"
+        >
+          <div v-if="selectedDocument">
+            <iframe
+              :src="selectedDocument.url"
+              width="100%"
+              height="500px"
+              frameborder="0"
+            ></iframe>
+          </div>
+          <div v-else>
+            <p>No document to display.</p>
+          </div>
+        </b-modal>
+
+        <!-- Spacer -->
+        <div style="margin-top: 20px"></div>
+
+        <!-- Broker Info -->
+        <h6 v-if="currentCustomer.broker" style="color: #a3a3a3">
+          <em>**Broker Information**</em>
+        </h6>
+        <div v-if="currentCustomer.broker">
+          <p style="margin-bottom: 5px">
+            <strong>Broker Name: </strong>
+            {{ currentCustomer.broker.first_name }}
+            {{ currentCustomer.broker.last_name }}
+          </p>
+        </div>
+        <div v-if="currentCustomer.broker">
+          <p style="margin-bottom: 5px">
+            <strong>Broker Email: </strong>
+            {{ currentCustomer.broker.email }}
+          </p>
+        </div>
+        <div v-if="currentCustomer.broker">
+          <p style="margin-bottom: 5px">
+            <strong>Broker Contact #: </strong>
+            {{ currentCustomer.broker.contact_number }}
+          </p>
+        </div>
+
+        <!-- Spacer -->
+        <div style="margin-top: 20px"></div>
+
+        <!-- Units Connected -->
+        <h6 style="color: #a3a3a3"><em>**Connected Units**</em></h6>
+        <!-- Display count -->
+        <div v-if="Object.keys(groupedSales).length">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Unit Name</th>
+                <th>Unit Number</th>
+                <th>Site</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template
+                v-for="(units, siteName) in groupedSales"
+                :key="siteName"
+              >
+                <tr v-for="unit in units" :key="unit.id">
+                  <td>{{ unit.title }}</td>
+                  <td>{{ unit.unit_number }}</td>
+                  <td>{{ siteName }}</td>
+                  <td>{{ unit.status }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div v-else>No connected units available.</div>
+        <div
+          class="d-flex justify-content-end gap-3 mt-3"
+          style="padding: 15px"
+        >
+          <button
+            type="button"
+            class="btn-cancel"
+            @click="showEditModal = false"
+            style="width: 100px"
+          >
+            Close
+          </button>
+        </div>
       </div>
-      <div v-else>No connected units available.</div>
     </b-modal>
   </div>
 </template>
@@ -312,9 +391,14 @@ export default {
   },
   data() {
     return {
-      customers: [],
-      searchQuery: "",
-      customersPerPage: 5,
+      customers: [], // Array to hold active customers
+      archivedCustomers: [], // Array to hold archived customers
+      searchQuery: "", // Search input query
+      sortBy: "customer_code", // Default sort by name
+      sortOrder: "asc", // Default sort order (ascending)
+      viewFilter: "active", // Default view to show active customers
+      showArchived: false, // Flag to toggle between archived and active customers
+      customersPerPage: 15,
       currentPage: 1,
       showEditModal: false,
       connectedUnitsCount: 0,
@@ -341,16 +425,56 @@ export default {
       loggedIn: (state) => state.loggedIn,
     }),
     filteredCustomers() {
-      return this.customers.filter(
+      const customersToFilter =
+        this.viewFilter === "archived"
+          ? this.archivedCustomers
+          : this.customers;
+
+      if (!Array.isArray(customersToFilter)) {
+        console.error("Expected an array but got:", customersToFilter);
+        return []; // Return an empty array if data is not an array
+      }
+
+      // Filter by search query
+      const filtered = customersToFilter.filter(
         (customer) =>
-          customer.first_name
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
+          customer?.last_name &&
           customer.last_name
             .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          customer.email.toLowerCase().includes(this.searchQuery.toLowerCase())
+            .includes(this.searchQuery.toLowerCase())
       );
+
+      return filtered.sort((a, b) => {
+        const aName = a?.last_name || "";
+        const bName = b?.last_name || "";
+        const aCustomerCode = a?.customer_code || "";
+        const bCustomerCode = b?.customer_code || "";
+
+        let comparison = 0;
+
+        // Sorting logic for customer code
+        if (this.sortBy === "customer_code") {
+          // Make sure both customer codes are valid
+          if (aCustomerCode && bCustomerCode) {
+            const aCodeNumber = parseInt(aCustomerCode.split("-")[1], 10);
+            const bCodeNumber = parseInt(bCustomerCode.split("-")[1], 10);
+            comparison = aCodeNumber - bCodeNumber; // Compare the numeric part of the customer code
+          } else {
+            comparison = aCustomerCode.localeCompare(bCustomerCode); // Default to string comparison if not numeric
+          }
+        }
+        // Sorting logic for name
+        else if (this.sortBy === "last_name") {
+          comparison = aName.localeCompare(bName);
+        }
+        // Sorting logic for ID (if you also want to support sorting by ID)
+        else if (this.sortBy === "id") {
+          comparison = a.id - b.id;
+        }
+
+        // Return comparison in ascending or descending order based on `sortOrder`
+        return this.sortOrder === "desc" ? -comparison : comparison;
+      });
     },
     totalPages() {
       return Math.ceil(this.filteredCustomers.length / this.customersPerPage);
@@ -378,6 +502,11 @@ export default {
       this.redirectToLogin();
     } else {
       this.fetchCustomers();
+
+      // If showing archived customers, fetch them
+      if (this.showArchived) {
+        this.fetchArchivedCustomers();
+      }
     }
   },
   watch: {
@@ -402,36 +531,93 @@ export default {
         0
       );
     },
+    showArchived() {},
   },
   methods: {
-     changePage(page) {
-    this.currentPage = page;
-  },
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  },
+    changePage(page) {
+      this.currentPage = page;
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
       }
     },
+    // Toggle visibility of archived customers and fetch them if necessary
+    toggleArchived() {
+      this.showArchived = !this.showArchived;
+      console.log("Toggled archived view:", this.showArchived);
+
+      if (this.showArchived && this.archivedCustomers.length === 0) {
+        // Fetch archived customers only when switching to archived view
+        this.fetchArchivedCustomers();
+      } else if (!this.showArchived && this.customers.length === 0) {
+        // Fetch regular customers if switching back to active view
+        this.fetchCustomers();
+      }
+    },
+    // Fetch customers and dynamically build additional properties
     async fetchCustomers() {
       try {
+        const archived = this.viewFilter === "archived" ? true : false;
         const response = await axios.get(
           "http://localhost:8000/developer/customers/",
           {
+            params: {
+              archived: archived, // Use the archived parameter to fetch based on the view filter
+            },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           }
         );
-        console.log("Fetched customers:", response.data);
-        this.customers = response.data;
+
+        if (response.status === 200) {
+          this.customers = response.data.data.map((customer) => ({
+            ...customer,
+            name: customer.name || "Unknown Customer", // Default name if missing
+            isArchived: customer.isArchived ?? false, // Add 'isArchived' if missing
+            customer_code: customer.customer_code || "No Code", // Handle missing customer_code
+          }));
+        }
       } catch (error) {
-        console.error("Error fetching customers:", error);
-        this.error = "Failed to load customers.";
+        console.error("Error fetching customers:", error.response || error);
+      }
+    },
+
+    // Fetch archived customers and dynamically build additional properties
+    async fetchArchivedCustomers() {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/developer/customers/",
+          {
+            params: {
+              archived: true, // Always fetch archived customers
+            },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          this.archivedCustomers = response.data.data.map((customer) => ({
+            ...customer,
+            name: customer.name || "Unknown Customer", // Default name if missing
+            isArchived: customer.isArchived ?? true, // Make sure archived status is correct
+            customer_code: customer.customer_code || "No Code", // Handle missing customer_code
+            created_at: new Date(customer.created_at) || new Date(0), // Ensure valid date
+          }));
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching archived customers:",
+          error.response || error
+        );
       }
     },
     async viewCustomer(customer) {
@@ -461,7 +647,6 @@ export default {
             },
           }
         );
-        console.log("Fetched documents:", response.data);
         this.currentCustomer.documents = response.data.data.map((doc) => ({
           name: doc.file.split("/").pop(), // Extract file name
           url: doc.file,
@@ -490,7 +675,6 @@ export default {
     },
     async updateCustomer() {
       try {
-        console.log("Updating customer with ID:", this.currentCustomer.id);
         await axios.put(
           `http://localhost:8000/developer/customers/${this.currentCustomer.id}/`,
           {
@@ -506,14 +690,17 @@ export default {
         this.error = "Failed to update customer.";
       }
     },
-    openDocumentModal(document) {
-      if (document && document.url) {
-        this.selectedDocument = document;
-        this.showDocumentModal = true;
-      } else {
-        console.error("Invalid document or missing URL:", document);
-      }
-    },
+    // openDocumentModal(document) {
+    //   if (document && document.url) {
+    //     // Prefix the document URL with 'http://localhost:8000'
+    //     const fullUrl = `http://localhost:8000${document.url}`;
+    //     this.selectedDocument = { ...document, url: fullUrl };
+    //     this.showDocumentModal = true;
+    //   } else {
+    //     console.error("Invalid document or missing URL:", document);
+    //   }
+    //   console.log(`Full URL: ${this.selectedDocument.url}`);
+    // },
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
     },
@@ -625,13 +812,16 @@ body {
   justify-content: space-between;
   width: 100%;
   max-width: 1100px;
-  margin: 20px auto; /* Center the wrapper */
+  margin: 20px auto;
+  /* Center the wrapper */
 }
 
 .title-left {
   display: flex;
-  align-items: center; /* Align items vertically */
-  gap: 10px; /* Add space between the icon and title */
+  align-items: center;
+  /* Align items vertically */
+  gap: 10px;
+  /* Add space between the icon and title */
 }
 
 .title-icon {
@@ -643,9 +833,11 @@ body {
 
 .edit-title {
   color: #000000;
-  font-size: 16px; /* Adjust as needed */
+  font-size: 16px;
+  /* Adjust as needed */
   font-weight: bold;
-  margin: 0; /* Remove default margin */
+  margin: 0;
+  /* Remove default margin */
 }
 
 .toolbar {
@@ -694,6 +886,48 @@ body {
   /* Prevent the icon from blocking clicks in the input */
 }
 
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 80%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.dropdown2 {
+  appearance: none;
+  padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  width: 90%;
+  max-width: 150px;
+  background-color: white;
+  color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
 .card {
   border-radius: 16px;
   background-color: #fff;
@@ -708,7 +942,7 @@ body {
 }
 
 .customer-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: 10px;
 }
@@ -718,6 +952,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   background: #fff;
+  font-size: 14px;
 }
 
 .customer-table th,
@@ -737,33 +972,45 @@ body {
 .customer-table th:nth-child(2),
 .customer-table td:nth-child(2) {
   /* Location column */
-  width: 20%;
+  width: 27%;
 }
 
 .customer-table th:nth-child(3),
 .customer-table td:nth-child(3) {
   /* Status column */
-  width: 25%;
+  width: 19%;
 }
 
 .customer-table th:nth-child(4),
 .customer-table td:nth-child(4) {
   /* Actions column */
-  width: 20%;
+  width: 17%;
 }
 
 .customer-table th:nth-child(5),
 .customer-table td:nth-child(5) {
   /* Actions column */
-  width: 10%;
+  width: 7%;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  /* Actions column */
+  width: 19%;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  /* Actions column */
+  width: 7%;
 }
 
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 25% 20% 25% 20% 10%;
+  grid-template-columns: 5% 27% 19% 17% 7% 19% 7%;
   /* Match the column widths */
-  padding: 0px 18px;
+  padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;
 }
@@ -771,86 +1018,76 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
 
 .pagination {
   display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 
-.pagination button {
-  margin: 0 5px;
+.page-item {
+  margin: 0 2px; /* Reduce spacing between buttons */
 }
 
-.pagination .active {
+.page-link {
+  padding: 4px 8px; /* Smaller button padding */
+  font-size: 14px; /* Match font size for consistency */
+}
+
+.modal-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.styled-table {
+  font-size: 14px;
+  /* Adjust as needed */
+  width: 100%;
+}
+
+.styled-table thead tr {
+  background-color: #eff4fb;
+  color: #333;
   font-weight: bold;
 }
 
-.pagination-controls {
-  display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  /* Center alignment for all cells */
+  vertical-align: middle;
 }
 
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
+.styled-table tbody tr {
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.styled-table td.text-center {
+  text-align: center;
+}
+
+.styled-table th {
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  /* Optional if you add sortable columns */
 }
 
-.page-button.active {
-  background-color: #007bff;
-  color: white;
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
-}
-.pagination-controls {
-  display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
-}
-
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
-}
-
 </style>

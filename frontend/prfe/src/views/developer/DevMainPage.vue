@@ -257,7 +257,6 @@ export default {
             },
           }
         );
-        console.log("Fetched dashboard data:", response.data);
         this.brokerCount = response.data.brokers;
         this.siteCount = response.data.sites;
         this.availableUnits = response.data.availableUnits;
@@ -310,7 +309,6 @@ export default {
             brokerName: `${sale.broker.first_name} ${sale.broker.last_name}`,
             customerName: `${sale.customer.first_name} ${sale.customer.last_name}`,
           }));
-        console.log("Pending sales:", this.pendingSales);
         this.filteredSales = this.pendingSales;
       } catch (error) {
         console.error("Error fetching pending sales:", error);

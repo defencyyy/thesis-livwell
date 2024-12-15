@@ -8,7 +8,7 @@ class Milestone(models.Model):
     ]
 
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)  # Removed 'unique=True' here
     description = models.TextField(blank=True)
     reward = models.CharField(max_length=100)
     type = models.CharField(max_length=10, choices=STATUS_CHOICES, default='sales')
@@ -16,5 +16,10 @@ class Milestone(models.Model):
     commission_threshold = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Commission amount required
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def str(self):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'name'], name='unique_milestone_per_company')
+        ]
+
+    def __str__(self):
         return self.name

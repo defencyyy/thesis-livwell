@@ -102,10 +102,19 @@
               </button>
             </div>
           </form>
-          <p v-if="error" class="text-danger">{{ error }}</p>
-          <p v-if="successMessage" class="text-success">
-            {{ successMessage }}
-          </p>
+          <b-modal
+              v-model="showModal"
+              :title="isSuccess ? 'Success' : 'Error'"
+              @hide="closeModal"
+              centered
+              hide-footer
+              :modal-class="isSuccess ? 'modal-success' : 'modal-error'"
+            >
+              <p>{{ modalMessage }}</p>
+              <div class="buttons-container">
+                <button @click="closeModal" class="btn btn-primary">OK</button>
+              </div>
+            </b-modal>
         </div>
       </div>
     </div>
@@ -118,11 +127,13 @@
 import { mapGetters } from "vuex";
 import SideNav from "@/components/SideNav.vue";
 import AppHeaderLivwell from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3"; 
 
 export default {
   name: "BrkAccounts",
   components: {
     SideNav,
+    BModal,
     AppHeaderLivwell,
   },
   mounted() {
@@ -134,8 +145,9 @@ export default {
       email: "",
       contactNumber: "",
       password: "",
-      error: null,
-      successMessage: null,
+      modalMessage: "", // Message to display in the modal
+      showModal: false, // Modal visibility
+      isSuccess: false,
       loading: false, // For showing loading state
       placeholderUsername: "",
       placeholderEmail: "",
@@ -146,6 +158,10 @@ export default {
     ...mapGetters(["getUserId", "getAuthToken"]),
   },
   methods: {
+      closeModal() {
+      this.showModal = false; // Hide the modal
+      this.modalMessage = ""; // Clear the message
+    },
     async fetchBrokerData() {
       const brokerId = this.getUserId;
       const authToken = this.getAuthToken;
@@ -166,90 +182,97 @@ export default {
           this.placeholderEmail = data.email;
           this.placeholderContactNumber = data.contact_number;
         } else {
-          this.error = "Failed to fetch broker data.";
+          this.showModalWithMessage("Failed to fetch broker data.", false);
+
         }
       } catch (error) {
         console.error("Error fetching broker data:", error);
-        this.error = "An error occurred while fetching broker data.";
+        this.showModalWithMessage("An error occurred while fetching broker data.", false);
+
       }
     },
-    async updateAccount() {
-    const brokerId = this.getUserId;
-    // Validate password on client-side
-    if (this.password) {
-      if (this.password.length < 8) {
-        this.error = "Password must be at least 8 characters long.";
-        this.successMessage = null;
+async updateAccount() {
+      const brokerId = this.getUserId;
+      if (this.username === ""&&this.email===""&&this.contactNumber===""&&this.password==="") {
+        this.showModalWithMessage("No changes found.", false);
         return;
       }
-      if (!/[A-Z]/.test(this.password)) {
-        this.error = "Password must contain at least one uppercase letter.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/[a-z]/.test(this.password)) {
-        this.error = "Password must contain at least one lowercase letter.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/\d/.test(this.password)) {
-        this.error = "Password must contain at least one number.";
-        this.successMessage = null;
-        return;
-      }
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.password)) {
-        this.error = "Password must contain at least one special character.";
-        this.successMessage = null;
-        return;
-      }
-      }
-    
-
-  if (this.password && this.password !== this.confirmNewPassword) {
-    this.error = "New passwords do not match.";
+  // Validate password on client-side
+ if (this.password) {
+  // Ensure current password is provided when trying to change the password
+  if (!this.currentPassword) {
+    this.showModalWithMessage(
+      "You must provide your current password to change your password.",
+      false
+    );
     return;
   }
-    if (brokerId) {
-      try {
-        const response = await fetch(`http://localhost:8000/broker/manage-account/${brokerId}/`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify({
-            current_password: this.currentPassword, 
-            username: this.username || undefined,
-            email: this.email || undefined,
-            contact_number: this.contactNumber || undefined,
-            password: this.password || undefined,
-          }),
-        });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          this.error = errorData.message || "Failed to update account.";
-          this.successMessage = null;
-          return;
-        }
+  // Define a regex to validate all password criteria
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
-        const data = await response.json();
-        if (data.success) {
-          this.successMessage = "Account updated successfully!";
-          this.error = null;
-        } else {
-          this.error = data.message || "Failed to update account.";
-          this.successMessage = null;
-        }
-      } catch (error) {
-        console.error("Error updating account:", error);
-        this.error = "An error occurred while updating your account.";
-        this.successMessage = null;
+  if (!passwordRegex.test(this.password)) {
+    this.showModalWithMessage(
+      "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.",
+      false
+    );
+    return;
+  }
+
+  if (this.password !== this.confirmNewPassword) {
+    this.showModalWithMessage("New passwords do not match.", false);
+    return;
+  }
+}
+
+  if (brokerId) {
+    try {
+      const response = await fetch(`http://localhost:8000/broker/manage-account/${brokerId}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({
+          current_password: this.currentPassword || undefined, // Only include if provided
+          username: this.username || undefined,
+          email: this.email || undefined,
+          contact_number: this.contactNumber || undefined,
+          password: this.password || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.showModalWithMessage(errorData.message || "Failed to update account.", false);
+        return;
       }
-    } else {
-      this.error = "No broker ID found in localStorage.";
+
+      const data = await response.json();
+      if (data.success) {
+        this.showModalWithMessage("Account updated successfully!", true);
+        // Optionally clear sensitive fields like current password
+        this.currentPassword = "";
+        this.password = "";
+        this.confirmNewPassword = "";
+      } else {
+        const errorData = await response.json();
+        this.showModalWithMessage(errorData.message || "Failed to update account.", false);
+      }
+    } catch (error) {
+      console.error("Error updating account:", error);
+      this.showModalWithMessage("An error occurred while updating your account.", false);
+
     }
-  },
+  } else {
+    this.error = "No broker ID found in localStorage.";
+  }
+    },
+ showModalWithMessage(message, isSuccess) {
+      this.modalMessage = message;
+      this.isSuccess = isSuccess;
+      this.showModal = true;
+    },
   },
 };
 </script>

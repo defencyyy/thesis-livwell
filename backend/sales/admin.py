@@ -3,7 +3,7 @@ from .models import Sale
 from prbe.admin import custom_admin_site
 
 class SaleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'site', 'unit', 'customer', 'broker', 'status', 'date_sold', 'reservation_fee', 'payment_method')
+    list_display = ('id', 'site', 'unit', 'customer', 'broker', 'status', 'date_sold', 'reservation_fee', 'payment_method', 'commission')
     list_display_links = ('id', 'customer')
     list_filter = ('status', 'payment_method', 'site', 'date_sold')
     search_fields = ('unit__unit_title', 'customer__first_name', 'customer__last_name', 'broker__first_name', 'broker__last_name', 'payment_reference')

@@ -13,7 +13,7 @@
       <div class="title-wrapper">
         <div class="title-left">
           <div class="title-icon"></div>
-          <div class="edit-title">Available Units for Site {{ siteName }} </div>
+          <div class="edit-title"><strong>Available Units for Site {{ siteName }}</strong> </div>
         </div>
       </div>
 
@@ -73,32 +73,43 @@
     </div>
 
     <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li :class="['page-item', { disabled: currentPage === 1 }]">
+          <a 
+            class="page-link" 
+            href="#" 
+            @click.prevent="goToPage(currentPage - 1)"
+            aria-label="Previous"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li 
+          v-for="page in totalPages" 
+          :key="page" 
+          :class="['page-item', { active: page === currentPage }]"
         >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
-
+          <a 
+            class="page-link" 
+            href="#" 
+            @click.prevent="goToPage(page)"
+          >
+            {{ page }}
+          </a>
+        </li>
+        <li :class="['page-item', { disabled: currentPage === totalPages }]">
+          <a 
+            class="page-link" 
+            href="#" 
+            @click.prevent="goToPage(currentPage + 1)"
+            aria-label="Next"
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
 
       <!-- Unit Details Modal -->
       <b-modal
@@ -203,244 +214,13 @@
       </div>
     </div>
     <br>
-    <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-      <h5 class="property-header">Payment Plan</h5><br>
-    </div>
-    <div class="row mb-3 ps-5">
-      <div class="col-12 d-flex justify-content-around align-items-center">
-        <!-- Left Section: Property Price -->
-        <div class="text-center">
-          <h5 class="muted price-header">Property Price</h5>
-          <p class="property-price1">₱ {{ selectedUnit.price }}</p>
-        </div>
-        <!-- Right Section: Payment Plan -->
-        <div class="text-center1">
-          <h5 class="price-header">Payment Plan</h5>
-          <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
-            <option value="Spot Cash">Spot Cash</option>
-            <option value="Deffered Payment">Deffered Payment</option>
-          </select>
-        </div>
 
-      </div>
-    </div>
-
-    <!-- Spot Discount -->
-    <div class="form-group">
-      <label for="spotDiscount">Spot Discount</label>
-      <input
-        type="number"
-        id="spotDiscount"
-        v-model="spotCashDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="100"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-    
-    <p class = "description-align">
-      <strong>Unit Price after Spot Discount:</strong> ₱{{
-        unitPriceAfterSpotDiscount
-      }}
-    </p>
-
-    <!-- TLP Discount -->
-    <div class="form-group">
-      <label for="tlpDiscount">TLP Discount (Optional)</label>
-      <input
-        type="number"
-        id="tlpDiscount"
-        v-model="tlpDiscount"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        max="100"
-      />
-    </div>
-
-    <p class = "description-align"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-
-    <!-- Net Unit Price -->
-    <p class = "description-align"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
-
-    <!-- Other Charges -->
-    <div class="form-group">
-      <label for="otherChargesPercentage">Other Charges (%)</label>
-      <input
-        type="number"
-        id="otherChargesPercentage"
-        v-model="otherChargesPercentage"
-        @input="updatePaymentDetails"
-        class="form-control"
-        min="0"
-        step="0.1"
-      />
-    </div>
-    
-    <p class = "description-align"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
-
-    <!-- VAT Calculation -->
-    <p v-if="netUnitPrice > 3600000">
-      <strong>VAT (12%):</strong> ₱{{ vatAmount }}
-    </p>
-
-    <!-- Total Amount Payable -->
-    <p class = "description-align">
-      <strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}
-    </p>
-
-    <div
-    v-if="selectedPaymentPlan === 'Deffered Payment'"
-    class="form-group"
-    >
-      <label for="spotDownpayment">Spot Downpayment</label>
-      <input
-        type="number"
-        id="spotDownpayment"
-        v-model="spotDownpaymentPercentage"
-        @input="updatePaymentDetails"
-        min="0"
-        step="5"
-        placeholder="Enter downpayment percentage"
-        required
-      />
-    </div>
-
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
-    </p>
-
-    <!-- Reservation Fee -->
-    <p class = "description-align"><strong>Reservation Fee:</strong> ₱{{ this.reservationFee }}</p>
-    <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "description-align">
-      <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
-    </p>
-
-    <!-- Net Downpayment -->
-    <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "description-align">
-      <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
-    </p>
-
-    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-      <!-- Spread Downpayment -->
-      <div class="form-group">
-        <label for="spreadDownpayment">Spread Downpayment</label>
-        <select
-          v-model="spreadDownpaymentPercentage"
-          id="spreadDownpayment"
-          @change="updatePaymentDetails"
-          class="form-select mt-2"
-          style="width: 100px;"
-          required
-        >
-          <option value="0">0%</option>
-          <option value="5">5%</option>
-          <option value="10">10%</option>
-          <option value="15">15%</option>
-        </select>
-      </div>
-      
-      <p class = "description-align"><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
-
-      <!-- Payable in Months -->
-      <div class="form-group">
-        <label for="months">Months to Pay</label>
-        <input
-          type="number"
-          v-model="payableMonths"
-          id="months"
-          @input="updatePaymentDetails"
-          min="1"
-          step="1"
-          required
-        />
-      </div>
-      <p class = "description-align"><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-      <!-- Balance Upon Turnover -->
-      <p class = "description-align">
-        <strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}
-      </p>
-      <br>    
-      <div class="line mb-4"></div>
-      <div class="col-12 text-center mb-3 text-center">
-            <h5 class="property-header">Payment Schedule Summary</h5>
-      </div>
-
-      <!-- Payment Summary -->
-      <div class="payment-summary">
-        <p class = "description-align">
-          <strong>Spot Downpayment:</strong> ₱{{
-            spotDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Spread Downpayment:</strong> ₱{{
-            spreadDownpayment.toFixed(2)
-          }}
-        </p>
-        <p class = "description-align">
-          <strong>Monthly Payment:</strong> ₱{{
-            payablePerMonth.toFixed(2)
-          }}
-          / month for {{ payableMonths }} months
-        </p>
-        <p class = "description-align">
-          <strong>Balance Upon Turnover:</strong> ₱{{
-            balanceUponTurnover.toFixed(2)
-          }}
-        </p>
-      </div>
-      <!-- Expandable Detailed Schedule Section -->
-      <button @click="toggleDetailedSchedule" class="toggle-button">
-        {{
-          showDetailedSchedule
-            ? "Hide Detailed Schedule"
-            : "Show Detailed Schedule"
-        }}
-      </button>
-
-      <!-- Detailed Monthly Schedule (Visible when expanded) -->
-      <div v-if="showDetailedSchedule" class="detailed-schedule">
-        <table class = "table">
-          <thead>
-            <tr>
-              <th><center>Payment Type</center></th>
-              <th><center>Amount (₱)</center></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Spot Downpayment</td>
-              <td>₱{{ spotDownpayment.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Spread Downpayment</td>
-              <td>₱{{ spreadDownpayment.toFixed(2) }}</td>
-            </tr>
-            <!-- Loop through the months to display monthly payments -->
-            <tr v-for="month in payableMonths" :key="month">
-              <td>Month {{ month }} Payment</td>
-              <td>₱{{ payablePerMonth.toFixed(2) }}</td>
-            </tr>
-            <tr>
-              <td>Balance Upon Turnover</td>
-              <td>₱{{ balanceUponTurnover.toFixed(2) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
     <div
       class="d-flex justify-content-end gap-2 mt-30"
       style="padding-top: 15px"
     >
-      <button class="reserve-btn" @click="openReserveModal">
-        Reserve Unit
-      </button>
+      <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
+      <button class="payment-plan-btn" @click="redirectToPaymentPlan">View Payment Plan</button>
     </div>
 
     <!-- Success Message Pop-up -->
@@ -458,22 +238,23 @@
           <button @click="closePopup" class="btn btn-primary">OK</button>
         </div>
     </b-modal>
-
+    
     <!-- Reserve Unit Modal -->
     <b-modal
       v-model="isReserveModalVisible"
       @hide="closeReserveModal"
       hide-footer
       title="Reserve Unit"
+      centered
     >
-      <form @submit.prevent="submitReservation" style = "margin-left: -25px;">
+      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
         <!-- Customer Name Dropdown -->
         <div class="form-group">
           <label for="customerName">Customer Name</label>
           <select
             v-model="reservationForm.customerName"
             id="customerName"
-            class = "form-select"
+            class="form-select"
             style="margin-left: 1px;"
             required
           >
@@ -494,65 +275,71 @@
             type="file"
             @change="handleFileUpload"
             id="fileUpload"
-            class = "form-control"
+            class="form-control"
             required
           />
         </div>
-        <!-- Payment Amount -->
-        <div class="form-group">
-          <label for="paymentAmount">Payment Amount</label>
-          <input
-            type="number"
-            v-model="reservationForm.paymentAmount"
-            id="paymentAmount"
-            required
-          />
+        <!-- Payment Details -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount</label>
+              <input
+                type="number"
+                v-model="reservationForm.paymentAmount"
+                id="paymentAmount"
+                class="form-control"
+                placeholder="Enter payment amount"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select
+                v-model="reservationForm.paymentMethod"
+                id="paymentMethod"
+                class="form-select"
+                required
+              >
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="online_payment">Online Payment</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <!-- Payment Method -->
-        <div class="form-group">
-          <label for="paymentMethod">Payment Method</label>
-          <select
-            v-model="reservationForm.paymentMethod"
-            id="paymentMethod"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          >
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="cash">Cash</option>
-            <option value="online_payment">Online Payment</option>
-          </select>
-        </div>
-        <!-- Payment Date -->
-        <div class="form-group">
-          <label for="paymentDate">Date of Payment</label>
-          <input
-            type="date"
-            v-model="reservationForm.paymentDate"
-            id="paymentDate"
-            class = "form-select"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
-        </div>
-        <!-- Payment Reference (only if payment method is not cash) -->
-        <div
-          class="form-group"
-          v-if="reservationForm.paymentMethod !== 'cash'"
-        >
-          <label for="paymentReference">Payment Reference Number</label>
-          <input
-            type="text"
-            v-model="reservationForm.paymentReference"
-            id="paymentReference"
-            class = "form-control"
-            style="width: 250px; margin-left: 1px;"
-            required
-          />
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentDate">Date of Payment</label>
+              <input
+                type="date"
+                v-model="reservationForm.paymentDate"
+                id="paymentDate"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
+            <div class="form-group">
+              <label for="paymentReference">Payment Reference Number</label>
+              <input
+                type="text"
+                v-model="reservationForm.paymentReference"
+                id="paymentReference"
+                class="form-control"
+                placeholder="Enter reference number"
+                required
+              />
+            </div>
+          </div>
         </div>
         <!-- Submit Button -->
         <div
-          class="d-flex justify-content-end gap-2 mt-30"
+          class="d-flex justify-content-end gap-2 mt-3"
           style="padding-top: 15px"
         >
         <button type="submit" class="btn-add">
@@ -561,15 +348,20 @@
         <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
         </div>
       </form>
-      
-      <!-- Error Message -->
-        <b-modal v-if="errorMessage">
-          <p>{{ errorMessage }}</p>
-          <div class = "button-container">
-            <button @click="closeModal" class = "btn-cancel-right">Close</button>
-          </div>
-        </b-modal>
+      <!-- Error Message Modal -->
+      <b-modal 
+        v-model="isErrorModalVisible" 
+        hide-footer 
+        title="Error"
+        @hide="handleErrorModalClose"
+      >
+        <p>{{ errorMessage }}</p>
+        <div class="button-container">
+          <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
+        </div>
       </b-modal>
+      </b-modal>
+
      </b-modal>
   </div>
   </div>
@@ -612,36 +404,15 @@ export default {
       customers: [],
       successMessage: "", // Success message
       errorMessage: "", // Error message
+      isErrorModalVisible: false, // To control modal visibility
       showSuccessMessage: false, // Control the visibility of the success message
-
-      // Payment Scheme Data
-      selectedPaymentPlan: "Spot Cash", // Default payment plan
       unitPrice: 0, // Example price of the unit
-      spotCashDiscount: 0,
-      tlpDiscount: 0,
-      spotDiscount: 0,
-      unitPriceAfterSpotDiscount: 0,
-      tlpDiscountAmount: 0,
-      netUnitPrice: 0,
-      otherChargesPercentage: 0,
-      otherCharges: 0,
-      totalAmountPayable: 0,
-      reservationFee: 0,
-      netFullPayment: 0,
-      spotDownpaymentPercentage: 0,
-      spotDownpayment: 0,
-      spreadDownpaymentPercentage: 0,
-      spreadDownpayment: 0,
-      payableMonths: 40,
-      payablePerMonth: 0,
-      balanceUponTurnover: 0,
-      vat: 0,
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
       selectedUnitType: 'all', // Default unit type filter
       currentPage: 1, // Current page number
-      itemsPerPage: 5, // Number of customers per page
+      itemsPerPage: 20, // Number of customers per page
     };
   },
 
@@ -649,9 +420,6 @@ export default {
     this.fetchAvailableUnits();
     this.fetchSiteName();
     this.fetchCustomers();
-
-    // Call updatePaymentDetails to show the default payment details
-    this.updatePaymentDetails();
   },
   computed: {
  // Paginate filtered units
@@ -666,7 +434,7 @@ export default {
     },
   availableFloors() {
     // Get unique floor values from available units
-    const floors = this.units.map(unit => unit.floor);
+    const floors = this.units.map(unit => unit.section);
     return [...new Set(floors)].sort(); // Remove duplicates and sort them
     },
   availableUnitTypes() {
@@ -685,7 +453,7 @@ export default {
         (this.selectedBalcony === 'has' && unit.balcony.toLowerCase() !== 'no balcony') ||
         (this.selectedBalcony === 'no' && unit.balcony.toLowerCase() === 'no balcony');
       const floorMatch =
-        this.selectedFloor === 'all' || unit.floor === this.selectedFloor;
+        this.selectedFloor === 'all' || unit.section === this.selectedFloor;
 
       const unitTypeMatch =
         this.selectedUnitType === 'all' || unit.type === this.selectedUnitType;
@@ -700,6 +468,10 @@ export default {
   },
 
   methods: {
+    redirectToPaymentPlan() {
+      // Redirect to the payment plan page
+      this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });
+    },
      goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
@@ -777,13 +549,6 @@ export default {
       this.selectedUnit = unit;
       this.unitPrice = unit.price; // Set the price of the selected unit
       this.isModalVisible = true;
-      this.spotCashDiscount = this.selectedUnit.spot_discount;
-      this.tlpDiscount = this.selectedUnit.TLP_Discount;
-      this.otherChargesPercentage = this.selectedUnit.other_charges;
-      this.reservationFee = this.selectedUnit.reservation_fee;
-      this.vat = this.selectedUnit.vat_percent;
-      // Recalculate payment details when the unit is selected
-      this.updatePaymentDetails();
     },
 
     closeModal() {
@@ -813,70 +578,7 @@ export default {
         this.reservationForm.file = file;
       }
     },
-
-    updatePaymentDetails() {
-      this.applySpotCashDiscount();
-      this.applyTLPDiscount();
-      this.applyOtherCharges();
-      this.calculateVAT();
-      this.calculateFinancingDetails();
-    },
-
-    applySpotCashDiscount() {
-      const discountPercentage = parseFloat(this.spotCashDiscount);
-      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
-      this.updateNetUnitPrice();
-    },
-
-    applyTLPDiscount() {
-      const discountPercentage = parseFloat(this.tlpDiscount);
-      this.tlpDiscountAmount =
-        (this.unitPriceAfterSpotDiscount * discountPercentage) / 100;
-      this.updateNetUnitPrice();
-    },
-
-    updateNetUnitPrice() {
-      this.netUnitPrice =
-        this.unitPriceAfterSpotDiscount - this.tlpDiscountAmount;
-      this.applyOtherCharges();
-    },
-
-    applyOtherCharges() {
-      const otherChargesPercentage = parseFloat(this.otherChargesPercentage);
-      this.otherCharges = (this.netUnitPrice * otherChargesPercentage) / 100;
-      this.totalAmountPayable = this.netUnitPrice + this.otherCharges;
-      this.netFullPayment = this.totalAmountPayable - this.reservationFee;
-    },
-    calculateVAT() {
-      if (this.netUnitPrice > 3600000) {
-        this.vatAmount = this.netUnitPrice * (this.vat / 100);
-        this.totalAmountPayable += this.vatAmount;
-      }
-    },
-
-    calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
-      if (this.spotDownpaymentPercentage == "0") {
-        this.netDownpayment = this.spreadDownpayment - this.reservationFee;
-        this.payablePerMonth = this.netDownpayment / this.payableMonths;
-      } else {
-        this.netDownpayment = this.spotDownpayment - this.reservationFee;
-        this.payablePerMonth = this.spreadDownpayment / this.payableMonths;
-      }
-      this.balanceUponTurnover =
-        ((100 -
-          (Number(this.spreadDownpaymentPercentage) +
-            Number(this.spotDownpaymentPercentage))) /
-          100) *
-        this.totalAmountPayable; // Correct sum of percentages
-    },
-
     async submitReservation() {
-      this.errorMessage = null;
       // Check if all required fields are filled, including the file
       if (
         !this.reservationForm.customerName ||
@@ -887,12 +589,13 @@ export default {
         (this.reservationForm.paymentMethod !== "cash" &&
           !this.reservationForm.paymentReference)
       ) {
-        this.errorMessage =
-          "All fields are required except the payment reference (if payment method is 'cash').";
+        this.errorMessage ="All fields are required except the payment reference (if payment method is 'cash').";
+        this.isErrorModalVisible = true;
         return;
       }
-      if (this.reservationForm.paymentAmount < this.reservationFee) {
+      if (this.reservationForm.paymentAmount < this.selectedUnit.reservation_fee ) {
         this.errorMessage = "Payment Amount Insufficient";
+        this.isErrorModalVisible = true;
         return;
       }
       const data = {
@@ -909,10 +612,6 @@ export default {
           ? this.reservationForm.file.name
           : null, // Ensure file is present
       };
-      console.log(this.selectedUnit.commission);
-
-      console.log("Data being sent to the API:", data);
-
       try {
         const response = await axios.post(
           "http://localhost:8000/reserve-unit/",
@@ -956,6 +655,19 @@ export default {
       this.successMessage = ""; // Hide the success message pop-up
       this.$router.push({ name: "AffiliatedUnits" }); // Redirect to the 'AffiliatedUnits' page
     },
+     // Trigger the error modal
+  showErrorModal(message) {
+    this.errorMessage = message; // Set the error message
+    this.isErrorModalVisible = true; // Open the error modal
+  },
+  // Handle closing of the modal
+  handleErrorModalClose() {
+    this.isErrorModalVisible = false; // Ensure modal closes
+    this.errorMessage = ''; // Clear the error message
+  },
+  closeErrorModal() {
+    this.handleErrorModalClose();
+  },
   },
 };
 </script>
@@ -1194,17 +906,11 @@ body {
 }
 
 .btn-add {
-  background-color: #42b983;
+  background-color: #0560fd;
   color: #fff;
   border: none;
   border-radius: 3px;
   padding: 10px;
-}
-
-.btn-add:hover {
-  background-color: #3e9c73;  /* Slightly darker green */
-  color: #fff;
-  border: none;
 }
 
 
@@ -1345,6 +1051,11 @@ body {
   margin: 10px 0;
 }
 
+.row .col-md-6 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 /* Form Group */
 .form-group {
   margin-bottom: 15px;
@@ -1362,7 +1073,7 @@ body {
 }
 
 .form-group input[type="number"] {
-  width: 70%; /* Make the input take up full width */
+  width: 100%; /* Make the input take up full width */
   padding: 10px; /* Add padding for a better click area */
   font-size: 16px; /* Match font size with the label */
   border: 1px solid #ccc; /* Light border for input */
@@ -1386,6 +1097,11 @@ body {
   font-style: italic; /* Italicize placeholder text */
 }
 
+.form-group input[type="text"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
 /* Style for File Input Button */
 input[type="file"] {
   border: 1px solid #ccc;
@@ -1402,8 +1118,6 @@ label {
   margin-left: 30px;
 }
 
-/* Dropdown Styling */
-
 /* Payment Plan Section */
 .payment-plan {
   margin-top: 20px;
@@ -1414,7 +1128,6 @@ label {
   color: #007bff;
   margin-bottom: 10px;
 }
-
 
 button {
   padding: 10px 15px;
@@ -1429,21 +1142,13 @@ button:hover {
 }
 
 .reserve-btn {
-  background-color: #28a745;
+  background-color: #0560fd;
   color: #fff;
-}
-
-.reserve-btn:hover {
-  background-color: #218838;
 }
 
 .schedule-btn {
-  background-color: #007bff;
+  background-color: #343a40;
   color: #fff;
-}
-
-.schedule-btn:hover {
-  background-color: #0056b3;
 }
 
 .filters {
@@ -1473,36 +1178,22 @@ button:hover {
   border-bottom: 1px solid #ddd; /* Add separator between units */
 }
 
-.pagination-controls {
+.pagination {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+.page-item {
+  margin: 0 2px; /* Reduce spacing between buttons */
 }
 
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+.page-link {
+  padding: 4px 8px; /* Smaller button padding */
+  font-size: 14px; /* Match font size for consistency */
 }
 
 </style>

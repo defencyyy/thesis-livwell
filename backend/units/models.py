@@ -3,7 +3,7 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from companies.models import Company
-from sites.models import Site, Floor
+from sites.models import Site, Section
 import os, re
 from decimal import Decimal
 
@@ -11,9 +11,9 @@ def logo_upload_path(instance, filename):
     company_name = instance.unit.company.name if instance.unit and instance.unit.company else 'new_company'
     site_name = instance.unit.site.name if instance.unit and instance.unit.site else 'new_site'
 
-    company_name = re.sub(r'\s+', '_', company_name)
+    company_name = re.sub(r'\s+', '', company_name)
     company_name = re.sub(r'[^\w\s-]', '', company_name)  
-    site_name = re.sub(r'\s+', '_', site_name)
+    site_name = re.sub(r'\s+', '', site_name)
     site_name = re.sub(r'[^\w\s-]', '', site_name)
 
     if instance.image_type == 'unit':
@@ -77,6 +77,7 @@ class UnitType(models.Model):
     ]
 
     name = models.CharField(max_length=50, unique=True)
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True, blank=True)
     is_custom = models.BooleanField(default=True)
     is_archived = models.BooleanField(default=False) 
 
@@ -84,6 +85,10 @@ class UnitType(models.Model):
         # Prevent modification of default unit types
         if not self.is_custom and self.pk:
             raise ValueError("Default unit types cannot be modified.")
+        
+        # Set `is_default` based on the name if it's one of the default choices
+        if self.name in self.DEFAULT_CHOICES:
+            self.is_default = True
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -117,9 +122,9 @@ class Unit(models.Model):
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     unit_template = models.ForeignKey('UnitTemplate', related_name='units', null=True, blank=True, on_delete=models.SET_NULL)
     site = models.ForeignKey(Site, on_delete=models.DO_NOTHING)
-    floor = models.ForeignKey(Floor, on_delete=models.CASCADE, related_name="units")
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="units")
     unit_number = models.CharField(
-        max_length=10,
+        max_length=20,
         blank=True,
         help_text="Auto-generated Unit Number (e.g., 21001)"
     )
@@ -200,8 +205,8 @@ class Unit(models.Model):
 
         # Auto-generate unit number if not set
         if not self.unit_number:
-            unit_count = Unit.objects.filter(floor=self.floor).count() + 1
-            self.unit_number = f"{self.floor.floor_number:02d}{unit_count:03d}"
+            unit_count = Unit.objects.filter(section=self.section).count() + 1
+            self.unit_number = f"{self.section.name}-{unit_count:03d}"
 
         # Auto-generate unit title if not set
         if not self.unit_title:
@@ -227,7 +232,7 @@ class UnitTemplate(models.Model):
         help_text="Type of the Unit (e.g., Studio, 1 Bedroom, etc.)",
     )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)  # Removed 'unique=True' here
     bedroom = models.PositiveIntegerField(default=1)
     bathroom = models.PositiveIntegerField(default=1)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -240,7 +245,12 @@ class UnitTemplate(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     relative_id = models.CharField(max_length=255, blank=True, null=True)
     primary_image = models.ForeignKey('UnitImage', null=True, blank=True, on_delete=models.SET_NULL, related_name='primary_for_templates', help_text="Primary image for the template")
-    is_archived = models.BooleanField(default=False) 
+    is_archived = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'name'], name='unique_unit_template_per_company')
+        ]
 
     def clean(self):
         # Ensure floor_area is greater than or equal to lot_area
@@ -260,10 +270,8 @@ class UnitTemplate(models.Model):
         self.price = convert_to_decimal(self.price)
         self.floor_area = convert_to_decimal(self.floor_area)
         self.lot_area = convert_to_decimal(self.lot_area)
-    
-
+        
         super().clean()  # Call the parent class's clean method
-
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -280,26 +288,7 @@ class UnitTemplate(models.Model):
             "balcony": self.balcony,
             "commission": self.commission,
         }
-
-    # @property
-    # def relative_id(self):
-    #     if not self.pk:  # If the template is not yet saved, skip to avoid errors
-    #         return None
-
-    #     # Check if the relative_id has already been set
-    #     if not hasattr(self, '_relative_id'):
-    #         # Retrieve all templates for the company, ordered by 'name'
-    #         company_templates = UnitTemplate.objects.filter(company=self.company).order_by('name')
-            
-    #         # Find the index of the current template in the company templates
-    #         index = list(company_templates).index(self) + 1  # Add 1 for a 1-based index
-            
-    #         # Generate the relative ID using the company's ID and the template's position
-    #         self._relative_id = f"{self.company.id} {index}"
-
-    #     return self._relative_id
-
-
+    
 def validate_image_size(image):
     filesize = image.file.size
     limit = 5 * 1024 * 1024  # Limit image size to 5 MB

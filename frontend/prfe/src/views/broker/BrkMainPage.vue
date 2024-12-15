@@ -4,10 +4,90 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-        <h1 class="text-start display-5 fw-bolder text-capitalize pb-6">{{ brokerName }}</h1>
-        <p class="text-start display-7 fw-bolder">@{{ brokerUsername }}</p>
+        <div class="name-position d-flex align-items-center">
+          <h2 class="text-start display-5 fw-bolder text-capitalize pb-6 fs-1">{{ brokerName }}</h2>
+          <h3 class="text-start display-5 text-capitalize pb-6 fst-italic fs-2 ms-3">({{ brokerUsername }})</h3> <!-- ms-3 for margin left -->
+        </div>
+
+        <div class = "dashboard-boxes">
+          <div class = "box">
+            <div class = "box-header">
+              <div class = "icon-container">
+                <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
+              </div>
+              <p>Total Sales</p>
+            </div>
+            <h2>{{ totalSales }}</h2>
+          </div>
+          <div class = "box">
+            <div class = "box-header">
+              <div class = "icon-container">
+                <i class="fa fa-money-bill" style="font-size: 13px"></i>
+              </div>
+              <p>Total Commissions</p>
+            </div>
+            <h2>{{ totalCommissions }}</h2>
+          </div>
+          <div class = "box">
+            <div class = "box-header">
+              <div class = "icon-container">
+                <i class="fa fa-users" style="font-size: 13px"></i>
+              </div>
+              <p>Total Customers</p>
+            </div>
+            <h2>{{ totalCustomers }} </h2>
+          </div>
+        </div>
+        
+        <div class = "grid-layout">
+          <div class = "left-content">
+            <!-- Bottom: Bar Chart -->
+            <div v-if="salesStatus.sold > 0" class="bar-chart-container">
+              <!-- Bar Chart -->
+              <canvas id="salesBarChart" style = "border-radius: 4px;"></canvas>
+
+              <!-- Overlay for Label and Dropdown -->
+              <div class="chart-overlay">
+                <!-- Upper Left: Label -->
+                <p class="chart-label">Sales Data for {{ selectedYear }}</p>
+
+                <!-- Upper Right: Dropdown -->
+                <div class="dropdown-container">
+                  <select
+                    id="year-select"
+                    v-model="selectedYear"
+                    @change="fetchSalesByMonth"
+                    :disabled="loading"
+                  >
+                    <option v-if="loading" value="" disabled>Loading years...</option>
+                    <option v-for="year in availableYears" :key="year" :value="year">
+                      {{ year }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div v-else>
+              <p>No sales data available for the selected year.</p>
+            </div>
+          </div>
+
+          <div class = "right-content">
+            <div class="piechart-container">
+            <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
+              <p>No sales data available.</p>
+            </div>
+            <div v-else>
+              <canvas id="salesPieChart"></canvas>
+            </div>
+          </div>
+          </div>
+        </div>
+
+
+<!-- 
         <div class="dashboard-and-pie">
-          <!-- Left side: Dashboard Boxes -->
+
           <div class="dashboard-boxes">
             <div class="box">
               <div class = "box-header">
@@ -36,10 +116,10 @@
               </div>
               <h2>{{ totalCustomers }} </h2>
             </div>
-          </div>
+          </div> -->
           
           <!-- Right side: Pie Chart -->
-          <div class="piechart-container">
+          <!-- <div class="piechart-container">
             <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
               <p>No sales data available.</p>
             </div>
@@ -47,41 +127,13 @@
               <canvas id="salesPieChart"></canvas>
             </div>
           </div>
-        </div>
+        </div> -->
 
-        <!-- Bottom: Bar Chart -->
-        <div v-if="salesStatus.sold > 0" class="bar-chart-container">
-          <!-- Bar Chart -->
-          <canvas id="salesBarChart" style = "border-radius: 4px;"></canvas>
-
-          <!-- Overlay for Label and Dropdown -->
-          <div class="chart-overlay">
-            <!-- Upper Left: Label -->
-            <p class="chart-label">Sales Data for {{ selectedYear }}</p>
-
-            <!-- Upper Right: Dropdown -->
-            <div class="dropdown-container">
-              <select
-                id="year-select"
-                v-model="selectedYear"
-                @change="fetchSalesByMonth"
-                :disabled="loading"
-              >
-                <option v-if="loading" value="" disabled>Loading years...</option>
-                <option v-for="year in availableYears" :key="year" :value="year">
-                  {{ year }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div v-else>
-          <p>No sales data available for the selected year.</p>
-        </div>
       </div>
     </div>
   </div>
 </template>
+
 
 
 <script>
@@ -357,8 +409,8 @@ renderBarChart() {
         layout: {
           padding: {
             top: 60, // Spacing above the chart
-            bottom: 10,
-            left: 10,
+            bottom: 20,
+            left: 20,
             right: 10,
           },
         },
@@ -399,29 +451,33 @@ renderBarChart() {
 };
 </script>
 
+
 <style scoped>
 html,
 body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
+  overflow: hidden;
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
+  overflow: hidden;
 }
 
 .content {
   flex: 1;
   padding: 20px;
   text-align: center;
+}
+
+.name-position {
+  margin-top: -30px;
+  margin-left: 50px;
+  margin-bottom: 5px;
 }
 
 button {
@@ -446,8 +502,8 @@ canvas {
 
 #salesBarChart {
   max-width: 100%;
-  width: 100%; /* Adjust the width to 100% of its container */
-  height: 500px; /* Increase the height of the chart */
+  width: 100%; 
+  height: 500px; 
   margin: 20px auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
@@ -455,35 +511,47 @@ canvas {
 
 .main-content {
   display: flex;
-  flex-direction: column; /* Stacks content vertically */
+  flex-direction: column;
   margin-top: 80px;
   margin-left: 250px;
   flex: 1;
   padding: 20px;
+  overflow: hidden; 
 }
 
 * {
   box-sizing: border-box;
 }
 
+.bar-chart-container,
+.piechart-container {
+  overflow: hidden; 
+}
 
-/* Responsive Dashboard and Pie Chart */
 .dashboard-and-pie {
   display: flex;
   justify-content: space-between;
-  align-items: stretch; /* Ensure both children match height */
+  align-items: stretch; 
   gap: 20px;
   margin-bottom: 30px;
   margin-top: 30px;
 }
 
+.dashboard-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 10px;
+}
 
 .box-header {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 0;
-  /* Space between icon and title */
 }
 
 .box h2 {
@@ -496,13 +564,11 @@ canvas {
 
 .box {
   position: relative;
-  /* Make the box a positioning context */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -518,7 +584,6 @@ canvas {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  /* Make the icon circular */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -533,23 +598,25 @@ canvas {
   color: #000000;
 }
 
-.dashboard-boxes {
-  display: flex;
-  flex-direction: column;
+.grid-layout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
   gap: 20px;
-  flex: 1;
+  width: 100%;
   max-width: 1100px;
-  height: 500px; /* Fixed height */
+  margin: 0 auto;
+  overflow: hidden; 
 }
 
-.box {
-  position: relative;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.left-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: -25px;
+}
+
+.right-content {
+  display: flex;
+  flex-direction: column;
 }
 
 .piechart-container {
@@ -557,29 +624,71 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -50px; /* Removed extra margin */
-  padding: 10px; /* Optional: Add some padding for aesthetic space */
-}
-
-canvas {
-  height: 450px !important; /* Force canvas to stretch to the container height */
-  width: 100% !important; /* Maintain proportional scaling */
+  margin-top: -50px; 
+  padding: 10px; 
+  width: 400px;
+  margin-left: -40px;
 }
 
 #salesPieChart {
-  width: 100%; /* Ensure it stretches horizontally */
-  height: 100%; /* Ensure it takes up the full height of the container */
+  width: 100% !important; 
+  height: 350px !important; 
   max-width: 100%;
-  max-height: 100%; /* Prevent the chart from exceeding the container's height */
+  max-height: 100%; 
   padding: 20px;
   text-align: center;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
-  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+  box-sizing: border-box; 
+  margin-top: 70px;
+  overflow: hidden;
 }
 
+.bar-chart-container {
+  position: relative; 
+  margin-top: 10px;
+  width: 770px;
+  height: 370px;
+  overflow: hidden;
+}
+
+.chart-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none; 
+  margin-bottom: 100px;
+  margin-top: 30px;
+}
+
+.chart-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333; 
+  pointer-events: auto;
+  margin-left: 50px;
+}
+
+.dropdown-container select {
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 2px;
+  background-color: #d5d5d5;
+  cursor: pointer;
+  pointer-events: auto; 
+  position: relative;
+  top: -5px;
+  right: 10px;
+  color: #000;
+}
 
 .bar-chart-header {
   display: flex;
@@ -702,43 +811,4 @@ canvas {
   }
 }
 
-.bar-chart-container {
-  position: relative; /* Position container relative for overlay positioning */
-  margin-top: 10px;
-  width: 1120px;
-}
-
-.chart-overlay {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px; /* Ensure dropdown stays within the container */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none; /* Prevent overlay elements from blocking chart interactions */
-  margin-bottom: 50px;
-
-}
-
-.chart-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333; /* Ensure visibility against chart background */
-  pointer-events: auto; /* Allow interactions */
-}
-
-.dropdown-container select {
-  padding: 12px 10px;
-  font-size: 14px;
-  font-weight: bold;
-  border: none;
-  border-radius: 2px;
-  background-color: #fff;
-  cursor: pointer;
-  pointer-events: auto; /* Allow interactions */
-  position: relative;
-  top: 5px;
-  right: 10px;
-}
 </style>

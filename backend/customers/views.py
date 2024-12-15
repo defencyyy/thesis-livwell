@@ -23,14 +23,18 @@ class CustomerListView(APIView):
 
             company = developer.company
 
-            # Retrieve all customers associated with the company
-            customers = Customer.objects.filter(company=company)
+            # Retrieve the archived filter from query params (default to 'false')
+            archived = request.query_params.get('archived', 'false').lower() in ['true', '1']
+
+            # Filter customers based on the archived status
+            customers = Customer.objects.filter(company=company, archived=archived)
             serializer = CustomerSerializer(customers, many=True)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
         except Developer.DoesNotExist:
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
     def post(self, request):
         try:

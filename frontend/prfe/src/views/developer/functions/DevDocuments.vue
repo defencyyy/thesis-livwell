@@ -10,116 +10,159 @@
           <div class="edit-title">Document Types</div>
         </div>
 
-        <div style="width: 100%; max-width: 900px;" >
+        <div style="width: 100%; max-width: 900px">
           <!-- Headers outside the card -->
           <div class="outside-headers">
             <span class="header-item">Document Name</span>
             <span class="header-item">Description</span>
             <span class="header-item">Actions</span>
           </div>
-          
+
           <div
             v-for="docType in documentTypes"
             :key="docType.id"
             class="card border-0 rounded-1 mx-auto my-2"
-            style="
-             
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
+            style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
           >
             <div class="card-body">
               <table class="document-table">
                 <tbody>
                   <tr>
-                    <td>
-                      <span class="document-name">
-                        <td>{{ docType.name }}</td>
-                      </span>
+                    <td class="document-name">
+                      {{ docType.name }}
+                    </td>
+                    <td class="document-description">
+                      {{ docType.description || "N/A" }}
                     </td>
                     <td>
-                      <span class="document-description"><td>{{ docType.description || "N/A" }}</td></span>
+                      <button
+                        @click="editDocumentType(docType)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
+                        <i class="fas fa-edit"></i>
+                      </button>
                     </td>
-                    <td>
-                    <button
-                      @click="editDocumentType(docType)"
-                      class="btn btn-warning btn-sm"
-                    >
-                      Edit
-                    </button>
-                    <!-- <button
-                      @click="deleteDocumentType(docType.id)"
-                      class="btn btn-danger btn-sm"
-                    >
-                      Delete
-                    </button> -->
-                  </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
           <div class="d-flex justify-content-end mt-3">
-              <button @click="showAddForm = true" class="btn-add">
-                Add Document
-              </button>
-            </div>
+            <button @click="showAddForm = true" class="btn-add">
+              Add Document
+            </button>
+          </div>
         </div>
 
         <!-- Add/Edit Document Type Modal -->
-        <div v-if="showAddForm" class="modal show d-block" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Add New Document Type</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeForm"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                  <label for="documentTypeName" class="form-label">Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="documentTypeName"
-                    v-model="newDocumentType.name"
-                    placeholder="Enter document type name"
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="documentTypeDescription" class="form-label"
-                    >Description</label
-                  >
-                  <textarea
-                    class="form-control"
-                    id="documentTypeDescription"
-                    v-model="newDocumentType.description"
-                    rows="4"
-                    placeholder="Enter description"
-                  ></textarea>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeForm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  @click="saveDocumentType"
-                >
-                  Save
-                </button>
-              </div>
+        <b-modal
+          v-model="showAddForm"
+          :title="
+            newDocumentType.id ? 'Edit Document Type' : 'Add New Document'
+          "
+          hide-footer
+          centered
+          @hide="onModalHide"
+        >
+          <div class="mb-3">
+            <label for="documentTypeName" class="form-label text-start"
+              >Name</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="documentTypeName"
+              v-model="newDocumentType.name"
+              placeholder="Enter document type name"
+              :readonly="newDocumentType.id ? true : false"
+              :class="{ 'is-invalid': nameError }"
+            />
+            <div v-if="nameError" class="invalid-feedback">
+              Please enter a document name.
             </div>
           </div>
-        </div>
+
+          <div class="mb-3">
+            <label for="documentTypeDescription" class="form-label text-start"
+              >Description</label
+            >
+            <textarea
+              class="form-control"
+              id="documentTypeDescription"
+              v-model="newDocumentType.description"
+              rows="4"
+              placeholder="Enter description"
+            ></textarea>
+          </div>
+
+          <!-- Modal Footer -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-3"
+            style="padding-top: 15px"
+          >
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="saveDocumentType"
+            >
+              {{ newDocumentType.id ? "Save Changes" : "Add Document" }}
+            </button>
+            <button type="button" class="btn btn-secondary" @click="closeForm">
+              Cancel
+            </button>
+          </div>
+        </b-modal>
+
+        <!-- Notification Modal -->
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          centered
+        >
+          <p>{{ notificationMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
+        </b-modal>
+
+        <!-- Confirmation Modal -->
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          centered
+        >
+          <p>{{ confirmMessage }}</p>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
+            </button>
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -128,23 +171,32 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
+import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 
 export default {
   name: "DevDocuments",
-  components: { SideNav, AppHeader },
+  components: { SideNav, AppHeader, BModal },
   data() {
     return {
-      documentTypes: [], // List of document types
-      showAddForm: false, // Controls visibility of Add/Edit form modal
-      newDocumentType: { name: "", description: "" }, // Holds the document type data for add/edit
+      documentTypes: [],
+      showAddForm: false,
+      newDocumentType: { name: "", description: "" },
+      originalDocumentType: null, // Keep track of the original document type for comparison
+      nameError: false, // Validation flag for name field
+      showNotification: false,
+      notificationTitle: "",
+      notificationMessage: "",
+      showConfirmModal: false,
+      confirmMessage: "",
+      actionToConfirm: null,
+      confirmParams: [],
     };
   },
   mounted() {
     this.fetchDocumentTypes();
   },
   methods: {
-    // Axios instance with interceptor for refreshing tokens
     getAxiosInstance() {
       const instance = axios.create({
         baseURL: "http://localhost:8000/developer/",
@@ -154,12 +206,10 @@ export default {
         },
       });
 
-      // Add response interceptor
       instance.interceptors.response.use(
         (response) => response,
         async (error) => {
           if (error.response && error.response.status === 401) {
-            // Token expired, attempt to refresh
             try {
               const refreshResponse = await axios.post(
                 "http://localhost:8000/auth/refresh/",
@@ -169,19 +219,16 @@ export default {
               );
 
               if (refreshResponse.status === 200) {
-                // Save new tokens
                 localStorage.setItem(
                   "accessToken",
                   refreshResponse.data.access
                 );
 
-                // Retry original request with new access token
                 error.config.headers.Authorization = `Bearer ${refreshResponse.data.access}`;
                 return axios(error.config);
               }
             } catch (refreshError) {
               console.error("Error refreshing token:", refreshError);
-              // Redirect to login if refresh fails
               this.$router.push({ name: "Login" });
             }
           }
@@ -192,7 +239,6 @@ export default {
       return instance;
     },
 
-    // Fetch all document types from the backend
     async fetchDocumentTypes() {
       const axiosInstance = this.getAxiosInstance();
       try {
@@ -205,8 +251,44 @@ export default {
       }
     },
 
-    // Save (create/update) a document type
     async saveDocumentType() {
+      // Validate name field
+      if (!this.newDocumentType.name.trim()) {
+        this.nameError = true;
+        return;
+      }
+
+      // If we're editing, compare changes
+      if (this.newDocumentType.id) {
+        if (
+          this.newDocumentType.name === this.originalDocumentType.name &&
+          this.newDocumentType.description ===
+            this.originalDocumentType.description
+        ) {
+          this.showNotificationWithMessage(
+            "Invalid",
+            "No changes were made to the document type."
+          );
+          this.closeForm();
+          return;
+        }
+      }
+
+      const message = this.newDocumentType.id
+        ? "Do you want to save the changes to this document type?"
+        : "'Document type names can't be changed. Proceed?";
+
+      const action = this.newDocumentType.id
+        ? this.confirmSaveDocumentType
+        : this.confirmAddDocumentType;
+      const params = [];
+
+      // Show the confirmation modal before proceeding
+      this.showConfirmation(message, action, params);
+    },
+
+    // Handle the confirmation for saving a document type (edit action)
+    async confirmSaveDocumentType() {
       const axiosInstance = this.getAxiosInstance();
       const method = this.newDocumentType.id ? "PUT" : "POST";
       const url = this.newDocumentType.id
@@ -221,37 +303,98 @@ export default {
         });
 
         if ([200, 201].includes(response.status)) {
-          this.fetchDocumentTypes(); // Refresh the list
-          this.closeForm(); // Close the modal
+          this.fetchDocumentTypes();
+          this.closeForm();
+          this.showNotificationWithMessage(
+            "Success",
+            "Document type saved successfully!"
+          );
         }
       } catch (error) {
         console.error("Error saving document type:", error);
+        this.showNotificationWithMessage(
+          "Error",
+          "An error occurred while saving document type."
+        );
       }
     },
 
-    // Prepare the form for editing a document type
+    // Handle the confirmation for adding a new document type
+    async confirmAddDocumentType() {
+      const axiosInstance = this.getAxiosInstance();
+      const url = "documents/document-types/";
+
+      try {
+        const response = await axiosInstance.post(url, this.newDocumentType);
+
+        if (response.status === 201) {
+          this.fetchDocumentTypes();
+          this.closeForm();
+          this.showNotificationWithMessage(
+            "Success",
+            "Document type added successfully!"
+          );
+        }
+      } catch (error) {
+        console.error("Error adding document type:", error);
+        this.showNotificationWithMessage(
+          "Error",
+          "An error occurred while adding document type. No duplicate names allowed."
+        );
+      }
+    },
+
+    // Function to show a confirmation modal
+    showConfirmation(message, action, params) {
+      this.confirmMessage = message;
+      this.actionToConfirm = action;
+      this.confirmParams = params;
+      this.showConfirmModal = true;
+    },
+
+    cancelAction() {
+      this.showConfirmModal = false;
+    },
+
+    // Confirm action when the user confirms the modal
+    async confirmAction() {
+      try {
+        await this.actionToConfirm(...this.confirmParams);
+        this.showConfirmModal = false;
+      } catch (error) {
+        this.showConfirmModal = false;
+        this.showNotificationWithMessage(
+          "Error",
+          "An error occurred during the action."
+        );
+      }
+    },
+
+    // Edit Document Type (Populate fields with existing data)
     editDocumentType(docType) {
-      this.newDocumentType = { ...docType }; // Load the existing data into the form
+      this.originalDocumentType = { ...docType }; // Store original values to compare for changes
+      this.newDocumentType = { ...docType };
       this.showAddForm = true;
     },
 
-    // Delete a document type
-    async deleteDocumentType(id) {
-      const axiosInstance = this.getAxiosInstance();
-      if (confirm("Are you sure you want to delete this document type?")) {
-        try {
-          await axiosInstance.delete(`documents/document-types/${id}/`);
-          this.fetchDocumentTypes(); // Refresh the list
-        } catch (error) {
-          console.error("Error deleting document type:", error);
-        }
-      }
-    },
-
-    // Close the Add/Edit form modal
+    // Close the form after submission
     closeForm() {
       this.showAddForm = false;
       this.newDocumentType = { name: "", description: "" };
+      this.originalDocumentType = null; // Reset original document type after closing
+      this.nameError = false; // Reset name error
+    },
+
+    onModalHide() {
+      this.newDocumentType = { name: "", description: "" }; // Clear form data when modal is hidden
+      this.nameError = false; // Clear validation error when modal is hidden
+    },
+
+    // Show Notification after action completion
+    showNotificationWithMessage(title, message) {
+      this.notificationTitle = title;
+      this.notificationMessage = message;
+      this.showNotification = true;
     },
   },
 };
@@ -459,4 +602,27 @@ body {
   padding: 10px;
 }
 
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancel-right {
+  background-color: #0560fd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-cancel-right:hover {
+  background-color: #004bb5;
+}
+
+.btn-cancel-right:focus {
+  outline: none;
+}
 </style>

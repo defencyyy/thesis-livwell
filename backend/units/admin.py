@@ -18,7 +18,7 @@ class UnitImageInline(admin.TabularInline):
 
 # Unit admin with inline images
 class UnitAdmin(admin.ModelAdmin):
-    list_display = ('unit_number', 'unit_title', 'company', 'site', 'floor', 'status', 'price', 'view', 'balcony')
+    list_display = ('unit_number', 'unit_title', 'company', 'site', 'section', 'status', 'price', 'view', 'balcony')
     search_fields = ('unit_title', 'company__name', 'site__name')
     list_filter = ('company', 'status', 'view', 'balcony')
     inlines = [UnitImageInline]

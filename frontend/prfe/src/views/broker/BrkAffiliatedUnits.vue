@@ -7,27 +7,7 @@
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title">Available Sites</div>
-          </div>
-
-          <div class="view-switch">
-            <div
-              class="view-icon"
-              :class="{ active: viewMode === 'grid' }"
-              @click="viewMode = 'grid'"
-            >
-              <i class="fa fa-th"></i>
-              <!-- Grid Icon -->
-            </div>
-            <div class="separator"></div>
-            <div
-              class="view-icon"
-              :class="{ active: viewMode === 'table' }"
-              @click="viewMode = 'table'"
-            >
-              <i class="fa fa-list"></i>
-              <!-- Table Icon -->
-            </div>
+            <div class="edit-title"><strong>Available Sites</strong></div>
           </div>
         </div>
 
@@ -60,50 +40,18 @@
                     <option value="status_comp">Status (Complete)</option>
                     <option value="status_on">Status (On Going)</option>
                   </select>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        
-        <!-- Grid View -->
-        <div v-if="viewMode === 'grid'">
-          <div v-if="filteredSites.length" class="site-grid">
-            <div
-              v-for="site in paginatedSites"
-              :key="site.id || index"
-              class="site-card"
-              @click="() => redirectToUnits(site.id)"
-            >
-              <!-- Site Image -->
-              <img
-                :src="site.picture || require('@/assets/home.png')"
-                alt="Site Image"
-                class="site-image"
-              />
-
-              <!-- Site Name -->
-              <h2 class="site-name">
-                {{ site.name || "Unknown" }}
-              </h2>
-
-              <!-- Site Location -->
-              <p class="site-location">
-                {{ site.location || "Location unavailable" }}
-              </p>
+                </div>
+              </div>
             </div>
           </div>
-          <div v-else>
-            <p>No sites with available units.</p>
-          </div>
         </div>
-
-
-        <div v-if="viewMode === 'table'">
+        
+        <div>
           <div class="outside-headers">
             <span class="header-item">Name</span>
             <span class="header-item">Location</span>
           </div>
+
           <div v-if = "filteredSites.length">
             <div
               v-for="site in paginatedSites"
@@ -139,37 +87,51 @@
               </div>
             </div>
           </div>
+
           <div v-else>
             <p>No sites with available units.</p>
           </div>
+
         </div>
 
     <!-- Pagination Controls -->
-    <div class="pagination-controls">
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-button"
-      >
-        Previous
-      </button>
-      <span v-for="page in totalPages" :key="page">
-        <button
-          @click="goToPage(page)"
-          :class="{ active: page === currentPage }"
-          class="page-button"
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li :class="['page-item', { disabled: currentPage === 1 }]">
+          <a 
+            class="page-link" 
+            href="#" 
+            @click.prevent="goToPage(currentPage - 1)"
+            aria-label="Previous"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li 
+          v-for="page in totalPages" 
+          :key="page" 
+          :class="['page-item', { active: page === currentPage }]"
         >
-          {{ page }}
-        </button>
-      </span>
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-button"
-      >
-        Next
-      </button>
-    </div>
+          <a 
+            class="page-link" 
+            href="#" 
+            @click.prevent="goToPage(page)"
+          >
+            {{ page }}
+          </a>
+        </li>
+        <li :class="['page-item', { disabled: currentPage === totalPages }]">
+          <a 
+            class="page-link" 
+            href="#" 
+            @click.prevent="goToPage(currentPage + 1)"
+            aria-label="Next"
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -206,7 +168,7 @@ export default {
       searchQuery: "", // New property for search input
       filteredSites: [],
       currentPage: 1, // Current page number
-      itemsPerPage: 5, // Number of customers per page
+      itemsPerPage: 15, // Number of customers per page
 
     };
   },
@@ -307,16 +269,11 @@ export default {
 </script>
 
 <style scoped>
-html{
+html,
+body {
   height: 100%;
   margin: 0;
-  /* Removes default margin */
   padding: 0;
-  /* Removes default padding */
-}
-
-body {
-  font-size: 16px; /* Base size */
 }
 
 .SideNav {
@@ -339,13 +296,10 @@ body {
   color: #ffffff;
 }
 
-/* Ensure .main-page fills the available space */
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
 }
 
 .main-content {
@@ -353,10 +307,7 @@ body {
   flex-direction: column;
   margin-top: 80px;
   margin-left: 250px;
-  /* Offset for header height */
   flex: 1;
-  /* margin-left: 250px; */
-  /* Set margin equal to sidebar width */
 }
 
 .content {
@@ -372,7 +323,6 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
-  /* Center the wrapper */
 }
 
 .title-left {
@@ -393,105 +343,37 @@ body {
   text-align: left;
 }
 
-.view-switch {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  overflow: hidden;
-  background-color: #f6f6f6;
-}
-
-.view-icon {
-  flex: 1;
-  padding: 6px;
-  text-align: center;
-  cursor: pointer;
-  font-size: 15px;
-  color: #343a40;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.view-icon.active {
-  background-color: #343a40;
-  color: #f6f6f6;
-}
-
-.separator {
-  width: 1px;
-  background-color: #f6f6f6;
-  height: 100%;
-}
-
-/* Ensure the container takes the full width available */
-.site-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust for responsive behavior */
-  gap: 16px;
-}
-
-
-/* Site card settings */
-.site-card {
-  background: #fff;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  box-sizing: border-box; /* Ensure padding is included in width/height */
-  transition: transform 0.2s ease; /* Smooth hover effect */
-}
-
-/* Hover effect */
-.site-card:hover {
-  transform: translateY(-2px); /* Lift effect on hover */
-}
-
-/* Image within the card */
 .site-image {
-  width: 100%; /* Fill the width of the card */
-  height: 150px; /* Fixed height for consistency */
-  object-fit: cover; /* Crop and maintain aspect ratio */
+  width: 100%; 
+  height: 150px; 
+  object-fit: cover; 
   border-radius: 12px;
-  margin-bottom: 10px; /* Space between image and text */
+  margin-bottom: 10px; 
 }
 
-/* Site name styling */
 .site-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
-  margin-bottom: 5px; /* Space below the site name */
+  margin-bottom: 5px; 
 }
 
-/* Site location styling */
 .site-location {
   font-size: 14px;
   color: #777;
 }
 
-/* Optional: Add a max-height to the cards if the image/content is too large */
-.site-card {
-  height: 300px; /* Optional: Fix card height to prevent overflow */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Space out the content */
-}
-
-
 .table-image {
   width: 30px;
-  /* Small size for the table */
   height: 30px;
-  /* Make the image smaller */
   object-fit: cover;
-  /* Crop the image if necessary */
   margin-right: 10px;
-  /* Adds some spacing between the image and the name */
 }
 
 .site-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  font-size: 14px;
   background: #fff;
 }
 
@@ -501,7 +383,6 @@ body {
   text-align: left;
   vertical-align: middle;
   border: none;
-  /* Remove borders from all cells */
 }
 
 .site-table th {
@@ -511,21 +392,17 @@ body {
 
 .site-table th:nth-child(1),
 .site-table td:nth-child(1) {
-  /* Status column */
   width: 50%;
 }
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  /* Actions column */
   width: 50%;
 }
 
 .outside-headers {
   display: grid;
-  /* Change to grid layout */
   grid-template-columns: 50% 50%;
-  /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -534,7 +411,7 @@ body {
 .header-item {
   flex: 1;
   text-align: left;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   font-weight: bold;
 }
@@ -545,10 +422,9 @@ body {
 }
 
 .card-hover:hover {
-  transform: translateY(-5px); /* Slight lift effect */
-  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+  transform: translateY(-5px); 
+  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); 
 }
-
 
 .toolbar {
   display: flex;
@@ -556,29 +432,24 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-left: 20px;
-  /* Space on the left side */
   padding-right: 20px;
-  /* Space on the right side */
 }
 
 .left-section {
   display: flex;
   align-items: center;
   gap: 10px;
-  /* Space between search bar and dropdown */
 }
 
 .search-bar-container {
   position: relative;
   width: 100%;
   max-width: 400px;
-  /* Adjust the width as needed */
 }
 
 .search-bar {
   width: 400px;
   padding: 8px 12px 8px 40px;
-  /* Add left padding to make space for the icon */
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
@@ -588,12 +459,10 @@ body {
   position: absolute;
   top: 50%;
   left: 10px;
-  /* Position the icon inside the input */
   transform: translateY(-50%);
   color: #777;
   font-size: 16px;
   pointer-events: none;
-  /* Prevent the icon from blocking clicks in the input */
 }
 
 .dropdown-container {
@@ -603,7 +472,6 @@ body {
 .dropdown {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
@@ -616,7 +484,6 @@ body {
 .dropdown2 {
   padding: 8px 12px;
   height: 38px;
-  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
@@ -626,8 +493,6 @@ body {
   color: #333;
 }
 
-
-/* Button Styles */
 .btn-primary.add-button {
   padding: 8px 12px;
   border: 1px solid #42b983;
@@ -648,43 +513,26 @@ body {
   margin-bottom: 10px;
   margin-top: 0;
   max-width: 1100px;
-  /* Ensures the card and grid align */
   margin-left: auto;
-  /* Centers the card */
   margin-right: auto;
 }
 
-/* Custom pagination styles */
-.pagination-controls {
+.pagination {
   display: flex;
-  justify-content: flex-end; /* Align to the right */
-  margin-top: 20px; /* Add spacing from the content above */
-  gap: 10px; /* Spacing between buttons */
-  padding-right: 20px; /* Add padding to push it away from the edge */
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px; /* Slightly smaller font */
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+.page-item {
+  margin: 0 2px; /* Reduce spacing between buttons */
 }
 
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+.page-link {
+  padding: 4px 8px; /* Smaller button padding */
+  font-size: 14px; /* Match font size for consistency */
 }
 
 
@@ -728,6 +576,5 @@ body {
     font-size: 12px;
   }
 }
-
 
 </style>

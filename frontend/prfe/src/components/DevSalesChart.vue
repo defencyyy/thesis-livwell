@@ -2,7 +2,12 @@
   <div class="chart-container">
     <div class="chart-header">
       <h2 class="chart-title">Sales Data for {{ selectedYear }}</h2>
-      <select id="year" v-model="selectedYear" @change="updateChart" class="year-selector">
+      <select
+        id="year"
+        v-model="selectedYear"
+        @change="updateChart"
+        class="year-selector"
+      >
         <option v-for="year in availableYears" :key="year" :value="year">
           {{ year }}
         </option>
@@ -13,7 +18,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import { Chart, registerables } from "chart.js";
@@ -29,7 +33,6 @@ export default {
     };
   },
   mounted() {
-    console.log("Initial sales data:", this.salesData); // Add this line
     Chart.register(...registerables);
     if (this.salesData && this.salesData.length > 0) {
       this.localSalesData = this.salesData;
@@ -82,7 +85,7 @@ export default {
             label: "Sales",
             data: salesByMonth,
             backgroundColor: "#A78BFA", // Light purple for bars
-        borderColor: "#A78BFA", // Matching border color
+            borderColor: "#A78BFA", // Matching border color
             borderWidth: 1,
           },
         ],
@@ -97,43 +100,42 @@ export default {
     },
 
     renderChart() {
-  if (!this.localSalesData.length) {
-    console.error("No sales data available to render the chart.");
-    return;
-  }
+      if (!this.localSalesData.length) {
+        console.error("No sales data available to render the chart.");
+        return;
+      }
 
-  const ctx = document.getElementById("sales-chart").getContext("2d");
-  this.chart = new Chart(ctx, {
-    type: "bar", // Bar chart
-    data: this.getChartData(),
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }, // Remove the legend  
-      },
-      scales: {
-        x: {
-          grid: { display: false }, // No grid lines for X-axis
-          ticks: { color: "#555" },
+      const ctx = document.getElementById("sales-chart").getContext("2d");
+      this.chart = new Chart(ctx, {
+        type: "bar", // Bar chart
+        data: this.getChartData(),
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }, // Remove the legend
+          },
+          scales: {
+            x: {
+              grid: { display: false }, // No grid lines for X-axis
+              ticks: { color: "#555" },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: "#eaeaea" },
+              ticks: { color: "#555" },
+            },
+          },
+          layout: {
+            padding: {
+              top: 20, // Spacing above the chart
+              bottom: 10,
+              left: 10,
+              right: 10,
+            },
+          },
         },
-        y: {
-          beginAtZero: true,
-          grid: { color: "#eaeaea" },
-          ticks: { color: "#555" },
-        },
-      },
-      layout: {
-        padding: {
-          top: 20, // Spacing above the chart
-          bottom: 10,
-          left: 10,
-          right: 10,
-        },
-      },
+      });
     },
-  });
-}
-
   },
 };
 </script>
@@ -164,7 +166,6 @@ export default {
   margin: 0;
 }
 
-
 .year-selector {
   border: none;
   border-radius: 2px;
@@ -180,6 +181,4 @@ export default {
 canvas {
   max-width: 100%;
 }
-
 </style>
-
