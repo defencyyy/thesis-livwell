@@ -58,6 +58,7 @@
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
+            <span class="header-item">ID</span>
             <span class="header-item">Name</span>
             <span class="header-item">Username</span>
             <span class="header-item">Email</span>
@@ -75,6 +76,12 @@
               <table class="broker-table">
                 <tbody>
                   <tr>
+                    <td>
+                      <span class="broker-id">{{
+                        broker.relative_id || "?"
+                      }}</span>
+                    </td>
+
                     <td>
                       <!-- User Icon as Profile Picture -->
                       <i class="fas fa-user-tie broker-icon"></i>
@@ -1090,23 +1097,29 @@ body {
 .broker-table th:nth-child(2),
 .broker-table td:nth-child(2) {
   /* Location column */
-  width: 25%;
+  width: 27%;
 }
 
 .broker-table th:nth-child(3),
 .broker-table td:nth-child(3) {
   /* Status column */
-  width: 19%;
+  width: 25%;
 }
 
 .broker-table th:nth-child(4),
 .broker-table td:nth-child(4) {
   /* Actions column */
-  width: 19%;
+  width: 18%;
 }
 
 .broker-table th:nth-child(5),
 .broker-table td:nth-child(5) {
+  /* Actions column */
+  width: 17%;
+}
+
+.broker-table th:nth-child(6),
+.broker-table td:nth-child(6) {
   /* Actions column */
   width: 7%;
 }
@@ -1114,7 +1127,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 30% 25% 19% 19% 7%;
+  grid-template-columns: 7% 27% 25% 17% 17% 7%;
   /* Match the column widths */
   padding: 0px 15px;
   margin: 20px auto 10px;

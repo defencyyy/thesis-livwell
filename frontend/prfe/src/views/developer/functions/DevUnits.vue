@@ -59,6 +59,7 @@
 
           <div v-if="viewMode === 'table'">
             <div class="outside-headers">
+              <span class="header-item">ID</span>
               <span class="header-item">Name</span>
               <span class="header-item">Location</span>
               <span class="header-item">Status</span>
@@ -72,6 +73,9 @@
                 <table class="site-table">
                   <tbody>
                     <tr>
+                      <td class="site-relative-id">
+                        {{ site.relative_id || "N/A" }}
+                      </td>
                       <td>{{ site.name || "Unknown" }}</td>
                       <td>{{ site.location || "Location unavailable" }}</td>
                       <td>
@@ -527,37 +531,41 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  width: 25%;
-  padding-right: 10px;
+  width: 19%;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  width: 12%;
+  width: 24%;
+  padding-right: 10px;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  width: 12%;
+  width: 11%;
 }
 
 .site-table th:nth-child(5),
 .site-table td:nth-child(5) {
-  width: 12%;
+  width: 11%;
 }
 
 .site-table th:nth-child(6),
 .site-table td:nth-child(6) {
-  width: 12%;
+  width: 11%;
 }
 .site-table th:nth-child(7),
 .site-table td:nth-child(7) {
+  width: 11%;
+}
+.site-table th:nth-child(8),
+.site-table td:nth-child(8) {
   width: 7%;
 }
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 20% 25% 12% 12% 12% 12% 7%;
+  grid-template-columns: 6% 19% 24% 11% 11% 11% 11% 7%;
   padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;

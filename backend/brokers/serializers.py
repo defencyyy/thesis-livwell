@@ -13,7 +13,7 @@ class DeveloperBrokerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Broker
-        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'total_sales', 'total_commissions']
+        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'total_sales', 'total_commissions', 'relative_id']
         extra_kwargs = {
             'username': {'required': False},  # Allow username to be set later
         }
@@ -45,7 +45,7 @@ class EditBrokerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Broker
-        fields = ['company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived']
+        fields = ['company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'relative_id']
         read_only_fields = ['company']
 
     def update(self, instance, validated_data):

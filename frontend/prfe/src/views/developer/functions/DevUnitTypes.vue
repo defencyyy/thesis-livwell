@@ -405,15 +405,24 @@ export default {
       }
     },
 
-    // Update Unit Type
     updateUnitTypeWithConfirmation() {
+      // Check if there are no changes before proceeding
+      if (
+        this.editedUnitType.name ===
+        this.unitTypes.find((unit) => unit.id === this.editedUnitType.id).name
+      ) {
+        this.notificationTitle = "Invalid";
+        this.notificationMessage = "No changes were made.";
+        this.showNotification = true;
+        return; // Stop the method if no changes
+      }
+
       this.showConfirmation(
         `Are you sure you want to update this unit type to "${this.editedUnitType.name}"?`,
         this.updateUnitTypeConfirmed,
         []
       );
     },
-
     async updateUnitTypeConfirmed() {
       try {
         await axios.put(

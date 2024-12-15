@@ -476,6 +476,7 @@ export default {
   data() {
     return {
       milestones: [],
+      selectedMilestone: {},
       showAddForm: false,
       newMilestone: {
         name: "",
@@ -731,6 +732,24 @@ export default {
 
     // Update an existing milestone
     updateMilestone() {
+      // Check if the milestone has been modified
+      if (
+        this.newMilestone.name === this.selectedMilestone.name &&
+        this.newMilestone.description === this.selectedMilestone.description &&
+        this.newMilestone.reward === this.selectedMilestone.reward &&
+        this.newMilestone.type === this.selectedMilestone.type &&
+        this.newMilestone.sales_threshold ===
+          this.selectedMilestone.sales_threshold &&
+        this.newMilestone.commission_threshold ===
+          this.selectedMilestone.commission_threshold
+      ) {
+        // If no changes were made
+        this.notificationTitle = "Invalid";
+        this.notificationMessage = "No changes were made.";
+        this.showNotification = true;
+        return; // Exit without proceeding further
+      }
+
       // Show the confirmation modal instead of using window.confirm
       const message = "Unsaved changes will be lost. Proceed?";
       const action = this.confirmUpdateMilestone; // The function that handles the update
@@ -811,12 +830,13 @@ export default {
       }
     },
 
-    // Edit a milestone
+    // When clicking the "Edit" button for a milestone
     editMilestone(milestone) {
-      this.newMilestone = { ...milestone };
-      this.showAddForm = true;
+      // Set the selected milestone to the clicked milestone's data
+      this.selectedMilestone = { ...milestone }; // Using spread to avoid direct reference
+      this.newMilestone = { ...milestone }; // Initialize newMilestone with selected data
+      this.showAddForm = true; // Show the form to edit
     },
-
     // Handle changes in milestone type selection
     onMilestoneTypeChange() {
       // Reset thresholds when changing type
