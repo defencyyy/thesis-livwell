@@ -148,31 +148,43 @@
           </div>
 
           <!-- Pagination Controls -->
-          <div class="pagination-controls">
-            <button
-              @click="goToPage(currentPage - 1)"
-              :disabled="currentPage === 1"
-              class="page-button"
-            >
-              Previous
-            </button>
-            <span v-for="page in totalPages" :key="page">
-              <button
-                @click="goToPage(page)"
-                :class="{ active: page === currentPage }"
-                class="page-button"
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a 
+                  class="page-link" 
+                  href="#" 
+                  @click.prevent="goToPage(currentPage - 1)"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li 
+                v-for="page in totalPages" 
+                :key="page" 
+                :class="['page-item', { active: page === currentPage }]"
               >
-                {{ page }}
-              </button>
-            </span>
-            <button
-              @click="goToPage(currentPage + 1)"
-              :disabled="currentPage === totalPages"
-              class="page-button"
-            >
-              Next
-            </button>
-          </div>
+                <a 
+                  class="page-link" 
+                  href="#" 
+                  @click.prevent="goToPage(page)"
+                >
+                  {{ page }}
+                </a>
+              </li>
+              <li :class="['page-item', { disabled: currentPage === totalPages }]">
+                <a 
+                  class="page-link" 
+                  href="#" 
+                  @click.prevent="goToPage(currentPage + 1)"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
 
           <!-- Modal for Adding Customer -->
           <b-modal v-model="showModal" hide-header hide-footer centered>
@@ -1060,33 +1072,6 @@ input[type="file"] {
 .page-link {
   padding: 4px 8px; /* Smaller button padding */
   font-size: 14px; /* Match font size for consistency */
-  margin-top: 20px;
-  gap: 10px;
-  padding-right: 20px;
-}
-
-.page-button {
-  padding: 5px 10px;
-  font-size: 12px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.page-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef;
 }
 
 /* General Styles for Small Screens */
