@@ -196,6 +196,8 @@ export default {
         token: data.tokens.access,
       });
 
+      this.$store.dispatch("setCompany", user.company);
+
       this.$router.push(`/${role}/dashboard`);
     },
   },

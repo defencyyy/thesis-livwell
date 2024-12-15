@@ -63,7 +63,9 @@
         <!-- Add/Edit Document Type Modal -->
         <b-modal
           v-model="showAddForm"
-          title="Add New Document"
+          :title="
+            newDocumentType.id ? 'Edit Document Type' : 'Add New Document'
+          "
           hide-footer
           centered
           @hide="onModalHide"
@@ -79,7 +81,11 @@
               v-model="newDocumentType.name"
               placeholder="Enter document type name"
               :readonly="newDocumentType.id ? true : false"
+              :class="{ 'is-invalid': nameError }"
             />
+            <div v-if="nameError" class="invalid-feedback">
+              Please enter a document name.
+            </div>
           </div>
 
           <div class="mb-3">
@@ -94,6 +100,8 @@
               placeholder="Enter description"
             ></textarea>
           </div>
+
+          <!-- Modal Footer -->
           <div
             class="d-flex justify-content-end gap-2 mt-3"
             style="padding-top: 15px"
@@ -103,7 +111,7 @@
               class="btn btn-primary"
               @click="saveDocumentType"
             >
-              Save
+              {{ newDocumentType.id ? "Save Changes" : "Add Document" }}
             </button>
             <button type="button" class="btn btn-secondary" @click="closeForm">
               Cancel
@@ -174,6 +182,8 @@ export default {
       documentTypes: [],
       showAddForm: false,
       newDocumentType: { name: "", description: "" },
+      originalDocumentType: null, // Keep track of the original document type for comparison
+      nameError: false, // Validation flag for name field
       showNotification: false,
       notificationTitle: "",
       notificationMessage: "",
@@ -242,6 +252,28 @@ export default {
     },
 
     async saveDocumentType() {
+      // Validate name field
+      if (!this.newDocumentType.name.trim()) {
+        this.nameError = true;
+        return;
+      }
+
+      // If we're editing, compare changes
+      if (this.newDocumentType.id) {
+        if (
+          this.newDocumentType.name === this.originalDocumentType.name &&
+          this.newDocumentType.description ===
+            this.originalDocumentType.description
+        ) {
+          this.showNotificationWithMessage(
+            "Invalid",
+            "No changes were made to the document type."
+          );
+          this.closeForm();
+          return;
+        }
+      }
+
       const message = this.newDocumentType.id
         ? "Do you want to save the changes to this document type?"
         : "'Document type names can't be changed. Proceed?";
@@ -307,7 +339,7 @@ export default {
         console.error("Error adding document type:", error);
         this.showNotificationWithMessage(
           "Error",
-          "An error occurred while adding document type."
+          "An error occurred while adding document type. No duplicate names allowed."
         );
       }
     },
@@ -340,6 +372,7 @@ export default {
 
     // Edit Document Type (Populate fields with existing data)
     editDocumentType(docType) {
+      this.originalDocumentType = { ...docType }; // Store original values to compare for changes
       this.newDocumentType = { ...docType };
       this.showAddForm = true;
     },
@@ -348,10 +381,13 @@ export default {
     closeForm() {
       this.showAddForm = false;
       this.newDocumentType = { name: "", description: "" };
+      this.originalDocumentType = null; // Reset original document type after closing
+      this.nameError = false; // Reset name error
     },
 
     onModalHide() {
       this.newDocumentType = { name: "", description: "" }; // Clear form data when modal is hidden
+      this.nameError = false; // Clear validation error when modal is hidden
     },
 
     // Show Notification after action completion

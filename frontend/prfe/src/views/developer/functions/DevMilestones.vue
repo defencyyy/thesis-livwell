@@ -258,7 +258,7 @@
               style="width: 150px"
               @click="newMilestone.id ? updateMilestone() : createMilestone()"
             >
-              Save Changes
+              {{ newMilestone.id ? "Save Changes" : "Add Milestone" }}
             </button>
             <button type="button" class="btn-cancel" @click="closeForm">
               Cancel

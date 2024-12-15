@@ -32,6 +32,7 @@ class Broker(models.Model):
     def save(self, *args, **kwargs):
         if self.password and not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
+        self.username = self.username.lower()
         super().save(*args, **kwargs)
 
     def set_password(self, raw_password):

@@ -144,13 +144,6 @@
         >
           <p>{{ confirmMessage }}</p>
           <div class="button-container">
-            <button
-              type="button"
-              @click="confirmAction"
-              class="btn btn-primary"
-            >
-              Confirm
-            </button>
             <!-- Cancel Button -->
             <button
               type="button"
@@ -158,6 +151,13 @@
               class="btn btn-secondary"
             >
               Cancel
+            </button>
+            <button
+              type="button"
+              @click="confirmAction"
+              class="btn btn-primary"
+            >
+              Confirm
             </button>
           </div>
         </b-modal>
@@ -182,11 +182,19 @@ export default {
   },
   data() {
     return {
+      initialValues: {
+        username: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        contactNumber: "",
+      },
       username: "",
       firstName: "",
       lastName: "",
       email: "",
       contactNumber: "",
+
       currentPassword: "",
       newPassword: "",
       confirmNewPassword: "",
@@ -224,6 +232,14 @@ export default {
         );
         const { username, first_name, last_name, email, contact_number } =
           response.data;
+        // Store the initial values
+        this.initialValues.username = username;
+        this.initialValues.firstName = first_name;
+        this.initialValues.lastName = last_name;
+        this.initialValues.email = email;
+        this.initialValues.contactNumber = contact_number;
+
+        // Populate the fields
         this.username = username;
         this.firstName = first_name;
         this.lastName = last_name;
@@ -233,13 +249,106 @@ export default {
         this.error = "Error loading account details.";
       }
     },
-
     async updateAccount() {
-      this.showConfirmation(
-        "Are you sure you want to update your account?",
-        this.performAccountUpdate,
-        []
+      this.username = this.username.toLowerCase();
+
+      // Check if there are no changes made
+      if (
+        this.username === this.initialValues.username &&
+        this.firstName === this.initialValues.firstName &&
+        this.lastName === this.initialValues.lastName &&
+        this.email === this.initialValues.email &&
+        this.contactNumber === this.initialValues.contactNumber
+      ) {
+        this.showNotification = true;
+        this.notificationTitle = "Invalid";
+        this.notificationMessage =
+          "No changes detected. Please update some fields.";
+        return;
+      }
+
+      // Check if passwords match
+      if (this.newPassword !== this.confirmNewPassword) {
+        this.showNotification = true;
+        this.notificationTitle = "Error";
+        this.notificationMessage = "New passwords do not match.";
+        return;
+      }
+
+      // Proceed with password validation (Replace with proper API call)
+      const isCurrentPasswordValid = await this.verifyCurrentPassword(
+        this.currentPassword
       );
+      if (!isCurrentPasswordValid) {
+        this.showNotification = true;
+        this.notificationTitle = "Error";
+        this.notificationMessage = "Current password is incorrect.";
+        return;
+      }
+
+      try {
+        // Attempt to update the account, handle any validation errors from the backend
+        await axios.put(
+          "http://localhost:8000/developer/account/",
+          {
+            username: this.username,
+            first_name: this.firstName,
+            last_name: this.lastName,
+            email: this.email,
+            contact_number: this.contactNumber,
+            current_password: this.currentPassword,
+            new_password: this.newPassword,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${this.authToken}`,
+            },
+          }
+        );
+
+        // If update is successful, show success message
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Account updated successfully!";
+        this.showNotification = true;
+        this.resetPasswordFields();
+      } catch (error) {
+        // If an error occurs (e.g., validation error from backend), show the error message in the modal
+        if (error.response && error.response.data) {
+          const errorMessage =
+            error.response.data.message || "An error occurred.";
+          this.notificationTitle = "Error";
+          this.notificationMessage = errorMessage;
+          this.showNotification = true;
+        } else {
+          // General error message for unexpected errors
+          this.notificationTitle = "Error";
+          this.notificationMessage =
+            "An error occurred while updating your account.";
+          this.showNotification = true;
+        }
+      }
+    },
+
+    async verifyCurrentPassword(currentPassword) {
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/account/verify-password/",
+          { password: currentPassword },
+          {
+            headers: {
+              Authorization: `Bearer ${this.authToken}`,
+            },
+          }
+        );
+        return response.data.isValid; // Assuming the backend returns a boolean for validity
+      } catch (error) {
+        this.showNotification = true;
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while verifying the current password.";
+        this.showNotification = true;
+        return false;
+      }
     },
 
     async performAccountUpdate() {

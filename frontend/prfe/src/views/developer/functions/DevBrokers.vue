@@ -479,6 +479,7 @@ export default {
       // Edit modal
       editModalVisible: false,
       editBroker: {},
+      originalBroker: {},
 
       // Error and notification tracking
       error: null,
@@ -657,19 +658,25 @@ export default {
         return;
       }
       this.editBroker = { ...broker };
+      this.originalBroker = { ...broker }; // Store the original values
       this.editModalVisible = true;
       this.resetForm();
     },
 
     async confirmEdit() {
-      if (
-        this.editBroker.contact_number &&
-        !/^\+?1?\d{9,15}$/.test(this.editBroker.contact_number)
-      ) {
-        this.contactNumberError =
-          "Enter a valid phone number (9 to 15 digits).";
-        return;
+      // Check if any values have changed
+      const hasChanges = Object.keys(this.editBroker).some(
+        (key) => this.editBroker[key] !== this.originalBroker[key]
+      );
+
+      if (!hasChanges) {
+        this.notificationTitle = "No Changes";
+        this.notificationMessage = "No changes made to broker.";
+        this.showNotification = true;
+        return; // Exit early, no need to continue with save
       }
+
+      // Continue with the update if changes exist
       this.contactNumberError = null;
       this.showConfirmation(
         "Are you sure you want to save these changes?",

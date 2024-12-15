@@ -981,15 +981,6 @@
         >
           <p>{{ confirmMessage }}</p>
           <div class="button-container">
-            <!-- Cancel Button -->
-            <button
-              type="button"
-              @click="cancelAction"
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
-
             <!-- Confirm Button -->
             <button
               type="button"
@@ -997,6 +988,14 @@
               class="btn btn-primary"
             >
               Confirm
+            </button>
+            <!-- Cancel Button -->
+            <button
+              type="button"
+              @click="cancelAction"
+              class="btn btn-secondary"
+            >
+              Cancel
             </button>
           </div>
         </b-modal>
@@ -1670,7 +1669,7 @@ export default {
         barangay: "",
         address: "",
         postalCode: "",
-        status: "preselling",
+        status: "",
         number_of_sections: 1,
         numbering_type: "numeric",
         section_label: "floor",
@@ -1683,6 +1682,12 @@ export default {
         other_charges: null,
         sections: [],
       };
+
+      // Reset dependent fields as well
+      this.selectedRegion = null;
+      this.selectedProvince = null;
+      this.selectedMunicipality = null;
+      this.selectedBarangay = null;
 
       this.newPictureFile = null;
       this.imagePreview = null;
