@@ -41,7 +41,9 @@
                 <div class="description-icon">
                   <i class="fas fa-info-circle"></i>
                   <!-- Example icon for description -->
-                  <span>{{ site.description }}</span>
+                  <span>{{
+                    site.description || "No Site Description Available."
+                  }}</span>
                 </div>
                 <div class="location-icon">
                   <i class="fas fa-map-marker-alt"></i>
@@ -157,7 +159,9 @@
             <div
               class="modal-title p-3 d-flex justify-content-between align-items-center"
             >
-              <h5 class="mb-0">Modal Title</h5>
+              <h5 class="mb-0">
+                Section ID: {{ selectedSection.number || "N/A" }}
+              </h5>
 
               <button
                 class="btn-add"
@@ -787,7 +791,9 @@
           >
             <!-- Modal Title -->
             <div class="modal-title p-3">
-              <h5 class="mb-0">Add Units to Section</h5>
+              <h5 class="mb-0">
+                Add Units to Section: {{ selectedSection.number || "N/A" }}
+              </h5>
             </div>
 
             <div class="p-3">

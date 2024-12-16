@@ -32,6 +32,17 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
+                  <!-- Sort Dropdown -->
+                  <select v-model="sortBy" class="dropdown">
+                    <option value="name">Sort: Name</option>
+                    <option value="relative_id">Sort: ID</option>
+                  </select>
+
+                  <!-- Sort Order Dropdown -->
+                  <select v-model="sortOrder" class="dropdown">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                  </select>
                   <select
                     v-model="viewFilter"
                     @change="toggleView"
@@ -478,6 +489,8 @@ export default {
       brokers: [],
       archivedBrokers: [],
       searchQuery: "",
+      sortBy: "relative_id", // Default sort field
+      sortOrder: "asc",
 
       // Pagination
       currentPage: 1,
@@ -528,15 +541,29 @@ export default {
 
     filteredBrokers() {
       const brokers = this.showArchived ? this.archivedBrokers : this.brokers;
+
+      // Apply search filter
+      let filtered = brokers;
       if (this.searchQuery) {
-        return brokers.filter((broker) =>
+        filtered = brokers.filter((broker) =>
           Object.values(broker)
             .join(" ")
             .toLowerCase()
             .includes(this.searchQuery.toLowerCase())
         );
       }
-      return brokers;
+
+      // Apply sorting
+      return filtered.sort((a, b) => {
+        const fieldA = a.last_name?.toString().toLowerCase() || "";
+        const fieldB = b.last_name?.toString().toLowerCase() || "";
+
+        if (this.sortOrder === "asc") {
+          return fieldA.localeCompare(fieldB, undefined, { numeric: true });
+        } else {
+          return fieldB.localeCompare(fieldA, undefined, { numeric: true });
+        }
+      });
     },
 
     paginatedBrokers() {

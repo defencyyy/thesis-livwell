@@ -52,6 +52,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'reservation_fee',
             'other_charges',
             'relative_id',
+            'location',
         ]
         read_only_fields = ['id', 'created_at']
 

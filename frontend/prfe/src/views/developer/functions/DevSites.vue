@@ -99,13 +99,17 @@
                     <td>
                       <div class="site-info">
                         <img
-                          :src="
-                            getPictureUrl(site.picture) ||
-                            require('@/assets/home.png')
-                          "
-                          alt="N/A"
+                          v-if="site.picture"
+                          :src="getPictureUrl(site.picture)"
+                          alt="Image of {{ site.name }}"
                           class="table-image"
                         />
+                        <i
+                          v-else
+                          class="fas fa-image fa-2x"
+                          aria-label="Default site image"
+                          style="margin-right: 12px"
+                        ></i>
                         <span class="site-name">
                           {{ site.name || "Unknown" }}
                         </span>
@@ -1838,10 +1842,11 @@ export default {
 
     constructLocation(site) {
       const addressParts = [
+        site.region,
         site.province,
         site.municipality,
         site.barangay,
-        site.postal_code ? `Postal Code: ${site.postal_code}` : "",
+        site.address,
       ];
       return addressParts.filter(Boolean).join(", ");
     },
@@ -2233,21 +2238,20 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  /* Location column */
   width: 27%;
-  padding-right: 60px;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  /* Status column */
-  width: 40%;
+  /* Location column */
+  width: 43%;
+  padding-right: 60px;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  /* Actions column */
-  width: 20%;
+  /* Status column */
+  width: 17%;
 }
 
 .site-table th:nth-child(5),
@@ -2259,7 +2263,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 6% 27% 40% 20% 7%;
+  grid-template-columns: 6% 27% 43% 17% 7%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
