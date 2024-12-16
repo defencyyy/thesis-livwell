@@ -393,7 +393,7 @@
                           <small>Unit type</small>
                           <b-form-select
                             v-model="newUnitType"
-                            :options="unitTypeOptions"
+                            :options="selectUnitTypeOptions"
                             required
                           ></b-form-select>
                         </b-col>
@@ -417,7 +417,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
-                            min="1"
                             required
                           ></b-form-input>
                         </b-col>
@@ -426,7 +425,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
-                            min="1"
                             required
                           ></b-form-input>
                         </b-col>
@@ -445,20 +443,20 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Lot Area</small>
+                          <small>Lot Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
-                            min="1"
+                            min="0"
                             required
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Floor Area</small>
+                          <small>Floor Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
-                            min="1"
+                            min="0"
                             required
                           ></b-form-input>
                         </b-col>
@@ -505,7 +503,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Reservation</small>
+                          <small>Reservation Fee</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
@@ -807,7 +805,7 @@
                           <small>Unit Type</small>
                           <b-form-select
                             v-model="newUnitType"
-                            :options="unitTypeOptions"
+                            :options="selectUnitTypeOptions"
                             required
                           ></b-form-select>
                         </b-col>
@@ -830,7 +828,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
-                            min="1"
                             required
                           ></b-form-input>
                         </b-col>
@@ -839,7 +836,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
-                            min="1"
                             required
                           ></b-form-input>
                         </b-col>
@@ -860,7 +856,7 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
-                            min="1"
+                            min="0"
                             required
                           ></b-form-input>
                         </b-col>
@@ -869,7 +865,7 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
-                            min="1"
+                            min="0"
                             required
                           ></b-form-input>
                         </b-col>
@@ -1052,12 +1048,12 @@ export default {
       newUnitTitle: "",
       newUnitBedroom: 1,
       newUnitBathroom: 1,
-      newUnitFloorArea: null,
+      newUnitFloorArea: 0,
       newUnitPrice: null,
       newUnitStatus: "Available",
       newUnitView: null,
-      newUnitBalcony: "no balcony",
-      newUnitLotArea: null,
+      newUnitBalcony: null,
+      newUnitLotArea: 0,
       newUnitCommission: null,
       newUnitSpotDiscountPercentage: null,
       newUnitSpotDiscountFlat: null,
@@ -1065,7 +1061,7 @@ export default {
       newUnitOtherCharges: null,
       newUnitVatPercentage: null,
       sortOptions: [
-        { value: null, text: "Default" },
+        { value: null, text: "Select" },
         { value: "unit_number_asc", text: "Unit Number (Asc)" },
         { value: "unit_number_desc", text: "Unit Number (Desc)" },
         { value: "price_asc", text: "Price (Asc)" },
@@ -1073,7 +1069,7 @@ export default {
       ],
       // Updated options with "All"
       statusOptions: [
-        { value: null, text: "Default" },
+        { value: null, text: "All" },
         { value: "Available", text: "Available" },
         { value: "Sold", text: "Sold" },
         { value: "Pending Reservation", text: "Pending Reservation" },
@@ -1086,7 +1082,7 @@ export default {
         { value: "Reserved", text: "Reserved" },
       ],
       priceRangeOptions: [
-        { value: null, text: "Default" },
+        { value: null, text: "Select" },
         { value: "1-5", text: "1M - 5M" },
         { value: "5-10", text: "5M - 10M" },
         { value: "10-15", text: "10M - 15M" },
@@ -1095,12 +1091,14 @@ export default {
         { value: "25+", text: "25M+" },
       ],
       viewOptions: [
+        { value: null, text: "None" },
         { value: "south", text: "South" },
         { value: "north", text: "North" },
         { value: "east", text: "East" },
         { value: "west", text: "West" },
       ],
       balconyOptions: [
+        { value: null, text: "None" },
         { value: "has balcony", text: "Yes" },
         { value: "no balcony", text: "No" },
       ],
@@ -1195,6 +1193,18 @@ export default {
           value: type.id,
           text: type.name,
         })),
+      ];
+    },
+
+    selectUnitTypeOptions() {
+      return [
+        { value: null, text: "Select" },
+        ...this.unitTypes
+          .filter((type) => !type.is_archived) // Exclude archived types
+          .map((type) => ({
+            value: type.id,
+            text: type.name,
+          })),
       ];
     },
 
@@ -1400,8 +1410,6 @@ export default {
         !this.newUnitSections.length ||
         !this.newUnitType ||
         !this.newUnitPrice ||
-        !this.newUnitLotArea ||
-        !this.newUnitFloorArea ||
         !this.newUnitQuantity
       ) {
         alert("Please fill in all the required fields.");
@@ -1490,12 +1498,12 @@ export default {
         this.newUnitTitle = "";
         this.newUnitBedroom = 1;
         this.newUnitBathroom = 1;
-        this.newUnitLotArea = null;
-        this.newUnitFloorArea = null;
+        this.newUnitLotArea = 0;
+        this.newUnitFloorArea = 0;
         this.newUnitPrice = null;
         this.newUnitStatus = "Available";
         this.newUnitView = null;
-        this.newUnitBalcony = "no balcony";
+        this.newUnitBalcony = null;
       }
     },
     openAddUnitModalForSection(sectionId) {
@@ -1507,8 +1515,6 @@ export default {
       if (
         !this.newUnitType ||
         !this.newUnitPrice ||
-        !this.newUnitLotArea ||
-        !this.newUnitFloorArea ||
         !this.newUnitQuantity ||
         !sectionId
       ) {

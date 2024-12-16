@@ -238,8 +238,8 @@ class UnitTemplate(models.Model):
     )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=100)  # Removed 'unique=True' here
-    bedroom = models.PositiveIntegerField(default=0)
-    bathroom = models.PositiveIntegerField(default=0)
+    bedroom = models.PositiveIntegerField(default=1, null=True)
+    bathroom = models.PositiveIntegerField(default=1, null=True)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
