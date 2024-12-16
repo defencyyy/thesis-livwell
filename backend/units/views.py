@@ -32,12 +32,13 @@ class UnitTemplateListView(APIView):
         templates = UnitTemplate.objects.filter(company=company)
         serializer = UnitTemplateSerializer(templates, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
+    
     def post(self, request):
         try:
             company = get_company(request)
-            data = request.data  # Use request.data directly (no copy)
-            data['company'] = company.id
+            data = request.data.copy()  # Make a mutable copy of request.data
+            data['company'] = company.id  # Now you can modify it
+
             serializer = UnitTemplateSerializer(data=data)
 
             # Validate that required fields are present
@@ -59,7 +60,7 @@ class UnitTemplateListView(APIView):
         except Exception as e:
             logger.error(f"Error creating template: {str(e)}\n{traceback.format_exc()}")
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    
     def _handle_images(self, request, template):
         # Get the list of images from the request
         images = request.FILES.getlist("images")  # Use getlist() to receive an array of images
@@ -91,17 +92,21 @@ class UnitTemplateListView(APIView):
                     return Response({"error": f"Error saving image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class UnitTemplateDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         company = get_company(request)
+        print(f"Company: {company}")
+        print(f"Template ID: {pk}")
         template = UnitTemplate.objects.filter(pk=pk, company=company).first()
+        
         if not template:
+            print("Template not found")
             return Response({"error": "UnitTemplate not found"}, status=status.HTTP_404_NOT_FOUND)
         
+        print("Template found:", template)
         serializer = UnitTemplateSerializer(template)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -133,6 +138,7 @@ class UnitTemplateDetailView(APIView):
         template.is_archived = True
         template.save()
         return Response({"success": True, "message": "Template archived successfully."}, status=status.HTTP_200_OK)
+
 
 class UnitListView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -467,6 +473,63 @@ class ImageManagementView(APIView):
             image = UnitImage.objects.get(id=image_id, unit=unit)
         except Unit.DoesNotExist:
             return Response({"detail": "Unit not found."}, status=404)
+        except UnitImage.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=404)
+
+        # Optionally delete the image file from the filesystem
+        if image.image:
+            image.image.delete()
+
+        image.delete()
+        return Response({"detail": "Image deleted successfully."}, status=200)
+
+class TemplateImageUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, template_id):
+        try:
+            unit_template = UnitTemplate.objects.get(id=template_id)
+            image_file = request.FILES.get('image')
+            if not image_file:
+                return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            image = UnitImage(unit_template=unit_template, image=image_file, image_type='template')
+            image.save()
+
+            image_serializer = UnitImageSerializer(image)
+            return Response(image_serializer.data, status=status.HTTP_201_CREATED)
+
+        except UnitTemplate.DoesNotExist:
+            return Response({'error': 'Unit Template not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class TemplateImageManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request, template_id, image_id):
+        try:
+            unit_template = UnitTemplate.objects.get(id=template_id)
+            image = UnitImage.objects.get(id=image_id, unit_template=unit_template)
+        except UnitTemplate.DoesNotExist:
+            return Response({"detail": "Unit Template not found."}, status=404)
+        except UnitImage.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=404)
+
+        image_file = request.FILES.get('image')
+        if image_file:
+            image.image = image_file
+            image.save()
+            return Response(UnitImageSerializer(image).data, status=200)
+        
+        return Response({"detail": "No image provided."}, status=400)
+
+    def delete(self, request, template_id, image_id):
+        try:
+            unit_template = UnitTemplate.objects.get(id=template_id)
+            image = UnitImage.objects.get(id=image_id, unit_template=unit_template)
+        except UnitTemplate.DoesNotExist:
+            return Response({"detail": "Unit Template not found."}, status=404)
         except UnitImage.DoesNotExist:
             return Response({"detail": "Image not found."}, status=404)
 

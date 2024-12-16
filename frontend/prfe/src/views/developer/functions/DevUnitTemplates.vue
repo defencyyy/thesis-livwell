@@ -304,7 +304,7 @@
                 </div>
               </div>
 
-              <!-- Image Upload -->
+              <!-- Image Upload
               <div class="form-group mb-3">
                 <label for="image">Upload Images (Max:5)</label>
                 <input
@@ -314,9 +314,9 @@
                   accept="image/*"
                   multiple
                 />
-              </div>
+              </div> -->
 
-              <!-- Image Previews -->
+              <!-- Image Previews
               <div v-if="imagePreviews.length" class="image-previews">
                 <div class="d-flex gap-2">
                   <img
@@ -327,7 +327,7 @@
                     style="width: 100px; height: 100px"
                   />
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -352,116 +352,122 @@
       centered
       size="lg"
     >
-
-    <div class="modal-title p-3">
-              <h5 class="mb-0">Edit Unit Template</h5>
-            </div>
+      <div class="modal-title p-3">
+        <h5 class="mb-0">Edit Unit Template</h5>
+      </div>
 
       <div class="p-3">
         <form
           @submit.prevent="saveTemplateChanges"
           enctype="multipart/form-data"
         >
-        <div class="row">
+          <div class="row">
             <!-- Left Section -->
             <div class="col-md-6">
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateName">Name</label>
-              <input
-                type="text"
-                v-model="selectedTemplate.name"
-                class="form-control"
-                required
-              />
-            </div>
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templateName">Name</label>
+                <input
+                  type="text"
+                  v-model="selectedTemplate.name"
+                  class="form-control"
+                  disabled
+                  required
+                />
+              </div>
 
-            <!-- Description Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateDescription">Description</label>
-              <textarea
-                v-model="selectedTemplate.description"
-                class="form-control"
-                rows="3"
-              ></textarea>
-            </div>
+              <!-- Description Field -->
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templateDescription">Description</label>
+                <textarea
+                  v-model="selectedTemplate.description"
+                  class="form-control"
+                  rows="3"
+                ></textarea>
+              </div>
 
-            <!-- Unit Type Dropdown -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateType">Unit Type</label>
-              <b-form-select
-                v-model="selectedTemplate.unit_type"
-                :options="unitTypesOptions"
-                required
-              />
-            </div>
+              <!-- Unit Type Dropdown -->
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templateType">Unit Type</label>
+                <b-form-select
+                  v-model="selectedTemplate.unit_type"
+                  :options="unitTypesOptions"
+                  disabled
+                  required
+                />
+              </div>
             </div>
 
             <div class="col-md-6">
               <!-- Bedrooms and Bathrooms Fields -->
               <div class="row">
                 <div class="col-md-6">
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateBedrooms">Bedrooms</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.bedroom"
-                class="form-control"
-                required
-              />
-            </div>
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateBedrooms">Bedrooms</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.bedroom"
+                      class="form-control"
+                      disabled
+                      required
+                    />
+                  </div>
                 </div>
                 <div class="col-md-6">
-            <!-- Bathrooms Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateBathrooms">Bathrooms</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.bathroom"
-                class="form-control"
-                required
-              />
-            </div>
+                  <!-- Bathrooms Field -->
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateBathrooms">Bathrooms</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.bathroom"
+                      class="form-control"
+                      disabled
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-6">
-            <!-- Floor Area Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateFloorArea">Floor Area</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.floor_area"
-                class="form-control"
-              />
-            </div>
-          </div>
-          <div class="col-md-6">
-            <!-- Lot Area Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateLotArea">Lot Area</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.lot_area"
-                class="form-control"
-              />
-            </div>
+                  <!-- Floor Area Field -->
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateFloorArea">Floor Area</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.floor_area"
+                      disabled
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <!-- Lot Area Field -->
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateLotArea">Lot Area</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.lot_area"
+                      disabled
+                      class="form-control"
+                    />
+                  </div>
                 </div>
               </div>
 
-            <!-- Price Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templatePrice">Price</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.price"
-                class="form-control"
-                required
-              />
-            </div>
+              <!-- Price Field -->
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templatePrice">Price</label>
+                <input
+                  type="number"
+                  v-model="selectedTemplate.price"
+                  class="form-control"
+                  disabled
+                  required
+                />
+              </div>
 
-            <!-- Image Previews -->
-            <!-- <div
+              <!-- Image Previews -->
+              <!-- <div
               v-if="
                 selectedTemplate &&
                 selectedTemplate.images &&
@@ -480,16 +486,23 @@
                 />
               </div>
             </div> -->
+            </div>
           </div>
-          </div>
-            
 
           <div
             class="d-flex justify-content-end gap-2 mt-30"
             style="padding-top: 15px"
           >
-            <button type="submit" class="btn-add" style="width: 150px;">Save Changes</button>
-            <button type="button" @click="isEditModalOpen = false" class="btn-cancel">Cancel</button>
+            <button type="submit" class="btn-add" style="width: 150px">
+              Save Changes
+            </button>
+            <button
+              type="button"
+              @click="isEditModalOpen = false"
+              class="btn-cancel"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>

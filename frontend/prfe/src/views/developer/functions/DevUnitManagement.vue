@@ -395,6 +395,7 @@
                             v-model="newUnitType"
                             :options="selectUnitTypeOptions"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
@@ -418,6 +419,7 @@
                             type="number"
                             v-model.number="newUnitBedroom"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
@@ -426,6 +428,7 @@
                             type="number"
                             v-model.number="newUnitBathroom"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
@@ -449,6 +452,7 @@
                             v-model.number="newUnitLotArea"
                             min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
@@ -458,6 +462,7 @@
                             v-model.number="newUnitFloorArea"
                             min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                       </b-row>
@@ -466,7 +471,7 @@
                     <!-- Status and View -->
                     <b-form-group>
                       <b-row>
-                        <b-col cols="12" md="6">
+                        <b-col cols="12" md="4">
                           <small>Status</small>
                           <b-form-select
                             v-model="newUnitStatus"
@@ -474,13 +479,26 @@
                             required
                           ></b-form-select>
                         </b-col>
-                        <b-col cols="12" md="6">
+
+                        <b-col cols="12" md="4">
                           <small>View</small>
                           <b-form-select
                             v-model="newUnitView"
                             :options="viewOptions"
                             required
                           ></b-form-select>
+                        </b-col>
+
+                        <b-col cols="12" md="4">
+                          <small>Unit Template</small>
+                          <div class="d-flex align-items-center">
+                            <b-form-select
+                              v-model="selectedUnitTemplate"
+                              :options="unitTemplateOptions"
+                              @change="handleTemplateChange"
+                              class="mr-2"
+                            ></b-form-select>
+                          </div>
                         </b-col>
                       </b-row>
                     </b-form-group>
@@ -496,6 +514,7 @@
                         v-model.number="newUnitPrice"
                         min="0"
                         required
+                        :disabled="isTemplateSelected"
                       ></b-form-input>
                     </b-form-group>
 
@@ -902,6 +921,7 @@
                             v-model="newUnitType"
                             :options="selectUnitTypeOptions"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
@@ -924,6 +944,7 @@
                             type="number"
                             v-model.number="newUnitBedroom"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
@@ -932,6 +953,7 @@
                             type="number"
                             v-model.number="newUnitBathroom"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
@@ -953,6 +975,7 @@
                             v-model.number="newUnitLotArea"
                             min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
@@ -962,6 +985,7 @@
                             v-model.number="newUnitFloorArea"
                             min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                       </b-row>
@@ -989,13 +1013,28 @@
                     </b-form-group>
 
                     <b-form-group>
-                      <small>Price</small>
-                      <b-form-input
-                        type="number"
-                        v-model.number="newUnitPrice"
-                        min="0"
-                        required
-                      ></b-form-input>
+                      <b-row
+                        ><b-col cols="12" md="8"
+                          ><small>Price</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitPrice"
+                            min="0"
+                            :disabled="isTemplateSelected"
+                            required
+                          ></b-form-input
+                        ></b-col>
+                        <b-col cols="12" md="4">
+                          <small>Unit Template</small>
+                          <div class="d-flex align-items-center">
+                            <b-form-select
+                              v-model="selectedUnitTemplate"
+                              :options="unitTemplateOptions"
+                              @change="handleTemplateChange"
+                              class="mr-2"
+                            ></b-form-select>
+                          </div> </b-col
+                      ></b-row>
                     </b-form-group>
                   </b-col>
 
@@ -1138,19 +1177,23 @@ export default {
   },
   data() {
     return {
+      selectedUnitTemplate: null, // Unit template ID
+      unitTemplateOptions: [], // This will hold the dropdown options
+      isTemplateSelected: false, // To track whether a template is selected
       showAddUnitsModal: false,
+      templates: [],
       unitTypes: [],
       site: null,
       sections: [],
       newUnitSection: null,
       newUnitSections: [],
       newUnitQuantity: 1,
-      newUnitType: null,
+      newUnitType: "",
+      newUnitPrice: "",
       newUnitTitle: "",
       newUnitBedroom: 1,
       newUnitBathroom: 1,
       newUnitFloorArea: 0,
-      newUnitPrice: null,
       newUnitStatus: "Available",
       newUnitView: null,
       newUnitBalcony: null,
@@ -1402,10 +1445,119 @@ export default {
     } else {
       this.fetchSiteDetails();
       this.fetchUnitTypes();
+      console.log("Initial selectedUnitTemplate:", this.selectedUnitTemplate);
+      this.fetchTemplates();
     }
     this.fetchUnits();
   },
   methods: {
+    handleTemplateChange() {
+      console.log(
+        "Selected Template Value (before delay):",
+        this.selectedUnitTemplate
+      );
+
+      setTimeout(() => {
+        console.log(
+          "Selected Template Value (after delay):",
+          this.selectedUnitTemplate
+        );
+
+        if (!this.selectedUnitTemplate) {
+          this.isTemplateSelected = false;
+          this.resetTemplateFields();
+        } else {
+          this.isTemplateSelected = true;
+          this.loadTemplateData();
+        }
+      }, 0);
+    },
+    resetTemplateFields() {
+      this.newUnitType = "";
+      this.newUnitPrice = "";
+      this.newUnitBedroom = null;
+      this.newUnitBathroom = null;
+      this.newUnitLotArea = null;
+      this.newUnitFloorArea = null;
+    },
+
+    async loadTemplateData() {
+      if (!this.selectedUnitTemplate) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/units/templates/${this.selectedUnitTemplate}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        console.log("Template Data Response:", response.data); // Log the response
+
+        const templateData = response.data.data;
+
+        // Verify the templateData fields
+        console.log("Template Data Fields:", templateData);
+
+        // Populate fields with the template data
+        this.newUnitType = templateData.unit_type;
+        this.newUnitPrice = templateData.price;
+        this.newUnitBedroom = templateData.bedroom;
+        this.newUnitBathroom = templateData.bathroom;
+        this.newUnitFloorArea = templateData.floor_area;
+        this.newUnitLotArea = templateData.lot_area;
+      } catch (error) {
+        console.error("Error loading template data:", error);
+      }
+    },
+
+    // Fetch unit templates from the backend
+    async fetchTemplates() {
+      try {
+        this.isLoading = true;
+        this.errorMessage = null;
+        const response = await axios.get(
+          "http://localhost:8000/developer/units/templates/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log(response.data); // Log response to check the data
+
+        if (response.data.success) {
+          // Filter out archived templates by checking the 'is_archived' field
+          const activeTemplates = response.data.data.filter(
+            (template) => !template.is_archived
+          );
+
+          // Populate the unitTemplateOptions with only non-archived templates
+          this.unitTemplateOptions = [
+            { value: null, text: "None" },
+            ...activeTemplates.map((template) => ({
+              value: template.id,
+              text: template.name,
+            })),
+          ];
+
+          // Trigger handleTemplateChange to initialize the state
+          this.handleTemplateChange();
+        } else {
+          throw new Error("Failed to fetch templates");
+        }
+      } catch (error) {
+        this.errorMessage = "Failed to load templates.";
+        console.error(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     // Navigation methods
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPage) {
