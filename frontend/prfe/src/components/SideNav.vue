@@ -108,15 +108,23 @@ export default {
   },
   methods: {
     setTemporaryLogo() {
-      // Store the logo temporarily, only if it exists in Vuex
-      if (this.company?.logo) {
+      // Try to fetch logo from localStorage if it was previously set
+      const storedLogo = localStorage.getItem("company_logo");
+      if (storedLogo) {
+        this.tempLogo = storedLogo;
+      } else if (this.company?.logo) {
         this.tempLogo = `http://localhost:8000${this.company.logo}`;
+        localStorage.setItem("company_logo", this.tempLogo); // Store for future page refreshes
       }
     },
     setTemporaryCompanyName() {
-      // Store the company name temporarily, only if it exists in Vuex
-      if (this.company?.name) {
+      // Try to fetch company name from localStorage if it was previously set
+      const storedName = localStorage.getItem("company_name");
+      if (storedName) {
+        this.tempCompanyName = storedName;
+      } else if (this.company?.name) {
         this.tempCompanyName = this.company.name;
+        localStorage.setItem("company_name", this.tempCompanyName); // Store for future page refreshes
       }
     },
     setMenuItems() {

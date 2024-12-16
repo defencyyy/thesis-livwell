@@ -67,13 +67,18 @@ def get_default_unit_type():
     
 class UnitType(models.Model):
     DEFAULT_CHOICES = [
-        'Studio', 
-        'Studio Deluxe', 
-        '1 Bedroom', 
-        '2 Bedroom', 
-        '3 Bedroom', 
-        'Penthouse', 
-        'Loft', 
+        'Studio',           # Basic condo unit
+        '1 Bedroom',        # Condo with one bedroom
+        '2 Bedroom',        # Condo with two bedrooms
+        '3 Bedroom',        # Condo with three bedrooms
+        'Penthouse',        # Luxury unit at the top floor
+        'Loft',             # Open-plan unit with a mezzanine floor
+        'Townhouse',        # Multi-floor house in a row of houses
+        'Single Detached',  # Fully detached single-family house
+        'Single Attached',  # Single-family house attached to another
+        'Duplex',           # Two-unit house structure
+        'Parking',          # Parking space
+        'Bungalow',         # Single-story house
     ]
 
     name = models.CharField(max_length=50, unique=True)
@@ -233,11 +238,11 @@ class UnitTemplate(models.Model):
     )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=100)  # Removed 'unique=True' here
-    bedroom = models.PositiveIntegerField(default=1)
-    bathroom = models.PositiveIntegerField(default=1)
+    bedroom = models.PositiveIntegerField(default=0)
+    bathroom = models.PositiveIntegerField(default=0)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    price = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     view = models.CharField(max_length=10, choices=Unit.VIEW_CHOICES, null=True, blank=True)
     balcony = models.CharField(max_length=20, choices=Unit.BALCONY_CHOICES, null=True, blank=True)
     commission = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -289,6 +294,7 @@ class UnitTemplate(models.Model):
             "commission": self.commission,
         }
     
+
 def validate_image_size(image):
     filesize = image.file.size
     limit = 5 * 1024 * 1024  # Limit image size to 5 MB

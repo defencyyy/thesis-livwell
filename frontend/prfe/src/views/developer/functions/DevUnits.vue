@@ -176,8 +176,6 @@ export default {
           comparison = aRelativeId.localeCompare(bRelativeId, undefined, {
             numeric: true,
           });
-        } else if (this.sortBy === "created_at") {
-          comparison = new Date(a.created_at) - new Date(b.created_at);
         } else if (this.sortBy === "status") {
           comparison = a.status.localeCompare(b.status);
         } else if (this.sortBy === "sections") {
