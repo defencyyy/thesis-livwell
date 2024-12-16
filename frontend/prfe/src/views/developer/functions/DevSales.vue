@@ -124,7 +124,7 @@
 
         <div v-if="filteredSales.length > 0">
           <div
-            v-for="sale in filteredSales"
+            v-for="sale in paginatedSales"
             :key="sale.id"
             class="card border-0 rounded-1 mx-auto"
             style="
@@ -161,6 +161,42 @@
               </table>
             </div>
           </div>
+           <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li :class="['page-item', { disabled: currentPage === 1 }]">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage - 1)"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-item', { active: page === currentPage }]"
+            >
+              <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                {{ page }}
+              </a>
+            </li>
+            <li
+              :class="['page-item', { disabled: currentPage === totalPages }]"
+            >
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage + 1)"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
         </div>
         <p v-else>No sales match the selected criteria.</p>
 
@@ -328,6 +364,8 @@ export default {
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
       confirmParams: [],
+      currentPage: 1,
+      itemsPerPage: 15,
     };
   },
   computed: {
@@ -336,6 +374,17 @@ export default {
       companyId: (state) => state.companyId,
       loggedIn: (state) => state.loggedIn,
     }),
+    paginatedSales() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredSales.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredSales.length / this.itemsPerPage);
+    },
   },
   mounted() {
     if (!this.loggedIn || !this.companyId) {
@@ -344,8 +393,14 @@ export default {
       this.fetchSales();
       this.fetchUnits();
     }
+    
   },
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     // Fetch sales data
     async fetchSales() {
       try {
@@ -1053,5 +1108,13 @@ body {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 </style>

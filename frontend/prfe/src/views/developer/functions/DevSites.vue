@@ -2252,6 +2252,7 @@ body {
   padding-right: 40px; /* Reduce padding */
   font-size: 14px; /* Smaller font size */
   line-height: 1.2; /* Adjust line height for compactness */
+  background-color: #ccc;
 }
 
 .page-item {
