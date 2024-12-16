@@ -434,16 +434,25 @@ export default {
         console.error("Expected an array but got:", customersToFilter);
         return []; // Return an empty array if data is not an array
       }
+      let filtered = customersToFilter;
+  if (this.searchQuery) {
+    const searchQuery = this.searchQuery.toLowerCase();
 
-      // Filter by search query
-      const filtered = customersToFilter.filter(
-        (customer) =>
-          customer?.last_name &&
-          customer.last_name
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase())
-      );
+    filtered = customersToFilter.filter((customer) => {
+      const searchString = [
+        customer.first_name,
+        customer.last_name,
+        customer.email,
+        customer.contact_number,
+        customer.customer_code,
+      ]
+        .filter(Boolean) // Exclude undefined/null fields
+        .join(" ")
+        .toLowerCase();
 
+      return searchString.includes(searchQuery);
+    });
+  }
       return filtered.sort((a, b) => {
         const aName = a?.last_name || "";
         const bName = b?.last_name || "";
