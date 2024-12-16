@@ -611,174 +611,263 @@
             centered
             size="lg"
           >
-            <template v-if="selectedUnit">
-              <form>
-                <!-- Unit Images Section -->
-                <b-form-group label="Unit Images:">
-                  <div v-if="selectedUnit.images && selectedUnit.images.length">
-                    <b-row class="mb-3">
-                      <!-- Loop through images and display them -->
-                      <b-col
-                        v-for="(image, index) in selectedUnit.images"
-                        :key="index"
-                        cols="12"
-                        sm="6"
-                        md="4"
-                        lg="3"
-                        class="mb-2"
-                      >
-                        <div class="d-flex flex-column align-items-center">
-                          <b-img
-                            v-if="image && image.image"
-                            :src="getPictureUrl(image.image)"
-                            alt="Unit Image"
-                            thumbnail
-                            fluid
-                            class="unit-image-preview"
-                          />
-                          <p v-else class="text-danger">Invalid image path</p>
+            <div class="modal-title p-3">
+              <h5 class="mb-0">Modal Title</h5>
+            </div>
 
-                          <!-- Image Name, Update, and Delete buttons -->
-                          <div class="text-center mt-2">
-                            <span>{{ image.image_name || "Untitled" }}</span>
-                            <b-button
-                              size="sm"
-                              variant="primary"
-                              class="ml-2"
+            <div class="p-3">
+              <template v-if="selectedUnit">
+                <form>
+                  <!-- Unit Images Section -->
+                  <b-form-group>
+                    <div
+                      v-if="selectedUnit.images && selectedUnit.images.length"
+                      id="carouselExampleIndicators"
+                      class="carousel slide"
+                      data-bs-ride="carousel"
+                    >
+                      <!-- Indicators -->
+                      <div class="carousel-indicators">
+                        <button
+                          v-for="(image, index) in selectedUnit.images"
+                          :key="index"
+                          :data-bs-target="'#carouselExampleIndicators'"
+                          :data-bs-slide-to="index"
+                          :class="{ active: index === 0 }"
+                          :aria-current="index === 0 ? 'true' : null"
+                          :aria-label="'Slide ' + (index + 1)"
+                        ></button>
+                      </div>
+
+                      <!-- Carousel Items -->
+                      <div class="carousel-inner">
+                        <div
+                          v-for="(image, index) in selectedUnit.images"
+                          :key="index"
+                          :class="['carousel-item', { active: index === 0 }]"
+                          class="position-relative"
+                        >
+                          <img
+                            :src="getPictureUrl(image.image)"
+                            class="d-block w-100"
+                            alt="Unit Picture"
+                            style="
+                              width: 100%;
+                              height: 500px;
+                              object-fit: cover;
+                            "
+                          />
+
+                          <div
+                            v-for="(image, index) in selectedUnit.images"
+                            :key="image.id"
+                            class="image-overlay d-flex flex-column justify-content-center align-items-center"
+                          >
+                            <!-- Replace Button (Triggers the hidden file input) -->
+                            <label
+                              :for="'file-input-' + index"
+                              class="btn btn-warning btn-sm"
                               @click="toggleImageEdit(index)"
                             >
-                              Update
-                            </b-button>
+                              Replace
+                            </label>
+
+                            <!-- File input (hidden) with unique ID for each image -->
+                            <input
+                              type="file"
+                              :id="'file-input-' + index"
+                              accept="image/*"
+                              style="display: none"
+                              @change="onImageSelected(index, $event)"
+                            />
+
                             <b-button
-                              size="sm"
                               variant="danger"
+                              size="sm"
                               class="ml-2"
                               @click="deleteImage(index)"
+                              >Delete</b-button
                             >
-                              Delete
-                            </b-button>
                           </div>
 
                           <!-- Image Replace Form (Toggled) -->
                           <div v-if="imageEditIndex === index" class="mt-2">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              @change="onImageSelected(index, $event)"
-                            />
-                            <b-button
-                              variant="secondary"
-                              @click="replaceImage(index)"
-                            >
-                              Replace Image
-                            </b-button>
+                            <!-- No button needed, image is replaced as soon as a new file is selected -->
                           </div>
                         </div>
-                      </b-col>
-                    </b-row>
-                  </div>
-                  <p v-else>No images available for this unit.</p>
+                      </div>
 
-                  <!-- Add Image Button if less than 5 images -->
-                  <div
-                    v-if="selectedUnit.images && selectedUnit.images.length < 5"
-                    class="mt-3"
-                  >
-                    <b-button variant="primary" @click="triggerAddImage">
-                      Add Image
-                    </b-button>
+                      <!-- Navigation Controls -->
+                      <button
+                        class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="prev"
+                      >
+                        <span
+                          class="carousel-control-prev-icon"
+                          aria-hidden="true"
+                        ></span>
+                        <span class="visually-hidden">Previous</span>
+                      </button>
+                      <button
+                        class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="next"
+                      >
+                        <span
+                          class="carousel-control-next-icon"
+                          aria-hidden="true"
+                        ></span>
+                        <span class="visually-hidden">Next</span>
+                      </button>
+                    </div>
+                    <p v-else>No images available for this unit.</p>
 
-                    <!-- Immediately show file input when Add Image is clicked -->
-                    <input
-                      v-if="isAddingImage"
-                      type="file"
-                      accept="image/*"
-                      @change="handleFileChangeImage"
-                      class="form-control mt-2"
-                    />
-                  </div>
-                </b-form-group>
+                    <!-- Add Image Button if less than 5 images -->
+                    <div
+                      v-if="
+                        selectedUnit.images && selectedUnit.images.length < 5
+                      "
+                      class="mt-3 d-flex align-items-center"
+                    >
+                      <b-button
+                        variant="primary"
+                        @click="triggerAddImage"
+                        class="btn-add me-2"
+                        style="width: 100px"
+                      >
+                        Add Image
+                      </b-button>
 
-                <!-- Unit Information -->
-                <b-form-group label="Unit Number:">
+                      <!-- Immediately show file input when Add Image is clicked -->
+                      <input
+                        v-if="isAddingImage"
+                        type="file"
+                        accept="image/*"
+                        @change="handleFileChangeImage"
+                        class="form-control d-inline-block"
+                      />
+                    </div>
+                  </b-form-group>
+
+                  <!-- Unit Information -->
+                  <!-- <b-form-group label="Unit Number:">
                   <b-form-input v-model="selectedUnit.unit_number" disabled />
-                </b-form-group>
+                </b-form-group> -->
+                  <b-row style="margin-top: 30px">
+                    <b-col>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Unit Type:</small>
+                            <b-form-input
+                              :value="getUnitTypeName(selectedUnit.unit_type)"
+                              disabled
+                            />
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>Status</small>
+                            <b-form-select
+                              v-model="selectedUnit.status"
+                              :options="editStatusOptions"
+                              disabled
+                            />
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Unit Type:">
-                  <b-form-input
-                    :value="getUnitTypeName(selectedUnit.unit_type)"
-                    disabled
-                  />
-                </b-form-group>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Lot Area:</small>
+                            <b-form-input
+                              v-model="selectedUnit.lot_area"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>Floor Area:</small>
+                            <b-form-input
+                              v-model="selectedUnit.floor_area"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Status:">
-                  <b-form-select
-                    v-model="selectedUnit.status"
-                    :options="editStatusOptions"
-                    disabled
-                  />
-                </b-form-group>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Price:</small>
+                            <b-form-input
+                              v-model="selectedUnit.price"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>Commission:</small>
+                            <b-form-input
+                              v-model="selectedUnit.commission"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Price:">
-                  <b-form-input
-                    v-model="selectedUnit.price"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Balcony:</small>
+                            <b-form-select
+                              v-model="selectedUnit.balcony"
+                              :options="balconyOptions"
+                            ></b-form-select>
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>View:</small>
+                            <b-form-select
+                              v-model="selectedUnit.view"
+                              :options="viewOptions"
+                            ></b-form-select>
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Lot Area:">
-                  <b-form-input
-                    v-model="selectedUnit.lot_area"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
+                      <div
+                        class="d-flex justify-content-end gap-2 mt-3"
+                        style="padding-top: 15px"
+                      >
+                        <b-button
+                          variant="primary"
+                          @click="saveUnitChanges"
+                          class="btn-add"
+                          style="width: 150px"
+                        >
+                          Save Changes
+                        </b-button>
+                        <b-button
+                          type="button"
+                          @click="showEditUnitModal = false"
+                          class="btn-cancel"
+                        >
+                          Cancel
+                        </b-button>
+                      </div>
+                    </b-col>
+                  </b-row>
+                </form>
+              </template>
 
-                <b-form-group label="Floor Area:">
-                  <b-form-input
-                    v-model="selectedUnit.floor_area"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
-
-                <b-form-group label="Commission:">
-                  <b-form-input
-                    v-model="selectedUnit.commission"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
-
-                <b-form-group label="Balcony:">
-                  <b-form-select
-                    v-model="selectedUnit.balcony"
-                    :options="balconyOptions"
-                  ></b-form-select>
-                </b-form-group>
-
-                <b-form-group label="View:">
-                  <b-form-select
-                    v-model="selectedUnit.view"
-                    :options="viewOptions"
-                  ></b-form-select>
-                </b-form-group>
-
-                <!-- Save Changes Button -->
-                <b-button
-                  variant="primary"
-                  @click="saveUnitChanges"
-                  class="mr-2"
-                >
-                  Save Changes
-                </b-button>
-              </form>
-            </template>
-
-            <template v-else>
-              <p>Loading unit details...</p>
-            </template>
+              <template v-else>
+                <p>Loading unit details...</p>
+              </template>
+            </div>
           </b-modal>
 
           <!-- Add Units to Section Modal -->
@@ -1028,7 +1117,7 @@ import {
   BFormSelect,
   BFormInput,
   BButton,
-  BImg,
+  // BImg,
   BRow,
   BCol,
 } from "bootstrap-vue-3";
@@ -1043,7 +1132,7 @@ export default {
     BFormSelect,
     BFormInput,
     BButton,
-    BImg,
+    // BImg,
     BRow,
     BCol,
   },
@@ -1778,12 +1867,16 @@ export default {
     },
 
     onImageSelected(index, event) {
-      // This stores the selected file into the imageFile array for the specific index
-      this.imageFile[index] = event.target.files[0];
+      const file = event.target.files[0]; // Get the selected file
+      if (file) {
+        this.imageFile[index] = file; // Store the file for the specific index
+        this.replaceImage(index); // Trigger image replacement for that index
+      }
     },
 
     async replaceImage(index) {
       const formData = new FormData();
+
       // Ensure the file exists before appending it to FormData
       if (!this.imageFile[index]) {
         console.error("No image selected for replacement.");
@@ -1813,7 +1906,6 @@ export default {
       }
     },
 
-    // Delete the image from the selected unit
     async deleteImage(index) {
       try {
         const response = await axios.delete(
@@ -2483,12 +2575,48 @@ button {
   cursor: pointer;
   /* Optional if you add sortable columns */
 }
+
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px; /* Reduce margin */
-  padding-right: 40px; /* Reduce padding */
-  font-size: 14px; /* Smaller font size */
-  line-height: 1.2; /* Adjust line height for compactness */
+  margin-top: -15px;
+  /* Reduce margin */
+  padding-right: 40px;
+  /* Reduce padding */
+  font-size: 14px;
+  /* Smaller font size */
+  line-height: 1.2;
+  /* Adjust line height for compactness */
+}
+
+.carousel-inner img {
+  max-height: 400px;
+  /* Adjust as needed */
+  object-fit: cover;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background-color: transparent;
+  /* Remove the background color */
+  color: inherit;
+  /* Remove the default text color change */
+  border: none;
+  /* Remove any border if present */
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.carousel-item:hover .image-overlay {
+  opacity: 1;
 }
 </style>
