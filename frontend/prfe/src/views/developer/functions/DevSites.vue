@@ -33,11 +33,10 @@
 
                   <!-- Sort Dropdown -->
                   <select v-model="sortBy" class="dropdown">
+                    <option value="relative_id">Sort: ID</option>
                     <option value="name">Sort: Name</option>
                     <option value="status">Sort: Status</option>
-                    <option value="creation">Sort: Date</option>
                   </select>
-
                   <!-- Sort Order Dropdown -->
                   <select v-model="sortOrder" class="dropdown">
                     <option value="asc">Ascending</option>
@@ -1026,7 +1025,7 @@ export default {
     return {
       // View and UI-related data
       viewMode: "table",
-      sortBy: "name",
+      sortBy: "relative_id",
       sortOrder: "asc",
       searchQuery: "",
       visibleDropdown: null,
@@ -1176,8 +1175,8 @@ export default {
           const bName = b?.name || "";
           const aStatus = a?.status || "";
           const bStatus = b?.status || "";
-          const aCreatedAt = new Date(a?.created_at) || new Date(0); // Default to epoch if undefined
-          const bCreatedAt = new Date(b?.created_at) || new Date(0);
+          const aRelativeId = a?.relative_id?.toString().toLowerCase() || "";
+          const bRelativeId = b?.relative_id?.toString().toLowerCase() || "";
 
           let comparison = 0;
 
@@ -1186,15 +1185,16 @@ export default {
             comparison = aName.localeCompare(bName);
           } else if (this.sortBy === "status") {
             comparison = aStatus.localeCompare(bStatus);
-          } else if (this.sortBy === "creation") {
-            comparison = aCreatedAt - bCreatedAt;
+          } else if (this.sortBy === "relative_id") {
+            comparison = aRelativeId.localeCompare(bRelativeId, undefined, {
+              numeric: true,
+            });
           }
 
           // If the selected order is "desc", reverse the comparison result
           return this.sortOrder === "desc" ? -comparison : comparison;
         });
     },
-
     // Count of sections for the current site
     numberOfSections() {
       return this.currentSite.sections.length;
@@ -2251,7 +2251,7 @@ body {
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
   /* Status column */
-  width: 17%;
+  width: 16%;
 }
 
 .site-table th:nth-child(5),
@@ -2263,7 +2263,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 6% 27% 43% 17% 7%;
+  grid-template-columns: 7% 27% 43% 16% 7%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
@@ -2323,7 +2323,6 @@ body {
   padding-right: 40px; /* Reduce padding */
   font-size: 14px; /* Smaller font size */
   line-height: 1.2; /* Adjust line height for compactness */
-  background-color: #ccc;
 }
 
 .page-item {

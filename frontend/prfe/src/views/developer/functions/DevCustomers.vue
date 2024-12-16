@@ -972,13 +972,13 @@ body {
 .customer-table th:nth-child(2),
 .customer-table td:nth-child(2) {
   /* Location column */
-  width: 27%;
+  width: 25%;
 }
 
 .customer-table th:nth-child(3),
 .customer-table td:nth-child(3) {
   /* Status column */
-  width: 19%;
+  width: 18%;
 }
 
 .customer-table th:nth-child(4),
@@ -993,14 +993,14 @@ body {
   width: 7%;
 }
 
-.customer-table th:nth-child(5),
-.customer-table td:nth-child(5) {
+.customer-table th:nth-child(6),
+.customer-table td:nth-child(6) {
   /* Actions column */
   width: 19%;
 }
 
-.customer-table th:nth-child(5),
-.customer-table td:nth-child(5) {
+.customer-table th:nth-child(7),
+.customer-table td:nth-child(7) {
   /* Actions column */
   width: 7%;
 }
@@ -1008,7 +1008,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 5% 27% 19% 17% 7% 19% 7%;
+  grid-template-columns: 7% 25% 18% 17% 7% 19% 7%;
   /* Match the column widths */
   padding: 0px 15px;
   margin: 20px auto 10px;

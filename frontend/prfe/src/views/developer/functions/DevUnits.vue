@@ -42,10 +42,11 @@
                     </div>
                     <!-- Sort Dropdown -->
                     <select v-model="sortBy" class="dropdown">
-                      <option value="name">Name</option>
-                      <option value="created_at">Date Created</option>
-                      <option value="status">Status</option>
-                      <option value="sections">Sections</option>
+                      <option value="relative_id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+
+                      <option value="status">Sort: Status</option>
+                      <option value="sections">Sort: Sections</option>
                     </select>
                     <select v-model="sortOrder" class="dropdown">
                       <option value="asc">Ascending</option>
@@ -65,7 +66,7 @@
               <span class="header-item">Status</span>
               <span class="header-item">Sections</span>
               <span class="header-item">Units</span>
-              <span class="header-item">Available Units</span>
+              <span class="header-item">Availability</span>
               <span class="header-item">Actions</span>
             </div>
             <div v-for="site in filteredSites" :key="site.id" class="card">
@@ -76,7 +77,21 @@
                       <td class="site-relative-id">
                         {{ site.relative_id || "N/A" }}
                       </td>
-                      <td>{{ site.name || "Unknown" }}</td>
+                      <td>
+                        <img
+                          v-if="site.picture"
+                          :src="getPictureUrl(site.picture)"
+                          alt="Image of {{ site.name }}"
+                          class="table-image"
+                        />
+                        <i
+                          v-else
+                          class="fas fa-image fa-2x"
+                          aria-label="Default site image"
+                          style="margin-right: 12px"
+                        ></i
+                        ><strong>{{ site.name || "Unknown" }}</strong>
+                      </td>
                       <td>{{ site.location || "Location unavailable" }}</td>
                       <td>
                         {{ site.status.toUpperCase() || "Status unavailable" }}
@@ -137,36 +152,51 @@ export default {
       errorMessage: null,
       viewMode: "table",
       searchQuery: "", // Search query for site name
-      sortBy: "name", // Default sorting option
+      sortBy: "relative_id", // Default sorting option
       sortOrder: "asc", // Default sorting order (Ascending)
     };
   },
   computed: {
     filteredSites() {
-      return this.sites
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .sort((a, b) => this.compareSites(a, b));
+      // Filter the sites by search query
+      const filtered = this.sites.filter((site) =>
+        site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+
+      // Sorting logic based on the selected sort criteria
+      return filtered.sort((a, b) => {
+        let comparison = 0;
+
+        // Compare by selected sorting criterion
+        if (this.sortBy === "name") {
+          comparison = a.name.localeCompare(b.name);
+        } else if (this.sortBy === "relative_id") {
+          const aRelativeId = a.relative_id?.toString().toLowerCase() || "";
+          const bRelativeId = b.relative_id?.toString().toLowerCase() || "";
+          comparison = aRelativeId.localeCompare(bRelativeId, undefined, {
+            numeric: true,
+          });
+        } else if (this.sortBy === "created_at") {
+          comparison = new Date(a.created_at) - new Date(b.created_at);
+        } else if (this.sortBy === "status") {
+          comparison = a.status.localeCompare(b.status);
+        } else if (this.sortBy === "sections") {
+          comparison = a.sections.length - b.sections.length;
+        }
+
+        // If sortOrder is "asc", return the comparison; otherwise, reverse it
+        return this.sortOrder === "asc" ? comparison : -comparison;
+      });
     },
+
     siteOptions() {
       return this.sites
         .map((site) => ({ value: site.id, text: site.name }))
         .sort((a, b) => a.text.localeCompare(b.text)); // Sort options alphabetically
     },
   },
+
   methods: {
-    compareSites(a, b) {
-      let comparison = 0;
-      if (this.sortBy === "name") comparison = a.name.localeCompare(b.name);
-      if (this.sortBy === "created_at")
-        comparison = new Date(a.created_at) - new Date(b.created_at);
-      if (this.sortBy === "status")
-        comparison = a.status.localeCompare(b.status);
-      if (this.sortBy === "sections")
-        comparison = a.sections.length - b.sections.length;
-      return this.sortOrder === "asc" ? comparison : -comparison;
-    },
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
     },
@@ -547,7 +577,7 @@ body {
 
 .site-table th:nth-child(5),
 .site-table td:nth-child(5) {
-  width: 11%;
+  width: 10%;
 }
 
 .site-table th:nth-child(6),
@@ -565,7 +595,7 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 6% 19% 24% 11% 11% 11% 11% 7%;
+  grid-template-columns: 7% 19% 24% 11% 11% 10% 11% 7%;
   padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;

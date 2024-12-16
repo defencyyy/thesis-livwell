@@ -112,7 +112,7 @@
                       @change="toggleView"
                       class="dropdown"
                     >
-                      <option value="active">View: Existing</option>
+                      <option value="active">View: Active</option>
                       <option value="archived">View: Archived</option>
                     </select>
                   </div>
@@ -148,7 +148,7 @@
                     <tbody>
                       <tr>
                         <td>
-                          {{ unitType.name }}
+                          <strong>{{ unitType.name }}</strong>
                         </td>
                         <td>
                           <span v-if="unitType.is_custom">Custom</span>

@@ -99,7 +99,9 @@
 
                         <!-- Template Name -->
                         <td>
-                          <span>{{ template.name }}</span>
+                          <strong
+                            ><span>{{ template.name }}</span></strong
+                          >
                         </td>
 
                         <td>
@@ -1031,12 +1033,12 @@ body {
 
 .template-table th:nth-child(1),
 .template-table td:nth-child(1) {
-  width: 5%;
+  width: 6%;
 }
 
 .template-table th:nth-child(2),
 .template-table td:nth-child(2) {
-  width: 20%;
+  width: 22%;
 }
 
 .template-table th:nth-child(3),
@@ -1061,7 +1063,7 @@ body {
 
 .template-table th:nth-child(7),
 .template-table td:nth-child(7) {
-  width: 15%;
+  width: 10%;
 }
 
 .template-table th:nth-child(8),
@@ -1239,7 +1241,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 5% 20% 15% 15% 12% 12% 15% 6%;
+  grid-template-columns: 6% 22% 15% 15% 12% 12% 10% 6%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;

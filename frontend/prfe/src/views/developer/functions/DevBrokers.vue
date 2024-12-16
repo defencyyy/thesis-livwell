@@ -553,10 +553,17 @@ export default {
         );
       }
 
-      // Apply sorting
+      // Apply sorting based on the selected field
       return filtered.sort((a, b) => {
-        const fieldA = a.last_name?.toString().toLowerCase() || "";
-        const fieldB = b.last_name?.toString().toLowerCase() || "";
+        let fieldA, fieldB;
+
+        if (this.sortBy === "relative_id") {
+          fieldA = a.relative_id?.toString().toLowerCase() || "";
+          fieldB = b.relative_id?.toString().toLowerCase() || "";
+        } else {
+          fieldA = a.last_name?.toString().toLowerCase() || "";
+          fieldB = b.last_name?.toString().toLowerCase() || "";
+        }
 
         if (this.sortOrder === "asc") {
           return fieldA.localeCompare(fieldB, undefined, { numeric: true });
@@ -1136,7 +1143,7 @@ body {
 .broker-table th:nth-child(4),
 .broker-table td:nth-child(4) {
   /* Actions column */
-  width: 18%;
+  width: 17%;
 }
 
 .broker-table th:nth-child(5),
