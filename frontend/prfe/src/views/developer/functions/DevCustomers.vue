@@ -140,7 +140,7 @@
                       </span>
                     </td>
                     <td>
-                      <div class="broker-actions d-flex gap-2">
+                      <div class="broker-actions d-flex">
                         <button
                           @click="viewCustomer(customer)"
                           style="

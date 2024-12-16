@@ -507,7 +507,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -516,7 +515,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitCommission"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -531,7 +529,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountPercentage"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -540,7 +537,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountFlat"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -555,7 +551,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitVatPercentage"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -564,7 +559,6 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitOtherCharges"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>

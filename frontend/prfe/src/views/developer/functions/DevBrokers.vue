@@ -112,7 +112,7 @@
                       }}</span>
                     </td>
                     <td>
-                      <div class="broker-actions d-flex gap-2">
+                      <div class="broker-actions d-flex">
                         <!-- Edit Button as Icon (Blue) -->
                         <button
                           @click="openEditModal(broker)"
