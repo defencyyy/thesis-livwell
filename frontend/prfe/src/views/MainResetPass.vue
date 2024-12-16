@@ -76,6 +76,7 @@ export default {
       token: this.$route.params.token, // Get the token from the route params
       showMessage: false, // For showing the modal
       modalMessage: "", // Message to display in the modal
+      isSuccess: "",
     };
   },
   created() {
@@ -86,6 +87,25 @@ export default {
     async resetPassword() {
       this.error = null;
       this.loading = true;
+      
+  // Define a regex to validate all password criteria
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+  if (!passwordRegex.test(this.newPassword)) {
+    this.modalMessage = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+    this.showMessage = true;
+    this.isSuccess = false; // Indicate an error occurred
+    this.loading = false; // Stop the loading spinner
+    return;
+  }
+
+  if (this.newPassword !== this.confirmPassword) {
+    this.modalMessage = "New passwords do not match.";
+    this.showMessage = true;
+    this.isSuccess = false; // Indicate an error occurred
+    this.loading = false; // Stop the loading spinner
+    return;
+  }
 
       if (this.newPassword === this.confirmPassword) {
         try {
@@ -104,17 +124,21 @@ export default {
           if (response.ok) {
             this.modalMessage = "Password reset successfully! You can now log in with your new password.";
             this.showMessage = true;
+            this.isSuccess = true; // Indicate success
             setTimeout(() => {
               this.$router.push("/login"); // Redirect to login page after password reset
             }, 9000); // Delay to show the modal before redirecting
           } else {
             this.modalMessage = data.message || "An error occurred. Please try again.";
             this.showMessage = true;
+            this.isSuccess = false; // Indicate an error occurred
+
           }
         } catch (error) {
           console.error("Request error:", error);
           this.modalMessage = "An error occurred during the password reset request.";
           this.showMessage = true;
+          this.isSuccess = false; // Indicate an error occurred
         } finally {
           this.loading = false;
         }
@@ -125,7 +149,10 @@ export default {
     },
     closeModal() {
       this.showMessage = false; // Close the modal
-      this.$router.push("/login"); // Redirect to login page when modal is closed
+       if (this.isSuccess) {
+      // Redirect to login page only if the reset password was successful
+      this.$router.push("/login");
+    }
     }
   },
 };
