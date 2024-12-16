@@ -374,6 +374,7 @@
                       id="sitePicture"
                       class="form-control"
                       accept="image/*"
+                      required
                     />
                   </div>
 

@@ -267,11 +267,24 @@ export default {
         return;
       }
 
+      // Define a regex to validate all password criteria
+      const passwordRegex =
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
       // Check if passwords match
       if (this.newPassword !== this.confirmNewPassword) {
         this.showNotification = true;
         this.notificationTitle = "Error";
         this.notificationMessage = "New passwords do not match.";
+        return;
+      }
+
+      // Check if the new password meets the regex criteria
+      if (!passwordRegex.test(this.newPassword)) {
+        this.showNotification = true;
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
         return;
       }
 
