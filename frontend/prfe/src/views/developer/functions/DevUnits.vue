@@ -69,7 +69,7 @@
               <span class="header-item">Availability</span>
               <span class="header-item">Actions</span>
             </div>
-            <div v-for="site in filteredSites" :key="site.id" class="card">
+            <div v-for="site in paginatedSites" :key="site.id" class="card">
               <div class="card-body">
                 <table class="site-table">
                   <tbody>
@@ -126,6 +126,42 @@
                 </table>
               </div>
             </div>
+            <!-- Pagination Controls -->
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage - 1)"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: page === currentPage }]"
+              >
+                <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage + 1)"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
           </div>
         </div>
       </div>
@@ -154,6 +190,8 @@ export default {
       searchQuery: "", // Search query for site name
       sortBy: "relative_id", // Default sorting option
       sortOrder: "asc", // Default sorting order (Ascending)
+      currentPage: 1,
+      itemsPerPage: 15,
     };
   },
   computed: {
@@ -192,9 +230,25 @@ export default {
         .map((site) => ({ value: site.id, text: site.name }))
         .sort((a, b) => a.text.localeCompare(b.text)); // Sort options alphabetically
     },
+    paginatedSites() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredSites.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredSites.length / this.itemsPerPage);
+    },
   },
 
   methods: {
+     goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
     },
@@ -663,5 +717,13 @@ body {
 
 .button-bottom-right:hover {
   background-color: #0056b3; /* Optional: Change color on hover */
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 </style>
