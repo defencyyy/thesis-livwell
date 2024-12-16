@@ -45,6 +45,16 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
+                    <select v-model="sortBy" class="dropdown">
+                      <option value="id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+                    </select>
+
+                    <!-- Sort Order Dropdown -->
+                    <select v-model="sortOrder" class="dropdown">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
                     <select
                       v-model="viewFilter"
                       @change="toggleView(viewFilter)"
@@ -93,7 +103,7 @@
                         <!-- Relative ID: Example - Company-based and sequential order -->
                         <td>
                           <span>
-                            {{ template.relativeId || "N/A" }}
+                            {{ template.relative_id || "N/A" }}
                           </span>
                         </td>
 
@@ -568,6 +578,8 @@ export default {
       imagePreviews: [],
       showArchived: false,
       viewFilter: "active",
+      sortBy: "id", // Default sort by name
+      sortOrder: "asc", // Default sort order ascending
 
       // Modal States
       isCreateModalOpen: false,
@@ -626,20 +638,58 @@ export default {
     },
 
     filteredTemplates() {
-      return this.templates.filter((template) => {
+      const filtered = this.templates.filter((template) => {
         const matchesSearch = template.name
           .toLowerCase()
           .includes(this.searchQuery.toLowerCase());
 
+        // Filtering by Active/Archived
         const isArchived =
           this.viewFilter === "archived"
             ? template.is_archived
-            : !template.is_archived;
+            : this.viewFilter === "active"
+            ? !template.is_archived
+            : true;
 
         return matchesSearch && isArchived;
       });
-    },
 
+      // Sorting by ID or Name, with default (is_custom: false) coming first
+      return filtered.sort((a, b) => {
+        // Handle is_custom prioritization before sorting by ID or Name
+        if (this.sortOrder === "asc") {
+          // Ascending: default (is_custom: false) comes first
+          if (a.is_custom === false && b.is_custom === true) {
+            return -1; // a (default) comes first
+          }
+          if (a.is_custom === true && b.is_custom === false) {
+            return 1; // b (default) comes first
+          }
+        } else if (this.sortOrder === "desc") {
+          // Descending: non-default (is_custom: true) comes first
+          if (a.is_custom === false && b.is_custom === true) {
+            return 1; // b (non-default) comes first
+          }
+          if (a.is_custom === true && b.is_custom === false) {
+            return -1; // a (non-default) comes first
+          }
+        }
+
+        // Sorting by ID if no is_custom difference
+        if (this.sortBy === "id") {
+          return this.sortOrder === "asc" ? a.id - b.id : b.id - a.id;
+        }
+
+        // Sorting by Name if no is_custom difference
+        if (this.sortBy === "name") {
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+          return this.sortOrder === "asc"
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
+        }
+      });
+    },
     archivedTemplates() {
       return this.templates.filter((template) => template.is_archived);
     },
