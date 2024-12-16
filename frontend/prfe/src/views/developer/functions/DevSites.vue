@@ -494,6 +494,7 @@
                       class="form-control"
                       placeholder="Enter the number of sections"
                       min="1"
+                      max="100"
                       required
                     />
                   </div>
@@ -892,6 +893,8 @@
                       class="form-control"
                       placeholder="Add Sections"
                       min="0"
+                      :max="100 - editSite.number_of_sections"
+                      @input="validateTotalSections"
                     />
                   </div>
 
@@ -945,9 +948,14 @@
                 class="d-flex justify-content-end gap-2 mt-3"
                 style="padding-top: 15px"
               >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Save Changes
+                <button :disabled="totalSections > 100" class="btn btn-primary">
+                  Proceed
                 </button>
+
+                <!-- Error Message -->
+                <div v-if="totalSections > 100" class="text-danger mt-2">
+                  <p>You cannot have more than 100 sections.</p>
+                </div>
                 <button
                   type="button"
                   @click="cancelEdit"
@@ -1605,7 +1613,16 @@ export default {
       formData.append("reservation_fee", this.newSite.reservation_fee || "");
       formData.append("other_charges", this.newSite.other_charges || "");
 
-      // Add Sections
+      // Check if the total number of sections being added exceeds 100 before appending
+      if (this.newSite.sections?.length > 100) {
+        // Show notification if it exceeds the limit
+        this.notificationTitle = "Error";
+        this.notificationMessage = "You cannot add more than 100 sections.";
+        this.showNotification = true;
+        return; // Prevent further execution
+      }
+
+      // If within the limit, proceed to append sections to formData
       if (this.newSite.sections?.length) {
         this.newSite.sections.forEach((section, index) => {
           formData.append(
@@ -1797,8 +1814,16 @@ export default {
       }
     },
 
-    // Add new sections to the site
     addSections() {
+      // Check if the total sections will exceed 100
+      if (this.editSite.sections.length + this.newSectionsToAdd > 100) {
+        // Show notification if it exceeds the limit
+        this.notificationTitle = "Error";
+        this.notificationMessage = "You cannot add more than 100 sections.";
+        this.showNotification = true;
+        return; // Stop further execution
+      }
+
       let lastSectionNumber = 0;
       if (this.editSite.sections.length > 0) {
         lastSectionNumber = Math.max(
