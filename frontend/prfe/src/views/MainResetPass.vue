@@ -43,7 +43,7 @@
                 <p v-if="error" class="text-danger">{{ error }}</p>
                 
                 <!-- Success/Error Modal -->
-                <b-modal v-model="showMessage" :title="'Password Reset Status'" hide-footer>
+                <b-modal v-model="showMessage" :title="'Password Reset Status'" hide-footer centered>
                   <div>
                     <p>{{ modalMessage }}</p>
                     <b-button @click="closeModal">Close</b-button>

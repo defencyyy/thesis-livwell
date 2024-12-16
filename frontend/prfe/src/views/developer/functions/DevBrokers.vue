@@ -208,6 +208,7 @@
           v-model="editModalVisible"
           title="Edit Broker"
           hide-footer
+          centered
           hide-header
         >
           <div class="modal-title p-3">
