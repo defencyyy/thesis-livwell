@@ -4,9 +4,6 @@
       Welcome, <b>{{ roleName }}!</b>
     </div>
     <div class="d-flex align-items-center">
-      <!-- <button class="btn-bell">
-        <i class="bi bi-bell"></i>
-      </button> -->
       <div class="dropdown">
         <a
           href="#"
@@ -30,9 +27,9 @@
             <hr class="dropdown-divider" />
           </li>
           <li v-for="(option, index) in dropdownOptions" :key="index">
-            <a class="dropdown-item" :href="option.link">
-              <i :class="option.icon + ' me-2'"></i> {{ option.name }}
-            </a>
+            <router-link class="dropdown-item" :to="option.link">
+              <i :class="option.icon + ' me-2'"></i> {{ option.name || "User" }}
+            </router-link>
           </li>
           <li>
             <hr class="dropdown-divider" />

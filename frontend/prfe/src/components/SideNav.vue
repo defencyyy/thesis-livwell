@@ -3,13 +3,13 @@
     <div :class="['sidebar']">
       <div class="sidebar-header">
         <img
-          v-if="company?.logo"
-          :src="getLogoUrl(company.logo)"
+          v-if="tempLogo"
+          :src="tempLogo"
           class="sidebar-logo"
           alt="Company Logo"
         />
         <i v-else class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
-        <h4 id="sidebar-title">{{ company?.name || "Company Name" }}</h4>
+        <h4 id="sidebar-title">{{ tempCompanyName || "Company Name" }}</h4>
       </div>
 
       <nav class="sidebar-nav">
@@ -88,10 +88,14 @@ export default {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
       menuItems: [],
+      tempLogo: null, // Variable to store the logo temporarily
+      tempCompanyName: null, // Variable to store the company name temporarily
     };
   },
   created() {
     this.setMenuItems();
+    this.setTemporaryLogo(); // Set the temporary logo
+    this.setTemporaryCompanyName(); // Set the temporary company name
   },
   computed: {
     // Map company data from Vuex store
@@ -103,6 +107,18 @@ export default {
     }),
   },
   methods: {
+    setTemporaryLogo() {
+      // Store the logo temporarily, only if it exists in Vuex
+      if (this.company?.logo) {
+        this.tempLogo = `http://localhost:8000${this.company.logo}`;
+      }
+    },
+    setTemporaryCompanyName() {
+      // Store the company name temporarily, only if it exists in Vuex
+      if (this.company?.name) {
+        this.tempCompanyName = this.company.name;
+      }
+    },
     setMenuItems() {
       if (this.userRole === "developer") {
         this.menuItems = [
