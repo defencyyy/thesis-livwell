@@ -22,6 +22,7 @@ def get_company(request):
         raise ValueError("Company not found for this developer.")
     return company
 
+
 class UnitTemplateListView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -33,21 +34,63 @@ class UnitTemplateListView(APIView):
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        company = get_company(request)
-        data = request.data.copy()
-        data['company'] = company.id
-        serializer = UnitTemplateSerializer(data=data)
+        try:
+            company = get_company(request)
+            data = request.data  # Use request.data directly (no copy)
+            data['company'] = company.id
+            serializer = UnitTemplateSerializer(data=data)
 
-        if serializer.is_valid():
-            template = serializer.save()
-            images_data = request.FILES.getlist('images')
-            if images_data:
-                for image in images_data:
-                    UnitImage.objects.create(unit_template=template, image=image)
+            # Validate that required fields are present
+            if not data.get('unit_type'):
+                return Response({"error": "Unit type must be specified."}, status=status.HTTP_400_BAD_REQUEST)
+            if not data.get('name'):
+                return Response({"error": "Name must be specified."}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({"success": True, "data": UnitTemplateSerializer(template).data}, status=status.HTTP_201_CREATED)
+            if serializer.is_valid():
+                template = serializer.save()
+
+                # Handle images if present
+                self._handle_images(request, template)
+
+                return Response({"success": True, "data": UnitTemplateSerializer(template).data}, status=status.HTTP_201_CREATED)
+
+            return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Error creating template: {str(e)}\n{traceback.format_exc()}")
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def _handle_images(self, request, template):
+        # Get the list of images from the request
+        images = request.FILES.getlist("images")  # Use getlist() to receive an array of images
         
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        if images:
+            image_types = request.data.getlist("image_types", [])
+            primaries = request.data.getlist("primaries", [])
+            
+            for i, image in enumerate(images):
+                try:
+                    image_type = image_types[i] if i < len(image_types) else 'unit'
+                    primary = primaries[i] if i < len(primaries) else False
+
+                    # Ensure that the value is a boolean
+                    primary = True if str(primary).lower() == "true" else False
+
+                    # Then create the image
+                    unit_image = UnitImage.objects.create(
+                        unit_template=template,
+                        image=image,
+                        image_type=image_type,
+                        primary=primary  # Now it will always be a boolean
+                    )
+
+                    logger.info(f"Image successfully added: {unit_image}")
+
+                except Exception as e:
+                    logger.error(f"Error saving image: {e}\n{traceback.format_exc()}")
+                    return Response({"error": f"Error saving image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class UnitTemplateDetailView(APIView):
     authentication_classes = [JWTAuthentication]

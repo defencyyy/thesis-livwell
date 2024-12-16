@@ -214,7 +214,7 @@
                 <label for="templateName">Name</label>
                 <input
                   type="text"
-                  v-model="newTemplate.templateName"
+                  v-model="newTemplate.name"
                   class="form-control"
                   required
                 />
@@ -224,7 +224,7 @@
               <div class="form-group mb-3">
                 <label for="templateDescription">Description</label>
                 <textarea
-                  v-model="newTemplate.templateDescription"
+                  v-model="newTemplate.description"
                   class="form-control"
                   rows="3"
                 ></textarea>
@@ -234,8 +234,8 @@
               <div class="form-group mb-3">
                 <label for="templateType">Unit Type</label>
                 <b-form-select
-                  v-model="newTemplate.templateType"
-                  :options="unitTypesOptions"
+                  v-model="newTemplate.unit_type"
+                  :options="selectUnitTypeOptions"
                   required
                 />
               </div>
@@ -245,7 +245,7 @@
                 <label for="templatePrice">Price</label>
                 <input
                   type="number"
-                  v-model="newTemplate.templatePrice"
+                  v-model="newTemplate.price"
                   class="form-control"
                   required
                 />
@@ -261,7 +261,7 @@
                     <label for="templateBedrooms">Bedrooms</label>
                     <input
                       type="number"
-                      v-model="newTemplate.templateBedroom"
+                      v-model="newTemplate.bedroom"
                       class="form-control"
                       required
                     />
@@ -272,7 +272,7 @@
                     <label for="templateBathrooms">Bathrooms</label>
                     <input
                       type="number"
-                      v-model="newTemplate.templateBathroom"
+                      v-model="newTemplate.bathroom"
                       class="form-control"
                       required
                     />
@@ -287,7 +287,7 @@
                     <label for="templateFloorArea">Floor Area</label>
                     <input
                       type="number"
-                      v-model="newTemplate.templateFloorArea"
+                      v-model="newTemplate.floor_area"
                       class="form-control"
                     />
                   </div>
@@ -297,7 +297,7 @@
                     <label for="templateLotArea">Lot Area</label>
                     <input
                       type="number"
-                      v-model="newTemplate.templateLotArea"
+                      v-model="newTemplate.lot_area"
                       class="form-control"
                     />
                   </div>
@@ -306,10 +306,10 @@
 
               <!-- Image Upload -->
               <div class="form-group mb-3">
-                <label for="image">Upload Images</label>
+                <label for="image">Upload Images (Max:5)</label>
                 <input
                   type="file"
-                  @change="handleImageUpload"
+                  @change="handleFileChange"
                   class="form-control"
                   accept="image/*"
                   multiple
@@ -577,6 +577,18 @@ export default {
       ];
     },
 
+    selectUnitTypeOptions() {
+      return [
+        { value: null, text: "Select" },
+        ...this.unitTypes
+          .filter((type) => !type.is_archived) // Exclude archived types
+          .map((type) => ({
+            value: type.id,
+            text: type.name,
+          })),
+      ];
+    },
+
     filteredTemplates() {
       return this.templates.filter((template) => {
         const matchesSearch = template.name
@@ -643,24 +655,24 @@ export default {
       }
     },
 
-    // Handle image upload
-    handleImageUpload(event) {
+    handleFileChange(event) {
       const files = event.target.files;
-      if (files) {
-        this.selectedImages = Array.from(files);
-        this.imagePreviews = this.selectedImages.map((file) =>
-          URL.createObjectURL(file)
+      if (files && files.length > 0) {
+        this.selectedImages = Array.from(files); // Store files
+        this.imagePreviews = this.selectedImages.map(
+          (file) => URL.createObjectURL(file) // Generate image previews
         );
       }
     },
 
+    // Create template with image files
     async createTemplate() {
       try {
-        // Validate form fields (add checks based on required fields for templates)
+        // Validate form fields
         if (
-          !this.newTemplate.templateName || // Replace with actual template fields
-          !this.newTemplate.templateType || // Add all required template fields here
-          !this.newTemplate.templatePrice
+          !this.newTemplate.name ||
+          !this.newTemplate.unit_type ||
+          !this.newTemplate.price
         ) {
           alert("Please fill in all the required fields.");
           return;
@@ -669,31 +681,36 @@ export default {
         // Create a FormData object to send both template data and images
         const formData = new FormData();
 
-        // Append form data fields for the template
-        formData.append("name", this.newTemplate.templateName);
-        formData.append("unit_type", this.newTemplate.templateType);
-        formData.append("description", this.newTemplate.templateDescription);
-        formData.append("price", this.newTemplate.templatePrice);
-        formData.append("lot_area", this.newTemplate.templateLotArea);
-        formData.append("floor_area", this.newTemplate.templateFloorArea);
-        // Add fields from your template form here.
+        // Append template data fields
+        formData.append("name", this.newTemplate.name);
+        formData.append("unit_type", this.newTemplate.unit_type);
+        formData.append("description", this.newTemplate.description);
+        formData.append("bathroom", this.newTemplate.bathroom);
+        formData.append("bedroom", this.newTemplate.bedroom);
+        formData.append("price", this.newTemplate.price);
+        formData.append("lot_area", this.newTemplate.lot_area);
+        formData.append("floor_area", this.newTemplate.floor_area);
 
-        // If there are selected images, append them
-        if (this.selectedImages && this.selectedImages.length) {
-          console.log("Selected images:", this.selectedImages);
+        // Append selected images
+        if (this.selectedImages.length > 0) {
+          // Append images without using index notation
           this.selectedImages.forEach((file) => {
-            formData.append("images", file); // Use a simple name
+            console.log(file); // Check the file object before appending
+            formData.append("images", file);
+            formData.append("image_types", "unit_template");
+            formData.append("primaries", false);
           });
         } else {
           console.log("No images selected.");
         }
 
-        // Log FormData content for debugging
+        // Log FormData contents (for debugging)
         console.log("FormData contents before sending to backend:");
         for (let pair of formData.entries()) {
           console.log(pair[0], pair[1]);
         }
 
+        // Send the form data to the backend
         const response = await axios.post(
           "http://localhost:8000/developer/units/templates/",
           formData,
@@ -705,6 +722,7 @@ export default {
           }
         );
 
+        // Handle the response (template created successfully)
         this.templates.push(response.data.data);
         this.closeCreateModal();
 
@@ -719,6 +737,8 @@ export default {
         this.showNotification = true;
       }
     },
+
+    // Modify the save template method to handle images the same way
     async saveTemplateChanges() {
       this.showConfirmation(
         "Are you sure you want to save these changes?",
@@ -732,9 +752,10 @@ export default {
             formData.append("lot_area", this.selectedTemplate.lot_area);
             formData.append("floor_area", this.selectedTemplate.floor_area);
 
+            // Append selected images to form data for updating template
             if (this.selectedImages.length) {
               this.selectedImages.forEach((file) => {
-                formData.append("images", file);
+                formData.append("images", file); // Append each image
               });
             }
 

@@ -256,13 +256,7 @@ class UnitTemplate(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['company', 'name'], name='unique_unit_template_per_company')
         ]
-
-    def clean(self):
-        # Ensure floor_area is greater than or equal to lot_area
-        if self.floor_area is not None and self.lot_area is not None:
-            if self.floor_area < self.lot_area:
-                raise ValidationError("Floor area must be greater than or equal to lot area.")
-
+        
     def save(self, *args, **kwargs):
         # Helper function to handle 'null' or empty values
         def convert_to_decimal(value):
