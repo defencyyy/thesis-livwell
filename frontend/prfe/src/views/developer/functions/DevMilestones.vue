@@ -565,6 +565,17 @@ export default {
           }
         });
     },
+    paginatedMilestones() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredBrokers.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredBrokers.length / this.itemsPerPage);
+    },
   },
   mounted() {
     if (!this.companyId) {
