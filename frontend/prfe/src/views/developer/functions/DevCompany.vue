@@ -56,7 +56,7 @@
                 </div>
 
                 <div
-                  class="d-flex justify-content-end"
+                  class="d-flex justify-content-end gap-2 mt-30"
                   style="padding-top: 15px"
                 >
                   <button
@@ -104,8 +104,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
