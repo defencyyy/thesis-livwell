@@ -504,6 +504,9 @@ export default {
       confirmParams: [],
       sortBy: "total_sales", // Default sort by name
       sortOrder: "desc", // Default ascending order
+       // Pagination
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
   computed: {
