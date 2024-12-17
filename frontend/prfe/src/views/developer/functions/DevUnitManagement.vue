@@ -593,10 +593,12 @@
                       <small>Upload Photos (Max:5)</small>
                       <input
                         type="file"
+                        ref="fileInput"
                         @change="handleFileChange"
                         multiple
                         accept="image/jpeg, image/png, image/jpg"
                         class="form-control"
+                        :disabled="isTemplateSelected"
                       />
                     </b-form-group>
                   </b-col>
@@ -756,6 +758,7 @@
                         @click="triggerAddImage"
                         class="btn-add me-2"
                         style="width: 100px"
+                        :disabled="isTemplateSelected"
                       >
                         Add Image
                       </b-button>
@@ -1114,10 +1117,12 @@
                       <small>Upload Images (Max: 5)</small>
                       <input
                         type="file"
+                        ref="fileInput"
                         @change="handleFileChange"
                         multiple
                         accept="image/jpeg, image/png, image/jpg"
                         class="form-control"
+                        :disabled="isTemplateSelected"
                       />
                     </b-form-group>
                   </b-col>
@@ -1465,12 +1470,30 @@ export default {
 
         if (!this.selectedUnitTemplate) {
           this.isTemplateSelected = false;
-          this.resetTemplateFields();
+          this.resetTemplateFields(); // Clear the form fields
+          this.clearImages(); // Clear the images and reset the file input
         } else {
           this.isTemplateSelected = true;
-          this.loadTemplateData();
+          this.resetTemplateFields(); // Clear the form before loading template data
+          this.clearImages(); // Clear the images before loading the template
+          this.loadTemplateData(); // Load data from the selected template
         }
       }, 0);
+    },
+    clearImages() {
+      // Only clear images if selectedUnit is defined
+      if (this.selectedUnit && Array.isArray(this.selectedUnit.images)) {
+        this.selectedUnit.images = []; // Clear images array
+      }
+
+      // Clear any other image file tracking array
+      this.imageFile = [];
+
+      // Reset the file input element using Vue's ref
+      const fileInput = this.$refs.fileInput;
+      if (fileInput) {
+        fileInput.value = ""; // Clear the file input field
+      }
     },
     resetTemplateFields() {
       this.newUnitType = "";
@@ -1558,6 +1581,211 @@ export default {
       }
     },
 
+    async addUnits() {
+      // Validate form fields
+      if (
+        !this.newUnitSections.length ||
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitQuantity
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+
+      // Create a FormData object to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Append template data if a template is selected
+      if (this.selectedUnitTemplate) {
+        formData.append("unit_template_id", this.selectedUnitTemplate);
+      }
+
+      // Append the selected section IDs as an array
+      this.newUnitSections.forEach((sectionId) => {
+        formData.append("section_ids[]", sectionId);
+      });
+
+      if (this.newUnitImages && this.newUnitImages.length) {
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      try {
+        // Send the FormData to the backend
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          this.fetchSiteDetails(); // Refresh the site details
+          this.showAddUnitsModal = false; // Close the modal
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit/s updated successfully!";
+          this.showNotification = true;
+          // Reset the form after successful submission
+          this.resetForm();
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.showNotification = true;
+      }
+    },
+    async addSectionUnits(sectionId) {
+      // Validate form fields
+      if (
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitQuantity ||
+        !sectionId
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+
+      // Create FormData to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Append template data if a template is selected
+      if (this.selectedUnitTemplate) {
+        formData.append("unit_template_id", this.selectedUnitTemplate);
+      }
+
+      // Append the selected section ID
+      formData.append("section_ids[]", sectionId); // Directly pass the sectionId
+
+      // Log the selected images
+      if (this.newUnitImages && this.newUnitImages.length) {
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          this.openUnitManagement({ id: sectionId });
+          this.fetchSiteDetails(); // Refresh site details
+          this.showAddSectionUnitsModal = false; // Close the modal
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Unit/s updated successfully!";
+          this.showNotification = true;
+          // Reset the form after successful submission
+          this.resetForm();
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.showNotification = true;
+      }
+    },
+
+    resetForm() {
+      this.newUnitType = null;
+      this.newUnitPrice = null;
+      this.newUnitQuantity = null;
+      this.newUnitTitle = "";
+      this.newUnitBedroom = null;
+      this.newUnitBathroom = null;
+      this.newUnitLotArea = null;
+      this.newUnitFloorArea = null;
+      this.newUnitStatus = "";
+      this.newUnitView = "";
+      this.newUnitBalcony = false;
+      this.newUnitCommission = null;
+      this.newUnitSpotDiscountPercentage = null;
+      this.newUnitSpotDiscountFlat = null;
+      this.newUnitReservationFee = null;
+      this.newUnitOtherCharges = null;
+      this.newUnitVatPercentage = null;
+      this.clearImages();
+      this.newUnitSections = []; // Reset sections
+      this.newUnitImages = []; // Clear image files
+      this.selectedUnitTemplate = null; // Clear selected template
+      this.resetTemplateFields();
+      this.isTemplateSelected = false;
+    },
     // Navigation methods
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPage) {
@@ -1657,94 +1885,6 @@ export default {
         alert("An error occurred while fetching unit types.");
       }
     },
-    async addUnits() {
-      // Validate form fields
-      if (
-        !this.newUnitSections.length ||
-        !this.newUnitType ||
-        !this.newUnitPrice ||
-        !this.newUnitQuantity
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create a FormData object to send both unit data and images
-      const formData = new FormData();
-      formData.append("quantity", this.newUnitQuantity);
-      formData.append("unit_type_id", this.newUnitType);
-      formData.append("unit_title", this.newUnitTitle);
-      formData.append("bedroom", this.newUnitBedroom);
-      formData.append("bathroom", this.newUnitBathroom);
-      formData.append("lot_area", this.newUnitLotArea);
-      formData.append("floor_area", this.newUnitFloorArea);
-      formData.append("price", this.newUnitPrice);
-      formData.append("status", this.newUnitStatus);
-      formData.append("view", this.newUnitView);
-      formData.append("balcony", this.newUnitBalcony);
-      formData.append("commission", this.newUnitCommission);
-      formData.append(
-        "spot_discount_percentage",
-        this.newUnitSpotDiscountPercentage
-      );
-      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
-      formData.append("reservation_fee", this.newUnitReservationFee);
-      formData.append("other_charges", this.newUnitOtherCharges);
-      formData.append("vat_percentage", this.newUnitVatPercentage);
-
-      // Append template data if a template is selected
-      if (this.selectedUnitTemplate) {
-        formData.append("unit_template_id", this.selectedUnitTemplate);
-      }
-
-      // Append the selected section IDs as an array
-      this.newUnitSections.forEach((sectionId) => {
-        formData.append("section_ids[]", sectionId);
-      });
-
-      if (this.newUnitImages && this.newUnitImages.length) {
-        for (let i = 0; i < this.newUnitImages.length; i++) {
-          const image = this.newUnitImages[i];
-
-          // Append image file with a unique key based on index
-          formData.append(`images[${i}]`, image);
-
-          // Append image type and primary flag with unique keys as well
-          formData.append(`image_types[${i}]`, image.image_type || "Unit");
-          formData.append(`primaries[${i}]`, image.primary || false);
-
-          // Log the data for debugging
-        }
-      } else {
-        console.log("No images selected.");
-      }
-
-      try {
-        // Send the FormData to the backend
-        const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (response.status === 201) {
-          this.fetchSiteDetails(); // Refresh the site details
-          this.showAddUnitsModal = false; // Close the modal
-          this.notificationTitle = "Success";
-          this.notificationMessage = "Unit/s updated successfully!";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while adding unit/s.";
-        this.showNotification = true;
-      }
-    },
     toggleAddUnitsModal() {
       this.showAddUnitsModal = !this.showAddUnitsModal;
       if (!this.showAddUnitsModal) {
@@ -1765,88 +1905,6 @@ export default {
     openAddUnitModalForSection(sectionId) {
       this.newUnitSections = [sectionId]; // Set the section ID in the array
       this.showAddSectionUnitsModal = true; // Open the modal to add units to the specific section
-    },
-    async addSectionUnits(sectionId) {
-      // Validate form fields
-      if (
-        !this.newUnitType ||
-        !this.newUnitPrice ||
-        !this.newUnitQuantity ||
-        !sectionId
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create FormData to send both unit data and images
-      const formData = new FormData();
-      formData.append("quantity", this.newUnitQuantity);
-      formData.append("unit_type_id", this.newUnitType);
-      formData.append("unit_title", this.newUnitTitle);
-      formData.append("bedroom", this.newUnitBedroom);
-      formData.append("bathroom", this.newUnitBathroom);
-      formData.append("lot_area", this.newUnitLotArea);
-      formData.append("floor_area", this.newUnitFloorArea);
-      formData.append("price", this.newUnitPrice);
-      formData.append("status", this.newUnitStatus);
-      formData.append("view", this.newUnitView);
-      formData.append("balcony", this.newUnitBalcony);
-      formData.append("commission", this.newUnitCommission);
-      formData.append(
-        "spot_discount_percentage",
-        this.newUnitSpotDiscountPercentage
-      );
-      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
-      formData.append("reservation_fee", this.newUnitReservationFee);
-      formData.append("other_charges", this.newUnitOtherCharges);
-      formData.append("vat_percentage", this.newUnitVatPercentage);
-
-      // Append the selected section ID
-      formData.append("section_ids[]", sectionId); // Directly pass the sectionId
-
-      // Log the selected images
-      if (this.newUnitImages && this.newUnitImages.length) {
-        for (let i = 0; i < this.newUnitImages.length; i++) {
-          const image = this.newUnitImages[i];
-
-          // Append image file with a unique key based on index
-          formData.append(`images[${i}]`, image);
-
-          // Append image type and primary flag with unique keys as well
-          formData.append(`image_types[${i}]`, image.image_type || "Unit");
-          formData.append(`primaries[${i}]`, image.primary || false);
-
-          // Log the data for debugging
-        }
-      } else {
-        console.log("No images selected.");
-      }
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (response.status === 201) {
-          this.openUnitManagement({ id: sectionId });
-          this.fetchSiteDetails(); // Refresh site details
-          this.showAddSectionUnitsModal = false; // Close the modal
-          this.notificationTitle = "Success";
-          this.notificationMessage = "Unit/s updated successfully!";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while adding unit/s.";
-        this.showNotification = true;
-      }
     },
 
     async openUnitManagement(section) {
