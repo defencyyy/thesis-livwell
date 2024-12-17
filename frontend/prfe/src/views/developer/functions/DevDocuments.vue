@@ -80,7 +80,7 @@
               id="documentTypeName"
               v-model="newDocumentType.name"
               placeholder="Enter document type name"
-              :readonly="newDocumentType.id ? true : false"
+              :disabled="newDocumentType.id ? true : false"
               :class="{ 'is-invalid': nameError }"
             />
             <div v-if="nameError" class="invalid-feedback">
