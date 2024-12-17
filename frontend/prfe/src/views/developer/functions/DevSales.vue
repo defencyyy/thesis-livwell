@@ -597,8 +597,15 @@ export default {
 
     // Generate file URL
     getFileUrl(filePath) {
-      return `http://localhost:8000${filePath}`;
-    },
+      console.log(filePath);
+  // Check if the file path contains '/media/' and adjust the path
+  if (filePath.startsWith('/media/')) {
+    // Replace '/media/' with '/media/reservations/' to match the correct folder
+    return `http://localhost:8000/media/reservations${filePath.slice(6)}`;
+  }
+  // If the path doesn't start with '/media/', just return the original URL
+  return `http://localhost:8000${filePath}`;
+},
 
     // Redirect to login page
     redirectToLogin() {
