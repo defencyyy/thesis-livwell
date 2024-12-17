@@ -283,6 +283,10 @@ export default {
           this.notificationMessage = "Company updated successfully!";
           this.showNotification = true;
           this.company.originalDescription = this.company.description;
+          // Update logo in Vuex and localStorage
+          const updatedCompany = response.data;
+          this.$store.commit("setCompany", updatedCompany);
+
           this.fetchCompany();
         } else {
           this.notificationTitle = "Error";
