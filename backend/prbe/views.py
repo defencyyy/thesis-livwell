@@ -1079,8 +1079,15 @@ def get_sales_detail(request, sales_detail_id):
         'customer_name': f"{customer.first_name} {customer.last_name}",  # Customer full name
         'unit_name': unit.unit_title, # Unit title
         'company_name': company.name,  # Company name
+        'company_logo': None,  # Default value if logo doesn't existZ
 
     }
+
+    # Check if the company has a logo and add it to the response
+    if company.logo:
+        base_url = 'http://localhost:8000'  # This is your domain or base URL
+        company_logo_url = base_url + settings.MEDIA_URL + str(company.logo)
+        sales_detail_data['company_logo'] = company_logo_url
 
     # Add the reservation agreement URL
     if sales_detail.reservation_agreement:

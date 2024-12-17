@@ -17,12 +17,23 @@
       <!-- Side Bar -->
       <div class="sidebar">
         <div class="sidebar-header">
-          <i class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
-          <!-- Font Awesome Icon -->
+          <!-- If company.logo exists, show the company logo -->
+          <img
+            v-if="salesDetail?.company_logo"
+            :src="salesDetail.company_logo"
+            alt="Company Logo"
+            class="sidebar-logo"
+            style="max-width: 100%; height: auto"
+          />
+          <!-- Fallback to the Font Awesome icon if no logo is available -->
+          <i v-else class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
+
+          <!-- Company Name -->
           <h4 id="sidebar-title">
             {{ salesDetail?.company_name || "Company Name" }}
           </h4>
         </div>
+
         <nav class="sidebar-nav">
           <b-nav vertical pills>
             <!-- Document Status Tab -->
@@ -365,6 +376,7 @@ export default {
           alert("Sales details not found");
         } else {
           this.salesDetail = data; // Store the sales details in data
+          console.log(data); // Inspect the API response in the browser console
           this.applySpotCashDiscount(); // Call the function after the data is fetched
           this.applyTLPDiscount();
           this.updateNetUnitPrice();
@@ -372,6 +384,7 @@ export default {
           this.calculateVAT();
           this.calculateFinancingDetails();
           this.fetchDocuments();
+          this.salesDetail.company_logo = `${this.salesDetail.company_logo}`; // Set the logo URL
         }
       } catch (error) {
         console.error("Error fetching sales details:", error);
@@ -551,12 +564,6 @@ body {
   height: 68px;
   box-sizing: border-box;
   margin-top: 5px;
-  margin-left: 20px;
-}
-
-.sidebar-logo {
-  font-size: 24px;
-  margin-right: 10px;
 }
 
 #sidebar-title {
@@ -870,6 +877,15 @@ button:hover {
 
 .details-card strong {
   font-weight: bold;
+}
+
+.sidebar-logo {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 10px;
+  margin-left: 5px;
+  object-fit: cover;
 }
 
 /* Media queries for responsiveness in HEADER */
