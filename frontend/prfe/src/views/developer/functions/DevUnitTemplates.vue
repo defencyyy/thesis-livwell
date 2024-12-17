@@ -45,6 +45,16 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
+                    <select v-model="sortBy" class="dropdown">
+                      <option value="id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+                    </select>
+
+                    <!-- Sort Order Dropdown -->
+                    <select v-model="sortOrder" class="dropdown">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
                     <select
                       v-model="viewFilter"
                       @change="toggleView(viewFilter)"
@@ -81,7 +91,7 @@
               </div>
 
               <div
-                v-for="template in filteredTemplates"
+                v-for="template in paginatedTemplates"
                 :key="template.id"
                 class="card border-0 rounded-1 mx-auto my-2"
                 style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -93,7 +103,7 @@
                         <!-- Relative ID: Example - Company-based and sequential order -->
                         <td>
                           <span>
-                            {{ template.relativeId || "N/A" }}
+                            {{ template.relative_id || "N/A" }}
                           </span>
                         </td>
 
@@ -184,6 +194,49 @@
                   </table>
                 </div>
               </div>
+              <!-- Pagination Controls -->
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li :class="['page-item', { disabled: currentPage === 1 }]">
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(currentPage - 1)"
+                      aria-label="Previous"
+                    >
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                  <li
+                    v-for="page in totalPages"
+                    :key="page"
+                    :class="['page-item', { active: page === currentPage }]"
+                  >
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(page)"
+                    >
+                      {{ page }}
+                    </a>
+                  </li>
+                  <li
+                    :class="[
+                      'page-item',
+                      { disabled: currentPage === totalPages },
+                    ]"
+                  >
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(currentPage + 1)"
+                      aria-label="Next"
+                    >
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
@@ -316,7 +369,7 @@
                 />
               </div>
 
-              <!-- Image Previews -->
+              <!-- Image Preview -->
               <div v-if="imagePreviews.length" class="image-previews">
                 <div class="d-flex gap-2">
                   <img
@@ -352,144 +405,157 @@
       centered
       size="lg"
     >
-
-    <div class="modal-title p-3">
-              <h5 class="mb-0">Edit Unit Template</h5>
-            </div>
+      <div class="modal-title p-3">
+        <h5 class="mb-0">Edit Unit Template</h5>
+      </div>
 
       <div class="p-3">
         <form
           @submit.prevent="saveTemplateChanges"
           enctype="multipart/form-data"
         >
-        <div class="row">
+          <div class="row">
             <!-- Left Section -->
             <div class="col-md-6">
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateName">Name</label>
-              <input
-                type="text"
-                v-model="selectedTemplate.name"
-                class="form-control"
-                required
-              />
-            </div>
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templateName">Name</label>
+                <input
+                  type="text"
+                  v-model="selectedTemplate.name"
+                  class="form-control"
+                  disabled
+                  required
+                />
+              </div>
 
-            <!-- Description Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateDescription">Description</label>
-              <textarea
-                v-model="selectedTemplate.description"
-                class="form-control"
-                rows="3"
-              ></textarea>
-            </div>
+              <!-- Description Field -->
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templateDescription">Description</label>
+                <textarea
+                  v-model="selectedTemplate.description"
+                  class="form-control"
+                  rows="3"
+                ></textarea>
+              </div>
 
-            <!-- Unit Type Dropdown -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateType">Unit Type</label>
-              <b-form-select
-                v-model="selectedTemplate.unit_type"
-                :options="unitTypesOptions"
-                required
-              />
-            </div>
+              <!-- Unit Type Dropdown -->
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templateType">Unit Type</label>
+                <b-form-select
+                  v-model="selectedTemplate.unit_type"
+                  :options="unitTypesOptions"
+                  disabled
+                  required
+                />
+              </div>
             </div>
 
             <div class="col-md-6">
               <!-- Bedrooms and Bathrooms Fields -->
               <div class="row">
                 <div class="col-md-6">
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateBedrooms">Bedrooms</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.bedroom"
-                class="form-control"
-                required
-              />
-            </div>
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateBedrooms">Bedrooms</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.bedroom"
+                      class="form-control"
+                      disabled
+                      required
+                    />
+                  </div>
                 </div>
                 <div class="col-md-6">
-            <!-- Bathrooms Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateBathrooms">Bathrooms</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.bathroom"
-                class="form-control"
-                required
-              />
-            </div>
+                  <!-- Bathrooms Field -->
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateBathrooms">Bathrooms</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.bathroom"
+                      class="form-control"
+                      disabled
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-6">
-            <!-- Floor Area Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateFloorArea">Floor Area</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.floor_area"
-                class="form-control"
-              />
-            </div>
-          </div>
-          <div class="col-md-6">
-            <!-- Lot Area Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templateLotArea">Lot Area</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.lot_area"
-                class="form-control"
-              />
-            </div>
+                  <!-- Floor Area Field -->
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateFloorArea">Floor Area</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.floor_area"
+                      disabled
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <!-- Lot Area Field -->
+                  <div v-if="selectedTemplate" class="form-group mb-3">
+                    <label for="templateLotArea">Lot Area</label>
+                    <input
+                      type="number"
+                      v-model="selectedTemplate.lot_area"
+                      disabled
+                      class="form-control"
+                    />
+                  </div>
                 </div>
               </div>
 
-            <!-- Price Field -->
-            <div v-if="selectedTemplate" class="form-group mb-3">
-              <label for="templatePrice">Price</label>
-              <input
-                type="number"
-                v-model="selectedTemplate.price"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- Image Previews -->
-            <!-- <div
-              v-if="
-                selectedTemplate &&
-                selectedTemplate.images &&
-                selectedTemplate.images.length > 0
-              "
-              class="existing-images"
-            >
-              <h5>Existing Images</h5>
-              <div class="d-flex gap-2">
-                <img
-                  v-for="(image, index) in selectedTemplate.images"
-                  :key="index"
-                  :src="image.image_url"
-                  class="img-thumbnail"
-                  style="width: 100px; height: 100px"
+              <!-- Price Field -->
+              <div v-if="selectedTemplate" class="form-group mb-3">
+                <label for="templatePrice">Price</label>
+                <input
+                  type="number"
+                  v-model="selectedTemplate.price"
+                  class="form-control"
+                  disabled
+                  required
                 />
               </div>
-            </div> -->
+
+              <!-- Image Previews -->
+              <div
+                v-if="
+                  selectedTemplate &&
+                  selectedTemplate.images &&
+                  selectedTemplate.images.length > 0
+                "
+                class="form-group mb-3"
+              >
+                <label for="existingImages">Existing Images</label>
+                <div class="d-flex gap-2">
+                  <img
+                    v-for="(image, index) in selectedTemplate.images"
+                    :key="index"
+                    :src="getPictureUrl(image.image)"
+                    class="img-thumbnail"
+                    style="width: 100px; height: 100px"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          </div>
-            
 
           <div
             class="d-flex justify-content-end gap-2 mt-30"
             style="padding-top: 15px"
           >
-            <button type="submit" class="btn-add" style="width: 150px;">Save Changes</button>
-            <button type="button" @click="isEditModalOpen = false" class="btn-cancel">Cancel</button>
+            <button type="submit" class="btn-add" style="width: 150px">
+              Save Changes
+            </button>
+            <button
+              type="button"
+              @click="isEditModalOpen = false"
+              class="btn-cancel"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -531,6 +597,7 @@
     </b-modal>
   </div>
 </template>
+
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
@@ -555,6 +622,8 @@ export default {
       imagePreviews: [],
       showArchived: false,
       viewFilter: "active",
+      sortBy: "id", // Default sort by name
+      sortOrder: "asc", // Default sort order ascending
 
       // Modal States
       isCreateModalOpen: false,
@@ -582,6 +651,8 @@ export default {
       confirmMessage: "",
       actionToConfirm: null,
       confirmParams: [],
+      currentPage: 1,
+      itemsPerPage: 15,
     };
   },
 
@@ -613,20 +684,58 @@ export default {
     },
 
     filteredTemplates() {
-      return this.templates.filter((template) => {
+      const filtered = this.templates.filter((template) => {
         const matchesSearch = template.name
           .toLowerCase()
           .includes(this.searchQuery.toLowerCase());
 
+        // Filtering by Active/Archived
         const isArchived =
           this.viewFilter === "archived"
             ? template.is_archived
-            : !template.is_archived;
+            : this.viewFilter === "active"
+            ? !template.is_archived
+            : true;
 
         return matchesSearch && isArchived;
       });
-    },
 
+      // Sorting by ID or Name, with default (is_custom: false) coming first
+      return filtered.sort((a, b) => {
+        // Handle is_custom prioritization before sorting by ID or Name
+        if (this.sortOrder === "asc") {
+          // Ascending: default (is_custom: false) comes first
+          if (a.is_custom === false && b.is_custom === true) {
+            return -1; // a (default) comes first
+          }
+          if (a.is_custom === true && b.is_custom === false) {
+            return 1; // b (default) comes first
+          }
+        } else if (this.sortOrder === "desc") {
+          // Descending: non-default (is_custom: true) comes first
+          if (a.is_custom === false && b.is_custom === true) {
+            return 1; // b (non-default) comes first
+          }
+          if (a.is_custom === true && b.is_custom === false) {
+            return -1; // a (non-default) comes first
+          }
+        }
+
+        // Sorting by ID if no is_custom difference
+        if (this.sortBy === "id") {
+          return this.sortOrder === "asc" ? a.id - b.id : b.id - a.id;
+        }
+
+        // Sorting by Name if no is_custom difference
+        if (this.sortBy === "name") {
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+          return this.sortOrder === "asc"
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
+        }
+      });
+    },
     archivedTemplates() {
       return this.templates.filter((template) => template.is_archived);
     },
@@ -634,8 +743,29 @@ export default {
     activeTemplates() {
       return this.templates.filter((template) => !template.is_archived);
     },
+    paginatedTemplates() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredTemplates.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredTemplates.length / this.itemsPerPage);
+    },
   },
   methods: {
+    getPictureUrl(picture) {
+      const url = `http://localhost:8000${picture}`;
+      console.log(url); // Check the URL being generated
+      return url;
+    },
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     toggleView(viewType) {
       this.viewFilter = viewType;
       if (this.viewFilter === "active") {
@@ -1354,5 +1484,13 @@ body {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 </style>

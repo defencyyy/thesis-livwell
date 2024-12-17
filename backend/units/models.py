@@ -6,6 +6,7 @@ from companies.models import Company
 from sites.models import Site, Section
 import os, re
 from decimal import Decimal
+from django.db.models import Max
 
 def logo_upload_path(instance, filename):
     company_name = instance.unit.company.name if instance.unit and instance.unit.company else 'new_company'
@@ -219,6 +220,14 @@ class Unit(models.Model):
 
         super().save(*args, **kwargs)
 
+    def get_unit_images_model(self):
+        if self.unit_template:
+            # Use images from the unit template if available
+            return self.unit_template.images.all()
+        else:
+            # Otherwise, return images from the unit
+            return self.images.all()
+
     class Meta:
         indexes = [
             models.Index(fields=['site', 'status']),
@@ -256,8 +265,21 @@ class UnitTemplate(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['company', 'name'], name='unique_unit_template_per_company')
         ]
+
+    def get_next_relative_id(self):
+        # Fetch the max relative_id for the company's unit templates
+        max_id = UnitTemplate.objects.filter(company=self.company).aggregate(Max('relative_id'))['relative_id__max']
         
+        # Convert max_id to integer if it's not None, otherwise start from 1
+        next_id = int(max_id) + 1 if max_id else 1
+        
+        return next_id
+
+
     def save(self, *args, **kwargs):
+        # Automatically set relative_id if not already set
+        if self.relative_id is None:
+            self.relative_id = self.get_next_relative_id()
         # Helper function to handle 'null' or empty values
         def convert_to_decimal(value):
             if value in ['null', None, '']:

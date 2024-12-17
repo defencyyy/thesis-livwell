@@ -6,17 +6,24 @@ class UnitImageSerializer(serializers.ModelSerializer):
     # Ensure that we are serializing the correct relation based on image_type
     unit = serializers.PrimaryKeyRelatedField(queryset=Unit.objects.all(), required=False)
     unit_template = serializers.PrimaryKeyRelatedField(queryset=UnitTemplate.objects.all(), required=False)
-
+    
     class Meta:
         model = UnitImage
         fields = '__all__'
 
     def validate(self, data):
         # Ensure that either 'unit' or 'unit_template' is provided depending on 'image_type'
-        if data['image_type'] == 'unit' and not data.get('unit'):
-            raise serializers.ValidationError("Unit must be set when the image type is 'unit'")
-        if data['image_type'] == 'unit_template' and not data.get('unit_template'):
-            raise serializers.ValidationError("Unit Template must be set when the image type is 'unit_template'")
+        if data['image_type'] == 'unit':
+            if not data.get('unit'):
+                raise serializers.ValidationError("Unit must be set when the image type is 'unit'")
+            if data.get('unit_template'):
+                raise serializers.ValidationError("Unit Template should not be set when the image type is 'unit'")
+        elif data['image_type'] == 'unit_template':
+            if not data.get('unit_template'):
+                raise serializers.ValidationError("Unit Template must be set when the image type is 'unit_template'")
+            if data.get('unit'):
+                raise serializers.ValidationError("Unit should not be set when the image type is 'unit_template'")
+
         return data
 
 class UnitTypeSerializer(serializers.ModelSerializer):

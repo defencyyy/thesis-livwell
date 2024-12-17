@@ -100,6 +100,7 @@ export default {
   computed: {
     // Map company data from Vuex store
     ...mapState({
+      loggedIn: (state) => state.loggedIn,
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
@@ -108,23 +109,40 @@ export default {
   },
   methods: {
     setTemporaryLogo() {
-      // Try to fetch logo from localStorage if it was previously set
       const storedLogo = localStorage.getItem("company_logo");
-      if (storedLogo) {
+      const currentLogo = this.company?.logo
+        ? `http://localhost:8000${this.company.logo}`
+        : null;
+
+      if (storedLogo && storedLogo === currentLogo) {
+        // If stored logo matches the current logo, use the stored one
         this.tempLogo = storedLogo;
-      } else if (this.company?.logo) {
-        this.tempLogo = `http://localhost:8000${this.company.logo}`;
-        localStorage.setItem("company_logo", this.tempLogo); // Store for future page refreshes
+      } else {
+        // If there's a mismatch or no stored logo, update localStorage with the new logo
+        this.tempLogo = currentLogo;
+        if (currentLogo) {
+          localStorage.setItem("company_logo", currentLogo);
+        } else {
+          localStorage.removeItem("company_logo");
+        }
       }
     },
+
     setTemporaryCompanyName() {
-      // Try to fetch company name from localStorage if it was previously set
       const storedName = localStorage.getItem("company_name");
-      if (storedName) {
+      const currentName = this.company?.name || null;
+
+      if (storedName && storedName === currentName) {
+        // If stored name matches the current name, use the stored one
         this.tempCompanyName = storedName;
-      } else if (this.company?.name) {
-        this.tempCompanyName = this.company.name;
-        localStorage.setItem("company_name", this.tempCompanyName); // Store for future page refreshes
+      } else {
+        // If there's a mismatch or no stored name, update localStorage with the new name
+        this.tempCompanyName = currentName;
+        if (currentName) {
+          localStorage.setItem("company_name", currentName);
+        } else {
+          localStorage.removeItem("company_name");
+        }
       }
     },
     setMenuItems() {
@@ -246,7 +264,14 @@ export default {
       }
     },
   },
-  watch: {},
+  watch: {
+    loggedIn(newVal) {
+      if (!newVal) {
+        this.tempLogo = null;
+        this.tempCompanyName = null;
+      }
+    },
+  },
 };
 </script>
 
