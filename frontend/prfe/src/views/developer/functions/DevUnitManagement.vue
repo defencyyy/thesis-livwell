@@ -26,7 +26,7 @@
                 :src="
                   getPictureUrl(site.picture) || require('@/assets/home.png')
                 "
-                alt="Site Image"
+                alt=""
                 class="site-image"
               />
             </div>
