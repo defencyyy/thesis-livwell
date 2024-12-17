@@ -143,9 +143,7 @@
               class="card border-0 rounded-1 mx-auto"
               style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); height: 60vh"
             >
-              <div class="card-body">
-                <DevMainPie :salesData="topSalesData" />
-              </div>
+              <div class="card-body"><DevMainChart /></div>
             </div>
           </div>
         </div>
@@ -159,12 +157,14 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+import DevMainChart from "@/components/DevMainChart.vue"; // Adjust the path to your actual file location
 
 export default {
   name: "DevMainPage",
   components: {
     SideNav,
     AppHeader,
+    DevMainChart,
   },
   data() {
     return {

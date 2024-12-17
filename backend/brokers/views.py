@@ -185,3 +185,31 @@ class ArchivedBrokerView(APIView):
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
         except Broker.DoesNotExist:
             return Response({"error": "Broker not found or not archived"}, status=status.HTTP_404_NOT_FOUND)
+
+from django.http import JsonResponse
+from django.db.models import Count
+from sales.models import Sale
+from .models import Broker
+
+def top_brokers(request):
+    # Query brokers and annotate with total sales count
+    brokers = Broker.objects.all()
+
+    # Sort brokers based on total sales
+    sorted_brokers = sorted(brokers, key=lambda broker: broker.total_sales, reverse=True)
+
+    # Get top 5 brokers
+    top_brokers = sorted_brokers[:5]
+
+    # Prepare the response data
+    broker_data = [
+        {
+            'id': broker.id,
+            'full_name': broker.get_full_name(),
+            'total_sales': broker.total_sales,  # Access the property here, don't set it
+            'total_commissions': broker.total_commissions,
+        }
+        for broker in top_brokers
+    ]
+
+    return JsonResponse(broker_data, safe=False)

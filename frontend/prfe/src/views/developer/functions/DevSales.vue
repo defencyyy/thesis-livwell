@@ -161,42 +161,42 @@
               </table>
             </div>
           </div>
-           <!-- Pagination Controls -->
-        <nav aria-label="Page navigation example">
-          <ul class="pagination">
-            <li :class="['page-item', { disabled: currentPage === 1 }]">
-              <a
-                class="page-link"
-                href="#"
-                @click.prevent="goToPage(currentPage - 1)"
-                aria-label="Previous"
+          <!-- Pagination Controls -->
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage - 1)"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: page === currentPage }]"
               >
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-            <li
-              v-for="page in totalPages"
-              :key="page"
-              :class="['page-item', { active: page === currentPage }]"
-            >
-              <a class="page-link" href="#" @click.prevent="goToPage(page)">
-                {{ page }}
-              </a>
-            </li>
-            <li
-              :class="['page-item', { disabled: currentPage === totalPages }]"
-            >
-              <a
-                class="page-link"
-                href="#"
-                @click.prevent="goToPage(currentPage + 1)"
-                aria-label="Next"
+                <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
               >
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage + 1)"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
         <p v-else>No sales match the selected criteria.</p>
 
@@ -395,7 +395,6 @@ export default {
       this.fetchSales();
       this.fetchUnits();
     }
-    
   },
   methods: {
     goToPage(pageNumber) {
@@ -597,9 +596,14 @@ export default {
 
     // Generate file URL
     getFileUrl(filePath) {
+      // Check if the file path contains '/media/' and adjust the path
+      if (filePath.startsWith("/media/")) {
+        // Replace '/media/' with '/media/reservations/' to match the correct folder
+        return `http://localhost:8000/media/reservations${filePath.slice(6)}`;
+      }
+      // If the path doesn't start with '/media/', just return the original URL
       return `http://localhost:8000${filePath}`;
     },
-
     // Redirect to login page
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
@@ -1116,16 +1120,14 @@ body {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {
