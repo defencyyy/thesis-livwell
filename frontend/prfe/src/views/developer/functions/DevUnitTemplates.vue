@@ -194,42 +194,49 @@
                   </table>
                 </div>
               </div>
-               <!-- Pagination Controls -->
-            <nav aria-label="Page navigation example">
-              <ul class="pagination">
-                <li :class="['page-item', { disabled: currentPage === 1 }]">
-                  <a
-                    class="page-link"
-                    href="#"
-                    @click.prevent="goToPage(currentPage - 1)"
-                    aria-label="Previous"
+              <!-- Pagination Controls -->
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li :class="['page-item', { disabled: currentPage === 1 }]">
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(currentPage - 1)"
+                      aria-label="Previous"
+                    >
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                  <li
+                    v-for="page in totalPages"
+                    :key="page"
+                    :class="['page-item', { active: page === currentPage }]"
                   >
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                <li
-                  v-for="page in totalPages"
-                  :key="page"
-                  :class="['page-item', { active: page === currentPage }]"
-                >
-                  <a class="page-link" href="#" @click.prevent="goToPage(page)">
-                    {{ page }}
-                  </a>
-                </li>
-                <li
-                  :class="['page-item', { disabled: currentPage === totalPages }]"
-                >
-                  <a
-                    class="page-link"
-                    href="#"
-                    @click.prevent="goToPage(currentPage + 1)"
-                    aria-label="Next"
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(page)"
+                    >
+                      {{ page }}
+                    </a>
+                  </li>
+                  <li
+                    :class="[
+                      'page-item',
+                      { disabled: currentPage === totalPages },
+                    ]"
                   >
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
+                    <a
+                      class="page-link"
+                      href="#"
+                      @click.prevent="goToPage(currentPage + 1)"
+                      aria-label="Next"
+                    >
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
@@ -513,25 +520,25 @@
               </div>
 
               <!-- Image Previews -->
-              <!-- <div
-              v-if="
-                selectedTemplate &&
-                selectedTemplate.images &&
-                selectedTemplate.images.length > 0
-              "
-              class="existing-images"
-            >
-              <h5>Existing Images</h5>
-              <div class="d-flex gap-2">
-                <img
-                  v-for="(image, index) in selectedTemplate.images"
-                  :key="index"
-                  :src="image.image_url"
-                  class="img-thumbnail"
-                  style="width: 100px; height: 100px"
-                />
+              <div
+                v-if="
+                  selectedTemplate &&
+                  selectedTemplate.images &&
+                  selectedTemplate.images.length > 0
+                "
+                class="existing-images"
+              >
+                <h5>Existing Images</h5>
+                <div class="d-flex gap-2">
+                  <img
+                    v-for="(image, index) in selectedTemplate.images"
+                    :key="index"
+                    :src="image.image_url"
+                    class="img-thumbnail"
+                    style="width: 100px; height: 100px"
+                  />
+                </div>
               </div>
-            </div> -->
             </div>
           </div>
 

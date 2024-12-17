@@ -220,6 +220,14 @@ class Unit(models.Model):
 
         super().save(*args, **kwargs)
 
+    def get_unit_images_model(self):
+        if self.unit_template:
+            # Use images from the unit template if available
+            return self.unit_template.images.all()
+        else:
+            # Otherwise, return images from the unit
+            return self.images.all()
+
     class Meta:
         indexes = [
             models.Index(fields=['site', 'status']),
@@ -262,10 +270,11 @@ class UnitTemplate(models.Model):
         # Fetch the max relative_id for the company's unit templates
         max_id = UnitTemplate.objects.filter(company=self.company).aggregate(Max('relative_id'))['relative_id__max']
         
-        # If no unit templates exist, start from 1
-        next_id = max_id + 1 if max_id else 1
+        # Convert max_id to integer if it's not None, otherwise start from 1
+        next_id = int(max_id) + 1 if max_id else 1
         
         return next_id
+
 
     def save(self, *args, **kwargs):
         # Automatically set relative_id if not already set

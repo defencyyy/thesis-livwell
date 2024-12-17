@@ -184,6 +184,7 @@ class UnitListView(APIView):
         
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UnitDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -194,7 +195,9 @@ class UnitDetailView(APIView):
         if not unit:
             return Response({"success": False, "message": "Unit not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        unit_images = unit.images.all()
+         # Fetch images using the get_unit_images method
+        unit_images = unit.get_unit_images_model()  # Calls the method on the Unit instance
+
         unit_serializer = UnitSerializer(unit)
         unit_images_serializer = UnitImageSerializer(unit_images, many=True)
 
@@ -328,6 +331,7 @@ class BulkAddUnitsView(APIView):
             quantity = int(data.get("quantity", 1))
             unit_type_id = data.get("unit_type_id")
             section_ids = data.getlist("section_ids[]", [])
+            unit_template_id = data.get("unit_template_id")  # Retrieve unit_template_id from request data
 
             # Validate required fields
             if not section_ids:
@@ -344,6 +348,14 @@ class BulkAddUnitsView(APIView):
                 unit_type = UnitType.objects.get(id=unit_type_id)
             except UnitType.DoesNotExist:
                 return Response({"error": f"Invalid unit type ID: {unit_type_id}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Fetch UnitTemplate (if unit_template_id is provided)
+            unit_template = None
+            if unit_template_id:
+                try:
+                    unit_template = UnitTemplate.objects.get(id=unit_template_id)
+                except UnitTemplate.DoesNotExist:
+                    return Response({"error": f"Invalid unit template ID: {unit_template_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
             created_units = []
             for section_id in section_ids:
@@ -377,6 +389,7 @@ class BulkAddUnitsView(APIView):
                         unit_type=unit_type,
                         company=company,
                         status="Available",
+                        unit_template=unit_template, 
                         **unit_fields
                     )
                     unit.save()

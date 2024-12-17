@@ -1692,7 +1692,10 @@ export default {
       formData.append("other_charges", this.newUnitOtherCharges);
       formData.append("vat_percentage", this.newUnitVatPercentage);
 
-      // Log the selected section IDs
+      // Append template data if a template is selected
+      if (this.selectedUnitTemplate) {
+        formData.append("unit_template_id", this.selectedUnitTemplate);
+      }
 
       // Append the selected section IDs as an array
       this.newUnitSections.forEach((sectionId) => {
