@@ -2197,6 +2197,9 @@ export default {
         // Dynamically call the function stored in actionToConfirm with the provided params
         await this.actionToConfirm(...this.confirmParams);
         this.showConfirmModal = false; // Close modal after confirmation
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Unit updated successfully.";
+        this.showNotification = true;
       } catch (error) {
         this.showConfirmModal = false; // Close modal on error
         this.notificationTitle = "Error";
