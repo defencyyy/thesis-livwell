@@ -121,6 +121,8 @@ export default {
         localStorage.removeItem("user_id");
         localStorage.removeItem("user_role");
         localStorage.removeItem("company_id");
+        localStorage.removeItem("company_logo"); // Remove company logo
+        localStorage.removeItem("company_name"); // Remove company name
 
         if (this.userRole === "developer") {
           this.redirectToLogin("MainLogin");

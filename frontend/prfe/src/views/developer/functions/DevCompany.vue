@@ -281,11 +281,11 @@ export default {
         );
 
         if (response.status === 200) {
+          this.fetchCompany();
           this.notificationTitle = "Success";
           this.notificationMessage = "Company updated successfully!";
           this.showNotification = true;
           this.company.originalDescription = this.company.description;
-          this.fetchCompany();
         } else {
           this.notificationTitle = "Error";
           this.notificationMessage =

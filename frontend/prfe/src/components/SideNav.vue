@@ -101,6 +101,7 @@ export default {
     // Map company data from Vuex store
     ...mapState({
       loggedIn: (state) => state.loggedIn,
+
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
@@ -109,40 +110,23 @@ export default {
   },
   methods: {
     setTemporaryLogo() {
+      // Try to fetch logo from localStorage if it was previously set
       const storedLogo = localStorage.getItem("company_logo");
-      const currentLogo = this.company?.logo
-        ? `http://localhost:8000${this.company.logo}`
-        : null;
-
-      if (storedLogo && storedLogo === currentLogo) {
-        // If stored logo matches the current logo, use the stored one
+      if (storedLogo) {
         this.tempLogo = storedLogo;
-      } else {
-        // If there's a mismatch or no stored logo, update localStorage with the new logo
-        this.tempLogo = currentLogo;
-        if (currentLogo) {
-          localStorage.setItem("company_logo", currentLogo);
-        } else {
-          localStorage.removeItem("company_logo");
-        }
+      } else if (this.company?.logo) {
+        this.tempLogo = `http://localhost:8000${this.company.logo}`;
+        localStorage.setItem("company_logo", this.tempLogo); // Store for future page refreshes
       }
     },
-
     setTemporaryCompanyName() {
+      // Try to fetch company name from localStorage if it was previously set
       const storedName = localStorage.getItem("company_name");
-      const currentName = this.company?.name || null;
-
-      if (storedName && storedName === currentName) {
-        // If stored name matches the current name, use the stored one
+      if (storedName) {
         this.tempCompanyName = storedName;
-      } else {
-        // If there's a mismatch or no stored name, update localStorage with the new name
-        this.tempCompanyName = currentName;
-        if (currentName) {
-          localStorage.setItem("company_name", currentName);
-        } else {
-          localStorage.removeItem("company_name");
-        }
+      } else if (this.company?.name) {
+        this.tempCompanyName = this.company.name;
+        localStorage.setItem("company_name", this.tempCompanyName); // Store for future page refreshes
       }
     },
     setMenuItems() {
