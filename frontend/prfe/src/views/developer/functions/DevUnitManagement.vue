@@ -1138,6 +1138,49 @@
               </form>
             </div>
           </b-modal>
+          <b-modal
+            v-model="showNotification"
+            :title="notificationTitle"
+            hide-footer
+            centered
+          >
+            <p>{{ notificationMessage }}</p>
+            <div class="button-container">
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel-right"
+              >
+                Close
+              </button>
+            </div>
+          </b-modal>
+          <b-modal
+            v-model="showConfirmModal"
+            :title="'Confirmation'"
+            hide-footer
+            centered
+          >
+            <p>{{ confirmMessage }}</p>
+            <div class="button-container">
+              <!-- Confirm Button -->
+              <button
+                type="button"
+                @click="confirmAction"
+                class="btn btn-primary"
+              >
+                Confirm
+              </button>
+              <!-- Cancel Button -->
+              <button
+                type="button"
+                @click="cancelAction"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </b-modal>
         </div>
       </div>
     </div>
@@ -1654,14 +1697,14 @@ export default {
           this.fetchSiteDetails(); // Refresh the site details
           this.showAddUnitsModal = false; // Close the modal
           this.notificationTitle = "Success";
-          this.notificationMessage = "Unit/s updated successfully!";
+          this.notificationMessage = "Units/Unit added successfully!";
           this.showNotification = true;
           // Reset the form after successful submission
           this.resetForm();
         }
       } catch (error) {
         this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.notificationMessage = "An error occurred while adding units/unit.";
         this.showNotification = true;
       }
     },
@@ -1743,14 +1786,14 @@ export default {
           this.fetchSiteDetails(); // Refresh site details
           this.showAddSectionUnitsModal = false; // Close the modal
           this.notificationTitle = "Success";
-          this.notificationMessage = "Unit/s updated successfully!";
+          this.notificationMessage = "Units/Unit added successfully!";
           this.showNotification = true;
           // Reset the form after successful submission
           this.resetForm();
         }
       } catch (error) {
         this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while adding unit/s.";
+        this.notificationMessage = "An error occurred while adding units/unit.";
         this.showNotification = true;
       }
     },
@@ -2148,6 +2191,9 @@ export default {
         // Dynamically call the function stored in actionToConfirm with the provided params
         await this.actionToConfirm(...this.confirmParams);
         this.showConfirmModal = false; // Close modal after confirmation
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Unit updated successfully.";
+        this.showNotification = true;
       } catch (error) {
         this.showConfirmModal = false; // Close modal on error
         this.notificationTitle = "Error";
