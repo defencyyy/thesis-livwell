@@ -432,9 +432,11 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
-            <button
+          <div
+          class="d-flex justify-content-end gap-2 mt-30"
+          style="padding-top: 15px"
+          >
+          <button
               type="button"
               @click="confirmAction"
               class="btn btn-primary"

@@ -329,7 +329,6 @@ export default {
       this.activeTab = tab;
     },
     async fetchDocuments() {
-      console.log("l");
       try {
         const response = await fetch(
           `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`

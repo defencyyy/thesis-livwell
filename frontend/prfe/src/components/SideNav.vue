@@ -100,6 +100,8 @@ export default {
   computed: {
     // Map company data from Vuex store
     ...mapState({
+      loggedIn: (state) => state.loggedIn,
+
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,

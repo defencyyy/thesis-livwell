@@ -56,7 +56,7 @@
                 </div>
 
                 <div
-                  class="d-flex justify-content-end"
+                  class="d-flex justify-content-end gap-2 mt-30"
                   style="padding-top: 15px"
                 >
                   <button
@@ -104,8 +104,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -279,15 +281,11 @@ export default {
         );
 
         if (response.status === 200) {
+          this.fetchCompany();
           this.notificationTitle = "Success";
           this.notificationMessage = "Company updated successfully!";
           this.showNotification = true;
           this.company.originalDescription = this.company.description;
-          // Update logo in Vuex and localStorage
-          const updatedCompany = response.data;
-          this.$store.commit("setCompany", updatedCompany);
-
-          this.fetchCompany();
         } else {
           this.notificationTitle = "Error";
           this.notificationMessage =

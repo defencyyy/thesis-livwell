@@ -73,6 +73,8 @@ export default createStore({
       // Clear everything from localStorage and Vuex
       commit("clearUser");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("company_logo"); // Remove company logo
+      localStorage.removeItem("company_name"); // Remove company name
       this.$router.push({ name: "Home" }); // Redirect to home or login page
     },
     setCompany({ commit }, company) {

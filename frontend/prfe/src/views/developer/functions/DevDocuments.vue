@@ -152,7 +152,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -615,6 +618,16 @@ body {
 }
 
 .btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+}
+
+.btn-cancel-right {
   background-color: #343a40;
   /* Button primary color */
   color: #fff;

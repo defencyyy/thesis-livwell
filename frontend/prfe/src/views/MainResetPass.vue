@@ -46,7 +46,10 @@
                 <b-modal v-model="showMessage" :title="'Password Reset Status'" hide-footer centered>
                   <div>
                     <p>{{ modalMessage }}</p>
-                    <b-button @click="closeModal">Close</b-button>
+                    <div class = "button-container-right">
+                      <b-button @click="closeModal">Close</b-button>
+                    </div>
+                    
                   </div>
                 </b-modal>
               </form>
@@ -160,4 +163,8 @@ export default {
 
 <style scoped>
 /* Add styles for the modal if needed */
+.button-container-right {
+  display: flex;
+  justify-content: flex-end;
+}
 </style>
