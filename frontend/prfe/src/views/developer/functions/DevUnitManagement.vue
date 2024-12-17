@@ -1144,6 +1144,49 @@
               </form>
             </div>
           </b-modal>
+          <b-modal
+            v-model="showNotification"
+            :title="notificationTitle"
+            hide-footer
+            centered
+          >
+            <p>{{ notificationMessage }}</p>
+            <div class="button-container">
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel-right"
+              >
+                Close
+              </button>
+            </div>
+          </b-modal>
+          <b-modal
+            v-model="showConfirmModal"
+            :title="'Confirmation'"
+            hide-footer
+            centered
+          >
+            <p>{{ confirmMessage }}</p>
+            <div class="button-container">
+              <!-- Confirm Button -->
+              <button
+                type="button"
+                @click="confirmAction"
+                class="btn btn-primary"
+              >
+                Confirm
+              </button>
+              <!-- Cancel Button -->
+              <button
+                type="button"
+                @click="cancelAction"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </b-modal>
         </div>
       </div>
     </div>
