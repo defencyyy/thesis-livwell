@@ -290,7 +290,7 @@
               <!-- Pagination Controls -->
               <div>
                 <nav aria-label="Page navigation example">
-                  <ul class="pagination">
+                  <ul class="pagination" >
                     <li :class="['page-item', { disabled: currentPage === 1 }]">
                       <a
                         class="page-link"
@@ -2640,10 +2640,6 @@ button {
   background-color: #f2f2f2;
 }
 
-.pagination-controls {
-  text-align: center;
-  margin-top: 20px;
-}
 
 button {
   background-color: #0560fd;
@@ -2891,16 +2887,35 @@ button {
 
 .pagination {
   display: flex;
-  justify-content: flex-end;
-  margin-top: -15px;
-  /* Reduce margin */
-  padding-right: 40px;
-  /* Reduce padding */
-  font-size: 14px;
-  /* Smaller font size */
-  line-height: 1.2;
-  /* Adjust line height for compactness */
+  justify-content: right; /* Align pagination to the right */
+  width: 100%;
+  font-size: 12px; /* Smaller font size */
+  line-height: 1; /* Compact line height */
+  margin: 0 30px;
 }
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
+}
+
 
 .carousel-inner img {
   max-height: 400px;
@@ -2953,4 +2968,6 @@ button {
   opacity: 0;
   visibility: hidden;
 }
+
+
 </style>

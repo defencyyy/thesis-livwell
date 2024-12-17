@@ -1496,7 +1496,7 @@ body {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
+  margin: 0 50px;
 
   /* Adjust line height for compactness */
 }
