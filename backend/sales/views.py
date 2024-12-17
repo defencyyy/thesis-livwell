@@ -118,3 +118,17 @@ def top_sites_sale_count():
         })
     
     return data
+
+from django.http import JsonResponse
+from django.db.models import Count
+from .models import Sale
+from datetime import datetime
+
+def sales_status_by_year(request, year):
+    sales_status_counts = (
+        Sale.objects.filter(date_sold__year=year)
+        .values('status')
+        .annotate(count=Count('status'))
+        .order_by('status')
+    )
+    return JsonResponse({'data': list(sales_status_counts)})
