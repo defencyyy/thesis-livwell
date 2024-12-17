@@ -357,7 +357,7 @@
                 </div>
               </div>
 
-              <!-- Image Upload
+              <!-- Image Upload -->
               <div class="form-group mb-3">
                 <label for="image">Upload Images (Max:5)</label>
                 <input
@@ -367,9 +367,9 @@
                   accept="image/*"
                   multiple
                 />
-              </div> -->
+              </div>
 
-              <!-- Image Previews
+              <!-- Image Preview -->
               <div v-if="imagePreviews.length" class="image-previews">
                 <div class="d-flex gap-2">
                   <img
@@ -380,7 +380,7 @@
                     style="width: 100px; height: 100px"
                   />
                 </div>
-              </div> -->
+              </div>
             </div>
           </div>
 
@@ -520,7 +520,7 @@
               </div>
 
               <!-- Image Previews -->
-              <div
+              <!-- <div
                 v-if="
                   selectedTemplate &&
                   selectedTemplate.images &&
@@ -536,9 +536,9 @@
                     :src="image.image_url"
                     class="img-thumbnail"
                     style="width: 100px; height: 100px"
-                  />
+                  /> 
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
 

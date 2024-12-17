@@ -22,7 +22,6 @@ def get_company(request):
         raise ValueError("Company not found for this developer.")
     return company
 
-
 class UnitTemplateListView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -36,16 +35,18 @@ class UnitTemplateListView(APIView):
     def post(self, request):
         try:
             company = get_company(request)
-            data = request.data.copy()  # Make a mutable copy of request.data
-            data['company'] = company.id  # Now you can modify it
-
-            serializer = UnitTemplateSerializer(data=data)
+            # Process non-file data
+            data = {key: value for key, value in request.data.items() if key != 'images'}
+            data['company'] = company.id  # Add company ID to the form data
 
             # Validate that required fields are present
             if not data.get('unit_type'):
                 return Response({"error": "Unit type must be specified."}, status=status.HTTP_400_BAD_REQUEST)
             if not data.get('name'):
                 return Response({"error": "Name must be specified."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Serialize form data
+            serializer = UnitTemplateSerializer(data=data)
 
             if serializer.is_valid():
                 template = serializer.save()
@@ -90,6 +91,7 @@ class UnitTemplateListView(APIView):
                 except Exception as e:
                     logger.error(f"Error saving image: {e}\n{traceback.format_exc()}")
                     return Response({"error": f"Error saving image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class UnitTemplateDetailView(APIView):
