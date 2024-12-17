@@ -382,6 +382,11 @@
                               class="select-style"
                             ></b-form-checkbox-group>
                           </div>
+
+                          <!-- Floating Error Message (will only show when there's an error) -->
+                          <div v-if="sectionError" class="inline-error">
+                            Please select at least one section.
+                          </div>
                         </b-col>
                       </b-row>
                     </b-form-group>
@@ -607,7 +612,12 @@
                   class="d-flex justify-content-end gap-2 mt-3"
                   style="padding-top: 15px"
                 >
-                  <button type="submit" class="btn-add" style="width: 150px">
+                  <button
+                    type="submit"
+                    class="btn-add"
+                    @click="submitForm"
+                    style="width: 150px"
+                  >
                     Add New Units
                   </button>
                   <button
@@ -1225,6 +1235,7 @@ export default {
   },
   data() {
     return {
+      initialUnit: {},
       selectedUnitTemplate: null, // Unit template ID
       unitTemplateOptions: [], // This will hold the dropdown options
       isTemplateSelected: false, // To track whether a template is selected
@@ -1324,6 +1335,7 @@ export default {
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
       confirmParams: [],
+      sectionError: false, // Boolean to track if there's an error
     };
   },
   computed: {
@@ -1493,24 +1505,13 @@ export default {
     } else {
       this.fetchSiteDetails();
       this.fetchUnitTypes();
-      console.log("Initial selectedUnitTemplate:", this.selectedUnitTemplate);
       this.fetchTemplates();
     }
     this.fetchUnits();
   },
   methods: {
     handleTemplateChange() {
-      console.log(
-        "Selected Template Value (before delay):",
-        this.selectedUnitTemplate
-      );
-
       setTimeout(() => {
-        console.log(
-          "Selected Template Value (after delay):",
-          this.selectedUnitTemplate
-        );
-
         if (!this.selectedUnitTemplate) {
           this.isTemplateSelected = false;
           this.resetTemplateFields(); // Clear the form fields
@@ -1560,12 +1561,9 @@ export default {
           }
         );
 
-        console.log("Template Data Response:", response.data); // Log the response
-
         const templateData = response.data.data;
 
         // Verify the templateData fields
-        console.log("Template Data Fields:", templateData);
 
         // Populate fields with the template data
         this.newUnitType = templateData.unit_type;
@@ -1624,6 +1622,41 @@ export default {
       }
     },
 
+    validateForm() {
+      this.sectionError = false; // Reset the section error
+
+      // Validate if at least one section is selected
+      if (this.newUnitSections.length === 0) {
+        this.sectionError = true; // Set error to true if no section is selected
+        this.hideErrorAfterDelay(); // Hide after a delay
+        return false; // Return false to prevent form submission
+      }
+
+      // Add more validations if necessary (e.g., for other fields like price, quantity, etc.)
+
+      // Return true if all fields are valid
+      return true;
+    },
+    // Handle form submission
+    submitForm() {
+      // If validation is successful, proceed with form submission
+      if (this.validateForm()) {
+        // Proceed with form submission (e.g., make an API call or handle the data)
+        console.log("Form submitted");
+        // Submit your data here
+      } else {
+        // Handle the case when validation fails (do not submit form)
+        console.log("Form has errors");
+      }
+    },
+
+    // Hide the error message after a delay (e.g., 7 seconds)
+    hideErrorAfterDelay() {
+      setTimeout(() => {
+        this.sectionError = false;
+      }, 3000); // Error disappears after 7 seconds
+    },
+
     async addUnits() {
       // Validate form fields
       if (
@@ -1632,8 +1665,10 @@ export default {
         !this.newUnitPrice ||
         !this.newUnitQuantity
       ) {
-        alert("Please fill in all the required fields.");
-        return;
+        this.showNotification = true;
+        this.notificationTitle = "Invalid";
+        this.notificationMessage = "Please fill in all the required fields.";
+        return; // Exit early from further processing if fields are missing
       }
 
       // Create a FormData object to send both unit data and images
@@ -2004,24 +2039,34 @@ export default {
       }
     },
     async manageUnit(unit = null) {
+      // Reset selectedUnit and initialUnit to force reactivity
+      this.selectedUnit = {};
+      this.initialUnit = {};
+
       if (unit) {
-        try {
-          this.selectedUnit = unit; // Make sure selectedUnit is set
+        // Delay the assignment to ensure the reset is processed
+        this.$nextTick(() => {
+          this.selectedUnit = unit; // Shallow copy to prevent reference issues
+          this.initialUnit = { ...unit };
           this.showEditUnitModal = true; // Show the modal for editing
-        } catch (error) {
-          console.error(
-            "Error fetching unit details:",
-            error.response || error
-          );
-        }
+        });
       } else {
-        this.selectedUnit = {}; // Initialize an empty object for a new unit
-        this.showEditUnitModal = true; // Show modal for new unit creation
+        this.selectedUnit = {};
+        this.initialUnit = {};
+        this.showEditUnitModal = true; // Show the modal for new unit creation
       }
     },
     async saveUnitChanges() {
+      if (!this.hasChanges()) {
+        this.showNotification = true;
+        this.notificationTitle = "Invalid";
+        this.notificationMessage =
+          "No changes detected. Please update some fields.";
+        return;
+      }
       this.showConfirmation(
         "Are you sure you want to save the changes to this unit?",
+
         async () => {
           const formData = new FormData();
           formData.append("unit_number", this.selectedUnit.unit_number);
@@ -2072,6 +2117,20 @@ export default {
           }
         },
         []
+      );
+    },
+    // Add a method to check for changes
+    hasChanges() {
+      return (
+        this.selectedUnit.unit_number !== this.initialUnit.unit_number ||
+        this.selectedUnit.unit_type !== this.initialUnit.unit_type ||
+        this.selectedUnit.status !== this.initialUnit.status ||
+        this.selectedUnit.price !== this.initialUnit.price ||
+        this.selectedUnit.lot_area !== this.initialUnit.lot_area ||
+        this.selectedUnit.floor_area !== this.initialUnit.floor_area ||
+        this.selectedUnit.commission !== this.initialUnit.commission ||
+        this.selectedUnit.balcony !== this.initialUnit.balcony ||
+        this.selectedUnit.view !== this.initialUnit.view
       );
     },
     // Method to toggle the image edit state (show/hide replace form)
@@ -2215,14 +2274,17 @@ export default {
     openEditUnitModal(unit) {
       // Ensure the selected unit is properly set before opening the modal
       this.selectedUnit = unit;
+      this.initialUnit = unit; // Store initial unit values for comparison
       this.showEditUnitModal = true;
     },
     closeEditUnitModal() {
       this.showEditUnitModal = false;
       this.selectedUnit = null; // Clear selected unit when closing the modal
+      this.initialUnit = null;
     },
     clearSelectedUnit() {
       this.selectedUnit = null; // Reset selectedUnit when the modal is closed
+      this.initialUnit = null;
     },
     handleFileChange(event) {
       this.newUnitImages = Array.from(event.target.files);
@@ -2877,5 +2939,26 @@ button {
 
 .carousel-item:hover .image-overlay {
   opacity: 1;
+}
+
+/* Inline error styles */
+.inline-error {
+  position: absolute; /* Position relative to the parent element */
+
+  color: red;
+  font-size: 12px;
+  font-weight: bold;
+
+  border-radius: 3px;
+  z-index: 10; /* Ensure it appears above the input field */
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1s ease-in-out; /* Smooth fade in and fade out */
+}
+
+/* For hiding the error message */
+.inline-error.hidden {
+  opacity: 0;
+  visibility: hidden;
 }
 </style>
