@@ -100,7 +100,7 @@
                         <img
                           v-if="site.picture"
                           :src="getPictureUrl(site.picture)"
-                          alt="Image of {{ site.name }}"
+                          alt=""
                           class="table-image"
                         />
                         <i
