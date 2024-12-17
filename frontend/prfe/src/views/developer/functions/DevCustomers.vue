@@ -15,21 +15,14 @@
           </div>
         </div>
 
-        <div
-          class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-        >
+        <div class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
           <div class="card-body">
             <!-- Toolbar -->
             <div class="toolbar">
               <div class="left-section">
                 <div class="search-bar-container">
-                  <input
-                    type="text"
-                    v-model="searchQuery"
-                    placeholder="Search Customers"
-                    class="search-bar"
-                  />
+                  <input type="text" v-model="searchQuery" placeholder="Search Customers" class="search-bar" />
                   <i class="fa fa-search search-icon"></i>
                 </div>
                 <!-- Sort Dropdown -->
@@ -45,11 +38,7 @@
                 </select>
 
                 <!-- Active vs Archived View Filter -->
-                <select
-                  v-model="viewFilter"
-                  @change="toggleArchived"
-                  class="dropdown2"
-                >
+                <select v-model="viewFilter" @change="toggleArchived" class="dropdown2">
                   <option value="active">View: Active</option>
                   <option value="archived">View: Archived</option>
                 </select>
@@ -73,23 +62,15 @@
           </div>
 
           <!-- Conditional Rendering -->
-          <div
-            v-if="currentCustomers.length === 0"
-            class="no-customers-message"
-          >
+          <div v-if="currentCustomers.length === 0" class="no-customers-message">
             No customers found.
           </div>
 
-          <div
-            v-else
-            v-for="(customer, index) in currentCustomers"
-            :key="customer.id || index"
-            class="card border-0 rounded-1 mx-auto my-2"
-            style="
+          <div v-else v-for="(customer, index) in currentCustomers" :key="customer.id || index"
+            class="card border-0 rounded-1 mx-auto my-2" style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
-          >
+            ">
             <div class="card-body">
               <table class="customer-table">
                 <tbody>
@@ -120,10 +101,10 @@
                         {{
                           customer.broker_sales
                             ? customer.broker_sales.reduce(
-                                (count, sale) =>
-                                  sale.site && sale.unit ? count + 1 : count,
-                                0
-                              )
+                              (count, sale) =>
+                                sale.site && sale.unit ? count + 1 : count,
+                              0
+                            )
                             : 0
                         }}
                       </span>
@@ -133,24 +114,21 @@
                         {{
                           customer.broker
                             ? customer.broker.first_name +
-                              " " +
-                              customer.broker.last_name
+                            " " +
+                            customer.broker.last_name
                             : "N/A"
                         }}
                       </span>
                     </td>
                     <td>
-                      <div class="broker-actions d-flex gap-2">
-                        <button
-                          @click="viewCustomer(customer)"
-                          style="
+                      <div class="broker-actions d-flex">
+                        <button @click="viewCustomer(customer)" style="
                             border: none;
                             background-color: transparent;
                             color: #343a40;
                             cursor: pointer;
                             font-size: 18px;
-                          "
-                        >
+                          ">
                           <i class="fas fa-eye"></i>
                         </button>
                       </div>
@@ -164,33 +142,17 @@
           <nav aria-label="Page navigation example">
             <ul class="pagination">
               <li :class="['page-item', { disabled: currentPage === 1 }]">
-                <a
-                  class="page-link"
-                  href="#"
-                  @click.prevent="prevPage"
-                  aria-label="Previous"
-                >
+                <a class="page-link" href="#" @click.prevent="prevPage" aria-label="Previous">
                   <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
-              <li
-                v-for="page in totalPages"
-                :key="page"
-                :class="['page-item', { active: currentPage === page }]"
-              >
+              <li v-for="page in totalPages" :key="page" :class="['page-item', { active: currentPage === page }]">
                 <a class="page-link" href="#" @click.prevent="changePage(page)">
                   {{ page }}
                 </a>
               </li>
-              <li
-                :class="['page-item', { disabled: currentPage === totalPages }]"
-              >
-                <a
-                  class="page-link"
-                  href="#"
-                  @click.prevent="nextPage"
-                  aria-label="Next"
-                >
+              <li :class="['page-item', { disabled: currentPage === totalPages }]">
+                <a class="page-link" href="#" @click.prevent="nextPage" aria-label="Next">
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
@@ -201,14 +163,7 @@
     </div>
 
     <!-- View Customer Modal -->
-    <b-modal
-      v-model="showEditModal"
-      title="Customer Details"
-      hide-footer
-      hide-header
-      centered
-      size="lg"
-    >
+    <b-modal v-model="showEditModal" title="Customer Details" hide-footer hide-header centered size="lg">
       <div class="modal-title p-3">
         <h5 class="mb-0">
           Customer: {{ (currentCustomer.first_name || "").toUpperCase() }}
@@ -232,71 +187,6 @@
             {{ currentCustomer.contact_number }}
           </p>
         </div>
-
-        <!-- Spacer -->
-        <div style="margin-top: 20px"></div>
-
-        <!-- Submitted Documents -->
-        <h5>Submitted Documents</h5>
-        <div
-          v-if="currentCustomer.documents && currentCustomer.documents.length"
-        >
-          <ul>
-            <li
-              v-for="document in currentCustomer.documents"
-              :key="document.url"
-            >
-              <span class="document-type">{{ document.type }}:</span>
-
-              <!-- "View" button styled similarly to the other buttons
-              <button
-                @click="openDocumentModal(document)"
-                class="btn btn-sm btn-outline-primary"
-                aria-label="View document"
-              >
-                View
-              </button> -->
-
-              <a
-                :href="`http://localhost:8000${document.url}`"
-                target="_blank"
-                class="btn btn-sm btn-outline-success"
-                aria-label="Open document in a new tab"
-              >
-                Open in New Tab
-              </a>
-              <a
-                :href="`http://localhost:8000${document.url}`"
-                :download="document.name || 'document'"
-                class="btn btn-sm btn-outline-success"
-                aria-label="Download document"
-              >
-                Download
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div v-else>No documents available.</div>
-
-        <b-modal
-          v-model="showDocumentModal"
-          title="View Document"
-          hide-footer
-          centered
-          size="lg"
-        >
-          <div v-if="selectedDocument">
-            <iframe
-              :src="selectedDocument.url"
-              width="100%"
-              height="500px"
-              frameborder="0"
-            ></iframe>
-          </div>
-          <div v-else>
-            <p>No document to display.</p>
-          </div>
-        </b-modal>
 
         <!-- Spacer -->
         <div style="margin-top: 20px"></div>
@@ -342,10 +232,7 @@
               </tr>
             </thead>
             <tbody>
-              <template
-                v-for="(units, siteName) in groupedSales"
-                :key="siteName"
-              >
+              <template v-for="(units, siteName) in groupedSales" :key="siteName">
                 <tr v-for="unit in units" :key="unit.id">
                   <td>{{ unit.title }}</td>
                   <td>{{ unit.unit_number }}</td>
@@ -357,16 +244,41 @@
           </table>
         </div>
         <div v-else>No connected units available.</div>
-        <div
-          class="d-flex justify-content-end gap-3 mt-3"
-          style="padding: 15px"
-        >
-          <button
-            type="button"
-            class="btn-cancel"
-            @click="showEditModal = false"
-            style="width: 100px"
-          >
+
+        <!-- Spacer -->
+        <div style="margin-top: 20px"></div>
+
+
+        <!-- Units Connected -->
+        <h6 style="color: #a3a3a3"><em>**Submitted Documents**</em></h6>
+        <div v-if="currentCustomer.documents && currentCustomer.documents.length">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Document Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="document in currentCustomer.documents" :key="document.url">
+                <td>{{ document.type }}</td>
+                <td><a :href="`http://localhost:8000${document.url}`" target="_blank"
+                    class="btn btn-sm btn-outline-success" style="border: none;"
+                    aria-label="Open document in a new tab">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                  </a></td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+        <div v-else>No documents available.</div>
+
+
+
+
+        <div class="d-flex justify-content-end gap-3 mt-3" style="padding: 15px">
+          <button type="button" class="btn-cancel" @click="showEditModal = false" style="width: 100px">
             Close
           </button>
         </div>
@@ -540,7 +452,7 @@ export default {
         0
       );
     },
-    showArchived() {},
+    showArchived() { },
   },
   methods: {
     changePage(page) {
@@ -1035,19 +947,26 @@ body {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px; /* Reduce margin */
-  padding-right: 40px; /* Reduce padding */
-  font-size: 14px; /* Smaller font size */
-  line-height: 1.2; /* Adjust line height for compactness */
+  margin-top: -15px;
+  /* Reduce margin */
+  padding-right: 40px;
+  /* Reduce padding */
+  font-size: 14px;
+  /* Smaller font size */
+  line-height: 1.2;
+  /* Adjust line height for compactness */
 }
 
 .page-item {
-  margin: 0 2px; /* Reduce spacing between buttons */
+  margin: 0 2px;
+  /* Reduce spacing between buttons */
 }
 
 .page-link {
-  padding: 4px 8px; /* Smaller button padding */
-  font-size: 14px; /* Match font size for consistency */
+  padding: 4px 8px;
+  /* Smaller button padding */
+  font-size: 14px;
+  /* Match font size for consistency */
 }
 
 .modal-title {
