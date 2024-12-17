@@ -1170,6 +1170,7 @@ def check_sales_details(request, customer_id, site_id, unit_id):
     return JsonResponse(response_data)
 
 def fetch_document_types(request):
+    print("l")
     try:
         # Get the company ID from the request (query parameter or user's session)
         company_id = request.GET.get("company_id")
