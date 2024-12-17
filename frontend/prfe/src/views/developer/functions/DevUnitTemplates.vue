@@ -81,7 +81,7 @@
               </div>
 
               <div
-                v-for="template in filteredTemplates"
+                v-for="template in paginatedTemplates"
                 :key="template.id"
                 class="card border-0 rounded-1 mx-auto my-2"
                 style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -184,6 +184,42 @@
                   </table>
                 </div>
               </div>
+               <!-- Pagination Controls -->
+            <nav aria-label="Page navigation example">
+              <ul class="pagination">
+                <li :class="['page-item', { disabled: currentPage === 1 }]">
+                  <a
+                    class="page-link"
+                    href="#"
+                    @click.prevent="goToPage(currentPage - 1)"
+                    aria-label="Previous"
+                  >
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                <li
+                  v-for="page in totalPages"
+                  :key="page"
+                  :class="['page-item', { active: page === currentPage }]"
+                >
+                  <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                    {{ page }}
+                  </a>
+                </li>
+                <li
+                  :class="['page-item', { disabled: currentPage === totalPages }]"
+                >
+                  <a
+                    class="page-link"
+                    href="#"
+                    @click.prevent="goToPage(currentPage + 1)"
+                    aria-label="Next"
+                  >
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
             </div>
           </div>
         </div>
@@ -595,6 +631,8 @@ export default {
       confirmMessage: "",
       actionToConfirm: null,
       confirmParams: [],
+      currentPage: 1,
+      itemsPerPage: 15,
     };
   },
 
@@ -647,8 +685,24 @@ export default {
     activeTemplates() {
       return this.templates.filter((template) => !template.is_archived);
     },
+    paginatedTemplates() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredTemplates.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredTemplates.length / this.itemsPerPage);
+    },
   },
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     toggleView(viewType) {
       this.viewFilter = viewType;
       if (this.viewFilter === "active") {
@@ -1367,5 +1421,13 @@ body {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -15px; /* Reduce margin */
+  padding-right: 40px; /* Reduce padding */
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.2; /* Adjust line height for compactness */
 }
 </style>
