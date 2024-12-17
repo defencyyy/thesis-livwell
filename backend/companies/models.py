@@ -21,6 +21,26 @@ class Company(models.Model):
 
   def __str__(self):
     return self.name
+  
+  def delete_old_logo(self):
+      if self.pk:  # Ensure the object already exists (has been saved before)
+          try:
+              old_logo = Company.objects.get(pk=self.pk).logo
+              if old_logo and old_logo != self.logo:
+                  if os.path.isfile(old_logo.path):
+                      os.remove(old_logo.path)  # Remove old file
+          except Company.DoesNotExist:
+              pass
+
+  def save(self, *args, **kwargs):
+      self.delete_old_logo()  # Call to delete the old logo before saving the new one
+      super().save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    # Delete the logo when the company instance is deleted
+    if self.logo and os.path.isfile(self.logo.path):
+      os.remove(self.logo.path)
+      super().delete(*args, **kwargs)
 
   class Meta:
     verbose_name = "Company"
