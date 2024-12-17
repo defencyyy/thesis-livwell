@@ -472,6 +472,7 @@ body {
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+  font-size: 14px;
 }
 
 .outside-headers {

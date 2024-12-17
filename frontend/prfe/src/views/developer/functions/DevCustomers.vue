@@ -310,7 +310,7 @@ export default {
       sortOrder: "asc", // Default sort order (ascending)
       viewFilter: "active", // Default view to show active customers
       showArchived: false, // Flag to toggle between archived and active customers
-      customersPerPage: 15,
+      customersPerPage: 10,
       currentPage: 1,
       showEditModal: false,
       connectedUnitsCount: 0,
@@ -944,30 +944,43 @@ body {
   font-weight: bold;
 }
 
+
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px;
-  /* Reduce margin */
-  padding-right: 40px;
+  max-width: 1100px;
+  width: 100%;
   /* Reduce padding */
-  font-size: 14px;
+  font-size: 12px;
   /* Smaller font size */
-  line-height: 1.2;
+  line-height: 1;
+  margin: 0;
+
   /* Adjust line height for compactness */
 }
 
 .page-item {
-  margin: 0 2px;
+  margin: 0 3px;
   /* Reduce spacing between buttons */
 }
 
-.page-link {
-  padding: 4px 8px;
-  /* Smaller button padding */
-  font-size: 14px;
-  /* Match font size for consistency */
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
 }
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
+}
+
 
 .modal-title {
   display: flex;
