@@ -662,14 +662,15 @@ body {
 }
 
 .btn-manage {
-  background-color: #8b8b8b;
+  background-color: #0560fd;
   /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
   /* Adjust the border radius */
-  padding: 8px;
+  padding: 10px;
   font-size: 12px;
+
 }
 
 .form-group .form-label,

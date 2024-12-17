@@ -372,7 +372,7 @@
                     <b-form-group label-for="unit-sections">
                       <b-row>
                         <b-col cols="12">
-                          <small>Sections: (Select to add units)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Sections: (Select to add units)</small>
                           <div class="checkbox-container">
                             <b-form-checkbox-group
                               v-model="newUnitSections"
@@ -395,7 +395,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Unit type</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit type</small>
                           <b-form-select
                             v-model="newUnitType"
                             :options="selectUnitTypeOptions"
@@ -404,7 +404,7 @@
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Quantity</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Quantity</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitQuantity"
@@ -419,7 +419,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="4">
-                          <small>Bedroom</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bedroom</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
@@ -428,7 +428,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small>Bathroom</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bathroom</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
@@ -437,7 +437,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small>Balcony</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Balcony</small>
                           <b-form-select
                             v-model="newUnitBalcony"
                             :options="balconyOptions"
@@ -451,7 +451,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Lot Area (sq.m)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Lot Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
@@ -461,7 +461,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Floor Area (sq.m)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Floor Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
@@ -477,7 +477,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="4">
-                          <small>Status</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Status</small>
                           <b-form-select
                             v-model="newUnitStatus"
                             :options="statusOptions"
@@ -486,7 +486,7 @@
                         </b-col>
 
                         <b-col cols="12" md="4">
-                          <small>View</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">View</small>
                           <b-form-select
                             v-model="newUnitView"
                             :options="viewOptions"
@@ -495,7 +495,7 @@
                         </b-col>
 
                         <b-col cols="12" md="4">
-                          <small>Unit Template</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Template</small>
                           <div class="d-flex align-items-center">
                             <b-form-select
                               v-model="selectedUnitTemplate"
@@ -513,7 +513,7 @@
                   <b-col cols="12" md="6">
                     <!-- Price -->
                     <b-form-group>
-                      <small>Price</small>
+                      <small style="font-size: 14px; color: #6c757d; padding: 2px">Price</small>
                       <b-form-input
                         type="number"
                         v-model.number="newUnitPrice"
@@ -527,7 +527,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Reservation Fee</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Reservation Fee</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
@@ -535,7 +535,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Commission</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitCommission"
@@ -549,7 +549,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Spot Discount Percentage</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Percentage</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountPercentage"
@@ -557,7 +557,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Spot Discount Flat</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Flat</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountFlat"
@@ -571,7 +571,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>VAT Percentage</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">VAT Percentage</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitVatPercentage"
@@ -579,7 +579,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Other Charges</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Other Charges</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitOtherCharges"
@@ -589,7 +589,7 @@
                       </b-row>
                     </b-form-group>
                     <b-form-group>
-                      <small>Upload Photos (Max:5)</small>
+                      <small style="font-size: 14px; color: #6c757d; padding: 2px">Upload Photos (Max:5)</small>
                       <input
                         type="file"
                         ref="fileInput"
@@ -787,14 +787,14 @@
                       <b-form-group>
                         <b-row>
                           <b-col cols="12" md="6">
-                            <small>Unit Type:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Type</small>
                             <b-form-input
                               :value="getUnitTypeName(selectedUnit.unit_type)"
                               disabled
                             />
                           </b-col>
                           <b-col cols="12" md="6">
-                            <small>Status</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Status</small>
                             <b-form-select
                               v-model="selectedUnit.status"
                               :options="editStatusOptions"
@@ -807,7 +807,7 @@
                       <b-form-group>
                         <b-row>
                           <b-col cols="12" md="6">
-                            <small>Lot Area:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Lot Area</small>
                             <b-form-input
                               v-model="selectedUnit.lot_area"
                               type="number"
@@ -815,7 +815,7 @@
                             />
                           </b-col>
                           <b-col cols="12" md="6">
-                            <small>Floor Area:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Floor Area</small>
                             <b-form-input
                               v-model="selectedUnit.floor_area"
                               type="number"
@@ -828,7 +828,7 @@
                       <b-form-group>
                         <b-row>
                           <b-col cols="12" md="6">
-                            <small>Price:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Price</small>
                             <b-form-input
                               v-model="selectedUnit.price"
                               type="number"
@@ -836,7 +836,7 @@
                             />
                           </b-col>
                           <b-col cols="12" md="6">
-                            <small>Commission:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission</small>
                             <b-form-input
                               v-model="selectedUnit.commission"
                               type="number"
@@ -849,14 +849,14 @@
                       <b-form-group>
                         <b-row>
                           <b-col cols="12" md="6">
-                            <small>Balcony:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">Balcony</small>
                             <b-form-select
                               v-model="selectedUnit.balcony"
                               :options="balconyOptions"
                             ></b-form-select>
                           </b-col>
                           <b-col cols="12" md="6">
-                            <small>View:</small>
+                            <small style="font-size: 14px; color: #6c757d; padding: 2px">View</small>
                             <b-form-select
                               v-model="selectedUnit.view"
                               :options="viewOptions"
@@ -2754,14 +2754,15 @@ button {
 }
 
 .btn-manage {
-  background-color: #8b8b8b;
+  background-color: #0560fd;
   /* Button primary color */
   color: #fff;
   border: none;
   border-radius: 3px;
   /* Adjust the border radius */
-  padding: 7px;
-  font-size: 10 px;
+  padding: 10px;
+  font-size: 12px;
+
 }
 
 .site-description-location {

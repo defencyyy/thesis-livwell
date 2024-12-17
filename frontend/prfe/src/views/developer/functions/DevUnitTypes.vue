@@ -25,13 +25,12 @@
           <div class="p-3">
             <form @submit.prevent="createUnitType">
               <div class="form-group">
-                <label for="unitTypeName">Unit Type Name:</label>
+                <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Type Name</small>
                 <input
                   v-model="newUnitType.name"
                   id="unitTypeName"
                   type="text"
                   class="form-control"
-                  placeholder="Enter Unit Type Name"
                   required
                 />
               </div>
@@ -130,7 +129,7 @@
                   <div class="right-section">
                     <button
                       @click="openCreateTypeModal"
-                      class="btn-primary add-button"
+                      class="btn-add"
                     >
                       Create Unit Type
                     </button>
@@ -936,6 +935,7 @@ input {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel {
@@ -946,6 +946,7 @@ input {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .form-group label {

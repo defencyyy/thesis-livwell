@@ -151,7 +151,7 @@
                     <td>
                       <button
                         @click="openSalesDetailModal(sale)"
-                        class="btn-primary add-button"
+                        class="btn-manage"
                       >
                         Manage
                       </button>
@@ -228,7 +228,7 @@
                 {{ selectedSale.payment_method }}
               </p>
               <p v-if="selectedSale.reservation_file">
-                <strong>Reservation File:</strong>
+                <strong>Reservation File: </strong>
                 <a
                   :href="getFileUrl(selectedSale.reservation_file)"
                   target="_blank"
@@ -892,19 +892,16 @@ body {
   font-size: 14px; /* Set a smaller default font size for the card body */
 }
 
-.btn-primary.add-button {
-  padding: 8px 12px;
-  border: 1px solid #0560fd;
-  border-radius: 3px;
-  font-size: 14px;
+.btn-manage {
   background-color: #0560fd;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 12px;
 
-.btn-primary.add-button:hover {
-  background-color: #0056b3;
 }
 
 .outside-headers {
@@ -997,17 +994,6 @@ body {
 
 .sales-table td {
   background-color: #ffffff;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
 }
 
 .modal {

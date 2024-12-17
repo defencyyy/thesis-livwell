@@ -160,7 +160,7 @@
               <div class="col-md-6">
                 <!-- Name -->
                 <div class="mb-3">
-                  <label for="milestoneName" class="form-label">Name</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Milestone Name</small>
                   <input
                     type="text"
                     class="form-control"
@@ -173,9 +173,7 @@
 
                 <!-- Description -->
                 <div class="mb-3">
-                  <label for="milestoneDescription" class="form-label"
-                    >Description</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Description</small>
                   <textarea
                     class="form-control"
                     id="milestoneDescription"
@@ -191,7 +189,7 @@
               <div class="col-md-6">
                 <!-- Reward -->
                 <div class="mb-3">
-                  <label for="milestoneReward" class="form-label">Reward</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Reward</small>
                   <input
                     type="text"
                     class="form-control"
@@ -204,9 +202,7 @@
 
                 <!-- Milestone Type -->
                 <div class="mb-3">
-                  <label for="milestoneType" class="form-label"
-                    >Milestone Type</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Milestone Type</small>
                   <select
                     class="form-select"
                     v-model="newMilestone.type"
@@ -220,9 +216,7 @@
 
                 <!-- Conditional Fields -->
                 <div v-if="newMilestone.type === 'sales'" class="mb-3">
-                  <label for="salesThreshold" class="form-label"
-                    >Sales Threshold</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Sales Threshold</small>
                   <input
                     type="number"
                     class="form-control"
@@ -234,9 +228,7 @@
                 </div>
 
                 <div v-if="newMilestone.type === 'commission'" class="mb-3">
-                  <label for="commissionThreshold" class="form-label"
-                    >Commission Threshold</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission Threshold</small>
                   <input
                     type="number"
                     class="form-control"
@@ -1124,6 +1116,7 @@ td {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel {
