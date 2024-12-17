@@ -899,11 +899,23 @@
             size="xl"
           >
             <!-- Modal Title -->
-            <div class="modal-title p-3">
-              <h5 class="mb-0">
-                Add Units to Section: {{ selectedSection.number || "N/A" }}
-              </h5>
-            </div>
+            <div class="modal-title p-3 d-flex justify-content-between align-items-center">
+  <!-- Title on the left -->
+  <h5 class="mb-0">
+    Add Units to Section: {{ selectedSection.number || "N/A" }}
+  </h5>
+
+  <!-- Right Side: Dropdown -->
+  <div class="d-flex align-items-center">
+    <b-form-select
+      v-model="selectedUnitTemplate"
+      :options="unitTemplateOptions"
+      @change="handleTemplateChange"
+      class="form-select"
+      style="width: 200px"
+    ></b-form-select>
+  </div>
+</div>
 
             <div class="p-3">
               <form @submit.prevent="addSectionUnits(newUnitSections[0])">
@@ -913,7 +925,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Unit Type</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Type</small>
                           <b-form-select
                             v-model="newUnitType"
                             :options="selectUnitTypeOptions"
@@ -922,7 +934,7 @@
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Quantity</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Quantity</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitQuantity"
@@ -936,7 +948,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="4">
-                          <small>Bedrooms</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bedrooms</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
@@ -945,7 +957,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small>Bathrooms</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bathrooms</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
@@ -954,7 +966,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small>Balcony</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Balcony</small>
                           <b-form-select
                             v-model="newUnitBalcony"
                             :options="balconyOptions"
@@ -966,7 +978,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Lot Area (sq.m)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Lot Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
@@ -976,7 +988,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Floor Area (sq.m)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Floor Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
@@ -991,7 +1003,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Status</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Status</small>
                           <b-form-select
                             v-model="newUnitStatus"
                             :options="statusOptions"
@@ -999,7 +1011,7 @@
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>View</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">View</small>
 
                           <b-form-select
                             v-model="newUnitView"
@@ -1012,7 +1024,7 @@
                     <b-form-group>
                       <b-row
                         ><b-col cols="12" md="8"
-                          ><small>Price</small>
+                          ><small style="font-size: 14px; color: #6c757d; padding: 2px">Price</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitPrice"
@@ -1021,17 +1033,7 @@
                             required
                           ></b-form-input
                         ></b-col>
-                        <b-col cols="12" md="4">
-                          <small>Unit Template</small>
-                          <div class="d-flex align-items-center">
-                            <b-form-select
-                              v-model="selectedUnitTemplate"
-                              :options="unitTemplateOptions"
-                              @change="handleTemplateChange"
-                              class="mr-2"
-                            ></b-form-select>
-                          </div> </b-col
-                      ></b-row>
+                      </b-row>
                     </b-form-group>
                   </b-col>
 
@@ -1040,20 +1042,18 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Reservation Fee</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Reservation Fee</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Commission</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitCommission"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -1063,20 +1063,18 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Spot Discount Percentage</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Percentage</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountPercentage"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Spot Discount Flat</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Flat</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountFlat"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -1086,20 +1084,18 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>VAT Percentage</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">VAT Percentage</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitVatPercentage"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Other Charges</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Other Charges</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitOtherCharges"
-                            placeholder="Site Default Value"
                             min="0"
                           ></b-form-input>
                         </b-col>
@@ -1108,7 +1104,7 @@
 
                     <!-- Image Upload -->
                     <b-form-group>
-                      <small>Upload Images (Max: 5)</small>
+                      <small style="font-size: 14px; color: #6c757d; padding: 2px">Upload Images (Max: 5)</small>
                       <input
                         type="file"
                         ref="fileInput"
@@ -1247,7 +1243,7 @@ export default {
       newUnitOtherCharges: null,
       newUnitVatPercentage: null,
       sortOptions: [
-        { value: null, text: "Select" },
+        { value: null, text: "All" },
         { value: "unit_number_asc", text: "Unit Number (Asc)" },
         { value: "unit_number_desc", text: "Unit Number (Desc)" },
         { value: "price_asc", text: "Price (Asc)" },
@@ -1268,7 +1264,7 @@ export default {
         { value: "Reserved", text: "Reserved" },
       ],
       priceRangeOptions: [
-        { value: null, text: "Select" },
+        { value: null, text: "All" },
         { value: "1-5", text: "1M - 5M" },
         { value: "5-10", text: "5M - 10M" },
         { value: "10-15", text: "10M - 15M" },
@@ -1277,14 +1273,14 @@ export default {
         { value: "25+", text: "25M+" },
       ],
       viewOptions: [
-        { value: null, text: "None" },
+        // { value: null, text: "" },
         { value: "south", text: "South" },
         { value: "north", text: "North" },
         { value: "east", text: "East" },
         { value: "west", text: "West" },
       ],
       balconyOptions: [
-        { value: null, text: "None" },
+        // { value: null, text: "" },
         { value: "has balcony", text: "Yes" },
         { value: "no balcony", text: "No" },
       ],
@@ -1598,7 +1594,7 @@ export default {
 
           // Populate the unitTemplateOptions with only non-archived templates
           this.unitTemplateOptions = [
-            { value: null, text: "None" },
+          { value: null, text: "Unit Template", disabled: true },
             ...activeTemplates.map((template) => ({
               value: template.id,
               text: template.name,

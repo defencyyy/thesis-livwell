@@ -191,7 +191,7 @@ export default {
       sortBy: "relative_id", // Default sorting option
       sortOrder: "asc", // Default sorting order (Ascending)
       currentPage: 1,
-      itemsPerPage: 15,
+      itemsPerPage: 10,
     };
   },
   computed: {
@@ -721,9 +721,36 @@ body {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px; /* Reduce margin */
-  padding-right: 40px; /* Reduce padding */
-  font-size: 14px; /* Smaller font size */
-  line-height: 1.2; /* Adjust line height for compactness */
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
+}
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 </style>
