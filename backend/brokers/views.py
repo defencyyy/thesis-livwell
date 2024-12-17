@@ -41,23 +41,38 @@ class BrokerListView(APIView):
             data = request.data
             data['company'] = company.id
 
+            # Create the broker instance using the serializer
             serializer = DeveloperBrokerSerializer(data=data)
 
             if serializer.is_valid():
                 broker = serializer.save()
 
-                # Automatically generate the username by removing spaces from first and last name
+                # Automatically generate the base username using the broker's relative_id
+                relative_id = broker.relative_id
                 first_name = broker.first_name.replace(' ', '')
                 last_name = broker.last_name.replace(' ', '')
-                broker.username = f"{broker.id}.{first_name}{last_name}".lower()  # Example: broker.id.first_name.last_name
+                base_username = f"{relative_id}.{first_name}{last_name}".lower()
+
+                # Check if the username already exists and append a counter if necessary
+                username = base_username
+                counter = 1
+                while Broker.objects.filter(username=username).exists() or Developer.objects.filter(username=username).exists():
+                    username = f"{base_username}.{counter}"
+                    counter += 1
+
+                # Set the unique username
+                broker.username = username
                 broker.save()
 
+                # Return the broker data in the response
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except Developer.DoesNotExist:
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 
 class BrokerDetailView(APIView):
@@ -170,3 +185,31 @@ class ArchivedBrokerView(APIView):
             return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
         except Broker.DoesNotExist:
             return Response({"error": "Broker not found or not archived"}, status=status.HTTP_404_NOT_FOUND)
+
+from django.http import JsonResponse
+from django.db.models import Count
+from sales.models import Sale
+from .models import Broker
+
+def top_brokers(request):
+    # Query brokers and annotate with total sales count
+    brokers = Broker.objects.all()
+
+    # Sort brokers based on total sales
+    sorted_brokers = sorted(brokers, key=lambda broker: broker.total_sales, reverse=True)
+
+    # Get top 5 brokers
+    top_brokers = sorted_brokers[:5]
+
+    # Prepare the response data
+    broker_data = [
+        {
+            'id': broker.id,
+            'full_name': broker.get_full_name(),
+            'total_sales': broker.total_sales,  # Access the property here, don't set it
+            'total_commissions': broker.total_commissions,
+        }
+        for broker in top_brokers
+    ]
+
+    return JsonResponse(broker_data, safe=False)

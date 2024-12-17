@@ -107,12 +107,23 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
+
+                    <select v-model="sortBy" class="dropdown">
+                      <option value="id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+                    </select>
+
+                    <!-- Sort Order Dropdown -->
+                    <select v-model="sortOrder" class="dropdown">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
                     <select
                       v-model="viewFilter"
                       @change="toggleView"
                       class="dropdown"
                     >
-                      <option value="active">View: Existing</option>
+                      <option value="active">View: Active</option>
                       <option value="archived">View: Archived</option>
                     </select>
                   </div>
@@ -138,7 +149,7 @@
               </div>
 
               <div
-                v-for="unitType in filteredUnitTypes"
+                v-for="unitType in paginatedUnitTypes"
                 :key="unitType.id"
                 class="card border-0 rounded-1 mx-auto my-2"
                 style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -148,7 +159,7 @@
                     <tbody>
                       <tr>
                         <td>
-                          {{ unitType.name }}
+                          <strong>{{ unitType.name }}</strong>
                         </td>
                         <td>
                           <span v-if="unitType.is_custom">Custom</span>
@@ -223,6 +234,42 @@
                   </table>
                 </div>
               </div>
+                          <!-- Pagination Controls -->
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage - 1)"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: page === currentPage }]"
+              >
+                <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage + 1)"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
             </div>
           </div>
         </div>
@@ -233,8 +280,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -304,6 +353,10 @@ export default {
       confirmMessage: "",
       actionToConfirm: null,
       confirmParams: [],
+      sortBy: "id", // Default sort by name
+      sortOrder: "asc", // Default sort order ascending
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
 
@@ -314,21 +367,72 @@ export default {
         const matchesSearch = unitType.name
           .toLowerCase()
           .includes(this.searchQuery.toLowerCase());
-        const isArchived = this.showArchived
-          ? unitType.is_archived
-          : !unitType.is_archived;
+
+        // Filtering by Active/Archived
+        const isArchived =
+          this.viewFilter === "archived"
+            ? unitType.is_archived
+            : this.viewFilter === "active"
+            ? !unitType.is_archived
+            : true;
+
         return matchesSearch && isArchived;
       });
 
+      // Sorting by ID or Name, with default (is_custom: false) coming first
       return filtered.sort((a, b) => {
-        if (a.is_custom && !b.is_custom) return 1;
-        if (!a.is_custom && b.is_custom) return -1;
-        return 0;
+        // Handle is_custom prioritization before sorting by ID or Name
+        if (this.sortOrder === "asc") {
+          // Ascending: default (is_custom: false) comes first
+          if (a.is_custom === false && b.is_custom === true) {
+            return -1; // a (default) comes first
+          }
+          if (a.is_custom === true && b.is_custom === false) {
+            return 1; // b (default) comes first
+          }
+        } else if (this.sortOrder === "desc") {
+          // Descending: non-default (is_custom: true) comes first
+          if (a.is_custom === false && b.is_custom === true) {
+            return 1; // b (non-default) comes first
+          }
+          if (a.is_custom === true && b.is_custom === false) {
+            return -1; // a (non-default) comes first
+          }
+        }
+
+        // Sorting by ID if no is_custom difference
+        if (this.sortBy === "id") {
+          return this.sortOrder === "asc" ? a.id - b.id : b.id - a.id;
+        }
+
+        // Sorting by Name if no is_custom difference
+        if (this.sortBy === "name") {
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+          return this.sortOrder === "asc"
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
+        }
       });
     },
-  },
+    paginatedUnitTypes() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredUnitTypes.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
 
+    totalPages() {
+      return Math.ceil(this.filteredUnitTypes.length / this.itemsPerPage);
+    },
+  },
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     // Modal Controls
     openCreateTypeModal() {
       this.isCreateModalOpen = true;
@@ -405,15 +509,24 @@ export default {
       }
     },
 
-    // Update Unit Type
     updateUnitTypeWithConfirmation() {
+      // Check if there are no changes before proceeding
+      if (
+        this.editedUnitType.name ===
+        this.unitTypes.find((unit) => unit.id === this.editedUnitType.id).name
+      ) {
+        this.notificationTitle = "Invalid";
+        this.notificationMessage = "No changes were made.";
+        this.showNotification = true;
+        return; // Stop the method if no changes
+      }
+
       this.showConfirmation(
         `Are you sure you want to update this unit type to "${this.editedUnitType.name}"?`,
         this.updateUnitTypeConfirmed,
         []
       );
     },
-
     async updateUnitTypeConfirmed() {
       try {
         await axios.put(
@@ -861,5 +974,40 @@ input {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
+}
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 </style>

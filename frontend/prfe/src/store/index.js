@@ -51,11 +51,15 @@ export default createStore({
       state.loggedIn = false;
       state.authToken = null;
       state.company = {}; // Clear company data
+
+      // Remove user and company-related data from localStorage
       localStorage.removeItem("user_id");
       localStorage.removeItem("user_role");
       localStorage.removeItem("first_name");
       localStorage.removeItem("company_id");
       localStorage.removeItem("company"); // Remove entire company object
+      localStorage.removeItem("company_logo"); // Remove company logo
+      localStorage.removeItem("company_name"); // Remove company name
       localStorage.removeItem("authToken");
       localStorage.setItem("logged_in", "false");
     },
@@ -69,6 +73,8 @@ export default createStore({
       // Clear everything from localStorage and Vuex
       commit("clearUser");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("company_logo"); // Remove company logo
+      localStorage.removeItem("company_name"); // Remove company name
       this.$router.push({ name: "Home" }); // Redirect to home or login page
     },
     setCompany({ commit }, company) {

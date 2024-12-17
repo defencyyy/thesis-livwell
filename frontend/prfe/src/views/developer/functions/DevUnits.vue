@@ -42,10 +42,11 @@
                     </div>
                     <!-- Sort Dropdown -->
                     <select v-model="sortBy" class="dropdown">
-                      <option value="name">Name</option>
-                      <option value="created_at">Date Created</option>
-                      <option value="status">Status</option>
-                      <option value="sections">Sections</option>
+                      <option value="relative_id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+
+                      <option value="status">Sort: Status</option>
+                      <option value="sections">Sort: Sections</option>
                     </select>
                     <select v-model="sortOrder" class="dropdown">
                       <option value="asc">Ascending</option>
@@ -59,20 +60,38 @@
 
           <div v-if="viewMode === 'table'">
             <div class="outside-headers">
+              <span class="header-item">ID</span>
               <span class="header-item">Name</span>
               <span class="header-item">Location</span>
               <span class="header-item">Status</span>
               <span class="header-item">Sections</span>
               <span class="header-item">Units</span>
-              <span class="header-item">Available Units</span>
+              <span class="header-item">Availability</span>
               <span class="header-item">Actions</span>
             </div>
-            <div v-for="site in filteredSites" :key="site.id" class="card">
+            <div v-for="site in paginatedSites" :key="site.id" class="card">
               <div class="card-body">
                 <table class="site-table">
                   <tbody>
                     <tr>
-                      <td>{{ site.name || "Unknown" }}</td>
+                      <td class="site-relative-id">
+                        {{ site.relative_id || "N/A" }}
+                      </td>
+                      <td>
+                        <img
+                          v-if="site.picture"
+                          :src="getPictureUrl(site.picture)"
+                          alt="Image of {{ site.name }}"
+                          class="table-image"
+                        />
+                        <i
+                          v-else
+                          class="fas fa-image fa-2x"
+                          aria-label="Default site image"
+                          style="margin-right: 12px"
+                        ></i
+                        ><strong>{{ site.name || "Unknown" }}</strong>
+                      </td>
                       <td>{{ site.location || "Location unavailable" }}</td>
                       <td>
                         {{ site.status.toUpperCase() || "Status unavailable" }}
@@ -99,7 +118,7 @@
                           @click.stop="openSectionManagement(site)"
                           class="btn-manage"
                         >
-                          Manage Section
+                          Manage
                         </button>
                       </td>
                     </tr>
@@ -107,6 +126,42 @@
                 </table>
               </div>
             </div>
+            <!-- Pagination Controls -->
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage - 1)"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: page === currentPage }]"
+              >
+                <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage + 1)"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
           </div>
         </div>
       </div>
@@ -133,35 +188,66 @@ export default {
       errorMessage: null,
       viewMode: "table",
       searchQuery: "", // Search query for site name
-      sortBy: "name", // Default sorting option
+      sortBy: "relative_id", // Default sorting option
       sortOrder: "asc", // Default sorting order (Ascending)
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
   computed: {
     filteredSites() {
-      return this.sites
-        .filter((site) =>
-          site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-        .sort((a, b) => this.compareSites(a, b));
+      // Filter the sites by search query
+      const filtered = this.sites.filter((site) =>
+        site.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+
+      // Sorting logic based on the selected sort criteria
+      return filtered.sort((a, b) => {
+        let comparison = 0;
+
+        // Compare by selected sorting criterion
+        if (this.sortBy === "name") {
+          comparison = a.name.localeCompare(b.name);
+        } else if (this.sortBy === "relative_id") {
+          const aRelativeId = a.relative_id?.toString().toLowerCase() || "";
+          const bRelativeId = b.relative_id?.toString().toLowerCase() || "";
+          comparison = aRelativeId.localeCompare(bRelativeId, undefined, {
+            numeric: true,
+          });
+        } else if (this.sortBy === "status") {
+          comparison = a.status.localeCompare(b.status);
+        } else if (this.sortBy === "sections") {
+          comparison = a.sections.length - b.sections.length;
+        }
+
+        // If sortOrder is "asc", return the comparison; otherwise, reverse it
+        return this.sortOrder === "asc" ? comparison : -comparison;
+      });
     },
+
     siteOptions() {
       return this.sites
         .map((site) => ({ value: site.id, text: site.name }))
         .sort((a, b) => a.text.localeCompare(b.text)); // Sort options alphabetically
     },
+    paginatedSites() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredSites.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredSites.length / this.itemsPerPage);
+    },
   },
+
   methods: {
-    compareSites(a, b) {
-      let comparison = 0;
-      if (this.sortBy === "name") comparison = a.name.localeCompare(b.name);
-      if (this.sortBy === "created_at")
-        comparison = new Date(a.created_at) - new Date(b.created_at);
-      if (this.sortBy === "status")
-        comparison = a.status.localeCompare(b.status);
-      if (this.sortBy === "sections")
-        comparison = a.sections.length - b.sections.length;
-      return this.sortOrder === "asc" ? comparison : -comparison;
+     goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
     },
     getPictureUrl(picture) {
       return `http://localhost:8000${picture}`;
@@ -527,37 +613,41 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  width: 25%;
-  padding-right: 10px;
+  width: 19%;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  width: 12%;
+  width: 24%;
+  padding-right: 10px;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  width: 12%;
+  width: 11%;
 }
 
 .site-table th:nth-child(5),
 .site-table td:nth-child(5) {
-  width: 12%;
+  width: 10%;
 }
 
 .site-table th:nth-child(6),
 .site-table td:nth-child(6) {
-  width: 12%;
+  width: 11%;
 }
 .site-table th:nth-child(7),
 .site-table td:nth-child(7) {
+  width: 11%;
+}
+.site-table th:nth-child(8),
+.site-table td:nth-child(8) {
   width: 7%;
 }
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 20% 25% 12% 12% 12% 12% 7%;
+  grid-template-columns: 7% 19% 24% 11% 11% 10% 11% 7%;
   padding: 0px 15px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -627,5 +717,40 @@ body {
 
 .button-bottom-right:hover {
   background-color: #0056b3; /* Optional: Change color on hover */
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
+}
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 </style>

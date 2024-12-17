@@ -94,7 +94,7 @@ export default {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              username: this.username,
+              username: this.username.toLowerCase(),
               email: this.email,
             }),
           });

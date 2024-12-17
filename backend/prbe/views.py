@@ -69,6 +69,9 @@ def login_view(request, user_role):
                     {"success": False, "message": "Username and password are required."},
                     status=400
                 )
+            
+            # Normalize username to lowercase
+            username = username.lower()
 
             # Fetch the user based on user_role
             if user_role == 'developer':
@@ -565,7 +568,14 @@ def get_available_units(request):
             # Prepare the response data
             unit_data = []
             for unit in units:
-                images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
+                # Check if the unit has a unit template and fetch images accordingly
+                if unit.unit_template:
+                    # Fetch images from the unit template
+                    images = unit.unit_template.images.all()
+                else:
+                    # Fetch images from the unit itself
+                    images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
+
                 image_urls = [request.build_absolute_uri(image.image.url) for image in images]
 
                 # Get the unit type name (you can also include more fields as needed)
@@ -615,8 +625,13 @@ def get_unit_details(request, unit_id):
             # Fetch the unit with the given unit ID
             unit = Unit.objects.select_related('site', 'unit_type', 'section').get(id=unit_id)
 
-            # Fetch unit images
-            images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
+            if unit.unit_template:
+                # Fetch images from the unit template
+                images = unit.unit_template.images.all()
+            else:
+                # Fetch images from the unit itself
+                images = UnitImage.objects.filter(unit_id=unit.id, image_type='unit')
+
             image_urls = [request.build_absolute_uri(image.image.url) for image in images]
 
             # Prepare unit details
@@ -1064,8 +1079,15 @@ def get_sales_detail(request, sales_detail_id):
         'customer_name': f"{customer.first_name} {customer.last_name}",  # Customer full name
         'unit_name': unit.unit_title, # Unit title
         'company_name': company.name,  # Company name
+        'company_logo': None,  # Default value if logo doesn't existZ
 
     }
+
+    # Check if the company has a logo and add it to the response
+    if company.logo:
+        base_url = 'http://localhost:8000'  # This is your domain or base URL
+        company_logo_url = base_url + settings.MEDIA_URL + str(company.logo)
+        sales_detail_data['company_logo'] = company_logo_url
 
     # Add the reservation agreement URL
     if sales_detail.reservation_agreement:
@@ -1155,6 +1177,7 @@ def check_sales_details(request, customer_id, site_id, unit_id):
     return JsonResponse(response_data)
 
 def fetch_document_types(request):
+    print("l")
     try:
         # Get the company ID from the request (query parameter or user's session)
         company_id = request.GET.get("company_id")

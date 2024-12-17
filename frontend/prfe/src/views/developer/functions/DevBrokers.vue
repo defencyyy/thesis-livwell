@@ -32,6 +32,17 @@
                     />
                     <i class="fa fa-search search-icon"></i>
                   </div>
+                  <!-- Sort Dropdown -->
+                  <select v-model="sortBy" class="dropdown">
+                    <option value="name">Sort: Name</option>
+                    <option value="relative_id">Sort: ID</option>
+                  </select>
+
+                  <!-- Sort Order Dropdown -->
+                  <select v-model="sortOrder" class="dropdown">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                  </select>
                   <select
                     v-model="viewFilter"
                     @change="toggleView"
@@ -58,6 +69,7 @@
         <div>
           <!-- Headers outside the card -->
           <div class="outside-headers">
+            <span class="header-item">ID</span>
             <span class="header-item">Name</span>
             <span class="header-item">Username</span>
             <span class="header-item">Email</span>
@@ -75,6 +87,12 @@
               <table class="broker-table">
                 <tbody>
                   <tr>
+                    <td>
+                      <span class="broker-id">{{
+                        broker.relative_id || "?"
+                      }}</span>
+                    </td>
+
                     <td>
                       <!-- User Icon as Profile Picture -->
                       <i class="fas fa-user-tie broker-icon"></i>
@@ -94,7 +112,7 @@
                       }}</span>
                     </td>
                     <td>
-                      <div class="broker-actions d-flex gap-2">
+                      <div class="broker-actions d-flex">
                         <!-- Edit Button as Icon (Blue) -->
                         <button
                           @click="openEditModal(broker)"
@@ -190,6 +208,7 @@
           v-model="editModalVisible"
           title="Edit Broker"
           hide-footer
+          centered
           hide-header
         >
           <div class="modal-title p-3">
@@ -413,8 +432,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -471,6 +492,8 @@ export default {
       brokers: [],
       archivedBrokers: [],
       searchQuery: "",
+      sortBy: "relative_id", // Default sort field
+      sortOrder: "asc",
 
       // Pagination
       currentPage: 1,
@@ -521,15 +544,36 @@ export default {
 
     filteredBrokers() {
       const brokers = this.showArchived ? this.archivedBrokers : this.brokers;
+
+      // Apply search filter
+      let filtered = brokers;
       if (this.searchQuery) {
-        return brokers.filter((broker) =>
+        filtered = brokers.filter((broker) =>
           Object.values(broker)
             .join(" ")
             .toLowerCase()
             .includes(this.searchQuery.toLowerCase())
         );
       }
-      return brokers;
+
+      // Apply sorting based on the selected field
+      return filtered.sort((a, b) => {
+        let fieldA, fieldB;
+
+        if (this.sortBy === "relative_id") {
+          fieldA = a.relative_id?.toString().toLowerCase() || "";
+          fieldB = b.relative_id?.toString().toLowerCase() || "";
+        } else {
+          fieldA = a.last_name?.toString().toLowerCase() || "";
+          fieldB = b.last_name?.toString().toLowerCase() || "";
+        }
+
+        if (this.sortOrder === "asc") {
+          return fieldA.localeCompare(fieldB, undefined, { numeric: true });
+        } else {
+          return fieldB.localeCompare(fieldA, undefined, { numeric: true });
+        }
+      });
     },
 
     paginatedBrokers() {
@@ -1090,23 +1134,29 @@ body {
 .broker-table th:nth-child(2),
 .broker-table td:nth-child(2) {
   /* Location column */
-  width: 25%;
+  width: 27%;
 }
 
 .broker-table th:nth-child(3),
 .broker-table td:nth-child(3) {
   /* Status column */
-  width: 19%;
+  width: 25%;
 }
 
 .broker-table th:nth-child(4),
 .broker-table td:nth-child(4) {
   /* Actions column */
-  width: 19%;
+  width: 17%;
 }
 
 .broker-table th:nth-child(5),
 .broker-table td:nth-child(5) {
+  /* Actions column */
+  width: 17%;
+}
+
+.broker-table th:nth-child(6),
+.broker-table td:nth-child(6) {
   /* Actions column */
   width: 7%;
 }
@@ -1114,7 +1164,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 30% 25% 19% 19% 7%;
+  grid-template-columns: 7% 27% 25% 17% 17% 7%;
   /* Match the column widths */
   padding: 0px 15px;
   margin: 20px auto 10px;
@@ -1162,23 +1212,35 @@ body {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px; /* Reduce margin */
-  padding-right: 40px; /* Reduce padding */
-  font-size: 14px; /* Smaller font size */
-  line-height: 1.2; /* Adjust line height for compactness */
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
 }
 
 .page-item {
-  margin: 0 2px; /* Reduce spacing between buttons */
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
 }
 
-.page-link {
-  padding: 4px 8px; /* Smaller button padding */
-  font-size: 14px; /* Match font size for consistency */
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
 }
 
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef; /* Light gray */
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 
 .button-container {

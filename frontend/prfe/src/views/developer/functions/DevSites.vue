@@ -33,11 +33,10 @@
 
                   <!-- Sort Dropdown -->
                   <select v-model="sortBy" class="dropdown">
+                    <option value="relative_id">Sort: ID</option>
                     <option value="name">Sort: Name</option>
                     <option value="status">Sort: Status</option>
-                    <option value="creation">Sort: Date</option>
                   </select>
-
                   <!-- Sort Order Dropdown -->
                   <select v-model="sortOrder" class="dropdown">
                     <option value="asc">Ascending</option>
@@ -99,13 +98,17 @@
                     <td>
                       <div class="site-info">
                         <img
-                          :src="
-                            getPictureUrl(site.picture) ||
-                            require('@/assets/home.png')
-                          "
-                          alt="N/A"
+                          v-if="site.picture"
+                          :src="getPictureUrl(site.picture)"
+                          alt=""
                           class="table-image"
                         />
+                        <i
+                          v-else
+                          class="fas fa-image fa-2x"
+                          aria-label="Default site image"
+                          style="margin-right: 12px"
+                        ></i>
                         <span class="site-name">
                           {{ site.name || "Unknown" }}
                         </span>
@@ -117,7 +120,7 @@
                     </td>
 
                     <td>
-                      <div class="broker-actions d-flex gap-2">
+                      <div class="broker-actions d-flex">
                         <button
                           @click="openEditModal(site)"
                           style="
@@ -371,6 +374,7 @@
                       id="sitePicture"
                       class="form-control"
                       accept="image/*"
+                      required
                     />
                   </div>
 
@@ -491,6 +495,7 @@
                       class="form-control"
                       placeholder="Enter the number of sections"
                       min="1"
+                      max="100"
                       required
                     />
                   </div>
@@ -889,6 +894,8 @@
                       class="form-control"
                       placeholder="Add Sections"
                       min="0"
+                      :max="100 - editSite.number_of_sections"
+                      @input="validateTotalSections"
                     />
                   </div>
 
@@ -942,9 +949,14 @@
                 class="d-flex justify-content-end gap-2 mt-3"
                 style="padding-top: 15px"
               >
-                <button type="submit" class="btn-add" style="width: 150px">
-                  Save Changes
+                <button :disabled="totalSections > 100" class="btn btn-primary">
+                  Proceed
                 </button>
+
+                <!-- Error Message -->
+                <div v-if="totalSections > 100" class="text-danger mt-2">
+                  <p>You cannot have more than 100 sections.</p>
+                </div>
                 <button
                   type="button"
                   @click="cancelEdit"
@@ -980,9 +992,11 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
-            <button
+          <div
+          class="d-flex justify-content-end gap-2 mt-30"
+          style="padding-top: 15px"
+          >
+          <button
               type="button"
               @click="confirmAction"
               class="btn btn-primary"
@@ -997,7 +1011,7 @@
             >
               Cancel
             </button>
-          </div>
+        </div>
         </b-modal>
       </div>
     </div>
@@ -1022,7 +1036,7 @@ export default {
     return {
       // View and UI-related data
       viewMode: "table",
-      sortBy: "name",
+      sortBy: "relative_id",
       sortOrder: "asc",
       searchQuery: "",
       visibleDropdown: null,
@@ -1172,8 +1186,8 @@ export default {
           const bName = b?.name || "";
           const aStatus = a?.status || "";
           const bStatus = b?.status || "";
-          const aCreatedAt = new Date(a?.created_at) || new Date(0); // Default to epoch if undefined
-          const bCreatedAt = new Date(b?.created_at) || new Date(0);
+          const aRelativeId = a?.relative_id?.toString().toLowerCase() || "";
+          const bRelativeId = b?.relative_id?.toString().toLowerCase() || "";
 
           let comparison = 0;
 
@@ -1182,15 +1196,16 @@ export default {
             comparison = aName.localeCompare(bName);
           } else if (this.sortBy === "status") {
             comparison = aStatus.localeCompare(bStatus);
-          } else if (this.sortBy === "creation") {
-            comparison = aCreatedAt - bCreatedAt;
+          } else if (this.sortBy === "relative_id") {
+            comparison = aRelativeId.localeCompare(bRelativeId, undefined, {
+              numeric: true,
+            });
           }
 
           // If the selected order is "desc", reverse the comparison result
           return this.sortOrder === "desc" ? -comparison : comparison;
         });
     },
-
     // Count of sections for the current site
     numberOfSections() {
       return this.currentSite.sections.length;
@@ -1601,7 +1616,16 @@ export default {
       formData.append("reservation_fee", this.newSite.reservation_fee || "");
       formData.append("other_charges", this.newSite.other_charges || "");
 
-      // Add Sections
+      // Check if the total number of sections being added exceeds 100 before appending
+      if (this.newSite.sections?.length > 100) {
+        // Show notification if it exceeds the limit
+        this.notificationTitle = "Error";
+        this.notificationMessage = "You cannot add more than 100 sections.";
+        this.showNotification = true;
+        return; // Prevent further execution
+      }
+
+      // If within the limit, proceed to append sections to formData
       if (this.newSite.sections?.length) {
         this.newSite.sections.forEach((section, index) => {
           formData.append(
@@ -1793,8 +1817,16 @@ export default {
       }
     },
 
-    // Add new sections to the site
     addSections() {
+      // Check if the total sections will exceed 100
+      if (this.editSite.sections.length + this.newSectionsToAdd > 100) {
+        // Show notification if it exceeds the limit
+        this.notificationTitle = "Error";
+        this.notificationMessage = "You cannot add more than 100 sections.";
+        this.showNotification = true;
+        return; // Stop further execution
+      }
+
       let lastSectionNumber = 0;
       if (this.editSite.sections.length > 0) {
         lastSectionNumber = Math.max(
@@ -1838,10 +1870,11 @@ export default {
 
     constructLocation(site) {
       const addressParts = [
+        site.region,
         site.province,
         site.municipality,
         site.barangay,
-        site.postal_code ? `Postal Code: ${site.postal_code}` : "",
+        site.address,
       ];
       return addressParts.filter(Boolean).join(", ");
     },
@@ -2233,21 +2266,20 @@ body {
 
 .site-table th:nth-child(2),
 .site-table td:nth-child(2) {
-  /* Location column */
   width: 27%;
-  padding-right: 60px;
 }
 
 .site-table th:nth-child(3),
 .site-table td:nth-child(3) {
-  /* Status column */
-  width: 40%;
+  /* Location column */
+  width: 43%;
+  padding-right: 60px;
 }
 
 .site-table th:nth-child(4),
 .site-table td:nth-child(4) {
-  /* Actions column */
-  width: 20%;
+  /* Status column */
+  width: 16%;
 }
 
 .site-table th:nth-child(5),
@@ -2259,7 +2291,7 @@ body {
 .outside-headers {
   display: grid;
   /* Change to grid layout */
-  grid-template-columns: 6% 27% 40% 20% 7%;
+  grid-template-columns: 7% 27% 43% 16% 7%;
   /* Match the column widths */
   padding: 0px 18px;
   margin: 20px auto 10px;
@@ -2315,29 +2347,37 @@ body {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px; /* Reduce margin */
-  padding-right: 40px; /* Reduce padding */
-  font-size: 14px; /* Smaller font size */
-  line-height: 1.2; /* Adjust line height for compactness */
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
 }
 
 .page-item {
-  margin: 0 2px; /* Reduce spacing between buttons */
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
 }
 
-.page-link {
-  padding: 4px 8px; /* Smaller button padding */
-  font-size: 14px; /* Match font size for consistency */
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
 }
 
-.page-button:disabled {
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
 
-.page-button:hover:not(:disabled) {
-  background-color: #e9ecef;
-  /* Light gray */
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 
 .button-container {

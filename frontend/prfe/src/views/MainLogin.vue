@@ -125,13 +125,16 @@ export default {
 
       if (this.username && this.password) {
         try {
+          // Convert username to lowercase before sending to backend
+          const usernameLowercase = this.username.toLowerCase();
+
           let response = await fetch("http://localhost:8000/broker/login/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              username: this.username,
+              username: usernameLowercase, // Send lowercase username
               password: this.password,
             }),
           });
@@ -149,7 +152,7 @@ export default {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  username: this.username,
+                  username: usernameLowercase, // Send lowercase username
                   password: this.password,
                 }),
               }
@@ -175,7 +178,6 @@ export default {
         this.loading = false;
       }
     },
-
     handleLogin(data, role) {
       localStorage.setItem("accessToken", data.tokens.access);
       localStorage.setItem("refreshToken", data.tokens.refresh);

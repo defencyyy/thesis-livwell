@@ -7,12 +7,21 @@ from companies.models import Company
 import os
 from datetime import date
 
+# def reservation_file_upload_path(instance, filename):
+#     # You may need to update the logic to reflect the reservations folder
+#     company_name = instance.company.name if instance.company else 'new_company'
+#     sale_id = instance.id if instance.id else 'new_sale'
+
+#     filename = 'reservation.pdf' if filename is None else filename
+#     return os.path.join('reservations', str(company_name), 'sales', str(sale_id), filename)
+
 def reservation_file_upload_path(instance, filename):
+    # You may need to update the logic to reflect the reservations folder
     company_name = instance.company.name if instance.company else 'new_company'
     sale_id = instance.id if instance.id else 'new_sale'
 
     filename = 'reservation.pdf' if filename is None else filename
-    return os.path.join('files', str(company_name), 'sales', str(sale_id), filename)
+    return os.path.join('reservations', filename)
 
 class Sale(models.Model):
     STATUS_CHOICES = [

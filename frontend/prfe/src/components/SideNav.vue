@@ -3,13 +3,13 @@
     <div :class="['sidebar']">
       <div class="sidebar-header">
         <img
-          v-if="company?.logo"
-          :src="getLogoUrl(company.logo)"
+          v-if="tempLogo"
+          :src="tempLogo"
           class="sidebar-logo"
           alt="Company Logo"
         />
         <i v-else class="fas fa-cogs sidebar-logo" style="color: #0560fd"></i>
-        <h4 id="sidebar-title">{{ company?.name || "Company Name" }}</h4>
+        <h4 id="sidebar-title">{{ tempCompanyName || "Company Name" }}</h4>
       </div>
 
       <nav class="sidebar-nav">
@@ -88,14 +88,20 @@ export default {
     return {
       userRole: localStorage.getItem("user_role") || "guest",
       menuItems: [],
+      tempLogo: null, // Variable to store the logo temporarily
+      tempCompanyName: null, // Variable to store the company name temporarily
     };
   },
   created() {
     this.setMenuItems();
+    this.setTemporaryLogo(); // Set the temporary logo
+    this.setTemporaryCompanyName(); // Set the temporary company name
   },
   computed: {
     // Map company data from Vuex store
     ...mapState({
+      loggedIn: (state) => state.loggedIn,
+
       userId: (state) => state.userId,
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
@@ -103,6 +109,26 @@ export default {
     }),
   },
   methods: {
+    setTemporaryLogo() {
+      // Try to fetch logo from localStorage if it was previously set
+      const storedLogo = localStorage.getItem("company_logo");
+      if (storedLogo) {
+        this.tempLogo = storedLogo;
+      } else if (this.company?.logo) {
+        this.tempLogo = `http://localhost:8000${this.company.logo}`;
+        localStorage.setItem("company_logo", this.tempLogo); // Store for future page refreshes
+      }
+    },
+    setTemporaryCompanyName() {
+      // Try to fetch company name from localStorage if it was previously set
+      const storedName = localStorage.getItem("company_name");
+      if (storedName) {
+        this.tempCompanyName = storedName;
+      } else if (this.company?.name) {
+        this.tempCompanyName = this.company.name;
+        localStorage.setItem("company_name", this.tempCompanyName); // Store for future page refreshes
+      }
+    },
     setMenuItems() {
       if (this.userRole === "developer") {
         this.menuItems = [

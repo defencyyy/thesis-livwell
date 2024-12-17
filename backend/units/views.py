@@ -31,23 +31,68 @@ class UnitTemplateListView(APIView):
         templates = UnitTemplate.objects.filter(company=company)
         serializer = UnitTemplateSerializer(templates, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
+    
     def post(self, request):
-        company = get_company(request)
-        data = request.data.copy()
-        data['company'] = company.id
-        serializer = UnitTemplateSerializer(data=data)
+        try:
+            company = get_company(request)
+            # Process non-file data
+            data = {key: value for key, value in request.data.items() if key != 'images'}
+            data['company'] = company.id  # Add company ID to the form data
 
-        if serializer.is_valid():
-            template = serializer.save()
-            images_data = request.FILES.getlist('images')
-            if images_data:
-                for image in images_data:
-                    UnitImage.objects.create(unit_template=template, image=image)
+            # Validate that required fields are present
+            if not data.get('unit_type'):
+                return Response({"error": "Unit type must be specified."}, status=status.HTTP_400_BAD_REQUEST)
+            if not data.get('name'):
+                return Response({"error": "Name must be specified."}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({"success": True, "data": UnitTemplateSerializer(template).data}, status=status.HTTP_201_CREATED)
+            # Serialize form data
+            serializer = UnitTemplateSerializer(data=data)
+
+            if serializer.is_valid():
+                template = serializer.save()
+
+                # Handle images if present
+                self._handle_images(request, template)
+
+                return Response({"success": True, "data": UnitTemplateSerializer(template).data}, status=status.HTTP_201_CREATED)
+
+            return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Error creating template: {str(e)}\n{traceback.format_exc()}")
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def _handle_images(self, request, template):
+        # Get the list of images from the request
+        images = request.FILES.getlist("images")  # Use getlist() to receive an array of images
         
-        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        if images:
+            image_types = request.data.getlist("image_types", [])
+            primaries = request.data.getlist("primaries", [])
+            
+            for i, image in enumerate(images):
+                try:
+                    image_type = image_types[i] if i < len(image_types) else 'unit'
+                    primary = primaries[i] if i < len(primaries) else False
+
+                    # Ensure that the value is a boolean
+                    primary = True if str(primary).lower() == "true" else False
+
+                    # Then create the image
+                    unit_image = UnitImage.objects.create(
+                        unit_template=template,
+                        image=image,
+                        image_type=image_type,
+                        primary=primary  # Now it will always be a boolean
+                    )
+
+                    logger.info(f"Image successfully added: {unit_image}")
+
+                except Exception as e:
+                    logger.error(f"Error saving image: {e}\n{traceback.format_exc()}")
+                    return Response({"error": f"Error saving image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class UnitTemplateDetailView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -55,10 +100,15 @@ class UnitTemplateDetailView(APIView):
 
     def get(self, request, pk):
         company = get_company(request)
+        print(f"Company: {company}")
+        print(f"Template ID: {pk}")
         template = UnitTemplate.objects.filter(pk=pk, company=company).first()
+        
         if not template:
+            print("Template not found")
             return Response({"error": "UnitTemplate not found"}, status=status.HTTP_404_NOT_FOUND)
         
+        print("Template found:", template)
         serializer = UnitTemplateSerializer(template)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -90,6 +140,7 @@ class UnitTemplateDetailView(APIView):
         template.is_archived = True
         template.save()
         return Response({"success": True, "message": "Template archived successfully."}, status=status.HTTP_200_OK)
+
 
 class UnitListView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -135,6 +186,7 @@ class UnitListView(APIView):
         
         return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UnitDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -145,7 +197,9 @@ class UnitDetailView(APIView):
         if not unit:
             return Response({"success": False, "message": "Unit not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        unit_images = unit.images.all()
+         # Fetch images using the get_unit_images method
+        unit_images = unit.get_unit_images_model()  # Calls the method on the Unit instance
+
         unit_serializer = UnitSerializer(unit)
         unit_images_serializer = UnitImageSerializer(unit_images, many=True)
 
@@ -279,6 +333,7 @@ class BulkAddUnitsView(APIView):
             quantity = int(data.get("quantity", 1))
             unit_type_id = data.get("unit_type_id")
             section_ids = data.getlist("section_ids[]", [])
+            unit_template_id = data.get("unit_template_id")  # Retrieve unit_template_id from request data
 
             # Validate required fields
             if not section_ids:
@@ -295,6 +350,14 @@ class BulkAddUnitsView(APIView):
                 unit_type = UnitType.objects.get(id=unit_type_id)
             except UnitType.DoesNotExist:
                 return Response({"error": f"Invalid unit type ID: {unit_type_id}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Fetch UnitTemplate (if unit_template_id is provided)
+            unit_template = None
+            if unit_template_id:
+                try:
+                    unit_template = UnitTemplate.objects.get(id=unit_template_id)
+                except UnitTemplate.DoesNotExist:
+                    return Response({"error": f"Invalid unit template ID: {unit_template_id}"}, status=status.HTTP_400_BAD_REQUEST)
 
             created_units = []
             for section_id in section_ids:
@@ -328,6 +391,7 @@ class BulkAddUnitsView(APIView):
                         unit_type=unit_type,
                         company=company,
                         status="Available",
+                        unit_template=unit_template, 
                         **unit_fields
                     )
                     unit.save()
@@ -424,6 +488,63 @@ class ImageManagementView(APIView):
             image = UnitImage.objects.get(id=image_id, unit=unit)
         except Unit.DoesNotExist:
             return Response({"detail": "Unit not found."}, status=404)
+        except UnitImage.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=404)
+
+        # Optionally delete the image file from the filesystem
+        if image.image:
+            image.image.delete()
+
+        image.delete()
+        return Response({"detail": "Image deleted successfully."}, status=200)
+
+class TemplateImageUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, template_id):
+        try:
+            unit_template = UnitTemplate.objects.get(id=template_id)
+            image_file = request.FILES.get('image')
+            if not image_file:
+                return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            image = UnitImage(unit_template=unit_template, image=image_file, image_type='template')
+            image.save()
+
+            image_serializer = UnitImageSerializer(image)
+            return Response(image_serializer.data, status=status.HTTP_201_CREATED)
+
+        except UnitTemplate.DoesNotExist:
+            return Response({'error': 'Unit Template not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class TemplateImageManagementView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request, template_id, image_id):
+        try:
+            unit_template = UnitTemplate.objects.get(id=template_id)
+            image = UnitImage.objects.get(id=image_id, unit_template=unit_template)
+        except UnitTemplate.DoesNotExist:
+            return Response({"detail": "Unit Template not found."}, status=404)
+        except UnitImage.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=404)
+
+        image_file = request.FILES.get('image')
+        if image_file:
+            image.image = image_file
+            image.save()
+            return Response(UnitImageSerializer(image).data, status=200)
+        
+        return Response({"detail": "No image provided."}, status=400)
+
+    def delete(self, request, template_id, image_id):
+        try:
+            unit_template = UnitTemplate.objects.get(id=template_id)
+            image = UnitImage.objects.get(id=image_id, unit_template=unit_template)
+        except UnitTemplate.DoesNotExist:
+            return Response({"detail": "Unit Template not found."}, status=404)
         except UnitImage.DoesNotExist:
             return Response({"detail": "Image not found."}, status=404)
 

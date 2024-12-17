@@ -6,6 +6,7 @@ from companies.models import Company
 from sites.models import Site, Section
 import os, re
 from decimal import Decimal
+from django.db.models import Max
 
 def logo_upload_path(instance, filename):
     company_name = instance.unit.company.name if instance.unit and instance.unit.company else 'new_company'
@@ -67,13 +68,18 @@ def get_default_unit_type():
     
 class UnitType(models.Model):
     DEFAULT_CHOICES = [
-        'Studio', 
-        'Studio Deluxe', 
-        '1 Bedroom', 
-        '2 Bedroom', 
-        '3 Bedroom', 
-        'Penthouse', 
-        'Loft', 
+        'Studio',           # Basic condo unit
+        '1 Bedroom',        # Condo with one bedroom
+        '2 Bedroom',        # Condo with two bedrooms
+        '3 Bedroom',        # Condo with three bedrooms
+        'Penthouse',        # Luxury unit at the top floor
+        'Loft',             # Open-plan unit with a mezzanine floor
+        'Townhouse',        # Multi-floor house in a row of houses
+        'Single Detached',  # Fully detached single-family house
+        'Single Attached',  # Single-family house attached to another
+        'Duplex',           # Two-unit house structure
+        'Parking',          # Parking space
+        'Bungalow',         # Single-story house
     ]
 
     name = models.CharField(max_length=50, unique=True)
@@ -214,6 +220,14 @@ class Unit(models.Model):
 
         super().save(*args, **kwargs)
 
+    def get_unit_images_model(self):
+        if self.unit_template:
+            # Use images from the unit template if available
+            return self.unit_template.images.all()
+        else:
+            # Otherwise, return images from the unit
+            return self.images.all()
+
     class Meta:
         indexes = [
             models.Index(fields=['site', 'status']),
@@ -233,11 +247,11 @@ class UnitTemplate(models.Model):
     )
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=100)  # Removed 'unique=True' here
-    bedroom = models.PositiveIntegerField(default=1)
-    bathroom = models.PositiveIntegerField(default=1)
+    bedroom = models.PositiveIntegerField(default=1, null=True)
+    bathroom = models.PositiveIntegerField(default=1, null=True)
     floor_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     lot_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    price = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     view = models.CharField(max_length=10, choices=Unit.VIEW_CHOICES, null=True, blank=True)
     balcony = models.CharField(max_length=20, choices=Unit.BALCONY_CHOICES, null=True, blank=True)
     commission = models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -252,13 +266,20 @@ class UnitTemplate(models.Model):
             models.UniqueConstraint(fields=['company', 'name'], name='unique_unit_template_per_company')
         ]
 
-    def clean(self):
-        # Ensure floor_area is greater than or equal to lot_area
-        if self.floor_area is not None and self.lot_area is not None:
-            if self.floor_area < self.lot_area:
-                raise ValidationError("Floor area must be greater than or equal to lot area.")
+    def get_next_relative_id(self):
+        # Fetch the max relative_id for the company's unit templates
+        max_id = UnitTemplate.objects.filter(company=self.company).aggregate(Max('relative_id'))['relative_id__max']
+        
+        # Convert max_id to integer if it's not None, otherwise start from 1
+        next_id = int(max_id) + 1 if max_id else 1
+        
+        return next_id
+
 
     def save(self, *args, **kwargs):
+        # Automatically set relative_id if not already set
+        if self.relative_id is None:
+            self.relative_id = self.get_next_relative_id()
         # Helper function to handle 'null' or empty values
         def convert_to_decimal(value):
             if value in ['null', None, '']:
@@ -289,6 +310,7 @@ class UnitTemplate(models.Model):
             "commission": self.commission,
         }
     
+
 def validate_image_size(image):
     filesize = image.file.size
     limit = 5 * 1024 * 1024  # Limit image size to 5 MB

@@ -101,7 +101,6 @@ class Site(models.Model):
             self.municipality,
             self.barangay, 
             self.address, 
-            f"Postal Code: {self.postal_code}" if self.postal_code else None, 
         ]
         return ', '.join(filter(None, address_parts))
 
@@ -169,7 +168,19 @@ class Site(models.Model):
         Unit.objects.bulk_create(created_units)
         return len(created_units)
     
+    def delete_old_picture(self):
+        if self.pk:  # Ensure the object already exists (has been saved before)
+            try:
+                old_picture = Site.objects.get(pk=self.pk).picture
+                if old_picture and old_picture != self.picture:
+                    if os.path.isfile(old_picture.path):
+                        os.remove(old_picture.path)  # Remove old file
+            except Site.DoesNotExist:
+                pass
+
     def save(self, *args, **kwargs):
+        self.delete_old_picture()  # Remove old picture before saving the new one
+
         if self.relative_id is None:
             # Automatically set relative_id if not already set
             self.relative_id = self.get_next_relative_id()

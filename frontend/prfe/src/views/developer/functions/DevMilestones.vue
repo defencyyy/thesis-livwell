@@ -62,18 +62,6 @@
                             >
                               <i class="fas fa-edit"></i>
                             </button>
-                            <!-- <button
-                              @click="deleteMilestone(milestone.id)"
-                              style="
-                                border: none;
-                                background-color: transparent;
-                                color: #343a40;
-                                cursor: pointer;
-                                font-size: 18px;
-                              "
-                            >
-                              <i class="fas fa-archive"></i>
-                            </button> -->
                           </div>
                         </td>
                       </tr>
@@ -97,13 +85,7 @@
                 width: 100%;
               "
             >
-              <div class="card-body">
-                <div class="row">
-                  <div class="toolbar">
-                    <div class="left-section"></div>
-                  </div>
-                </div>
-              </div>
+              <DevMilestoneChart />
             </div>
           </div>
         </div>
@@ -127,6 +109,21 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
+                    <!-- Sort Dropdown -->
+                    <select v-model="sortBy" class="dropdown">
+                      <option value="total_sales">Sort: Sales</option>
+                      <option value="total_commissions">
+                        Sort: Commissions
+                      </option>
+                      <option value="relative_id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+                    </select>
+
+                    <!-- Sort Order Dropdown -->
+                    <select v-model="sortOrder" class="dropdown">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -277,7 +274,7 @@
             <span class="header-item">Action</span>
           </div>
           <div
-            v-for="broker in filteredBrokers"
+            v-for="broker in paginatedMilestones"
             :key="broker.id"
             class="card border-0 rounded-1 mx-auto my-2"
             style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -335,6 +332,41 @@
             </div>
           </div>
         </div>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li :class="['page-item', { disabled: currentPage === 1 }]">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage - 1)"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-item', { active: page === currentPage }]"
+            >
+              <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                {{ page }}
+              </a>
+            </li>
+            <li
+              :class="['page-item', { disabled: currentPage === totalPages }]"
+            >
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage + 1)"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
 
         <!-- Broker Milestones Modal -->
         <b-modal
@@ -439,8 +471,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -469,13 +503,15 @@ import AppHeader from "@/components/Header.vue";
 import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 import { mapState } from "vuex";
+import DevMilestoneChart from "@/components/DevMilestoneChart.vue"; // Adjust the path to your actual file location
 
 export default {
   name: "DeveloperMilestones",
-  components: { SideNav, AppHeader, BModal },
+  components: { SideNav, AppHeader, BModal, DevMilestoneChart },
   data() {
     return {
       milestones: [],
+      selectedMilestone: {},
       showAddForm: false,
       newMilestone: {
         name: "",
@@ -501,6 +537,11 @@ export default {
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
       confirmParams: [],
+      sortBy: "total_sales", // Default sort by name
+      sortOrder: "desc", // Default ascending order
+       // Pagination
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
   computed: {
@@ -524,7 +565,51 @@ export default {
             broker.last_name
               .toLowerCase()
               .includes(this.searchQuery.toLowerCase())
-        );
+        )
+        .sort((a, b) => {
+          let fieldA, fieldB;
+
+          switch (this.sortBy) {
+            case "relative_id":
+              fieldA = a.relative_id || 0;
+              fieldB = b.relative_id || 0;
+              break;
+            case "name":
+              fieldA =
+                a.first_name.toLowerCase() + " " + a.last_name.toLowerCase();
+              fieldB =
+                b.first_name.toLowerCase() + " " + b.last_name.toLowerCase();
+              break;
+            case "total_sales":
+              fieldA = a.total_sales || 0;
+              fieldB = b.total_sales || 0;
+              break;
+            case "total_commissions":
+              fieldA = a.total_commissions || 0;
+              fieldB = b.total_commissions || 0;
+              break;
+            default:
+              fieldA = a.first_name.toLowerCase();
+              fieldB = b.first_name.toLowerCase();
+          }
+
+          if (this.sortOrder === "asc") {
+            return fieldA > fieldB ? 1 : fieldA < fieldB ? -1 : 0;
+          } else {
+            return fieldA < fieldB ? 1 : fieldA > fieldB ? -1 : 0;
+          }
+        });
+    },
+    paginatedMilestones() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredBrokers.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredBrokers.length / this.itemsPerPage);
     },
   },
   mounted() {
@@ -536,6 +621,11 @@ export default {
     }
   },
   methods: {
+      goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     // Axios instance with token handling
     getAxiosInstance() {
       const instance = axios.create({
@@ -731,6 +821,24 @@ export default {
 
     // Update an existing milestone
     updateMilestone() {
+      // Check if the milestone has been modified
+      if (
+        this.newMilestone.name === this.selectedMilestone.name &&
+        this.newMilestone.description === this.selectedMilestone.description &&
+        this.newMilestone.reward === this.selectedMilestone.reward &&
+        this.newMilestone.type === this.selectedMilestone.type &&
+        this.newMilestone.sales_threshold ===
+          this.selectedMilestone.sales_threshold &&
+        this.newMilestone.commission_threshold ===
+          this.selectedMilestone.commission_threshold
+      ) {
+        // If no changes were made
+        this.notificationTitle = "Invalid";
+        this.notificationMessage = "No changes were made.";
+        this.showNotification = true;
+        return; // Exit without proceeding further
+      }
+
       // Show the confirmation modal instead of using window.confirm
       const message = "Unsaved changes will be lost. Proceed?";
       const action = this.confirmUpdateMilestone; // The function that handles the update
@@ -811,12 +919,13 @@ export default {
       }
     },
 
-    // Edit a milestone
+    // When clicking the "Edit" button for a milestone
     editMilestone(milestone) {
-      this.newMilestone = { ...milestone };
-      this.showAddForm = true;
+      // Set the selected milestone to the clicked milestone's data
+      this.selectedMilestone = { ...milestone }; // Using spread to avoid direct reference
+      this.newMilestone = { ...milestone }; // Initialize newMilestone with selected data
+      this.showAddForm = true; // Show the form to edit
     },
-
     // Handle changes in milestone type selection
     onMilestoneTypeChange() {
       // Reset thresholds when changing type
@@ -1252,5 +1361,40 @@ td {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
+}
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 </style>

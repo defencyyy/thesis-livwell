@@ -143,64 +143,13 @@
               class="card border-0 rounded-1 mx-auto"
               style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); height: 60vh"
             >
-              <div class="card-body">
-                <div class="row">
-                  <div class="toolbar">
-                    <div class="left-section"></div>
-                  </div>
-                </div>
-              </div>
+              <div class="card-body"><DevMainChart /></div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- <div class="sales-table">
-          <h3>Pending Sales</h3>
-
-          <div class="search-filter-controls">
-            <input
-              type="text"
-              v-model="searchQuery"
-              @input="filterSales"
-              placeholder="Search by Names or Site"
-              class="search-input"
-            />
-            <select
-              v-model="selectedStatus"
-              @change="filterSales"
-              class="filter-dropdown"
-            >
-              <option value="">All Pending Status</option>
-              <option value="Pending Reservation">Pending Reservation</option>
-              <option value="Pending Sold">Pending Sold</option>
-            </select>
-          </div>
-
-          <table v-if="filteredSales.length">
-            <thead>
-              <tr>
-                <th>Sale ID</th>
-                <th>Broker</th>
-                <th>Customer</th>
-                <th>Site</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="sale in filteredSales" :key="sale.id">
-                <td>{{ sale.relativeID }}</td>
-                <td>{{ sale.brokerName }}</td>
-                <td>{{ sale.customerName }}</td>
-                <td>{{ sale.site ? sale.site.name : "No Site" }}</td>
-                <td>{{ sale.status }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p v-else>No pending sales found with the selected filters.</p>
-        </div> -->
 </template>
 
 <script>
@@ -208,12 +157,14 @@ import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+import DevMainChart from "@/components/DevMainChart.vue"; // Adjust the path to your actual file location
 
 export default {
   name: "DevMainPage",
   components: {
     SideNav,
     AppHeader,
+    DevMainChart,
   },
   data() {
     return {

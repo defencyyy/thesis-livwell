@@ -252,26 +252,20 @@ export default {
     async updateAccount() {
       this.username = this.username.toLowerCase();
 
-      // Check if there are no changes made
+      // Check if there are no changes made, including password fields
       if (
         this.username === this.initialValues.username &&
         this.firstName === this.initialValues.firstName &&
         this.lastName === this.initialValues.lastName &&
         this.email === this.initialValues.email &&
-        this.contactNumber === this.initialValues.contactNumber
+        this.contactNumber === this.initialValues.contactNumber &&
+        this.newPassword === "" && // Check if no new password is provided
+        this.confirmNewPassword === "" // Check if confirm password is empty
       ) {
         this.showNotification = true;
         this.notificationTitle = "Invalid";
         this.notificationMessage =
           "No changes detected. Please update some fields.";
-        return;
-      }
-
-      // Check if passwords match
-      if (this.newPassword !== this.confirmNewPassword) {
-        this.showNotification = true;
-        this.notificationTitle = "Error";
-        this.notificationMessage = "New passwords do not match.";
         return;
       }
 
@@ -284,6 +278,30 @@ export default {
         this.notificationTitle = "Error";
         this.notificationMessage = "Current password is incorrect.";
         return;
+      }
+
+      // Check if the password is not empty before validating
+      if (this.newPassword || this.confirmNewPassword) {
+        // Define a regex to validate all password criteria
+        const passwordRegex =
+          /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+        // Check if passwords match
+        if (this.newPassword !== this.confirmNewPassword) {
+          this.showNotification = true;
+          this.notificationTitle = "Error";
+          this.notificationMessage = "New passwords do not match.";
+          return;
+        }
+
+        // Check if the new password meets the regex criteria
+        if (!passwordRegex.test(this.newPassword)) {
+          this.showNotification = true;
+          this.notificationTitle = "Error";
+          this.notificationMessage =
+            "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+          return;
+        }
       }
 
       try {

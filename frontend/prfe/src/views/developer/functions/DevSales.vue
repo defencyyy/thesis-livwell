@@ -124,7 +124,7 @@
 
         <div v-if="filteredSales.length > 0">
           <div
-            v-for="sale in filteredSales"
+            v-for="sale in paginatedSales"
             :key="sale.id"
             class="card border-0 rounded-1 mx-auto"
             style="
@@ -161,6 +161,42 @@
               </table>
             </div>
           </div>
+          <!-- Pagination Controls -->
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li :class="['page-item', { disabled: currentPage === 1 }]">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage - 1)"
+                  aria-label="Previous"
+                >
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: page === currentPage }]"
+              >
+                <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                  {{ page }}
+                </a>
+              </li>
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="goToPage(currentPage + 1)"
+                  aria-label="Next"
+                >
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
         <p v-else>No sales match the selected criteria.</p>
 
@@ -259,8 +295,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Confirm Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -328,6 +366,8 @@ export default {
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
       confirmParams: [],
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
   computed: {
@@ -336,6 +376,17 @@ export default {
       companyId: (state) => state.companyId,
       loggedIn: (state) => state.loggedIn,
     }),
+    paginatedSales() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredSales.slice(
+        startIndex,
+        startIndex + this.itemsPerPage
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredSales.length / this.itemsPerPage);
+    },
   },
   mounted() {
     if (!this.loggedIn || !this.companyId) {
@@ -346,6 +397,11 @@ export default {
     }
   },
   methods: {
+    goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     // Fetch sales data
     async fetchSales() {
       try {
@@ -540,9 +596,14 @@ export default {
 
     // Generate file URL
     getFileUrl(filePath) {
+      // Check if the file path contains '/media/' and adjust the path
+      if (filePath.startsWith("/media/")) {
+        // Replace '/media/' with '/media/reservations/' to match the correct folder
+        return `http://localhost:8000/media/reservations${filePath.slice(6)}`;
+      }
+      // If the path doesn't start with '/media/', just return the original URL
       return `http://localhost:8000${filePath}`;
     },
-
     // Redirect to login page
     redirectToLogin() {
       this.$router.push({ name: "DevLogin" });
@@ -1053,5 +1114,38 @@ body {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
+}
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 </style>

@@ -26,7 +26,7 @@
                 :src="
                   getPictureUrl(site.picture) || require('@/assets/home.png')
                 "
-                alt="Site Image"
+                alt=""
                 class="site-image"
               />
             </div>
@@ -41,7 +41,9 @@
                 <div class="description-icon">
                   <i class="fas fa-info-circle"></i>
                   <!-- Example icon for description -->
-                  <span>{{ site.description }}</span>
+                  <span>{{
+                    site.description || "No description available."
+                  }}</span>
                 </div>
                 <div class="location-icon">
                   <i class="fas fa-map-marker-alt"></i>
@@ -157,7 +159,9 @@
             <div
               class="modal-title p-3 d-flex justify-content-between align-items-center"
             >
-              <h5 class="mb-0">Modal Title</h5>
+              <h5 class="mb-0">
+                Section ID: {{ selectedSection.number || "N/A" }}
+              </h5>
 
               <button
                 class="btn-add"
@@ -378,6 +382,11 @@
                               class="select-style"
                             ></b-form-checkbox-group>
                           </div>
+
+                          <!-- Floating Error Message (will only show when there's an error) -->
+                          <div v-if="sectionError" class="inline-error">
+                            Please select at least one section.
+                          </div>
                         </b-col>
                       </b-row>
                     </b-form-group>
@@ -389,8 +398,9 @@
                           <small>Unit type</small>
                           <b-form-select
                             v-model="newUnitType"
-                            :options="unitTypeOptions"
+                            :options="selectUnitTypeOptions"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
@@ -413,8 +423,8 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
-                            min="1"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
@@ -422,8 +432,8 @@
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
-                            min="1"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
@@ -441,21 +451,23 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Lot Area</small>
+                          <small>Lot Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
-                            min="1"
+                            min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Floor Area</small>
+                          <small>Floor Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
-                            min="1"
+                            min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                       </b-row>
@@ -464,7 +476,7 @@
                     <!-- Status and View -->
                     <b-form-group>
                       <b-row>
-                        <b-col cols="12" md="6">
+                        <b-col cols="12" md="4">
                           <small>Status</small>
                           <b-form-select
                             v-model="newUnitStatus"
@@ -472,13 +484,26 @@
                             required
                           ></b-form-select>
                         </b-col>
-                        <b-col cols="12" md="6">
+
+                        <b-col cols="12" md="4">
                           <small>View</small>
                           <b-form-select
                             v-model="newUnitView"
                             :options="viewOptions"
                             required
                           ></b-form-select>
+                        </b-col>
+
+                        <b-col cols="12" md="4">
+                          <small>Unit Template</small>
+                          <div class="d-flex align-items-center">
+                            <b-form-select
+                              v-model="selectedUnitTemplate"
+                              :options="unitTemplateOptions"
+                              @change="handleTemplateChange"
+                              class="mr-2"
+                            ></b-form-select>
+                          </div>
                         </b-col>
                       </b-row>
                     </b-form-group>
@@ -494,6 +519,7 @@
                         v-model.number="newUnitPrice"
                         min="0"
                         required
+                        :disabled="isTemplateSelected"
                       ></b-form-input>
                     </b-form-group>
 
@@ -501,7 +527,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Reservation</small>
+                          <small>Reservation Fee</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
@@ -566,10 +592,12 @@
                       <small>Upload Photos (Max:5)</small>
                       <input
                         type="file"
+                        ref="fileInput"
                         @change="handleFileChange"
                         multiple
                         accept="image/jpeg, image/png, image/jpg"
                         class="form-control"
+                        :disabled="isTemplateSelected"
                       />
                     </b-form-group>
                   </b-col>
@@ -578,7 +606,12 @@
                   class="d-flex justify-content-end gap-2 mt-3"
                   style="padding-top: 15px"
                 >
-                  <button type="submit" class="btn-add" style="width: 150px">
+                  <button
+                    type="submit"
+                    class="btn-add"
+                    @click="submitForm"
+                    style="width: 150px"
+                  >
                     Add New Units
                   </button>
                   <button
@@ -603,174 +636,264 @@
             centered
             size="lg"
           >
-            <template v-if="selectedUnit">
-              <form>
-                <!-- Unit Images Section -->
-                <b-form-group label="Unit Images:">
-                  <div v-if="selectedUnit.images && selectedUnit.images.length">
-                    <b-row class="mb-3">
-                      <!-- Loop through images and display them -->
-                      <b-col
-                        v-for="(image, index) in selectedUnit.images"
-                        :key="index"
-                        cols="12"
-                        sm="6"
-                        md="4"
-                        lg="3"
-                        class="mb-2"
-                      >
-                        <div class="d-flex flex-column align-items-center">
-                          <b-img
-                            v-if="image && image.image"
-                            :src="getPictureUrl(image.image)"
-                            alt="Unit Image"
-                            thumbnail
-                            fluid
-                            class="unit-image-preview"
-                          />
-                          <p v-else class="text-danger">Invalid image path</p>
+            <div class="modal-title p-3">
+              <h5 class="mb-0">Modal Title</h5>
+            </div>
 
-                          <!-- Image Name, Update, and Delete buttons -->
-                          <div class="text-center mt-2">
-                            <span>{{ image.image_name || "Untitled" }}</span>
-                            <b-button
-                              size="sm"
-                              variant="primary"
-                              class="ml-2"
+            <div class="p-3">
+              <template v-if="selectedUnit">
+                <form>
+                  <!-- Unit Images Section -->
+                  <b-form-group>
+                    <div
+                      v-if="selectedUnit.images && selectedUnit.images.length"
+                      id="carouselExampleIndicators"
+                      class="carousel slide"
+                      data-bs-ride="carousel"
+                    >
+                      <!-- Indicators -->
+                      <div class="carousel-indicators">
+                        <button
+                          v-for="(image, index) in selectedUnit.images"
+                          :key="index"
+                          :data-bs-target="'#carouselExampleIndicators'"
+                          :data-bs-slide-to="index"
+                          :class="{ active: index === 0 }"
+                          :aria-current="index === 0 ? 'true' : null"
+                          :aria-label="'Slide ' + (index + 1)"
+                        ></button>
+                      </div>
+
+                      <!-- Carousel Items -->
+                      <div class="carousel-inner">
+                        <div
+                          v-for="(image, index) in selectedUnit.images"
+                          :key="index"
+                          :class="['carousel-item', { active: index === 0 }]"
+                          class="position-relative"
+                        >
+                          <img
+                            :src="getPictureUrl(image.image)"
+                            class="d-block w-100"
+                            alt="Unit Picture"
+                            style="
+                              width: 100%;
+                              height: 500px;
+                              object-fit: cover;
+                            "
+                          />
+
+                          <div
+                            v-for="(image, index) in selectedUnit.images"
+                            :key="image.id"
+                            class="image-overlay d-flex flex-column justify-content-center align-items-center"
+                          >
+                            <!-- Replace Button (Triggers the hidden file input) -->
+                            <label
+                              :for="'file-input-' + index"
+                              class="btn btn-warning btn-sm"
                               @click="toggleImageEdit(index)"
                             >
-                              Update
-                            </b-button>
+                              Replace
+                            </label>
+
+                            <!-- File input (hidden) with unique ID for each image -->
+                            <input
+                              type="file"
+                              :id="'file-input-' + index"
+                              accept="image/*"
+                              style="display: none"
+                              @change="onImageSelected(index, $event)"
+                            />
+
                             <b-button
-                              size="sm"
                               variant="danger"
+                              size="sm"
                               class="ml-2"
                               @click="deleteImage(index)"
+                              >Delete</b-button
                             >
-                              Delete
-                            </b-button>
                           </div>
 
                           <!-- Image Replace Form (Toggled) -->
                           <div v-if="imageEditIndex === index" class="mt-2">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              @change="onImageSelected(index, $event)"
-                            />
-                            <b-button
-                              variant="secondary"
-                              @click="replaceImage(index)"
-                            >
-                              Replace Image
-                            </b-button>
+                            <!-- No button needed, image is replaced as soon as a new file is selected -->
                           </div>
                         </div>
-                      </b-col>
-                    </b-row>
-                  </div>
-                  <p v-else>No images available for this unit.</p>
+                      </div>
 
-                  <!-- Add Image Button if less than 5 images -->
-                  <div
-                    v-if="selectedUnit.images && selectedUnit.images.length < 5"
-                    class="mt-3"
-                  >
-                    <b-button variant="primary" @click="triggerAddImage">
-                      Add Image
-                    </b-button>
+                      <!-- Navigation Controls -->
+                      <button
+                        class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="prev"
+                      >
+                        <span
+                          class="carousel-control-prev-icon"
+                          aria-hidden="true"
+                        ></span>
+                        <span class="visually-hidden">Previous</span>
+                      </button>
+                      <button
+                        class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#carouselExampleIndicators"
+                        data-bs-slide="next"
+                      >
+                        <span
+                          class="carousel-control-next-icon"
+                          aria-hidden="true"
+                        ></span>
+                        <span class="visually-hidden">Next</span>
+                      </button>
+                    </div>
+                    <p v-else>No images available for this unit.</p>
 
-                    <!-- Immediately show file input when Add Image is clicked -->
-                    <input
-                      v-if="isAddingImage"
-                      type="file"
-                      accept="image/*"
-                      @change="handleFileChangeImage"
-                      class="form-control mt-2"
-                    />
-                  </div>
-                </b-form-group>
+                    <!-- Add Image Button if less than 5 images -->
+                    <div
+                      v-if="
+                        selectedUnit.images && selectedUnit.images.length < 5
+                      "
+                      class="mt-3 d-flex align-items-center"
+                    >
+                      <b-button
+                        variant="primary"
+                        @click="triggerAddImage"
+                        class="btn-add me-2"
+                        style="width: 100px"
+                        :disabled="isTemplateSelected"
+                      >
+                        Add Image
+                      </b-button>
 
-                <!-- Unit Information -->
-                <b-form-group label="Unit Number:">
+                      <!-- Immediately show file input when Add Image is clicked -->
+                      <input
+                        v-if="isAddingImage"
+                        type="file"
+                        accept="image/*"
+                        @change="handleFileChangeImage"
+                        class="form-control d-inline-block"
+                      />
+                    </div>
+                  </b-form-group>
+
+                  <!-- Unit Information -->
+                  <!-- <b-form-group label="Unit Number:">
                   <b-form-input v-model="selectedUnit.unit_number" disabled />
-                </b-form-group>
+                </b-form-group> -->
+                  <b-row style="margin-top: 30px">
+                    <b-col>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Unit Type:</small>
+                            <b-form-input
+                              :value="getUnitTypeName(selectedUnit.unit_type)"
+                              disabled
+                            />
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>Status</small>
+                            <b-form-select
+                              v-model="selectedUnit.status"
+                              :options="editStatusOptions"
+                              disabled
+                            />
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Unit Type:">
-                  <b-form-input
-                    :value="getUnitTypeName(selectedUnit.unit_type)"
-                    disabled
-                  />
-                </b-form-group>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Lot Area:</small>
+                            <b-form-input
+                              v-model="selectedUnit.lot_area"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>Floor Area:</small>
+                            <b-form-input
+                              v-model="selectedUnit.floor_area"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Status:">
-                  <b-form-select
-                    v-model="selectedUnit.status"
-                    :options="editStatusOptions"
-                    disabled
-                  />
-                </b-form-group>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Price:</small>
+                            <b-form-input
+                              v-model="selectedUnit.price"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>Commission:</small>
+                            <b-form-input
+                              v-model="selectedUnit.commission"
+                              type="number"
+                              disabled
+                            />
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Price:">
-                  <b-form-input
-                    v-model="selectedUnit.price"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
+                      <b-form-group>
+                        <b-row>
+                          <b-col cols="12" md="6">
+                            <small>Balcony:</small>
+                            <b-form-select
+                              v-model="selectedUnit.balcony"
+                              :options="balconyOptions"
+                            ></b-form-select>
+                          </b-col>
+                          <b-col cols="12" md="6">
+                            <small>View:</small>
+                            <b-form-select
+                              v-model="selectedUnit.view"
+                              :options="viewOptions"
+                            ></b-form-select>
+                          </b-col>
+                        </b-row>
+                      </b-form-group>
 
-                <b-form-group label="Lot Area:">
-                  <b-form-input
-                    v-model="selectedUnit.lot_area"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
+                      <div
+                        class="d-flex justify-content-end gap-2 mt-3"
+                        style="padding-top: 15px"
+                      >
+                        <b-button
+                          variant="primary"
+                          @click="saveUnitChanges"
+                          class="btn-add"
+                          style="width: 150px"
+                        >
+                          Save Changes
+                        </b-button>
+                        <b-button
+                          type="button"
+                          @click="showEditUnitModal = false"
+                          class="btn-cancel"
+                        >
+                          Cancel
+                        </b-button>
+                      </div>
+                    </b-col>
+                  </b-row>
+                </form>
+              </template>
 
-                <b-form-group label="Floor Area:">
-                  <b-form-input
-                    v-model="selectedUnit.floor_area"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
-
-                <b-form-group label="Commission:">
-                  <b-form-input
-                    v-model="selectedUnit.commission"
-                    type="number"
-                    disabled
-                  />
-                </b-form-group>
-
-                <b-form-group label="Balcony:">
-                  <b-form-select
-                    v-model="selectedUnit.balcony"
-                    :options="balconyOptions"
-                  ></b-form-select>
-                </b-form-group>
-
-                <b-form-group label="View:">
-                  <b-form-select
-                    v-model="selectedUnit.view"
-                    :options="viewOptions"
-                  ></b-form-select>
-                </b-form-group>
-
-                <!-- Save Changes Button -->
-                <b-button
-                  variant="primary"
-                  @click="saveUnitChanges"
-                  class="mr-2"
-                >
-                  Save Changes
-                </b-button>
-              </form>
-            </template>
-
-            <template v-else>
-              <p>Loading unit details...</p>
-            </template>
+              <template v-else>
+                <p>Loading unit details...</p>
+              </template>
+            </div>
           </b-modal>
 
           <!-- Add Units to Section Modal -->
@@ -786,9 +909,23 @@
             size="xl"
           >
             <!-- Modal Title -->
-            <div class="modal-title p-3">
-              <h5 class="mb-0">Add Units to Section</h5>
-            </div>
+            <div class="modal-title p-3 d-flex justify-content-between align-items-center">
+  <!-- Title on the left -->
+  <h5 class="mb-0">
+    Add Units to Section: {{ selectedSection.number || "N/A" }}
+  </h5>
+
+  <!-- Right Side: Dropdown -->
+  <div class="d-flex align-items-center">
+    <b-form-select
+      v-model="selectedUnitTemplate"
+      :options="unitTemplateOptions"
+      @change="handleTemplateChange"
+      class="form-select"
+      style="width: 200px"
+    ></b-form-select>
+  </div>
+</div>
 
             <div class="p-3">
               <form @submit.prevent="addSectionUnits(newUnitSections[0])">
@@ -798,15 +935,16 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Unit Type</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Type</small>
                           <b-form-select
                             v-model="newUnitType"
-                            :options="unitTypeOptions"
+                            :options="selectUnitTypeOptions"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Quantity</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Quantity</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitQuantity"
@@ -820,25 +958,25 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="4">
-                          <small>Bedrooms</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bedrooms</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
-                            min="1"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small>Bathrooms</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bathrooms</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
-                            min="1"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small>Balcony</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Balcony</small>
                           <b-form-select
                             v-model="newUnitBalcony"
                             :options="balconyOptions"
@@ -850,21 +988,23 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Lot Area (sq.m)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Lot Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
-                            min="1"
+                            min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Floor Area (sq.m)</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Floor Area (sq.m)</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
-                            min="1"
+                            min="0"
                             required
+                            :disabled="isTemplateSelected"
                           ></b-form-input>
                         </b-col>
                       </b-row>
@@ -873,7 +1013,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Status</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Status</small>
                           <b-form-select
                             v-model="newUnitStatus"
                             :options="statusOptions"
@@ -881,7 +1021,7 @@
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>View</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">View</small>
 
                           <b-form-select
                             v-model="newUnitView"
@@ -892,13 +1032,18 @@
                     </b-form-group>
 
                     <b-form-group>
-                      <small>Price</small>
-                      <b-form-input
-                        type="number"
-                        v-model.number="newUnitPrice"
-                        min="0"
-                        required
-                      ></b-form-input>
+                      <b-row
+                        ><b-col cols="12" md="8"
+                          ><small style="font-size: 14px; color: #6c757d; padding: 2px">Price</small>
+                          <b-form-input
+                            type="number"
+                            v-model.number="newUnitPrice"
+                            min="0"
+                            :disabled="isTemplateSelected"
+                            required
+                          ></b-form-input
+                        ></b-col>
+                      </b-row>
                     </b-form-group>
                   </b-col>
 
@@ -907,7 +1052,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Reservation Fee</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Reservation Fee</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
@@ -915,7 +1060,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Commission</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitCommission"
@@ -928,7 +1073,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>Spot Discount Percentage</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Percentage</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountPercentage"
@@ -936,7 +1081,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Spot Discount Flat</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Flat</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountFlat"
@@ -949,7 +1094,7 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small>VAT Percentage</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">VAT Percentage</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitVatPercentage"
@@ -957,7 +1102,7 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small>Other Charges</small>
+                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Other Charges</small>
                           <b-form-input
                             type="number"
                             v-model.number="newUnitOtherCharges"
@@ -969,13 +1114,15 @@
 
                     <!-- Image Upload -->
                     <b-form-group>
-                      <small>Upload Images (Max: 5)</small>
+                      <small style="font-size: 14px; color: #6c757d; padding: 2px">Upload Images (Max: 5)</small>
                       <input
                         type="file"
+                        ref="fileInput"
                         @change="handleFileChange"
                         multiple
                         accept="image/jpeg, image/png, image/jpg"
                         class="form-control"
+                        :disabled="isTemplateSelected"
                       />
                     </b-form-group>
                   </b-col>
@@ -997,6 +1144,51 @@
               </form>
             </div>
           </b-modal>
+          <b-modal
+            v-model="showNotification"
+            :title="notificationTitle"
+            hide-footer
+            centered
+          >
+            <p>{{ notificationMessage }}</p>
+            <div class="button-container">
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel-right"
+              >
+                Close
+              </button>
+            </div>
+          </b-modal>
+          <b-modal
+            v-model="showConfirmModal"
+            :title="'Confirmation'"
+            hide-footer
+            centered
+          >
+            <p>{{ confirmMessage }}</p>
+            <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+            >
+              <button
+                type="button"
+                @click="confirmAction"
+                class="btn btn-primary"
+              >
+                Confirm
+              </button>
+              <!-- Cancel Button -->
+              <button
+                type="button"
+                @click="cancelAction"
+                class="btn-cancel"
+              >
+                Cancel
+              </button>
+            </div>
+          </b-modal>
         </div>
       </div>
     </div>
@@ -1014,7 +1206,7 @@ import {
   BFormSelect,
   BFormInput,
   BButton,
-  BImg,
+  // BImg,
   BRow,
   BCol,
 } from "bootstrap-vue-3";
@@ -1029,29 +1221,34 @@ export default {
     BFormSelect,
     BFormInput,
     BButton,
-    BImg,
+    // BImg,
     BRow,
     BCol,
   },
   data() {
     return {
+      initialUnit: {},
+      selectedUnitTemplate: null, // Unit template ID
+      unitTemplateOptions: [], // This will hold the dropdown options
+      isTemplateSelected: false, // To track whether a template is selected
       showAddUnitsModal: false,
+      templates: [],
       unitTypes: [],
       site: null,
       sections: [],
       newUnitSection: null,
       newUnitSections: [],
       newUnitQuantity: 1,
-      newUnitType: null,
+      newUnitType: "",
+      newUnitPrice: "",
       newUnitTitle: "",
       newUnitBedroom: 1,
       newUnitBathroom: 1,
-      newUnitFloorArea: null,
-      newUnitPrice: null,
+      newUnitFloorArea: 0,
       newUnitStatus: "Available",
       newUnitView: null,
-      newUnitBalcony: "no balcony",
-      newUnitLotArea: null,
+      newUnitBalcony: null,
+      newUnitLotArea: 0,
       newUnitCommission: null,
       newUnitSpotDiscountPercentage: null,
       newUnitSpotDiscountFlat: null,
@@ -1059,7 +1256,7 @@ export default {
       newUnitOtherCharges: null,
       newUnitVatPercentage: null,
       sortOptions: [
-        { value: null, text: "Default" },
+        { value: null, text: "All" },
         { value: "unit_number_asc", text: "Unit Number (Asc)" },
         { value: "unit_number_desc", text: "Unit Number (Desc)" },
         { value: "price_asc", text: "Price (Asc)" },
@@ -1067,7 +1264,7 @@ export default {
       ],
       // Updated options with "All"
       statusOptions: [
-        { value: null, text: "Default" },
+        { value: null, text: "All" },
         { value: "Available", text: "Available" },
         { value: "Sold", text: "Sold" },
         { value: "Pending Reservation", text: "Pending Reservation" },
@@ -1080,7 +1277,7 @@ export default {
         { value: "Reserved", text: "Reserved" },
       ],
       priceRangeOptions: [
-        { value: null, text: "Default" },
+        { value: null, text: "All" },
         { value: "1-5", text: "1M - 5M" },
         { value: "5-10", text: "5M - 10M" },
         { value: "10-15", text: "10M - 15M" },
@@ -1089,12 +1286,14 @@ export default {
         { value: "25+", text: "25M+" },
       ],
       viewOptions: [
+        // { value: null, text: "" },
         { value: "south", text: "South" },
         { value: "north", text: "North" },
         { value: "east", text: "East" },
         { value: "west", text: "West" },
       ],
       balconyOptions: [
+        // { value: null, text: "" },
         { value: "has balcony", text: "Yes" },
         { value: "no balcony", text: "No" },
       ],
@@ -1128,6 +1327,7 @@ export default {
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
       confirmParams: [],
+      sectionError: false, // Boolean to track if there's an error
     };
   },
   computed: {
@@ -1189,6 +1389,18 @@ export default {
           value: type.id,
           text: type.name,
         })),
+      ];
+    },
+
+    selectUnitTypeOptions() {
+      return [
+        { value: null, text: "Select" },
+        ...this.unitTypes
+          .filter((type) => !type.is_archived) // Exclude archived types
+          .map((type) => ({
+            value: type.id,
+            text: type.name,
+          })),
       ];
     },
 
@@ -1285,10 +1497,365 @@ export default {
     } else {
       this.fetchSiteDetails();
       this.fetchUnitTypes();
+      this.fetchTemplates();
     }
     this.fetchUnits();
   },
   methods: {
+    handleTemplateChange() {
+      setTimeout(() => {
+        if (!this.selectedUnitTemplate) {
+          this.isTemplateSelected = false;
+          this.resetTemplateFields(); // Clear the form fields
+          this.clearImages(); // Clear the images and reset the file input
+        } else {
+          this.isTemplateSelected = true;
+          this.resetTemplateFields(); // Clear the form before loading template data
+          this.clearImages(); // Clear the images before loading the template
+          this.loadTemplateData(); // Load data from the selected template
+        }
+      }, 0);
+    },
+    clearImages() {
+      // Only clear images if selectedUnit is defined
+      if (this.selectedUnit && Array.isArray(this.selectedUnit.images)) {
+        this.selectedUnit.images = []; // Clear images array
+      }
+
+      // Clear any other image file tracking array
+      this.imageFile = [];
+
+      // Reset the file input element using Vue's ref
+      const fileInput = this.$refs.fileInput;
+      if (fileInput) {
+        fileInput.value = ""; // Clear the file input field
+      }
+    },
+    resetTemplateFields() {
+      this.newUnitType = "";
+      this.newUnitPrice = "";
+      this.newUnitBedroom = null;
+      this.newUnitBathroom = null;
+      this.newUnitLotArea = null;
+      this.newUnitFloorArea = null;
+    },
+
+    async loadTemplateData() {
+      if (!this.selectedUnitTemplate) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/developer/units/templates/${this.selectedUnitTemplate}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        const templateData = response.data.data;
+
+        // Verify the templateData fields
+
+        // Populate fields with the template data
+        this.newUnitType = templateData.unit_type;
+        this.newUnitPrice = templateData.price;
+        this.newUnitBedroom = templateData.bedroom;
+        this.newUnitBathroom = templateData.bathroom;
+        this.newUnitFloorArea = templateData.floor_area;
+        this.newUnitLotArea = templateData.lot_area;
+      } catch (error) {
+        console.error("Error loading template data:", error);
+      }
+    },
+
+    // Fetch unit templates from the backend
+    async fetchTemplates() {
+      try {
+        this.isLoading = true;
+        this.errorMessage = null;
+        const response = await axios.get(
+          "http://localhost:8000/developer/units/templates/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log(response.data); // Log response to check the data
+
+        if (response.data.success) {
+          // Filter out archived templates by checking the 'is_archived' field
+          const activeTemplates = response.data.data.filter(
+            (template) => !template.is_archived
+          );
+
+          // Populate the unitTemplateOptions with only non-archived templates
+          this.unitTemplateOptions = [
+          { value: null, text: "Unit Template", disabled: true },
+            ...activeTemplates.map((template) => ({
+              value: template.id,
+              text: template.name,
+            })),
+          ];
+
+          // Trigger handleTemplateChange to initialize the state
+          this.handleTemplateChange();
+        } else {
+          throw new Error("Failed to fetch templates");
+        }
+      } catch (error) {
+        this.errorMessage = "Failed to load templates.";
+        console.error(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    validateForm() {
+      this.sectionError = false; // Reset the section error
+
+      // Validate if at least one section is selected
+      if (this.newUnitSections.length === 0) {
+        this.sectionError = true; // Set error to true if no section is selected
+        this.hideErrorAfterDelay(); // Hide after a delay
+        return false; // Return false to prevent form submission
+      }
+
+      // Add more validations if necessary (e.g., for other fields like price, quantity, etc.)
+
+      // Return true if all fields are valid
+      return true;
+    },
+    // Handle form submission
+    submitForm() {
+      // If validation is successful, proceed with form submission
+      if (this.validateForm()) {
+        // Proceed with form submission (e.g., make an API call or handle the data)
+        console.log("Form submitted");
+        // Submit your data here
+      } else {
+        // Handle the case when validation fails (do not submit form)
+        console.log("Form has errors");
+      }
+    },
+
+    // Hide the error message after a delay (e.g., 7 seconds)
+    hideErrorAfterDelay() {
+      setTimeout(() => {
+        this.sectionError = false;
+      }, 3000); // Error disappears after 7 seconds
+    },
+
+    async addUnits() {
+      // Validate form fields
+      if (
+        !this.newUnitSections.length ||
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitQuantity
+      ) {
+        this.showNotification = true;
+        this.notificationTitle = "Invalid";
+        this.notificationMessage = "Please fill in all the required fields.";
+        return; // Exit early from further processing if fields are missing
+      }
+
+      // Create a FormData object to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Append template data if a template is selected
+      if (this.selectedUnitTemplate) {
+        formData.append("unit_template_id", this.selectedUnitTemplate);
+      }
+
+      // Append the selected section IDs as an array
+      this.newUnitSections.forEach((sectionId) => {
+        formData.append("section_ids[]", sectionId);
+      });
+
+      if (this.newUnitImages && this.newUnitImages.length) {
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      try {
+        // Send the FormData to the backend
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          this.fetchSiteDetails(); // Refresh the site details
+          this.showAddUnitsModal = false; // Close the modal
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Units/Unit added successfully!";
+          this.showNotification = true;
+          // Reset the form after successful submission
+          this.resetForm();
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding units/unit.";
+        this.showNotification = true;
+      }
+    },
+    async addSectionUnits(sectionId) {
+      // Validate form fields
+      if (
+        !this.newUnitType ||
+        !this.newUnitPrice ||
+        !this.newUnitQuantity ||
+        !sectionId
+      ) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+
+      // Create FormData to send both unit data and images
+      const formData = new FormData();
+      formData.append("quantity", this.newUnitQuantity);
+      formData.append("unit_type_id", this.newUnitType);
+      formData.append("unit_title", this.newUnitTitle);
+      formData.append("bedroom", this.newUnitBedroom);
+      formData.append("bathroom", this.newUnitBathroom);
+      formData.append("lot_area", this.newUnitLotArea);
+      formData.append("floor_area", this.newUnitFloorArea);
+      formData.append("price", this.newUnitPrice);
+      formData.append("status", this.newUnitStatus);
+      formData.append("view", this.newUnitView);
+      formData.append("balcony", this.newUnitBalcony);
+      formData.append("commission", this.newUnitCommission);
+      formData.append(
+        "spot_discount_percentage",
+        this.newUnitSpotDiscountPercentage
+      );
+      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
+      formData.append("reservation_fee", this.newUnitReservationFee);
+      formData.append("other_charges", this.newUnitOtherCharges);
+      formData.append("vat_percentage", this.newUnitVatPercentage);
+
+      // Append template data if a template is selected
+      if (this.selectedUnitTemplate) {
+        formData.append("unit_template_id", this.selectedUnitTemplate);
+      }
+
+      // Append the selected section ID
+      formData.append("section_ids[]", sectionId); // Directly pass the sectionId
+
+      // Log the selected images
+      if (this.newUnitImages && this.newUnitImages.length) {
+        for (let i = 0; i < this.newUnitImages.length; i++) {
+          const image = this.newUnitImages[i];
+
+          // Append image file with a unique key based on index
+          formData.append(`images[${i}]`, image);
+
+          // Append image type and primary flag with unique keys as well
+          formData.append(`image_types[${i}]`, image.image_type || "Unit");
+          formData.append(`primaries[${i}]`, image.primary || false);
+
+          // Log the data for debugging
+        }
+      } else {
+        console.log("No images selected.");
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/developer/units/bulk-add/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          this.openUnitManagement({ id: sectionId });
+          this.fetchSiteDetails(); // Refresh site details
+          this.showAddSectionUnitsModal = false; // Close the modal
+          this.notificationTitle = "Success";
+          this.notificationMessage = "Units/Unit added successfully!";
+          this.showNotification = true;
+          // Reset the form after successful submission
+          this.resetForm();
+        }
+      } catch (error) {
+        this.notificationTitle = "Error";
+        this.notificationMessage = "An error occurred while adding units/unit.";
+        this.showNotification = true;
+      }
+    },
+
+    resetForm() {
+      this.newUnitType = null;
+      this.newUnitPrice = null;
+      this.newUnitQuantity = null;
+      this.newUnitTitle = "";
+      this.newUnitBedroom = null;
+      this.newUnitBathroom = null;
+      this.newUnitLotArea = null;
+      this.newUnitFloorArea = null;
+      this.newUnitStatus = "";
+      this.newUnitView = "";
+      this.newUnitBalcony = false;
+      this.newUnitCommission = null;
+      this.newUnitSpotDiscountPercentage = null;
+      this.newUnitSpotDiscountFlat = null;
+      this.newUnitReservationFee = null;
+      this.newUnitOtherCharges = null;
+      this.newUnitVatPercentage = null;
+      this.clearImages();
+      this.newUnitSections = []; // Reset sections
+      this.newUnitImages = []; // Clear image files
+      this.selectedUnitTemplate = null; // Clear selected template
+      this.resetTemplateFields();
+      this.isTemplateSelected = false;
+    },
     // Navigation methods
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPage) {
@@ -1388,93 +1955,6 @@ export default {
         alert("An error occurred while fetching unit types.");
       }
     },
-    async addUnits() {
-      // Validate form fields
-      if (
-        !this.newUnitSections.length ||
-        !this.newUnitType ||
-        !this.newUnitPrice ||
-        !this.newUnitLotArea ||
-        !this.newUnitFloorArea ||
-        !this.newUnitQuantity
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create a FormData object to send both unit data and images
-      const formData = new FormData();
-      formData.append("quantity", this.newUnitQuantity);
-      formData.append("unit_type_id", this.newUnitType);
-      formData.append("unit_title", this.newUnitTitle);
-      formData.append("bedroom", this.newUnitBedroom);
-      formData.append("bathroom", this.newUnitBathroom);
-      formData.append("lot_area", this.newUnitLotArea);
-      formData.append("floor_area", this.newUnitFloorArea);
-      formData.append("price", this.newUnitPrice);
-      formData.append("status", this.newUnitStatus);
-      formData.append("view", this.newUnitView);
-      formData.append("balcony", this.newUnitBalcony);
-      formData.append("commission", this.newUnitCommission);
-      formData.append(
-        "spot_discount_percentage",
-        this.newUnitSpotDiscountPercentage
-      );
-      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
-      formData.append("reservation_fee", this.newUnitReservationFee);
-      formData.append("other_charges", this.newUnitOtherCharges);
-      formData.append("vat_percentage", this.newUnitVatPercentage);
-
-      // Log the selected section IDs
-
-      // Append the selected section IDs as an array
-      this.newUnitSections.forEach((sectionId) => {
-        formData.append("section_ids[]", sectionId);
-      });
-
-      if (this.newUnitImages && this.newUnitImages.length) {
-        for (let i = 0; i < this.newUnitImages.length; i++) {
-          const image = this.newUnitImages[i];
-
-          // Append image file with a unique key based on index
-          formData.append(`images[${i}]`, image);
-
-          // Append image type and primary flag with unique keys as well
-          formData.append(`image_types[${i}]`, image.image_type || "Unit");
-          formData.append(`primaries[${i}]`, image.primary || false);
-
-          // Log the data for debugging
-        }
-      } else {
-        console.log("No images selected.");
-      }
-
-      try {
-        // Send the FormData to the backend
-        const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (response.status === 201) {
-          this.fetchSiteDetails(); // Refresh the site details
-          this.showAddUnitsModal = false; // Close the modal
-          this.notificationTitle = "Success";
-          this.notificationMessage = "Unit/s updated successfully!";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while adding unit/s.";
-        this.showNotification = true;
-      }
-    },
     toggleAddUnitsModal() {
       this.showAddUnitsModal = !this.showAddUnitsModal;
       if (!this.showAddUnitsModal) {
@@ -1484,101 +1964,17 @@ export default {
         this.newUnitTitle = "";
         this.newUnitBedroom = 1;
         this.newUnitBathroom = 1;
-        this.newUnitLotArea = null;
-        this.newUnitFloorArea = null;
+        this.newUnitLotArea = 0;
+        this.newUnitFloorArea = 0;
         this.newUnitPrice = null;
         this.newUnitStatus = "Available";
         this.newUnitView = null;
-        this.newUnitBalcony = "no balcony";
+        this.newUnitBalcony = null;
       }
     },
     openAddUnitModalForSection(sectionId) {
       this.newUnitSections = [sectionId]; // Set the section ID in the array
       this.showAddSectionUnitsModal = true; // Open the modal to add units to the specific section
-    },
-    async addSectionUnits(sectionId) {
-      // Validate form fields
-      if (
-        !this.newUnitType ||
-        !this.newUnitPrice ||
-        !this.newUnitLotArea ||
-        !this.newUnitFloorArea ||
-        !this.newUnitQuantity ||
-        !sectionId
-      ) {
-        alert("Please fill in all the required fields.");
-        return;
-      }
-
-      // Create FormData to send both unit data and images
-      const formData = new FormData();
-      formData.append("quantity", this.newUnitQuantity);
-      formData.append("unit_type_id", this.newUnitType);
-      formData.append("unit_title", this.newUnitTitle);
-      formData.append("bedroom", this.newUnitBedroom);
-      formData.append("bathroom", this.newUnitBathroom);
-      formData.append("lot_area", this.newUnitLotArea);
-      formData.append("floor_area", this.newUnitFloorArea);
-      formData.append("price", this.newUnitPrice);
-      formData.append("status", this.newUnitStatus);
-      formData.append("view", this.newUnitView);
-      formData.append("balcony", this.newUnitBalcony);
-      formData.append("commission", this.newUnitCommission);
-      formData.append(
-        "spot_discount_percentage",
-        this.newUnitSpotDiscountPercentage
-      );
-      formData.append("spot_discount_flat", this.newUnitSpotDiscountFlat);
-      formData.append("reservation_fee", this.newUnitReservationFee);
-      formData.append("other_charges", this.newUnitOtherCharges);
-      formData.append("vat_percentage", this.newUnitVatPercentage);
-
-      // Append the selected section ID
-      formData.append("section_ids[]", sectionId); // Directly pass the sectionId
-
-      // Log the selected images
-      if (this.newUnitImages && this.newUnitImages.length) {
-        for (let i = 0; i < this.newUnitImages.length; i++) {
-          const image = this.newUnitImages[i];
-
-          // Append image file with a unique key based on index
-          formData.append(`images[${i}]`, image);
-
-          // Append image type and primary flag with unique keys as well
-          formData.append(`image_types[${i}]`, image.image_type || "Unit");
-          formData.append(`primaries[${i}]`, image.primary || false);
-
-          // Log the data for debugging
-        }
-      } else {
-        console.log("No images selected.");
-      }
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (response.status === 201) {
-          this.openUnitManagement({ id: sectionId });
-          this.fetchSiteDetails(); // Refresh site details
-          this.showAddSectionUnitsModal = false; // Close the modal
-          this.notificationTitle = "Success";
-          this.notificationMessage = "Unit/s updated successfully!";
-          this.showNotification = true;
-        }
-      } catch (error) {
-        this.notificationTitle = "Error";
-        this.notificationMessage = "An error occurred while adding unit/s.";
-        this.showNotification = true;
-      }
     },
 
     async openUnitManagement(section) {
@@ -1635,24 +2031,34 @@ export default {
       }
     },
     async manageUnit(unit = null) {
+      // Reset selectedUnit and initialUnit to force reactivity
+      this.selectedUnit = {};
+      this.initialUnit = {};
+
       if (unit) {
-        try {
-          this.selectedUnit = unit; // Make sure selectedUnit is set
+        // Delay the assignment to ensure the reset is processed
+        this.$nextTick(() => {
+          this.selectedUnit = unit; // Shallow copy to prevent reference issues
+          this.initialUnit = { ...unit };
           this.showEditUnitModal = true; // Show the modal for editing
-        } catch (error) {
-          console.error(
-            "Error fetching unit details:",
-            error.response || error
-          );
-        }
+        });
       } else {
-        this.selectedUnit = {}; // Initialize an empty object for a new unit
-        this.showEditUnitModal = true; // Show modal for new unit creation
+        this.selectedUnit = {};
+        this.initialUnit = {};
+        this.showEditUnitModal = true; // Show the modal for new unit creation
       }
     },
     async saveUnitChanges() {
+      if (!this.hasChanges()) {
+        this.showNotification = true;
+        this.notificationTitle = "Invalid";
+        this.notificationMessage =
+          "No changes detected. Please update some fields.";
+        return;
+      }
       this.showConfirmation(
         "Are you sure you want to save the changes to this unit?",
+
         async () => {
           const formData = new FormData();
           formData.append("unit_number", this.selectedUnit.unit_number);
@@ -1705,6 +2111,20 @@ export default {
         []
       );
     },
+    // Add a method to check for changes
+    hasChanges() {
+      return (
+        this.selectedUnit.unit_number !== this.initialUnit.unit_number ||
+        this.selectedUnit.unit_type !== this.initialUnit.unit_type ||
+        this.selectedUnit.status !== this.initialUnit.status ||
+        this.selectedUnit.price !== this.initialUnit.price ||
+        this.selectedUnit.lot_area !== this.initialUnit.lot_area ||
+        this.selectedUnit.floor_area !== this.initialUnit.floor_area ||
+        this.selectedUnit.commission !== this.initialUnit.commission ||
+        this.selectedUnit.balcony !== this.initialUnit.balcony ||
+        this.selectedUnit.view !== this.initialUnit.view
+      );
+    },
     // Method to toggle the image edit state (show/hide replace form)
     toggleImageEdit(index) {
       this.imageEditIndex = this.imageEditIndex === index ? null : index;
@@ -1754,12 +2174,16 @@ export default {
     },
 
     onImageSelected(index, event) {
-      // This stores the selected file into the imageFile array for the specific index
-      this.imageFile[index] = event.target.files[0];
+      const file = event.target.files[0]; // Get the selected file
+      if (file) {
+        this.imageFile[index] = file; // Store the file for the specific index
+        this.replaceImage(index); // Trigger image replacement for that index
+      }
     },
 
     async replaceImage(index) {
       const formData = new FormData();
+
       // Ensure the file exists before appending it to FormData
       if (!this.imageFile[index]) {
         console.error("No image selected for replacement.");
@@ -1789,7 +2213,6 @@ export default {
       }
     },
 
-    // Delete the image from the selected unit
     async deleteImage(index) {
       try {
         const response = await axios.delete(
@@ -1825,6 +2248,9 @@ export default {
         // Dynamically call the function stored in actionToConfirm with the provided params
         await this.actionToConfirm(...this.confirmParams);
         this.showConfirmModal = false; // Close modal after confirmation
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Unit updated successfully.";
+        this.showNotification = true;
       } catch (error) {
         this.showConfirmModal = false; // Close modal on error
         this.notificationTitle = "Error";
@@ -1840,14 +2266,17 @@ export default {
     openEditUnitModal(unit) {
       // Ensure the selected unit is properly set before opening the modal
       this.selectedUnit = unit;
+      this.initialUnit = unit; // Store initial unit values for comparison
       this.showEditUnitModal = true;
     },
     closeEditUnitModal() {
       this.showEditUnitModal = false;
       this.selectedUnit = null; // Clear selected unit when closing the modal
+      this.initialUnit = null;
     },
     clearSelectedUnit() {
       this.selectedUnit = null; // Reset selectedUnit when the modal is closed
+      this.initialUnit = null;
     },
     handleFileChange(event) {
       this.newUnitImages = Array.from(event.target.files);
@@ -2459,12 +2888,69 @@ button {
   cursor: pointer;
   /* Optional if you add sortable columns */
 }
+
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: -15px; /* Reduce margin */
-  padding-right: 40px; /* Reduce padding */
-  font-size: 14px; /* Smaller font size */
-  line-height: 1.2; /* Adjust line height for compactness */
+  margin-top: -15px;
+  /* Reduce margin */
+  padding-right: 40px;
+  /* Reduce padding */
+  font-size: 14px;
+  /* Smaller font size */
+  line-height: 1.2;
+  /* Adjust line height for compactness */
+}
+
+.carousel-inner img {
+  max-height: 400px;
+  /* Adjust as needed */
+  object-fit: cover;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background-color: transparent;
+  /* Remove the background color */
+  color: inherit;
+  /* Remove the default text color change */
+  border: none;
+  /* Remove any border if present */
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.carousel-item:hover .image-overlay {
+  opacity: 1;
+}
+
+/* Inline error styles */
+.inline-error {
+  position: absolute; /* Position relative to the parent element */
+
+  color: red;
+  font-size: 12px;
+  font-weight: bold;
+
+  border-radius: 3px;
+  z-index: 10; /* Ensure it appears above the input field */
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1s ease-in-out; /* Smooth fade in and fade out */
+}
+
+/* For hiding the error message */
+.inline-error.hidden {
+  opacity: 0;
+  visibility: hidden;
 }
 </style>

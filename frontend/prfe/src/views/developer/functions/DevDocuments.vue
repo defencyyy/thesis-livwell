@@ -67,20 +67,26 @@
             newDocumentType.id ? 'Edit Document Type' : 'Add New Document'
           "
           hide-footer
+          hide-header
           centered
           @hide="onModalHide"
         >
+
+        <div class="modal-title p-3">
+            <h5 class="mb-0"> {{ newDocumentType.id ? 'Edit Document Type' : 'Add New Document' }}</h5>
+          </div>
+
+          <div class="p-3">
+
           <div class="mb-3">
-            <label for="documentTypeName" class="form-label text-start"
-              >Name</label
-            >
+            <small>Name </small>
             <input
               type="text"
               class="form-control"
               id="documentTypeName"
               v-model="newDocumentType.name"
               placeholder="Enter document type name"
-              :readonly="newDocumentType.id ? true : false"
+              :disabled="newDocumentType.id ? true : false"
               :class="{ 'is-invalid': nameError }"
             />
             <div v-if="nameError" class="invalid-feedback">
@@ -89,9 +95,8 @@
           </div>
 
           <div class="mb-3">
-            <label for="documentTypeDescription" class="form-label text-start"
-              >Description</label
-            >
+            <small>Description</small>
+            
             <textarea
               class="form-control"
               id="documentTypeDescription"
@@ -108,14 +113,15 @@
           >
             <button
               type="button"
-              class="btn btn-primary"
+              class="btn-add"
               @click="saveDocumentType"
             >
               {{ newDocumentType.id ? "Save Changes" : "Add Document" }}
             </button>
-            <button type="button" class="btn btn-secondary" @click="closeForm">
+            <button type="button" class="btn-cancel" @click="closeForm">
               Cancel
             </button>
+          </div>
           </div>
         </b-modal>
 
@@ -146,7 +152,10 @@
           centered
         >
           <p>{{ confirmMessage }}</p>
-          <div class="button-container">
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
               @click="confirmAction"
@@ -466,6 +475,7 @@ body {
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+  font-size: 14px;
 }
 
 .outside-headers {
@@ -607,22 +617,23 @@ body {
   justify-content: flex-end;
 }
 
-.btn-cancel-right {
-  background-color: #0560fd;
-  color: white;
+.btn-cancel {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
   border: none;
-  border-radius: 5px;
-  padding: 12px 20px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 
-.btn-cancel-right:hover {
-  background-color: #004bb5;
-}
-
-.btn-cancel-right:focus {
-  outline: none;
+.btn-cancel-right {
+  background-color: #343a40;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
 }
 </style>

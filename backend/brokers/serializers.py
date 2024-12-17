@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from .models import Broker
+from developers.models import Developer
+from rest_framework.response import Response
+from rest_framework import status
+
 
 class DeveloperBrokerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Make sure the password is write-only
@@ -9,7 +13,7 @@ class DeveloperBrokerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Broker
-        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'total_sales', 'total_commissions']
+        fields = ['id', 'company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'total_sales', 'total_commissions', 'relative_id']
         extra_kwargs = {
             'username': {'required': False},  # Allow username to be set later
         }
@@ -41,7 +45,7 @@ class EditBrokerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Broker
-        fields = ['company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived']
+        fields = ['company', 'email', 'username', 'contact_number', 'first_name', 'last_name', 'password', 'archived', 'relative_id']
         read_only_fields = ['company']
 
     def update(self, instance, validated_data):
@@ -53,32 +57,40 @@ class EditBrokerSerializer(serializers.ModelSerializer):
         # Update other fields
         return super().update(instance, validated_data)
 
+    def post(self, request):
+        try:
+            developer = Developer.objects.get(id=request.user.id)
 
-# The post method that handles the automatic generation of the username
-def post(self, request):
-    try:
-        developer = Developer.objects.get(id=request.user.id)
+            if not hasattr(developer, 'company'):
+                return Response({"error": "Company not found for this developer."}, status=status.HTTP_404_NOT_FOUND)
 
-        if not hasattr(developer, 'company'):
-            return Response({"error": "Company not found for this developer."}, status=status.HTTP_404_NOT_FOUND)
+            company = developer.company
 
-        company = developer.company
+            data = request.data
+            data['company'] = company.id
 
-        data = request.data
-        data['company'] = company.id
+            serializer = DeveloperBrokerSerializer(data=data)
 
-        serializer = DeveloperBrokerSerializer(data=data)
+            if serializer.is_valid():
+                broker = serializer.save()
 
-        if serializer.is_valid():
-            broker = serializer.save()
+                # Automatically create the username by removing spaces from first_name
+                base_username = f"{broker.relative_id}.{broker.first_name.replace(' ', '')}{broker.last_name.replace(' ', '')}".lower()
+                username = base_username
 
-            # Automatically create the username by removing spaces from first_name
-            broker.username = f"{broker.id}.{broker.first_name.replace(' ', '')}{broker.last_name.replace(' ', '')}".lower()
-            broker.save()
+                # Check if the username already exists in either Broker or Developer models
+                counter = 1
+                while Broker.objects.filter(username=username).exists() or Developer.objects.filter(username=username).exists():
+                    username = f"{base_username}.{counter}"
+                    counter += 1
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                # Set the final unique username
+                broker.username = username
+                broker.save()
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    except Developer.DoesNotExist:
-        return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Developer.DoesNotExist:
+            return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)

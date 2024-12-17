@@ -96,3 +96,39 @@ class SaleDetailView(APIView):
             # Log missing status in PUT request
             logger.warning(f"No 'status' provided in PUT request for Sale ID {pk}.")
             return Response({"error": "Status not provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+from django.db.models import Count
+from .models import Sale, Site
+
+def top_sites_sale_count():
+    # Count the number of sales per site and order by the count in descending order
+    top_sites = (Sale.objects
+                 .values('site')  # Group by site
+                 .annotate(sale_count=Count('id'))  # Count the sales
+                 .order_by('-sale_count')  # Order by the count in descending order
+                 [:5])  # Get top 5 sites
+
+    # Get the site names and sales counts
+    data = []
+    for site in top_sites:
+        site_name = Site.objects.get(id=site['site']).name  # Assuming Site has a name field
+        data.append({
+            'site': site_name,
+            'sales': site['sale_count'],
+        })
+    
+    return data
+
+from django.http import JsonResponse
+from django.db.models import Count
+from .models import Sale
+from datetime import datetime
+
+def sales_status_by_year(request, year):
+    sales_status_counts = (
+        Sale.objects.filter(date_sold__year=year)
+        .values('status')
+        .annotate(count=Count('status'))
+        .order_by('status')
+    )
+    return JsonResponse({'data': list(sales_status_counts)})

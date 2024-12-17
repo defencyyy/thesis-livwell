@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UnitListView, UnitDetailView, UnitTemplateListView, UnitTemplateDetailView, UnitTypeListView, UnitTypeDetailView, BulkAddUnitsView, UnitsBySectionView, ImageManagementView, ImageUploadView
+from .views import UnitListView, UnitDetailView, UnitTemplateListView, UnitTemplateDetailView, UnitTypeListView, UnitTypeDetailView, BulkAddUnitsView, UnitsBySectionView, ImageManagementView, ImageUploadView, TemplateImageUploadView, TemplateImageManagementView
 
 urlpatterns = [
     # Unit URLs
@@ -13,4 +13,7 @@ urlpatterns = [
     path('<int:site_id>/sections/<int:section_id>/', UnitsBySectionView.as_view(), name='units-by-sections'),
     path('<int:unit_id>/images/', ImageUploadView.as_view(), name='upload_image'),
     path('<int:unit_id>/images/<int:image_id>/', ImageManagementView.as_view(), name='manage_image'),
+    path('templates/<int:template_id>/images/', TemplateImageUploadView.as_view(), name='upload_template_image'),
+    path('templates/<int:template_id>/images/<int:image_id>/', TemplateImageManagementView.as_view(), name='manage_template_image'),
 ]
+
