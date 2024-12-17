@@ -236,68 +236,6 @@
         <!-- Spacer -->
         <div style="margin-top: 20px"></div>
 
-        <!-- Submitted Documents -->
-        <h5>Submitted Documents</h5>
-        <div
-          v-if="currentCustomer.documents && currentCustomer.documents.length"
-        >
-          <ul>
-            <li
-              v-for="document in currentCustomer.documents"
-              :key="document.url"
-            >
-              <span class="document-type">{{ document.type }}:</span>
-
-              <!-- "View" button styled similarly to the other buttons
-              <button
-                @click="openDocumentModal(document)"
-                class="btn btn-sm btn-outline-primary"
-                aria-label="View document"
-              >
-                View
-              </button> -->
-
-              <a
-                :href="`http://localhost:8000${document.url}`"
-                target="_blank"
-                class="btn btn-sm btn-outline-success"
-                aria-label="Open document in a new tab"
-              >
-                Open in New Tab
-              </a>
-              <a
-                :href="`http://localhost:8000${document.url}`"
-                :download="document.name || 'document'"
-                class="btn btn-sm btn-outline-success"
-                aria-label="Download document"
-              >
-                Download
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div v-else>No documents available.</div>
-
-        <b-modal
-          v-model="showDocumentModal"
-          title="View Document"
-          hide-footer
-          centered
-          size="lg"
-        >
-          <div v-if="selectedDocument">
-            <iframe
-              :src="selectedDocument.url"
-              width="100%"
-              height="500px"
-              frameborder="0"
-            ></iframe>
-          </div>
-          <div v-else>
-            <p>No document to display.</p>
-          </div>
-        </b-modal>
-
         <!-- Spacer -->
         <div style="margin-top: 20px"></div>
 
@@ -325,8 +263,6 @@
           </p>
         </div>
 
-        <!-- Spacer -->
-        <div style="margin-top: 20px"></div>
 
         <!-- Units Connected -->
         <h6 style="color: #a3a3a3"><em>**Connected Units**</em></h6>
@@ -357,6 +293,47 @@
           </table>
         </div>
         <div v-else>No connected units available.</div>
+
+                <!-- Spacer -->
+                <div style="margin-top: 20px"></div>
+
+
+        <!-- Units Connected -->
+        <h6 style="color: #a3a3a3"><em>**Submitted Documents**</em></h6>
+        <div
+          v-if="currentCustomer.documents && currentCustomer.documents.length"
+        >
+          <ul>
+            <li
+              v-for="document in currentCustomer.documents"
+              :key="document.url"
+            >
+              <span class="document-type">{{ document.type }}:</span>
+
+              <a
+                :href="`http://localhost:8000${document.url}`"
+                target="_blank"
+                class="btn btn-sm btn-outline-success"
+                aria-label="Open document in a new tab"
+              >
+                Open in New Tab
+              </a>
+              <a
+                :href="`http://localhost:8000${document.url}`"
+                :download="document.name || 'document'"
+                class="btn btn-sm btn-outline-success"
+                aria-label="Download document"
+              >
+                Download
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div v-else>No documents available.</div>
+
+
+
+
         <div
           class="d-flex justify-content-end gap-3 mt-3"
           style="padding: 15px"
