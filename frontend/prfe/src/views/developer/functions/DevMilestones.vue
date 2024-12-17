@@ -62,18 +62,6 @@
                             >
                               <i class="fas fa-edit"></i>
                             </button>
-                            <!-- <button
-                              @click="deleteMilestone(milestone.id)"
-                              style="
-                                border: none;
-                                background-color: transparent;
-                                color: #343a40;
-                                cursor: pointer;
-                                font-size: 18px;
-                              "
-                            >
-                              <i class="fas fa-archive"></i>
-                            </button> -->
                           </div>
                         </td>
                       </tr>
@@ -97,13 +85,7 @@
                 width: 100%;
               "
             >
-              <div class="card-body">
-                <div class="row">
-                  <div class="toolbar">
-                    <div class="left-section"></div>
-                  </div>
-                </div>
-              </div>
+              <DevMilestoneChart />
             </div>
           </div>
         </div>
@@ -127,6 +109,21 @@
                       />
                       <i class="fa fa-search search-icon"></i>
                     </div>
+                    <!-- Sort Dropdown -->
+                    <select v-model="sortBy" class="dropdown">
+                      <option value="total_sales">Sort: Sales</option>
+                      <option value="total_commissions">
+                        Sort: Commissions
+                      </option>
+                      <option value="relative_id">Sort: ID</option>
+                      <option value="name">Sort: Name</option>
+                    </select>
+
+                    <!-- Sort Order Dropdown -->
+                    <select v-model="sortOrder" class="dropdown">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -471,10 +468,11 @@ import AppHeader from "@/components/Header.vue";
 import { BModal } from "bootstrap-vue-3";
 import axios from "axios";
 import { mapState } from "vuex";
+import DevMilestoneChart from "@/components/DevMilestoneChart.vue"; // Adjust the path to your actual file location
 
 export default {
   name: "DeveloperMilestones",
-  components: { SideNav, AppHeader, BModal },
+  components: { SideNav, AppHeader, BModal, DevMilestoneChart },
   data() {
     return {
       milestones: [],
@@ -504,6 +502,8 @@ export default {
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
       confirmParams: [],
+      sortBy: "total_sales", // Default sort by name
+      sortOrder: "desc", // Default ascending order
     };
   },
   computed: {
@@ -527,7 +527,40 @@ export default {
             broker.last_name
               .toLowerCase()
               .includes(this.searchQuery.toLowerCase())
-        );
+        )
+        .sort((a, b) => {
+          let fieldA, fieldB;
+
+          switch (this.sortBy) {
+            case "relative_id":
+              fieldA = a.relative_id || 0;
+              fieldB = b.relative_id || 0;
+              break;
+            case "name":
+              fieldA =
+                a.first_name.toLowerCase() + " " + a.last_name.toLowerCase();
+              fieldB =
+                b.first_name.toLowerCase() + " " + b.last_name.toLowerCase();
+              break;
+            case "total_sales":
+              fieldA = a.total_sales || 0;
+              fieldB = b.total_sales || 0;
+              break;
+            case "total_commissions":
+              fieldA = a.total_commissions || 0;
+              fieldB = b.total_commissions || 0;
+              break;
+            default:
+              fieldA = a.first_name.toLowerCase();
+              fieldB = b.first_name.toLowerCase();
+          }
+
+          if (this.sortOrder === "asc") {
+            return fieldA > fieldB ? 1 : fieldA < fieldB ? -1 : 0;
+          } else {
+            return fieldA < fieldB ? 1 : fieldA > fieldB ? -1 : 0;
+          }
+        });
     },
   },
   mounted() {

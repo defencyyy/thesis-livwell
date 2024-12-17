@@ -433,10 +433,10 @@
         >
           <p>{{ confirmMessage }}</p>
           <div
-          class="d-flex justify-content-end gap-2 mt-30"
-          style="padding-top: 15px"
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
           >
-          <button
+            <button
               type="button"
               @click="confirmAction"
               class="btn btn-primary"
@@ -1228,16 +1228,14 @@ body {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {
