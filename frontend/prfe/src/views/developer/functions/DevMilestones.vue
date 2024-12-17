@@ -274,7 +274,7 @@
             <span class="header-item">Action</span>
           </div>
           <div
-            v-for="broker in filteredBrokers"
+            v-for="broker in paginatedMilestones"
             :key="broker.id"
             class="card border-0 rounded-1 mx-auto my-2"
             style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -332,6 +332,41 @@
             </div>
           </div>
         </div>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li :class="['page-item', { disabled: currentPage === 1 }]">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage - 1)"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-item', { active: page === currentPage }]"
+            >
+              <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                {{ page }}
+              </a>
+            </li>
+            <li
+              :class="['page-item', { disabled: currentPage === totalPages }]"
+            >
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage + 1)"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
 
         <!-- Broker Milestones Modal -->
         <b-modal
@@ -586,6 +621,11 @@ export default {
     }
   },
   methods: {
+      goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+      }
+    },
     // Axios instance with token handling
     getAxiosInstance() {
       const instance = axios.create({
@@ -1321,5 +1361,40 @@ td {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1100px;
+  width: 100%;
+  /* Reduce padding */
+  font-size: 12px;
+  /* Smaller font size */
+  line-height: 1;
+  margin: 0;
+
+  /* Adjust line height for compactness */
+}
+
+.page-item {
+  margin: 0 3px;
+  /* Reduce spacing between buttons */
+}
+
+
+/* Ensure the arrow button container has a white background */
+.pagination .page-item .page-link {
+  background-color: white; /* White background for the arrow container */
+  color: #6c757d;  /* Default color for inactive arrows */
+  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+
+/* Active page color */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Blue background for active page */
+  color: white; /* White text for active page */
 }
 </style>
