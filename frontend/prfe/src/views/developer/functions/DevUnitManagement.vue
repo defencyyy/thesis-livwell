@@ -42,7 +42,7 @@
                   <i class="fas fa-info-circle"></i>
                   <!-- Example icon for description -->
                   <span>{{
-                    site.description || "No Site Description Available."
+                    site.description || "No description available."
                   }}</span>
                 </div>
                 <div class="location-icon">
