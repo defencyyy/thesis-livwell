@@ -324,7 +324,7 @@
             </div>
           </div>
         </div>
-        <nav aria-label="Page navigation example">
+        <nav aria-label="Page navigation example" style="max-width: 1100px; width: 100%; padding: 0 !important;">
           <ul class="pagination">
             <li :class="['page-item', { disabled: currentPage === 1 }]">
               <a
@@ -1268,12 +1268,22 @@ td {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+  width: 80%;
+  max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 .card {
@@ -1364,7 +1374,7 @@ td {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
+  padding: 30px 0;
 
   /* Adjust line height for compactness */
 }
@@ -1374,16 +1384,14 @@ td {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {
