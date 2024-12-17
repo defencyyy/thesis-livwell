@@ -520,25 +520,25 @@
               </div>
 
               <!-- Image Previews -->
-              <!-- <div
+              <div
                 v-if="
                   selectedTemplate &&
                   selectedTemplate.images &&
                   selectedTemplate.images.length > 0
                 "
-                class="existing-images"
+                class="form-group mb-3"
               >
-                <h5>Existing Images</h5>
+                <label for="existingImages">Existing Images</label>
                 <div class="d-flex gap-2">
                   <img
                     v-for="(image, index) in selectedTemplate.images"
                     :key="index"
-                    :src="image.image_url"
+                    :src="getPictureUrl(image.image)"
                     class="img-thumbnail"
                     style="width: 100px; height: 100px"
-                  /> 
+                  />
                 </div>
-              </div> -->
+              </div>
             </div>
           </div>
 
@@ -597,6 +597,7 @@
     </b-modal>
   </div>
 </template>
+
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
@@ -755,6 +756,11 @@ export default {
     },
   },
   methods: {
+    getPictureUrl(picture) {
+      const url = `http://localhost:8000${picture}`;
+      console.log(url); // Check the URL being generated
+      return url;
+    },
     goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
