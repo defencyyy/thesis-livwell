@@ -993,10 +993,10 @@
         >
           <p>{{ confirmMessage }}</p>
           <div
-          class="d-flex justify-content-end gap-2 mt-30"
-          style="padding-top: 15px"
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
           >
-          <button
+            <button
               type="button"
               @click="confirmAction"
               class="btn btn-primary"
@@ -1011,7 +1011,7 @@
             >
               Cancel
             </button>
-        </div>
+          </div>
         </b-modal>
       </div>
     </div>
@@ -1686,25 +1686,25 @@ export default {
     resetForm() {
       this.newSite = {
         name: "",
-        description: "",
+        status: "",
         region: "",
         province: "",
         municipality: "",
         barangay: "",
+        postalCode: 0,
         address: "",
-        postalCode: "",
-        status: "",
-        number_of_sections: 1,
+        description: "",
+        picture: "",
+        maximum_months: 24,
+        number_of_sections: 15,
         numbering_type: "numeric",
         section_label: "floor",
-        maximum_months: 60,
-        commission: null,
-        spot_discount_percentage: null,
-        spot_discount_flat: null,
+        commission: 200000,
+        spot_discount_percentage: 0,
+        spot_discount_flat: 0,
         vat_percentage: 12.0,
-        reservation_fee: null,
-        other_charges: null,
-        sections: [],
+        reservation_fee: 50000,
+        other_charges: 0,
       };
 
       // Reset dependent fields as well
@@ -2363,16 +2363,14 @@ body {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {

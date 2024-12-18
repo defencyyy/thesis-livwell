@@ -441,7 +441,6 @@
                           <b-form-select
                             v-model="newUnitBalcony"
                             :options="balconyOptions"
-                            required
                           ></b-form-select>
                         </b-col>
                       </b-row>
@@ -490,7 +489,6 @@
                           <b-form-select
                             v-model="newUnitView"
                             :options="viewOptions"
-                            required
                           ></b-form-select>
                         </b-col>
 
@@ -909,23 +907,25 @@
             size="xl"
           >
             <!-- Modal Title -->
-            <div class="modal-title p-3 d-flex justify-content-between align-items-center">
-  <!-- Title on the left -->
-  <h5 class="mb-0">
-    Add Units to Section: {{ selectedSection.number || "N/A" }}
-  </h5>
+            <div
+              class="modal-title p-3 d-flex justify-content-between align-items-center"
+            >
+              <!-- Title on the left -->
+              <h5 class="mb-0">
+                Add Units to Section: {{ selectedSection.number || "N/A" }}
+              </h5>
 
-  <!-- Right Side: Dropdown -->
-  <div class="d-flex align-items-center">
-    <b-form-select
-      v-model="selectedUnitTemplate"
-      :options="unitTemplateOptions"
-      @change="handleTemplateChange"
-      class="form-select"
-      style="width: 200px"
-    ></b-form-select>
-  </div>
-</div>
+              <!-- Right Side: Dropdown -->
+              <div class="d-flex align-items-center">
+                <b-form-select
+                  v-model="selectedUnitTemplate"
+                  :options="unitTemplateOptions"
+                  @change="handleTemplateChange"
+                  class="form-select"
+                  style="width: 200px"
+                ></b-form-select>
+              </div>
+            </div>
 
             <div class="p-3">
               <form @submit.prevent="addSectionUnits(newUnitSections[0])">
@@ -935,7 +935,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Type</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Unit Type</small
+                          >
                           <b-form-select
                             v-model="newUnitType"
                             :options="selectUnitTypeOptions"
@@ -944,7 +951,14 @@
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Quantity</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Quantity</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitQuantity"
@@ -958,7 +972,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="4">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bedrooms</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Bedrooms</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBedroom"
@@ -967,7 +988,14 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Bathrooms</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Bathrooms</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitBathroom"
@@ -976,7 +1004,14 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="4">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Balcony</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Balcony</small
+                          >
                           <b-form-select
                             v-model="newUnitBalcony"
                             :options="balconyOptions"
@@ -988,7 +1023,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Lot Area (sq.m)</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Lot Area (sq.m)</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitLotArea"
@@ -998,7 +1040,14 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Floor Area (sq.m)</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Floor Area (sq.m)</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitFloorArea"
@@ -1013,7 +1062,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Status</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Status</small
+                          >
                           <b-form-select
                             v-model="newUnitStatus"
                             :options="statusOptions"
@@ -1021,7 +1077,14 @@
                           ></b-form-select>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">View</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >View</small
+                          >
 
                           <b-form-select
                             v-model="newUnitView"
@@ -1034,7 +1097,14 @@
                     <b-form-group>
                       <b-row
                         ><b-col cols="12" md="8"
-                          ><small style="font-size: 14px; color: #6c757d; padding: 2px">Price</small>
+                          ><small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Price</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitPrice"
@@ -1052,7 +1122,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Reservation Fee</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Reservation Fee</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitReservationFee"
@@ -1060,7 +1137,14 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Commission</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitCommission"
@@ -1073,7 +1157,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Percentage</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Spot Discount Percentage</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountPercentage"
@@ -1081,7 +1172,14 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Spot Discount Flat</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Spot Discount Flat</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitSpotDiscountFlat"
@@ -1094,7 +1192,14 @@
                     <b-form-group>
                       <b-row>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">VAT Percentage</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >VAT Percentage</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitVatPercentage"
@@ -1102,7 +1207,14 @@
                           ></b-form-input>
                         </b-col>
                         <b-col cols="12" md="6">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Other Charges</small>
+                          <small
+                            style="
+                              font-size: 14px;
+                              color: #6c757d;
+                              padding: 2px;
+                            "
+                            >Other Charges</small
+                          >
                           <b-form-input
                             type="number"
                             v-model.number="newUnitOtherCharges"
@@ -1114,7 +1226,10 @@
 
                     <!-- Image Upload -->
                     <b-form-group>
-                      <small style="font-size: 14px; color: #6c757d; padding: 2px">Upload Images (Max: 5)</small>
+                      <small
+                        style="font-size: 14px; color: #6c757d; padding: 2px"
+                        >Upload Images (Max: 5)</small
+                      >
                       <input
                         type="file"
                         ref="fileInput"
@@ -1169,8 +1284,8 @@
           >
             <p>{{ confirmMessage }}</p>
             <div
-            class="d-flex justify-content-end gap-2 mt-30"
-            style="padding-top: 15px"
+              class="d-flex justify-content-end gap-2 mt-30"
+              style="padding-top: 15px"
             >
               <button
                 type="button"
@@ -1180,11 +1295,7 @@
                 Confirm
               </button>
               <!-- Cancel Button -->
-              <button
-                type="button"
-                @click="cancelAction"
-                class="btn-cancel"
-              >
+              <button type="button" @click="cancelAction" class="btn-cancel">
                 Cancel
               </button>
             </div>
@@ -1594,7 +1705,7 @@ export default {
 
           // Populate the unitTemplateOptions with only non-archived templates
           this.unitTemplateOptions = [
-          { value: null, text: "Unit Template", disabled: true },
+            { value: null, text: "Unit Template", disabled: true },
             ...activeTemplates.map((template) => ({
               value: template.id,
               text: template.name,
