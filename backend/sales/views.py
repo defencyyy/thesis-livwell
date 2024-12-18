@@ -125,10 +125,31 @@ from .models import Sale
 from datetime import datetime
 
 def sales_status_by_year(request, year):
+    # Try to get the company associated with the logged-in user
+    company = get_developer_company(request)
+
+    # Get the 'company_id' from the request parameters
+    company_id = request.GET.get('company_id', None)
+
+    # Start building the filter with date_sold year
+    filters = {'date_sold__year': year}
+
+    # If a company_id is provided in the query, use it to filter by company
+    if company_id:
+        filters['company_id'] = company_id
+    # If no company_id is provided, use the company of the logged-in user (if exists)
+    elif company:
+        filters['company_id'] = company.id
+    else:
+        # If no company is associated with the user and no company_id is provided, return an error or empty data
+        return JsonResponse({'message': 'No company available for the user or company_id not provided'}, status=400)
+
+    # Query Sale objects based on the filters
     sales_status_counts = (
-        Sale.objects.filter(date_sold__year=year)
+        Sale.objects.filter(**filters)  # Apply the filters dynamically
         .values('status')
         .annotate(count=Count('status'))
         .order_by('status')
     )
+
     return JsonResponse({'data': list(sales_status_counts)})
