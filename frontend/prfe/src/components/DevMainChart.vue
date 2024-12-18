@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h3>Sales Status Distribution for {{ year }}</h3>
+  <div class="chart-container">
+    <h5 class="chart-title">Sales Status Distribution for {{ year }}</h5>
     <canvas id="salesStatusChart"></canvas>
   </div>
 </template>
@@ -78,3 +78,24 @@ export default {
   },
 };
 </script>
+
+<style>
+
+.chart-title{
+  padding: 7px;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column; /* Ensures the heading stays above the chart */
+  align-items: center;   /* Horizontally centers the chart */
+  justify-content: center; /* Vertically centers the chart */
+  width: 100%;           /* Adjust as needed */
+  text-align: center;    /* Centers the heading */
+}
+  #salesStatusChart {
+    max-width: 300px; /* Set a max-width for responsiveness */
+    height: auto;     /* Maintain aspect ratio */
+  }
+</style>
+
