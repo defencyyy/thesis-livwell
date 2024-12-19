@@ -210,7 +210,7 @@
               <div class="row">
                 <div class="col-md-6">
                   <h6 class = "customer-title">Unit Price</h6>
-                  <h5> ₱{{ salesDetails.unit_price }} </h5>
+                  <h5> {{ formatCurrency(salesDetails.unit_price) }} </h5>
                 </div>
                 <div class="col-md-6">
                   <h6 class = "customer-title">Payment Plan</h6>
@@ -227,13 +227,11 @@
                 </div>
                 <div class = "sales-item">
                   <span class="label">Spot Discount: </span>
-                  <span class="value">₱{{ this.spotDiscount }}</span>
+                  <span class="value">{{ formatCurrency(this.spotDiscount) }}</span>
                 </div>
                 <div class = "sales-item">
                   <span class="label">Unit Price after Spot Discount:</span>
-                  <span class="value">₱{{
-                    this.unitPriceAfterSpotDiscount
-                  }}</span>
+                  <span class="value">{{formatCurrency(this.unitPriceAfterSpotDiscount)}}</span>
                 </div>
                 <hr class="separator">
                 <h6><strong>TLP Discount</strong></h6>
@@ -243,11 +241,11 @@
                 </div>
                 <div class = "sales-item">
                   <span class="label">TLP Discount: </span>
-                  <span class="value">₱{{ this.tlpDiscountAmount }}</span>
+                  <span class="value">{{ formatCurrency(this.tlpDiscountAmount) }}</span>
                 </div>
                 <div class = "sales-item">
                   <span class="label">Net Unit Price:</span>
-                  <span class="value">₱{{ netUnitPrice }}</span>
+                  <span class="value">{{ formatCurrency(netUnitPrice) }}</span>
                 </div>
                 <hr class="separator">
                 <h6><strong>Other Charges</strong></h6>
@@ -257,20 +255,20 @@
                 </div>
                 <div class = "sales-item">
                   <span class="label">Other Charges:</span>
-                  <span class="value">₱{{ otherCharges }}</span>
+                  <span class="value">{{ formatCurrency(otherCharges) }}</span>
                 </div>
                 <div class = "sales-item">
                   <span class="label">Net Unit Price:</span>
-                  <span class="value">₱{{ netUnitPrice }}</span>
+                  <span class="value">{{ formatCurrency(netUnitPrice) }}</span>
                 </div>
                 <hr class="separator">
                 <div v-if="netUnitPrice > 3600000" class = "sales-item">
                   <span class="label">VAT (12%):</span>
-                  <span class="value">₱{{ vatAmount }}</span>
+                  <span class="value">{{ formatCurrency(vatAmount) }}</span>
                 </div>
                 <div class = "sales-item">
                   <span class="label">Total Amount Payable:</span>
-                  <span class="value">₱{{totalAmountPayable}}</span>
+                  <span class="value">{{formatCurrency(totalAmountPayable)}}</span>
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Spot Downpayment Percentage:</span>
@@ -282,15 +280,15 @@
                 </div>
                 <div class = "sales-item">
                   <span class="label">Reservation Fee:</span>
-                  <span class="value">₱{{salesDetails.reservation_fee}}</span>
+                  <span class="value">{{formatCurrency(salesDetails.reservation_fee)}}</span>
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Spot Cash'" class = "sales-item">
                   <span class="label">Net Full Payment:</span>
-                  <span class="value">₱{{ netFullPayment }}</span>
+                  <span class="value">{{ formatCurrency(netFullPayment) }}</span>
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Net Downpayment:</span>
-                  <span class="value">₱{{ netDownpayment }}</span>
+                  <span class="value">{{ formatCurrency(netDownpayment) }}</span>
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Spread Downpayment Percentage:</span>
@@ -854,6 +852,15 @@ sortedAndFilteredCustomers() {
     },
   },
   methods: {
+    formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
     calculateAmortization(balance, years) {
       const interestRate = 6.5 / 100; // 6.5% annual interest
       const monthlyRate = interestRate / 12; // Monthly interest rate

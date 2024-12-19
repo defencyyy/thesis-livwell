@@ -64,7 +64,7 @@
         <div class="col-12 d-flex justify-content-between align-items-center">
             <!-- Left Section: Price and Installment Badge -->
             <div class="d-flex align-items-center gap-2">
-                <span class="property-price">₱ {{ selectedUnit.price }}</span>
+                <span class="property-price"> {{ formatCurrency(selectedUnit.price) }}</span>
             </div>
             <!-- Right Section: Icons and Details -->
             <div class="d-flex align-items-center gap-3">
@@ -120,7 +120,7 @@
               <!-- Left Section: Property Price -->
               <div class="text-center">
                 <h5 class="price-header">Property Price</h5>
-                <p class="property-price"><strong>₱ {{ selectedUnit.price }}</strong></p>
+                <p class="property-price"><strong> {{ formatCurrency(selectedUnit.price) }}</strong></p>
               </div>
               <!-- Right Section: Payment Plan -->
               <div class="text-center">
@@ -150,8 +150,8 @@
                         :min="0"
                         :max="maxSpotCashDiscount"
                       />
-                      <p><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
-                      <p><strong>Unit Price after Spot Discount:</strong> ₱{{ unitPriceAfterSpotDiscount }}</p>
+                      <p><strong>Spot Discount:</strong> {{ formatCurrency(spotDiscount) }}</p>
+                      <p><strong>Unit Price after Spot Discount:</strong> {{ formatCurrency(unitPriceAfterSpotDiscount) }}</p>
                     </div>
 
                     <!-- Other Charges -->
@@ -167,9 +167,9 @@
                         max="maxOtherChargesPercentage"
                         step="0.1"
                       />
-                      <p><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+                      <p><strong>Other Charges:</strong> {{ formatCurrency(otherCharges) }}</p>
                       <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-                      <p><strong>Total Amount Payable:</strong> ₱{{ totalAmountPayable }}</p>
+                      <p><strong>Total Amount Payable:</strong> {{ formatCurrency(totalAmountPayable) }}</p>
                     </div>
 
                     <!-- Spread Downpayment -->
@@ -188,7 +188,7 @@
                         required
                         placeholder="Enter percentage"
                       />
-                      <p><strong>Spread Downpayment:</strong> ₱{{ spreadDownpayment }}</p>
+                      <p><strong>Spread Downpayment:</strong> {{ formatCurrency(spreadDownpayment) }}</p>
                       </div>
                     </div>
                   </div>
@@ -206,8 +206,8 @@
                         min="0"
                         max="maxTlpDiscount"
                       />
-                      <p><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
-                      <p><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+                      <p><strong>TLP Discount:</strong> {{ formatCurrency(tlpDiscountAmount) }}</p>
+                      <p><strong>Net Unit Price:</strong> {{ formatCurrency(netUnitPrice) }}</p>
                     </div>
 
                     <!-- Spot Downpayment -->
@@ -224,10 +224,10 @@
                         placeholder="Enter downpayment percentage"
                         required
                       />
-                      <p><strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}</p>
-                      <p><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
-                      <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> ₱{{ netFullPayment }}</p>
-                      <p v-if="selectedPaymentPlan === 'Deferred Payment'"><strong>Net Downpayment:</strong> ₱{{ netDownpayment }}</p>
+                      <p><strong>Spot Downpayment:</strong> {{ formatCurrency(spotDownpayment) }}</p>
+                      <p><strong>Reservation Fee:</strong> {{ formatCurrency(reservationFee) }}</p>
+                      <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> {{ formatCurrency(netFullPayment) }}</p>
+                      <p v-if="selectedPaymentPlan === 'Deferred Payment'"><strong>Net Downpayment:</strong> {{ formatCurrency(netDownpayment) }}</p>
                       <!-- Payable in Months -->
                       <div class="mb-3">
                         <label for="months" class="form-label text-start">Months to Pay</label>
@@ -242,8 +242,8 @@
                           step="1"
                           required
                         />
-                        <p><strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}</p>
-                        <p><strong>Balance Upon Turnover:</strong> ₱{{ balanceUponTurnover }}</p>
+                        <p><strong>Payable Per Month:</strong> {{ formatCurrency(payablePerMonth) }}</p>
+                        <p><strong>Balance Upon Turnover:</strong> {{ formatCurrency(balanceUponTurnover) }}</p>
                       </div>
                     </div>
                   </div>
@@ -268,22 +268,22 @@
               <div class="payment-schedule-summary">
                 <div class="summary-item">
                   <span class="label">Spot Downpayment:</span>
-                  <span class="value">₱{{ spotDownpayment.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(spotDownpayment) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">₱{{ netDownpayment.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(netDownpayment) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item highlight">
                   <span class="label">Monthly Payment:</span>
-                  <span class="value">₱{{ payablePerMonth.toFixed(2) }} / month for {{ payableMonths }} months</span>
+                  <span class="value">{{ formatCurrency(payablePerMonth) }} / month for {{ payableMonths }} months</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Balance Upon Turnover:</span>
-                  <span class="value">₱{{ balanceUponTurnover.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(balanceUponTurnover) }}</span>
                 </div>
               </div>
 
@@ -292,22 +292,22 @@
                 <h4><center>Monthly Amortization (6.5%)</center></h4>
                 <div class="summary-item">
                   <span class="label">10 years</span>
-                  <span class="value">₱{{ amortization10Years.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(amortization10Years) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">15 years</span>
-                  <span class="value">₱{{ amortization15Years.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(amortization15Years) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">20 years</span>
-                  <span class="value">₱{{ amortization20Years.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(amortization20Years) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">25 years</span>
-                  <span class="value">₱{{ amortization25Years.toFixed(2) }}</span>
+                  <span class="value">{{ formatCurrency(amortization25Years) }}</span>
                 </div>
               </div>
             </div>
@@ -327,12 +327,12 @@
                 </tr>
                 <tr>
                   <td>Spot Downpayment</td>
-                  <td class="amount-column highlight">₱{{ spotDownpayment.toFixed(2) }}</td>
+                  <td class="amount-column highlight">{{ formatCurrency(spotDownpayment) }}</td>
                   <td class="amount-column">{{ spotDueDate }}</td> <!-- Spot due date -->
                 </tr>
                 <tr>
                   <td>Spread Downpayment</td>
-                  <td class="amount-column highlight">₱{{ netDownpayment.toFixed(2) }}</td>
+                  <td class="amount-column highlight">{{ formatCurrency(netDownpayment) }}</td>
                   <td class="amount-column">{{ spreadDueDate }}</td> <!-- Spread due date -->
                 </tr>
 
@@ -342,7 +342,7 @@
                 </tr>
                 <tr v-for="month in payableMonths" :key="month">
                   <td>Month {{ month }} Payment</td>
-                  <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
+                  <td class="amount-column">{{ formatCurrency(payablePerMonth) }}</td>
                   <td class="amount-column">{{ getPaymentDueDate(month) }}</td> <!-- Specific due date for each month -->
                 </tr>
 
@@ -352,7 +352,7 @@
                 </tr>
                 <tr>
                   <td>Balance Upon Turnover</td>
-                  <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                  <td class="amount-column highlight">{{ formatCurrency(balanceUponTurnover) }}</td>
                   <td class="amount-column">{{ turnoverDueDate }}</td> <!-- Balance turnover due date -->
                 </tr>
               </tbody>
@@ -381,7 +381,7 @@
                 <tbody>
                   <tr>
                     <td>Net Full Payment</td>
-                    <td>₱{{ netFullPayment }}</td>
+                    <td>{{ formatCurrency(netFullPayment) }}</td>
                     <td>{{ dueDate }}</td>
                   </tr>
                 </tbody>
@@ -622,6 +622,15 @@ export default {
     this.fetchCustomers();
   },
   methods: {
+    formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
    async fetchCustomers() {
       const brokerId = this.$store.getters.getUserId; // Use Vuex getter to get broker ID
       if (!brokerId) {
