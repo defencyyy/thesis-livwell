@@ -599,8 +599,8 @@ export default {
       reservationDate: new Date().toISOString().split('T')[0], // Default to today's date
       dueDate: null,
       spotDueDate: null,
-    spreadDueDate: null,
-    turnoverDueDate: null,
+      spreadDueDate: null,
+      turnoverDueDate: null,
     };
     },
     computed:{
@@ -679,30 +679,32 @@ export default {
     console.error("Error fetching unit details:", error);
   }
     },
-   calculateDueDate() {
+  calculateDueDate() {
   const reservationDate = new Date(this.reservationDate);
 
-  if (this.selectedPaymentPlan === 'Spot Payment') {
+  if (this.selectedPaymentPlan === 'Spot Cash') {
     // For Spot Payment, add 30 days
     reservationDate.setDate(reservationDate.getDate() + 30);
+    this.dueDate = reservationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
   } else if (this.selectedPaymentPlan === 'Deferred Payment') {
     // For Deferred Payment, you could adjust the logic (e.g., add a different amount of days or use other criteria)
     const spotDate = new Date(reservationDate);
     spotDate.setDate(spotDate.getDate() + 30);
     this.spotDueDate = spotDate.toISOString().split('T')[0];
 
-    // Spread due date: Due 60 days after reservation
+    // Spread Payment Due: Last month of the payment term (e.g., if 12 months, it's the 12th month)
     const spreadDate = new Date(reservationDate);
-    spreadDate.setDate(spreadDate.getDate() + 60);
+    spreadDate.setMonth(spreadDate.getMonth() + this.payableMonths - 1); // Set the due date to the last month
     this.spreadDueDate = spreadDate.toISOString().split('T')[0];
 
-    // Balance upon turnover: Due on turnover date (or can be custom)
+    // Balance Upon Turnover Due: 1 year after reservation (for example)
     const turnoverDate = new Date(reservationDate);
-    turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // For example, turnover 1 year later
-    this.turnoverDueDate = turnoverDate.toISOString().split('T')[0];  }
-  // You can add more conditions for other payment plans if necessary
+    turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // 1 year later
+    this.turnoverDueDate = turnoverDate.toISOString().split('T')[0];
 
-  this.dueDate = reservationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    // Optionally set a "main" due date (if needed)
+    this.dueDate = this.spreadDueDate; 
+  }
     },
 getPaymentDueDate(month) {
     const reservationDate = new Date(this.reservationDate);
