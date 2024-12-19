@@ -404,9 +404,15 @@
         :visible="successMessage"
         >
           <p>{{ successMessage }}</p>
-          <div class = "buttons-container">
-            <button @click="closePopup" class="btn btn-primary">OK</button>
-          </div>
+          <div class="button-container">
+              <button
+                type="button"
+                @click="closePopup"
+                class="btn-cancel-right"
+              >
+                Close
+              </button>
+            </div>
       </b-modal>
           <!-- Reserve Unit Modal -->
       <b-modal
@@ -527,8 +533,14 @@
         >
           <p>{{ errorMessage }}</p>
           <div class="button-container">
-            <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
-          </div>
+              <button
+                type="button"
+                @click="closeErrorModal"
+                class="btn-cancel-right"
+              >
+                Close
+              </button>
+            </div>
         </b-modal>
         </b-modal>
       </div>
@@ -1356,6 +1368,18 @@ input[type="file"] {
   margin-left: 5px;
 }
 
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
 
+.btn-cancel-right {
+  background-color: #343a40;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+  cursor: pointer;
+}
 
 </style>

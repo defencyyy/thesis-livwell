@@ -156,18 +156,6 @@
                   </p>
                 </div>
                 <div class="mb-4">
-                  <div
-                    v-if="salesDetail.payment_plan === 'Spot Cash'"
-                    class="additional-box1"
-                  >
-                    <div class="summary-item">
-                      <span class="label">Total Amount Due:</span>
-                      <span class="value"
-                        >{{ formatCurrency(netFullPayment)  }}
-                      </span>
-                    </div>
-                  </div>
-
                   <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
                     <div class="payment-container">
                       <div class="summary-and-info">
@@ -273,7 +261,7 @@
                   </div>
 
                   <div class="payment-container">
-                    <div class="detailed-schedule">
+                    <div class="detailed-schedule1">
                       <table class="payment-table">
                         <thead>
                           <tr>
@@ -616,9 +604,34 @@ body {
 .main-page {
   display: flex;
   min-height: 100vh;
-  /* Ensures it spans the full viewport height */
   background-color: #e8f0fa;
-  /* Gray background */
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 15px;
+  height: 5px;
+  background-color: #343a40;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.edit-title {
+  color: #000000;
+  text-align: left;
 }
 
 .sidebar {
@@ -690,6 +703,10 @@ body {
   color: #343a40;
 }
 
+.documents-table thead {
+    background-color: lightgrey;
+  }
+
 /* Main Content Responsiveness */
 .main-content {
   display: flex;
@@ -699,7 +716,6 @@ body {
   margin-top: 60px;
   padding: 20px;
   box-sizing: border-box; /* Include padding in width calculation */
-  background-color: #fff; /* Ensure a clean background for content */
 }
 
 .content {
@@ -811,6 +827,18 @@ button {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: #fff;
   overflow-y: auto; /* Add scroll if content exceeds height */
+}
+
+.detailed-schedule1 {
+  min-width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  height: 170px;
+  width: 1100px;
+  margin-left: 45px;
 }
 
 .payment-schedule-summary {
