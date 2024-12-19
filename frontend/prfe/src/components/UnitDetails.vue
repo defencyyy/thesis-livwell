@@ -371,6 +371,7 @@
         hide-footer
         title="Reserve Unit"
         centered
+        class = "reserve-modal"
       >
         <form @submit.prevent="submitReservation" style="margin-left: -25px;">
           <!-- Customer Name Dropdown -->
@@ -950,6 +951,11 @@ p {
   min-width: 300px;
 }
 
+.row .col-md-6 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 .align-fields{
   margin-top: 35px;
 }
@@ -1114,6 +1120,7 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
 .carousel-inner img {
   max-height: 400px; /* Adjust as needed */
   object-fit: cover;
@@ -1151,5 +1158,88 @@ button:hover {
 .row.mb-3.ps-5 .d-flex {
   gap: 30px; /* Adjust as needed for closer spacing */
 }
+
+.reserve-btn {
+  background-color: #0560fd;
+  color: #fff;
+  margin-right: -50px;
+}
+
+.reserve-modal .form-group {
+  margin-bottom: 15px;
+  margin-left: 30px;
+}
+
+.reserve-modal .form-group select:focus {
+  outline: none;
+  border-color: #007bff; /* Highlight border on focus */
+}
+
+/* Dropdown Hover Text */
+.reserve-modal .form-group select:hover {
+  color: black; /* Change text color to black on hover for better visibility */
+}
+
+.reserve-modal .form-group input[type="number"] {
+  width: 100%; /* Make the input take up full width */
+  padding: 10px; /* Add padding for a better click area */
+  font-size: 16px; /* Match font size with the label */
+  border: 1px solid #ccc; /* Light border for input */
+  border-radius: 8px; /* Add rounded corners */
+  color: #333; /* Text color */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+}
+
+.reserve-modal .form-group input[type="number"]:hover {
+  border-color: #007bff; /* Change border color on hover */
+}
+
+.reserve-modal .form-group input[type="number"]:focus {
+  border-color: #0056b3; /* Darker border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+}
+
+.reserve-modal .form-group input[type="number"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+.reserve-modal .form-group input[type="text"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+.btn-add {
+  background-color: #0560fd;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.btn-cancel:hover {
+  background-color: #495057;  /* Slightly lighter gray */
+  color: #fff;
+  border: none;
+}
+
+.reserve-modal .row.mb-3.ps-5 .d-flex {
+  gap: 30px; /* Adjust as needed for closer spacing */
+}
+
+.reserve-modal .row .col-md-6 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 
 </style>
