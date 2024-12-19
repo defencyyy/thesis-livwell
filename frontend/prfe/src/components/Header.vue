@@ -20,7 +20,7 @@
         >
           <li>
             <span class="dropdown-item disabled">
-              <i class="bi bi-person me-2"></i>{{ roleName }}
+              <i class="bi bi-person me-2"></i> {{ roleName }}
             </span>
           </li>
           <li>

@@ -393,9 +393,12 @@
                 <!-- New Fields for Commission, Discounts, and Charges -->
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="commission" class="form-label"
-                      >Commission (Total)</label
-                    >
+                    <label for="commission" class="form-label">
+                      Broker Commission:
+                      <span class="text-muted">{{
+                        formatCurrency(newSite.commission)
+                      }}</span>
+                    </label>
                     <input
                       type="number"
                       v-model="newSite.commission"
@@ -409,7 +412,10 @@
 
                   <div class="col-md-6">
                     <label for="spotDiscountPercentage" class="form-label"
-                      >Spot Discount Percentage</label
+                      >Spot Discount Percentage:
+                      <span class="text-muted"
+                        >{{ newSite.spot_discount_percentage }}%</span
+                      ></label
                     >
                     <input
                       type="number"
@@ -424,40 +430,12 @@
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="spotDiscountFlat" class="form-label"
-                      >Spot Discount Flat</label
-                    >
-                    <input
-                      type="number"
-                      v-model="newSite.spot_discount_flat"
-                      id="spotDiscountFlat"
-                      class="form-control"
-                      placeholder="Enter flat discount amount"
-                      min="0"
-                    />
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="vatPercentage" class="form-label"
-                      >VAT Percentage</label
-                    >
-                    <input
-                      type="number"
-                      v-model="newSite.vat_percentage"
-                      id="vatPercentage"
-                      class="form-control"
-                      placeholder="Enter VAT percentage"
-                      min="0"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label for="reservationFee" class="form-label"
-                      >Reservation Fee</label
-                    >
+                    <label for="reservationFee" class="form-label">
+                      Reservation Fee:
+                      <span class="text-muted">{{
+                        formatCurrency(newSite.reservation_fee)
+                      }}</span>
+                    </label>
                     <input
                       type="number"
                       v-model="newSite.reservation_fee"
@@ -469,16 +447,55 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="otherCharges" class="form-label"
-                      >Other Charges</label
+                    <label for="spotDiscountFlat" class="form-label"
+                      >Spot Discount Flat:
+                      <span class="text-muted"
+                        >{{ newSite.spot_discount_flat }}%</span
+                      ></label
                     >
                     <input
                       type="number"
-                      v-model="newSite.other_charges"
+                      v-model="newSite.spot_discount_flat"
+                      id="spotDiscountFlat"
+                      class="form-control"
+                      placeholder="Enter flat discount amount"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="otherCharges" class="form-label">
+                      Other Charges:
+                      <span class="text-muted">{{
+                        formatCurrency(newSite.other_charges)
+                      }}</span>
+                    </label>
+                    <input
+                      type="number"
                       id="otherCharges"
                       class="form-control"
                       placeholder="Enter other charges"
                       min="0"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="vatPercentage" class="form-label">
+                      VAT Percentage:
+                      <span class="text-muted"
+                        >{{ newSite.vat_percentage }}%</span
+                      >
+                    </label>
+                    <input
+                      type="number"
+                      v-model="newSite.vat_percentage"
+                      id="vatPercentage"
+                      class="form-control"
+                      placeholder="Enter VAT percentage"
+                      min="0"
+                      required
                     />
                   </div>
                 </div>
@@ -502,14 +519,14 @@
 
                   <div class="col-md-6">
                     <label for="maximumMonths" class="form-label"
-                      >Maximum Months to Pay</label
+                      >Month Limit for Downpayment</label
                     >
                     <input
                       type="number"
                       v-model="newSite.maximum_months"
                       id="maximumMonths"
                       class="form-control"
-                      placeholder="Enter the maximum months to pay"
+                      placeholder="e.g., 24 for 2 years"
                       min="1"
                       required
                     />
@@ -600,7 +617,7 @@
                       v-model="editSite.name"
                       id="editSiteName"
                       class="form-control"
-                      readonly
+                      disabled
                     />
                   </div>
 
@@ -614,7 +631,7 @@
                         v-model="editSite.region"
                         id="editRegion"
                         class="form-control"
-                        readonly
+                        disabled
                       />
                     </div>
 
@@ -628,7 +645,7 @@
                         v-model="editSite.province"
                         id="editProvince"
                         class="form-control"
-                        readonly
+                        disabled
                       />
                     </div>
                   </div>
@@ -643,7 +660,7 @@
                       v-model="editSite.municipality"
                       id="editMunicipality"
                       class="form-control"
-                      readonly
+                      disabled
                     />
                   </div>
 
@@ -657,7 +674,7 @@
                       v-model="editSite.barangay"
                       id="editBarangay"
                       class="form-control"
-                      readonly
+                      disabled
                     />
                   </div>
 
@@ -709,20 +726,6 @@
                         </option>
                       </select>
                     </div>
-                  </div>
-
-                  <!-- Maximum Months Field -->
-                  <div class="form-group mb-3">
-                    <label for="editMaximumMonths" class="form-label"
-                      >Maximum Months to Pay</label
-                    >
-                    <input
-                      type="number"
-                      v-model="editSite.maximum_months"
-                      id="editMaximumMonths"
-                      class="form-control"
-                      readonly
-                    />
                   </div>
                 </div>
 
@@ -779,9 +782,12 @@
               <!-- Commission and Charges -->
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="editCommission" class="form-label"
-                    >Commission (Total)</label
-                  >
+                  <label for="editCommission" class="form-label">
+                    Commission (Total):
+                    <span class="text-muted">{{
+                      formatCurrency(editSite.commission)
+                    }}</span>
+                  </label>
                   <input
                     type="number"
                     v-model="editSite.commission"
@@ -793,9 +799,12 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="editSpotDiscountPercentage" class="form-label"
-                    >Spot Discount (%)</label
-                  >
+                  <label for="editSpotDiscountPercentage" class="form-label">
+                    Spot Discount:
+                    <span class="text-muted"
+                      >{{ editSite.spot_discount_percentage }}%</span
+                    >
+                  </label>
                   <input
                     type="number"
                     v-model="editSite.spot_discount_percentage"
@@ -808,38 +817,12 @@
 
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="editSpotDiscountFlat" class="form-label"
-                    >Spot Discount (Flat)</label
-                  >
-                  <input
-                    type="number"
-                    v-model="editSite.spot_discount_flat"
-                    id="editSpotDiscountFlat"
-                    class="form-control"
-                    min="0"
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label for="editVatPercentage" class="form-label"
-                    >VAT Percentage</label
-                  >
-                  <input
-                    type="number"
-                    v-model="editSite.vat_percentage"
-                    id="editVatPercentage"
-                    class="form-control"
-                    min="0"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="editReservationFee" class="form-label"
-                    >Reservation Fee</label
-                  >
+                  <label for="editReservationFee" class="form-label">
+                    Reservation Fee:
+                    <span class="text-muted">{{
+                      formatCurrency(editSite.reservation_fee)
+                    }}</span>
+                  </label>
                   <input
                     type="number"
                     v-model="editSite.reservation_fee"
@@ -850,15 +833,66 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="editOtherCharges" class="form-label"
-                    >Other Charges</label
-                  >
+                  <label for="editSpotDiscountFlat" class="form-label">
+                    Spot Discount Flat:
+                    <span class="text-muted"
+                      >{{ formatCurrency(editSite.spot_discount_flat) }}%</span
+                    >
+                  </label>
+                  <input
+                    type="number"
+                    v-model="editSite.spot_discount_flat"
+                    id="editSpotDiscountFlat"
+                    class="form-control"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="editOtherCharges" class="form-label">
+                    Other Charges:
+                    <span class="text-muted">{{
+                      formatCurrency(editSite.other_charges)
+                    }}</span>
+                  </label>
                   <input
                     type="number"
                     v-model="editSite.other_charges"
                     id="editOtherCharges"
                     class="form-control"
                     min="0"
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="editVatPercentage" class="form-label">
+                    VAT Percentage:
+                    <span class="text-muted"
+                      >{{ editSite.vat_percentage }}%</span
+                    >
+                  </label>
+                  <input
+                    type="number"
+                    v-model="editSite.vat_percentage"
+                    id="editVatPercentage"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label for="editMaximumMonths" class="form-label"
+                    >Month Limit for Downpayment</label
+                  >
+                  <input
+                    type="number"
+                    v-model="editSite.maximum_months"
+                    id="editMaximumMonths"
+                    class="form-control"
+                    disabled
                   />
                 </div>
               </div>
@@ -878,7 +912,7 @@
                       class="form-control"
                       placeholder="Current Sections"
                       min="1"
-                      readonly
+                      disabled
                     />
                   </div>
 
@@ -909,7 +943,7 @@
                       :value="editSite.number_of_sections + newSectionsToAdd"
                       id="totalSections"
                       class="form-control"
-                      readonly
+                      disabled
                     />
                   </div>
                 </div>
@@ -926,7 +960,7 @@
                     :value="capitalizeFirstLetter(editSite.section_label)"
                     id="editSectionLabel"
                     class="form-control"
-                    readonly
+                    disabled
                   />
                 </div>
 
@@ -939,7 +973,7 @@
                     :value="capitalizeFirstLetter(editSite.numbering_type)"
                     id="editNumberingType"
                     class="form-control"
-                    readonly
+                    disabled
                   />
                 </div>
               </div>
@@ -950,7 +984,7 @@
                 style="padding-top: 15px"
               >
                 <button :disabled="totalSections > 100" class="btn btn-primary">
-                  Proceed
+                  Save
                 </button>
 
                 <!-- Error Message -->
@@ -1048,7 +1082,7 @@ export default {
       statusOptions: [],
       newSite: {
         name: "",
-        status: "",
+        status: "preselling",
         region: "",
         province: "",
         municipality: "",
@@ -1244,6 +1278,14 @@ export default {
     this.fetchStatusOptions(); // Fetch status options when the component is created
   },
   methods: {
+    formatCurrency(value) {
+      if (value === null || value === undefined || value === "") return "";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "PHP",
+      }).format(value);
+    },
+
     // Toggle visibility of dropdown for each site
     toggleDropdown(site) {
       this.visibleDropdown = this.visibleDropdown === site ? null : site; // Toggle visibility
@@ -1407,7 +1449,6 @@ export default {
           this.sites = response.data.data.map((site) => ({
             ...site,
             name: site.name || "Unknown Site",
-            location: this.constructLocation(site),
             isArchived: site.isArchived ?? false,
             sections: site.sections || [],
             relative_id: site.relative_id || null,
@@ -1433,7 +1474,6 @@ export default {
         if (response.status === 200) {
           this.archivedSites = response.data.data.map((site) => ({
             ...site,
-            location: this.constructLocation(site),
           }));
         }
       } catch (error) {
@@ -1686,7 +1726,7 @@ export default {
     resetForm() {
       this.newSite = {
         name: "",
-        status: "",
+        status: "preselling",
         region: "",
         province: "",
         municipality: "",
@@ -1720,7 +1760,7 @@ export default {
     // Trigger site update confirmation
     async updateSite() {
       this.showConfirmation(
-        "Are you sure you want to update this site?",
+        "Are you sure you want to save site details?",
         this.executeUpdateSite,
         [this.selectedSite]
       );
@@ -1796,7 +1836,7 @@ export default {
 
         if (response.status === 200) {
           this.notificationTitle = "Success";
-          this.notificationMessage = "Site updated successfully!";
+          this.notificationMessage = "Site details saved.";
           this.showNotification = true;
 
           this.resetPicturePreview();
@@ -1867,18 +1907,6 @@ export default {
       this.resetPicturePreview();
       this.showEditModal = false;
     },
-
-    constructLocation(site) {
-      const addressParts = [
-        site.region,
-        site.province,
-        site.municipality,
-        site.barangay,
-        site.address,
-      ];
-      return addressParts.filter(Boolean).join(", ");
-    },
-
     // Load region data
     async loadRegionData() {
       try {
