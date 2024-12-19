@@ -296,7 +296,7 @@
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">₱{{ spreadDownpayment }}</span>
+                  <span class="value">{{ formatCurrency(spreadDownpayment) }}</span>
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Payable Months:</span>
@@ -304,11 +304,11 @@
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Payable Per Month:</span>
-                  <span class="value">₱{{ payablePerMonth }}</span>
+                  <span class="value">{{ formatCurrency(payablePerMonth) }}</span>
                 </div>
                 <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
                   <span class="label">Balance Upon Turnover:</span>
-                  <span class="value">₱{{balanceUponTurnover}}</span>
+                  <span class="value">{{formatCurrency(balanceUponTurnover)}}</span>
                 </div>
               </div>
 
@@ -336,7 +336,7 @@
                 <div class="row">
                   <div class="col-md-6">
                     <h6 class = "customer-title">Unit Price</h6>
-                    <h5> ₱{{ unitPrice }} </h5>
+                    <h5> {{ formatCurrency(unitPrice) }} </h5>
                   </div>
                   <div class="col-md-6">
                     <h6 class = "customer-title">Payment Plan</h6>
@@ -370,11 +370,9 @@
                           :min="0"
                           :max="maxSpotCashDiscount" 
                         />
-                        <p class = "p-label"><strong>Spot Discount:</strong> ₱{{ spotDiscount }}</p>
+                        <p class = "p-label"><strong>Spot Discount:</strong> {{ formatCurrency(spotDiscount) }}</p>
                         <p class = "p-label">
-                          <strong>Unit Price after Spot Discount:</strong> ₱{{
-                            unitPriceAfterSpotDiscount
-                          }}
+                          <strong>Unit Price after Spot Discount:</strong> {{formatCurrency(unitPriceAfterSpotDiscount)}}
                         </p>
                       </div>
                       <div class = "mb-3">
@@ -389,18 +387,16 @@
                           max="maxotherChargesPercentage"
                           step="0.1"
                         />
-                        <p class = "p-label"><strong>Other Charges:</strong> ₱{{ otherCharges }}</p>
+                        <p class = "p-label"><strong>Other Charges:</strong> {{ formatCurrency(otherCharges) }}</p>
 
                         <!-- VAT Calculation -->
                         <p v-if="netUnitPrice > 3600000" class = "p-label">
-                          <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+                          <strong>VAT (12%):</strong> {{ formatCurrency(vatAmount) }}
                         </p>
 
                         <!-- Total Amount Payable -->
                         <p class = "p-label">
-                          <strong>Total Amount Payable:</strong> ₱{{
-                            totalAmountPayable
-                          }}
+                          <strong>Total Amount Payable:</strong> {{formatCurrency(totalAmountPayable)}}
                         </p>
 
                       </div>
@@ -420,9 +416,7 @@
                           placeholder="Enter percentage"
                         />
                         <p class = "p-label">
-                          <strong>Spread Downpayment:</strong> ₱{{
-                            spreadDownpayment
-                          }}
+                          <strong>Spread Downpayment:</strong> {{formatCurrency(spreadDownpayment)}}
                         </p>
                       </div>
                     </div>
@@ -440,9 +434,9 @@
                         max="maxtlpDiscount"
                       />
 
-                      <p class = "p-label"><strong>TLP Discount:</strong> ₱{{ tlpDiscountAmount }}</p>
+                      <p class = "p-label"><strong>TLP Discount:</strong> {{ formatCurrency(tlpDiscountAmount) }}</p>
                       <!-- Net Unit Price -->
-                      <p class = "p-label"><strong>Net Unit Price:</strong> ₱{{ netUnitPrice }}</p>
+                      <p class = "p-label"><strong>Net Unit Price:</strong> {{ formatCurrency(netUnitPrice) }}</p>
                       </div>
 
                       <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
@@ -459,18 +453,18 @@
                           required
                         />
                         <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "p-label">
-                          <strong>Spot Downpayment:</strong> ₱{{ spotDownpayment }}
+                          <strong>Spot Downpayment:</strong> {{ formatCurrency(spotDownpayment) }}
                         </p>
 
                         <!-- Reservation Fee -->
-                        <p class = "p-label" ><strong>Reservation Fee:</strong> ₱{{ reservationFee }}</p>
+                        <p class = "p-label" ><strong>Reservation Fee:</strong> {{ formatCurrency(reservationFee) }}</p>
                         <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "p-label" >
-                          <strong>Net Full Payment:</strong> ₱{{ netFullPayment }}
+                          <strong>Net Full Payment:</strong> {{ formatCurrency(netFullPayment) }}
                         </p>
 
                         <!-- Net Downpayment -->
                         <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "p-label">
-                          <strong>Net Downpayment:</strong> ₱{{ netDownpayment }}
+                          <strong>Net Downpayment:</strong> {{ formatCurrency(netDownpayment) }}
                         </p>
                       </div>
 
@@ -489,14 +483,12 @@
                           required
                         />
                         <p class = "p-label">
-                          <strong>Payable Per Month:</strong> ₱{{ payablePerMonth }}
+                          <strong>Payable Per Month:</strong> {{ formatCurrency(payablePerMonth) }}
                         </p>
 
                         <!-- Balance Upon Turnover -->
                         <p class = "p-label">
-                          <strong>Balance Upon Turnover:</strong> ₱{{
-                            balanceUponTurnover
-                          }}
+                          <strong>Balance Upon Turnover:</strong> {{formatCurrency(balanceUponTurnover)}}
                         </p>
                       </div>
                     </div>
