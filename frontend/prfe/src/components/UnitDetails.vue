@@ -358,8 +358,6 @@
               </tbody>
             </table>
           </div>
-
-
           </div>
         </div>
           <div v-if="selectedPaymentPlan === 'Spot Cash'">
