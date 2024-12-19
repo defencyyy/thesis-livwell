@@ -703,6 +703,10 @@ body {
   color: #343a40;
 }
 
+.documents-table thead {
+    background-color: lightgrey;
+  }
+
 /* Main Content Responsiveness */
 .main-content {
   display: flex;
