@@ -254,7 +254,7 @@
 
           </div>
           <div v-if="selectedPaymentPlan === 'Deferred Payment'">
-            <div class="title-wrapper">
+          <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
               <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
@@ -273,25 +273,18 @@
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">₱{{ spreadDownpayment.toFixed(2) }}</span>
+                  <span class="value">₱{{ netDownpayment.toFixed(2) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item highlight">
                   <span class="label">Monthly Payment:</span>
-                  <span class="value">₱{{payablePerMonth.toFixed(2)}}/ month for {{ payableMonths }} months</span>
+                  <span class="value">₱{{ payablePerMonth.toFixed(2) }} / month for {{ payableMonths }} months</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Balance Upon Turnover:</span>
-                  <span class="value"> ₱{{balanceUponTurnover.toFixed(2)}}</span>
+                  <span class="value">₱{{ balanceUponTurnover.toFixed(2) }}</span>
                 </div>
-                <button @click="toggleDetailedSchedule" class="btn btn-primary">
-                  {{
-                    showDetailedSchedule
-                      ? "Hide Detailed Schedule"
-                      : "Show Detailed Schedule"
-                  }}
-                </button>
               </div>
 
               <!-- Additional Information Box -->
@@ -319,37 +312,86 @@
               </div>
             </div>
 
-            <!-- Detailed Schedule -->
-            <div v-if="showDetailedSchedule" class="detailed-schedule">
+          <!-- Detailed Schedule -->
+          <div class="detailed-schedule">
+            <table class="payment-table">
+              <thead>
+                <tr>
+                  <th colspan="3"><strong>Payment Schedule</strong></th> <!-- Group Header -->
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Spot and Spread Downpayments Section -->
+                <tr>
+                  <td colspan="3"><strong>Initial Payments</strong></td> <!-- Heading for initial payments -->
+                </tr>
+                <tr>
+                  <td>Spot Downpayment</td>
+                  <td class="amount-column highlight">₱{{ spotDownpayment.toFixed(2) }}</td>
+                  <td class="amount-column">{{ spotDueDate }}</td> <!-- Spot due date -->
+                </tr>
+                <tr>
+                  <td>Spread Downpayment</td>
+                  <td class="amount-column highlight">₱{{ netDownpayment.toFixed(2) }}</td>
+                  <td class="amount-column">{{ spreadDueDate }}</td> <!-- Spread due date -->
+                </tr>
+
+                <!-- Monthly Payments Section -->
+                <tr>
+                  <td colspan="3"><strong>Monthly Payments</strong></td> <!-- Heading for monthly payments -->
+                </tr>
+                <tr v-for="month in payableMonths" :key="month">
+                  <td>Month {{ month }} Payment</td>
+                  <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
+                  <td class="amount-column">{{ getPaymentDueDate(month) }}</td> <!-- Specific due date for each month -->
+                </tr>
+
+                <!-- Balance Upon Turnover Section -->
+                <tr>
+                  <td colspan="3"><strong>Balance Upon Turnover</strong></td> <!-- Heading for balance -->
+                </tr>
+                <tr>
+                  <td>Balance Upon Turnover</td>
+                  <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                  <td class="amount-column">{{ turnoverDueDate }}</td> <!-- Balance turnover due date -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+          </div>
+        </div>
+          <div v-if="selectedPaymentPlan === 'Spot Cash'">
+          <div class="title-wrapper">
+            <div class="title-left">
+              <div class="title-icon"></div>
+              <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
+            </div>
+          </div>
+
+          <div class="payment-container">
+            <div class="detailed-schedule">
               <table class="payment-table">
                 <thead>
                   <tr>
                     <th>Payment Type</th>
-                    <th class="amount-column">Amount (₱)</th>
+                    <th>Amount (₱)</th>
+                    <th>Due Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Spot Downpayment</td>
-                    <td class="amount-column highlight">₱{{ spotDownpayment.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Spread Downpayment</td>
-                    <td class="amount-column highlight">₱{{ spreadDownpayment.toFixed(2) }}</td>
-                  </tr>
-                  <tr v-for="month in payableMonths" :key="month">
-                    <td>Month {{ month }} Payment</td>
-                    <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
-                  </tr>
-                  <tr>
-                    <td>Balance Upon Turnover</td>
-                    <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                    <td>Spot Cash</td>
+                    <td>₱{{ totalAmountPayable }}</td>
+                    <td>{{ dueDate }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
-          </div>
+        </div>
+
         </div>
          <b-modal
         v-model="showSuccessMessage"
@@ -514,7 +556,6 @@ export default {
       selectedUnit: {
         images: null, // Initially null
       },
-      showDetailedSchedule: false, // To toggle detailed payment schedule
       customers: [],
       isReserveModalVisible: false,
       reservationForm: {
@@ -556,6 +597,11 @@ export default {
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       vat: 0,
+      reservationDate: new Date().toISOString().split('T')[0], // Default to today's date
+      dueDate: null,
+      spotDueDate: null,
+      spreadDueDate: null,
+      turnoverDueDate: null,
     };
     },
     computed:{
@@ -633,11 +679,42 @@ export default {
   } catch (error) {
     console.error("Error fetching unit details:", error);
   }
-      },
- toggleDetailedSchedule() {
-      // Toggle the visibility of the detailed payment schedule
-      this.showDetailedSchedule = !this.showDetailedSchedule;
     },
+  calculateDueDate() {
+  const reservationDate = new Date(this.reservationDate);
+
+  if (this.selectedPaymentPlan === 'Spot Cash') {
+    // For Spot Payment, add 30 days
+    reservationDate.setDate(reservationDate.getDate() + 30);
+    this.dueDate = reservationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+  } else if (this.selectedPaymentPlan === 'Deferred Payment') {
+    // For Deferred Payment:
+    
+    // Spot Payment Due Date: 30 days from the reservation date
+    const spotDate = new Date(reservationDate);
+    spotDate.setDate(spotDate.getDate() + 30);
+    this.spotDueDate = spotDate.toISOString().split('T')[0];
+
+    // Spread Payment Due Date: Last month of the payment term
+    const spreadDate = new Date(reservationDate);
+    spreadDate.setMonth(spreadDate.getMonth() + this.payableMonths - 1); // Set to the last month
+    this.spreadDueDate = spreadDate.toISOString().split('T')[0];
+
+    // Balance Upon Turnover Due Date: 1 year after reservation
+    const turnoverDate = new Date(reservationDate);
+    turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // 1 year later
+    this.turnoverDueDate = turnoverDate.toISOString().split('T')[0];
+
+    // Optionally set a "main" due date if needed
+    this.dueDate = this.spreadDueDate; 
+  }
+},
+getPaymentDueDate(month) {
+    const reservationDate = new Date(this.reservationDate);
+    const paymentDate = new Date(reservationDate);
+    paymentDate.setMonth(paymentDate.getMonth() + month);
+    return paymentDate.toISOString().split('T')[0];
+  },
     updatePaymentDetails() {
     if (this.spotCashDiscount < 0) {
         this.spotCashDiscount = 0;
@@ -664,12 +741,13 @@ export default {
       this.applyOtherCharges();
       this.calculateVAT();
       this.calculateFinancingDetails();
+      this.calculateDueDate(); // Call this whenever payment details update
+
     },
 
     applySpotCashDiscount() {
     const discountPercentage = parseFloat(this.spotCashDiscount);
     this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-    console.log(this.spotDiscount,this.unitPrice);
     this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
     this.updateNetUnitPrice();
     },
@@ -701,10 +779,8 @@ export default {
     },
 
     calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+      this.spotDownpayment =this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+      this.spreadDownpayment =this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
       if (this.spotDownpaymentPercentage == "0") {
         this.netDownpayment = this.spreadDownpayment - this.reservationFee;
         this.payablePerMonth = this.netDownpayment / this.payableMonths;
