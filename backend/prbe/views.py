@@ -552,6 +552,7 @@ def get_site_name(request, site_id):
 
 @csrf_exempt
 def get_available_units(request):
+    print("l")
     if request.method == 'GET':
         site_id = request.GET.get('site_id')
         logger.debug("Received request to fetch available units for site ID: %s", site_id)

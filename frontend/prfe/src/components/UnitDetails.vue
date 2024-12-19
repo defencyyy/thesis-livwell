@@ -94,14 +94,13 @@
             <ul class="list-unstyled mb-0">
               <li><strong>Balcony:</strong> {{ selectedUnit.balcony }} </li>
               <li><strong>Floor Area (m²):</strong> {{ selectedUnit.floor_area }}m<sup>2</sup></li>
-              <li><strong>View:</strong> {{ selectedUnit.view }}</li>
             </ul>
         </div>
         <!-- Column 2 -->
         <div class="col-md-4">
             <ul class="list-unstyled mb-0">
-                <li><strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}</li>
                 <li><strong>Build (Year):</strong> {{ siteYear }}</li>
+                <li><strong>View:</strong> {{ selectedUnit.view }}</li>
             </ul>
         </div>
         <!-- Column 3 -->
@@ -547,9 +546,9 @@ export default {
       unitId: this.$route.params.unitId,
       unitDetails: null,
       units: [],
-      siteId:null,
-      siteName: "",
+      siteId: null,
       siteYear: "",
+      siteName: "",
       isModalVisible: false,
       selectedUnit: {
         images: null, // Initially null
@@ -622,6 +621,17 @@ export default {
     this.fetchCustomers();
   },
   methods: {
+    async fetchSiteName() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/sites/${this.siteId}`
+        );
+        this.siteName = response.data.name;
+        this.siteYear = response.data.created_year;
+      } catch (error) {
+        console.error("Error fetching site name:", error);
+      }
+    },
     formatCurrency(amount) {
     if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
     return new Intl.NumberFormat("en-PH", {
@@ -683,6 +693,7 @@ export default {
     this.reservationFee = this.selectedUnit.reservation_fee;
     this.vat = this.selectedUnit.vat_percent;
     this.updatePaymentDetails();
+    this.fetchSiteName();
   } catch (error) {
     console.error("Error fetching unit details:", error);
   }
