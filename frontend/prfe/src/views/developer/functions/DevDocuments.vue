@@ -69,7 +69,6 @@
           hide-footer
           hide-header
           centered
-          @hide="onModalHide"
         >
 
         <div class="modal-title p-3">

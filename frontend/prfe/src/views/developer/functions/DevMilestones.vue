@@ -139,7 +139,6 @@
           centered
           size="lg"
           :title="newMilestone.id ? 'Edit Milestone' : 'Add Milestone'"
-          @hide="closeForm"
         >
           <!-- Modal Title -->
           <div class="modal-title p-3">

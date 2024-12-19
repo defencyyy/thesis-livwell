@@ -150,11 +150,11 @@
           <b-modal
             v-model="showUnitManagementModal"
             title="Manage Units"
-            @hide="closeUnitManagementModal"
             hide-footer
             hide-header
             centered
             size="lg"
+
           >
             <div
               class="modal-title p-3 d-flex justify-content-between align-items-center"
@@ -630,7 +630,6 @@
           <b-modal
   v-model="showEditUnitModal"
   title="Edit Unit"
-  @hide="clearSelectedUnit"
   hide-header
   hide-footer
   centered
