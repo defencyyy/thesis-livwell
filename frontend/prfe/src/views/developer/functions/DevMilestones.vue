@@ -1397,4 +1397,5 @@ td {
   background-color: #007bff; /* Blue background for active page */
   color: white; /* White text for active page */
 }
+
 </style>
