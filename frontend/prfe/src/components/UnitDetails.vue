@@ -293,7 +293,7 @@
 
               <!-- Additional Information Box -->
               <div class="additional-box">
-                <h4><center>Monthly Amortization (6.5%)</center></h4>
+                <h4><center>Monthly Amortization (est.6.5%)</center></h4>
                 <div class="summary-item">
                   <span class="label">10 years</span>
                   <span class="value">{{ formatCurrency(amortization10Years) }}</span>
@@ -453,7 +453,7 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label for="paymentAmount">Payment Amount</label>
+              <label for="paymentAmount">Payment Amount ({{ formatCurrency(reservationFee) }})</label>
               <input
                 type="number"
                 v-model="reservationForm.paymentAmount"

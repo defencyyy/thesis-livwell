@@ -187,7 +187,7 @@
                           </div>
                         </div>
                         <div class="additional-box">
-                          <h4><center>Monthly Amortization (6.5%)</center></h4>
+                          <h4><center>Monthly Amortization (est.6.5%)</center></h4>
                           <div class="summary-item">
                             <span class="label">10 years</span>
                             <span class="value"
