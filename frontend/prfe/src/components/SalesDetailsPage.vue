@@ -163,14 +163,9 @@
                     <div class="summary-item">
                       <span class="label">Total Amount Due:</span>
                       <span class="value"
-                        >₱{{ netFullPayment.toFixed(2) }}
+                        >{{ formatCurrency(netFullPayment)  }}
                       </span>
                     </div>
-                    <!-- <p v-if="salesDetail.payment_plan === 'Spot Cash'" class="text-start" style="margin-bottom: 1px">
-                    <strong>Total Amount Due: </strong>₱{{
-                      netFullPayment.toFixed(2)
-                    }}
-                  </p> -->
                   </div>
 
                   <div v-if="salesDetail.payment_plan === 'Deffered Payment'">
@@ -180,7 +175,7 @@
                           <div class="summary-item">
                             <span class="label">Balance Upon Turnover: </span>
                             <span class="value"
-                              >₱{{ balanceUponTurnover.toFixed(2) }}
+                              >{{ formatCurrency(balanceUponTurnover) }}
                             </span>
                           </div>
                           <hr class="separator" />
@@ -196,28 +191,28 @@
                           <div class="summary-item">
                             <span class="label">10 years</span>
                             <span class="value"
-                              >₱{{ amortization10Years.toFixed(2) }}</span
+                              >{{ formatCurrency(amortization10Years) }}</span
                             >
                           </div>
                           <hr class="separator" />
                           <div class="summary-item">
                             <span class="label">15 years</span>
                             <span class="value"
-                              >₱{{ amortization15Years.toFixed(2) }}</span
+                              >{{ formatCurrency(amortization15Years) }}</span
                             >
                           </div>
                           <hr class="separator" />
                           <div class="summary-item">
                             <span class="label">20 years</span>
                             <span class="value"
-                              >₱{{ amortization20Years.toFixed(2) }}</span
+                              >{{ formatCurrency(amortization20Years) }}</span
                             >
                           </div>
                           <hr class="separator" />
                           <div class="summary-item">
                             <span class="label">25 years</span>
                             <span class="value"
-                              >₱{{ amortization25Years.toFixed(2) }}</span
+                              >{{ formatCurrency(amortization25Years) }}</span
                             >
                           </div>
                         </div>
@@ -236,12 +231,12 @@
                           </tr>
                           <tr>
                             <td>Spot Downpayment</td>
-                            <td class="amount-column highlight">₱{{ spotDownpayment.toFixed(2) }}</td>
+                            <td class="amount-column highlight">{{ formatCurrency(spotDownpayment) }}</td>
                             <td class="amount-column">{{ spotDueDate }}</td> <!-- Spot due date -->
                           </tr>
                           <tr>
                             <td>Spread Downpayment</td>
-                            <td class="amount-column highlight">₱{{ netDownpayment.toFixed(2) }}</td>
+                            <td class="amount-column highlight">{{ formatCurrency(netDownpayment) }}</td>
                             <td class="amount-column">{{ spreadDueDate }}</td> <!-- Spread due date -->
                           </tr>
 
@@ -251,7 +246,7 @@
                           </tr>
                           <tr v-for="month in payableMonths" :key="month">
                             <td>Month {{ month }} Payment</td>
-                            <td class="amount-column">₱{{ payablePerMonth.toFixed(2) }}</td>
+                            <td class="amount-column">{{ formatCurrency(payablePerMonth) }}</td>
                             <td class="amount-column">{{ getPaymentDueDate(month) }}</td> <!-- Specific due date for each month -->
                           </tr>
 
@@ -261,7 +256,7 @@
                           </tr>
                           <tr>
                             <td>Balance Upon Turnover</td>
-                            <td class="amount-column highlight">₱{{ balanceUponTurnover.toFixed(2) }}</td>
+                            <td class="amount-column highlight">{{ formatCurrency(balanceUponTurnover) }}</td>
                             <td class="amount-column">{{ turnoverDueDate }}</td> <!-- Balance turnover due date -->
                           </tr>
                         </tbody>
@@ -290,7 +285,7 @@
                         <tbody>
                           <tr>
                             <td>Net Full Payment</td>
-                            <td>₱{{ netFullPayment }}</td>
+                            <td>{{ formatCurrency(netFullPayment) }}</td>
                             <td>{{ dueDate }}</td>
                           </tr>
                         </tbody>
@@ -368,6 +363,15 @@ export default {
     },
   },
   methods: {
+     formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
     calculateAmortization(balance, years) {
       const interestRate = 6.5 / 100; // 6.5% annual interest
       const monthlyRate = interestRate / 12; // Monthly interest rate
@@ -1139,4 +1143,8 @@ button:hover {
     display: none; /* Hide welcome text completely for extra space */
   }
 }
+.amount-column {
+  text-align: right;
+}
+
 </style>
