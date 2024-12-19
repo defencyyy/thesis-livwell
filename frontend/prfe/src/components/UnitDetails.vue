@@ -273,7 +273,7 @@
                 <hr class="separator">
                 <div class="summary-item">
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">₱{{ spreadDownpayment.toFixed(2) }}</span>
+                  <span class="value">₱{{ netDownpayment.toFixed(2) }}</span>
                 </div>
                 <hr class="separator">
                 <div class="summary-item highlight">
@@ -332,7 +332,7 @@
                 </tr>
                 <tr>
                   <td>Spread Downpayment</td>
-                  <td class="amount-column highlight">₱{{ spreadDownpayment.toFixed(2) }}</td>
+                  <td class="amount-column highlight">₱{{ netDownpayment.toFixed(2) }}</td>
                   <td class="amount-column">{{ spreadDueDate }}</td> <!-- Spread due date -->
                 </tr>
 
@@ -743,7 +743,6 @@ getPaymentDueDate(month) {
     applySpotCashDiscount() {
     const discountPercentage = parseFloat(this.spotCashDiscount);
     this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-    console.log(this.spotDiscount,this.unitPrice);
     this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
     this.updateNetUnitPrice();
     },
@@ -775,10 +774,8 @@ getPaymentDueDate(month) {
     },
 
     calculateFinancingDetails() {
-      this.spotDownpayment =
-        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =
-        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+      this.spotDownpayment =this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+      this.spreadDownpayment =this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
       if (this.spotDownpaymentPercentage == "0") {
         this.netDownpayment = this.spreadDownpayment - this.reservationFee;
         this.payablePerMonth = this.netDownpayment / this.payableMonths;
