@@ -814,6 +814,12 @@ body {
   padding-bottom: 10px;
 }
 
+.dashboard-container h2 {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 50px;
+}
+
 .box {
   position: relative;
   /* Make the box a positioning context */
