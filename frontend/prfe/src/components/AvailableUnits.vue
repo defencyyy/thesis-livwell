@@ -57,19 +57,54 @@
       </div>
     </div>
 
-    <div v-if = "filteredUnits.length" class = "site-grid">
-      <div
-      v-for="unit in paginatedUnits"
-      :key="unit.id"
-      class="site-card"
-      @click="showUnitDetails(unit)"
-      >
-        <p>{{ unit.unit_title }}</p>
+    <div>
+      <div class="outside-headers">
+        <span class="header-item">Name</span>
+        <span class="header-item">Status</span>
+        <span class="header-item">Actions</span>
       </div>
-    </div>
 
-    <div v-else>
-      <p>No sites with available units.</p>
+      <div v-if = "filteredUnits.length">
+        <div
+        v-for="unit in paginatedUnits"
+        :key="unit.id" class="card border-0 rounded-1 mx-auto card-hover"
+        style="
+        max-width: 1100px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+
+          <div class = "card-body">
+            <table class = "site-table">
+              <tbody>
+                <tr>
+                  <td>
+                    <span>{{ unit.unit_title }}</span>
+                  </td>
+                  <td>
+                    <span>AJ STATUS</span>
+                  </td>
+                  <td>
+                    <div class="broker-actions d-flex">
+                      <button  @click="showUnitDetails(unit)" style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        ">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div v-else>
+        <p>No sites with available units.</p>
+      </div>
     </div>
 
     <!-- Pagination Controls -->
@@ -140,7 +175,7 @@ export default {
       selectedFloor: 'all',
       selectedUnitType: 'all', // Default unit type filter
       currentPage: 1, // Current page number
-      itemsPerPage: 20, // Number of customers per page
+      itemsPerPage: 15, // Number of customers per page
     };
   },
 
@@ -322,6 +357,15 @@ body {
   /* Center the wrapper */
 }
 
+.card {
+  background-color: #fff;
+  margin-bottom: 10px;
+  margin-top: 0;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .title-left {
   display: flex;
   align-items: center;
@@ -348,19 +392,6 @@ body {
   /* Matches the max-width of the card */
   margin: 0 auto;
   /* Centers the grid within the parent */
-}
-
-.site-card {
-  background: #fff;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
-}
-
-.site-card:hover {
-  transform: translateY(-2px);
 }
 
 .toolbar {
@@ -571,6 +602,58 @@ body {
 .unit-card:hover {
   background-color: #e8e8e8;
   transition: ease 0.3s;
+}
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 50% 40% 10%;
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+.site-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+  background: #fff;
+}
+
+.site-table th,
+.site-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+}
+
+.site-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.site-table th:nth-child(1),
+.site-table td:nth-child(1) {
+  width: 50%;
+}
+
+.site-table th:nth-child(2),
+.site-table td:nth-child(2) {
+  width: 40%;
+}
+
+.site-table th:nth-child(3),
+.site-table td:nth-child(3) {
+  width: 10%;
 }
 
 /* Modal Content */
