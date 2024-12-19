@@ -269,7 +269,7 @@
                     </div>
                     </div>
                   </div>
-                  <div v-if="selectedPaymentPlan === 'Spot Cash'">
+                  <div v-if="salesDetail.payment_plan === 'Spot Cash'">
                   <div class="title-wrapper">
                     <div class="title-left">
                       <div class="title-icon"></div>
@@ -289,8 +289,8 @@
                         </thead>
                         <tbody>
                           <tr>
-                            <td>Spot Cash</td>
-                            <td>₱{{ totalAmountPayable }}</td>
+                            <td>Net Full Payment</td>
+                            <td>₱{{ netFullPayment }}</td>
                             <td>{{ dueDate }}</td>
                           </tr>
                         </tbody>

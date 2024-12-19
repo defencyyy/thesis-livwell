@@ -380,8 +380,8 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Spot Cash</td>
-                    <td>₱{{ totalAmountPayable }}</td>
+                    <td>Net Full Payment</td>
+                    <td>₱{{ netFullPayment }}</td>
                     <td>{{ dueDate }}</td>
                   </tr>
                 </tbody>
