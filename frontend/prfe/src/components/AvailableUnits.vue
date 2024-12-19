@@ -60,7 +60,7 @@
     <div>
       <div class="outside-headers">
         <span class="header-item">Name</span>
-        <span class="header-item">Status</span>
+        <span class="header-item">Price</span>
         <span class="header-item">Actions</span>
       </div>
 
@@ -80,7 +80,7 @@
                     <span>{{ unit.unit_title }}</span>
                   </td>
                   <td>
-                    <span>AJ STATUS</span>
+                    <span>{{formatCurrency(unit.price)}}</span>
                   </td>
                   <td>
                     <div class="broker-actions d-flex">
@@ -230,6 +230,15 @@ export default {
   },
 
   methods: {
+    formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
     redirectToPaymentPlan() {
       // Redirect to the payment plan page
       this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });

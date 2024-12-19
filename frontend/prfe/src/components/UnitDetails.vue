@@ -1193,16 +1193,12 @@ input {
 
 button {
   padding: 10px 20px;
-  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
-}
 
 .carousel-inner img {
   max-height: 400px; /* Adjust as needed */
@@ -1211,9 +1207,18 @@ button:hover {
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background-color: transparent; /* Remove the background color */
-  color: inherit; /* Remove the default text color change */
-  border: none; /* Remove any border if present */
+  background-color: #007bff; /* Bright blue background */
+  color: #fff; /* White icon color for contrast */
+  border: none; /* Remove the default border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add soft shadow for depth */
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Smooth transition */
+}
+
+/* Optionally, for an even smoother effect on focus */
+.carousel-control-prev:focus,
+.carousel-control-next:focus {
+  outline: none; /* Remove outline if desired */
+  background-color: rgba(0, 0, 0, 0.4); /* Slightly darker background when focused */
 }
 
 .property-price {
