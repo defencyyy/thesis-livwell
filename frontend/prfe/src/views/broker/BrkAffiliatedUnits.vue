@@ -50,6 +50,7 @@
           <div class="outside-headers">
             <span class="header-item">Name</span>
             <span class="header-item">Location</span>
+            <span class="header-item">Actions</span>
           </div>
 
           <div v-if = "filteredSites.length">
@@ -60,9 +61,7 @@
               style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-              cursor: 'pointer';
             "
-              @click="() => redirectToUnits(site.id)"
             >
               <div class = "card-body">
                 <table class = "site-table">
@@ -81,6 +80,19 @@
                         </div>
                       </td>
                       <td>{{ site.location || "Location unavailable" }}</td>
+                      <td>
+                        <div class="broker-actions d-flex">
+                          <button  @click="() => redirectToUnits(site.id)" style="
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            ">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                      </div>
+                    </td>
                     </tr>
                   </tbody>
                 </table>
@@ -392,7 +404,7 @@ body {
 
 .site-table th:nth-child(1),
 .site-table td:nth-child(1) {
-  width: 50%;
+  width: 40%;
 }
 
 .site-table th:nth-child(2),
@@ -400,9 +412,14 @@ body {
   width: 50%;
 }
 
+.site-table th:nth-child(3),
+.site-table td:nth-child(3) {
+  width: 10%;
+}
+
 .outside-headers {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 40% 50% 10%;
   padding: 0px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
@@ -414,16 +431,6 @@ body {
   font-size: 14px;
   color: #333;
   font-weight: bold;
-}
-
-.card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.card-hover:hover {
-  transform: translateY(-5px); 
-  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); 
 }
 
 .toolbar {
