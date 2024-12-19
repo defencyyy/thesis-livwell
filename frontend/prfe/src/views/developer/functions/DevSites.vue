@@ -474,6 +474,7 @@
                     </label>
                     <input
                       type="number"
+                      v-model="newSite.other_charges"
                       id="otherCharges"
                       class="form-control"
                       placeholder="Enter other charges"
