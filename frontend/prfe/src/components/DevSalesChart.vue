@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container">
-    <div class="chart-header">
-      <h2 class="chart-title">Sales Data for {{ selectedYear }}</h2>
+    <div class="chart-header-container">
+      <p class="chart-title">Sales Data for</p>
       <select
         id="year"
         v-model="selectedYear"
@@ -67,18 +67,18 @@ export default {
 
       return {
         labels: [
-          "January",
-          "February",
-          "March",
-          "April",
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
           "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
         ],
         datasets: [
           {
@@ -141,6 +141,12 @@ export default {
 </script>
 
 <style scoped>
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height:100%;
+}
+
 .chart-container {
   background-color: #fff; /* Clean white background */
   border-radius: 4px; /* Rounded edges */
@@ -151,11 +157,11 @@ export default {
   margin: auto;
 }
 
-.chart-header {
-  display: flex;
-  justify-content: space-between; /* Space out title and year selector */
-  align-items: center; /* Center items vertically */
-  margin-bottom: 10px;
+.chart-header-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 5px;
 }
 
 .chart-title {
@@ -164,18 +170,18 @@ export default {
   font-weight: bold;
   color: #333;
   margin: 0;
+
 }
 
 .year-selector {
   border: none;
-  border-radius: 2px;
-  padding: 12px 10px;
-  font-size: 14px;
+  padding: 0;
+  /* padding: 12px 10px; */
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
-  position: relative; /* Allow fine control of position */
-  top: 5px; /* Move it slightly lower */
-  right: 10px; /* Move it slightly to the left */
+  color: #333;
+  margin: 0;
 }
 
 canvas {

@@ -874,11 +874,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  flex: 1; /* Distribute space equally */
 }
 
 .right-dashboard {
   display: flex;
   flex-direction: column;
+  flex: 1; /* Distribute space equally */
 }
 
 .card {
