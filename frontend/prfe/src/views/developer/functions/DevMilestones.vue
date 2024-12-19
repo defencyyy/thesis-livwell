@@ -23,6 +23,7 @@
                 <span class="header-item">Actions</span>
               </div>
 
+              <div class="scrollable-table-container">
               <div
                 v-for="milestone in milestones"
                 :key="milestone.id"
@@ -68,6 +69,7 @@
                     </tbody>
                   </table>
                 </div>
+              </div>
               </div>
             </div>
             <div class="d-flex justify-content-end mt-3">
@@ -1397,4 +1399,12 @@ td {
   background-color: #007bff; /* Blue background for active page */
   color: white; /* White text for active page */
 }
+
+/* Custom Scrollbar Container */
+.scrollable-table-container {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;  /* Firefox only */
+}
+
 </style>
