@@ -60,7 +60,7 @@
       <div v-else class="text-center">
         <p>No unit images.</p>
       </div>
-      <div class="row mb-3">
+      <div class="row-details row mb-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <!-- Left Section: Price and Installment Badge -->
             <div class="d-flex align-items-center gap-2">
@@ -88,7 +88,7 @@
       <div class="col-12 text-center mb-3 text-center">
             <h5 class="property-header">Details</h5>
       </div>
-      <div class="row ps-5">
+      <div class="row-details row ps-5">
         <!-- Column 1 -->
         <div class="col-md-4">
             <ul class="list-unstyled mb-0">
@@ -115,7 +115,7 @@
       <br>
       <hr>
         <div class="payment-plan-container">
-          <div class="row mb-3 ps-5">
+          <div class="row-details row mb-3 ps-5">
             <div class="col-12 d-flex justify-content-around align-items-center">
               <!-- Left Section: Property Price -->
               <div class="text-center">
@@ -136,7 +136,7 @@
           <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 900px;">
             <div class="card-body">
               <form>
-                <div class="row">
+                <div class="row-payment row">
                   <div class="col-md-6">
                     <!-- Spot Discount -->
                     <div class="mb-3">
@@ -373,107 +373,107 @@
         centered
         class = "reserve-modal"
       >
-        <form @submit.prevent="submitReservation" style="margin-left: -25px;">
-          <!-- Customer Name Dropdown -->
-          <div class="form-group">
-            <label for="customerName">Customer Name</label>
-            <select
-              v-model="reservationForm.customerName"
-              id="customerName"
-              class="form-select"
-              style="margin-left: 1px;"
-              required
-            >
-              <option value="" disabled selected>Select Customer</option>
-              <option
-                v-for="customer in customers"
-                :key="customer.id"
-                :value="customer.id"
-              >
-                {{ customer.name }} ({{ customer.customer_code }})
-              </option>
-            </select>
-          </div>
-          <!-- File Upload -->
-          <div class="form-group">
-            <label for="fileUpload">Upload File (Required)</label>
-            <input
-              type="file"
-              @change="handleFileUpload"
-              id="fileUpload"
-              class="form-control"
-              required
-            />
-          </div>
-          <!-- Payment Details -->
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="paymentAmount">Payment Amount</label>
-                <input
-                  type="number"
-                  v-model="reservationForm.paymentAmount"
-                  id="paymentAmount"
-                  class="form-control"
-                  placeholder="Enter payment amount"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="paymentMethod">Payment Method</label>
-                <select
-                  v-model="reservationForm.paymentMethod"
-                  id="paymentMethod"
-                  class="form-select"
-                  required
-                >
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cash">Cash</option>
-                  <option value="online_payment">Online Payment</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="paymentDate">Date of Payment</label>
-                <input
-                  type="date"
-                  v-model="reservationForm.paymentDate"
-                  id="paymentDate"
-                  class="form-control"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
-              <div class="form-group">
-                <label for="paymentReference">Payment Reference Number</label>
-                <input
-                  type="text"
-                  v-model="reservationForm.paymentReference"
-                  id="paymentReference"
-                  class="form-control"
-                  placeholder="Enter reference number"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-          <!-- Submit Button -->
-          <div
-            class="d-flex justify-content-end gap-2 mt-3"
-            style="padding-top: 15px"
+      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
+        <!-- Customer Name Dropdown -->
+        <div class="form-group">
+          <label for="customerName">Customer Name</label>
+          <select
+            v-model="reservationForm.customerName"
+            id="customerName"
+            class="form-select"
+            style="margin-left: 1px;"
+            required
           >
-          <button type="submit" class="btn-add">
-              Submit Reservation
-          </button>
-          <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
+            <option value="" disabled selected>Select Customer</option>
+            <option
+              v-for="customer in customers"
+              :key="customer.id"
+              :value="customer.id"
+            >
+              {{ customer.name }} ({{ customer.customer_code }})
+            </option>
+          </select>
+        </div>
+        <!-- File Upload -->
+        <div class="form-group">
+          <label for="fileUpload">Upload File (Required)</label>
+          <input
+            type="file"
+            @change="handleFileUpload"
+            id="fileUpload"
+            class="form-control"
+            required
+          />
+        </div>
+        <!-- Payment Details -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount</label>
+              <input
+                type="number"
+                v-model="reservationForm.paymentAmount"
+                id="paymentAmount"
+                class="form-control"
+                placeholder="Enter payment amount"
+                required
+              />
+            </div>
           </div>
-        </form>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select
+                v-model="reservationForm.paymentMethod"
+                id="paymentMethod"
+                class="form-select"
+                required
+              >
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="online_payment">Online Payment</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentDate">Date of Payment</label>
+              <input
+                type="date"
+                v-model="reservationForm.paymentDate"
+                id="paymentDate"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
+            <div class="form-group">
+              <label for="paymentReference">Payment Reference Number</label>
+              <input
+                type="text"
+                v-model="reservationForm.paymentReference"
+                id="paymentReference"
+                class="form-control"
+                placeholder="Enter reference number"
+                required
+              />
+            </div>
+          </div>
+        </div>
+        <!-- Submit Button -->
+        <div
+          class="d-flex justify-content-end gap-2 mt-3"
+          style="padding-top: 15px"
+        >
+        <button type="submit" class="btn-add">
+            Submit Reservation
+        </button>
+        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
+        </div>
+      </form>
         <!-- Error Message Modal -->
         <b-modal 
           v-model="isErrorModalVisible" 
@@ -940,18 +940,18 @@ p {
   font-size: 0.9rem;
 }
 
-.row {
+.row-payment .row {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
 }
 
-.col-md-6 {
+.row-payment .col-md-6 {
   flex: 1;
   min-width: 300px;
 }
 
-.row .col-md-6 {
+.row-payment .row .col-md-6 {
   padding-left: 5px;
   padding-right: 5px;
 }
@@ -1165,51 +1165,6 @@ button:hover {
   margin-right: -50px;
 }
 
-.reserve-modal .form-group {
-  margin-bottom: 15px;
-  margin-left: 30px;
-}
-
-.reserve-modal .form-group select:focus {
-  outline: none;
-  border-color: #007bff; /* Highlight border on focus */
-}
-
-/* Dropdown Hover Text */
-.reserve-modal .form-group select:hover {
-  color: black; /* Change text color to black on hover for better visibility */
-}
-
-.reserve-modal .form-group input[type="number"] {
-  width: 100%; /* Make the input take up full width */
-  padding: 10px; /* Add padding for a better click area */
-  font-size: 16px; /* Match font size with the label */
-  border: 1px solid #ccc; /* Light border for input */
-  border-radius: 8px; /* Add rounded corners */
-  color: #333; /* Text color */
-  transition: all 0.3s ease; /* Smooth transition for hover/focus */
-}
-
-.reserve-modal .form-group input[type="number"]:hover {
-  border-color: #007bff; /* Change border color on hover */
-}
-
-.reserve-modal .form-group input[type="number"]:focus {
-  border-color: #0056b3; /* Darker border color on focus */
-  outline: none; /* Remove default outline */
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
-}
-
-.reserve-modal .form-group input[type="number"]::placeholder {
-  color: #888; /* Lighter text for placeholder */
-  font-style: italic; /* Italicize placeholder text */
-}
-
-.reserve-modal .form-group input[type="text"]::placeholder {
-  color: #888; /* Lighter text for placeholder */
-  font-style: italic; /* Italicize placeholder text */
-}
-
 .btn-add {
   background-color: #0560fd;
   color: #fff;
@@ -1232,14 +1187,71 @@ button:hover {
   border: none;
 }
 
-.reserve-modal .row.mb-3.ps-5 .d-flex {
-  gap: 30px; /* Adjust as needed for closer spacing */
-}
-
-.reserve-modal .row .col-md-6 {
+.row .col-md-6 {
   padding-left: 5px;
   padding-right: 5px;
 }
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+  margin-left: 30px;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff; /* Highlight border on focus */
+}
+
+/* Dropdown Hover Text */
+.form-group select:hover {
+  color: black; /* Change text color to black on hover for better visibility */
+}
+
+.form-group input[type="number"] {
+  width: 100%; /* Make the input take up full width */
+  padding: 10px; /* Add padding for a better click area */
+  font-size: 16px; /* Match font size with the label */
+  border: 1px solid #ccc; /* Light border for input */
+  border-radius: 8px; /* Add rounded corners */
+  color: #333; /* Text color */
+  transition: all 0.3s ease; /* Smooth transition for hover/focus */
+}
+
+.form-group input[type="number"]:hover {
+  border-color: #007bff; /* Change border color on hover */
+}
+
+.form-group input[type="number"]:focus {
+  border-color: #0056b3; /* Darker border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); /* Glow effect on focus */
+}
+
+.form-group input[type="number"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+.form-group input[type="text"]::placeholder {
+  color: #888; /* Lighter text for placeholder */
+  font-style: italic; /* Italicize placeholder text */
+}
+
+/* Style for File Input Button */
+input[type="file"] {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.row.mb-3.ps-5 .d-flex {
+  gap: 30px; /* Adjust as needed for closer spacing */
+}
+
+.form-select {
+  margin-left: 5px;
+}
+
 
 
 </style>
