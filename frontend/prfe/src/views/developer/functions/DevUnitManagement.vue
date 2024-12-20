@@ -360,8 +360,20 @@
             centered
             size="xl"
           >
-            <div class="modal-title p-3">
+          <div class="modal-title p-3 d-flex justify-content-between align-items-center">
               <h5 class="mb-0">New Units</h5>
+
+              <!-- Right Side: Dropdown -->
+  <div class="d-flex align-items-center">
+    <b-form-select
+      v-model="selectedUnitTemplate"
+      :options="unitTemplateOptions"
+      @change="handleTemplateChange"
+      class="form-select"
+      style="width: 200px"
+    ></b-form-select>
+  </div>
+
             </div>
             <div class="p-3">
               <form @submit.prevent="addUnits">
@@ -476,7 +488,7 @@
                     <!-- Status and View -->
                     <b-form-group>
                       <b-row>
-                        <b-col cols="12" md="4">
+                        <b-col cols="12" md="6">
                           <small style="font-size: 14px; color: #6c757d; padding: 2px">Status</small>
                           <b-form-select
                             v-model="newUnitStatus"
@@ -485,25 +497,13 @@
                           ></b-form-select>
                         </b-col>
 
-                        <b-col cols="12" md="4">
+                        <b-col cols="12" md="6">
                           <small style="font-size: 14px; color: #6c757d; padding: 2px">View</small>
                           <b-form-select
                             v-model="newUnitView"
                             :options="viewOptions"
                             required
                           ></b-form-select>
-                        </b-col>
-
-                        <b-col cols="12" md="4">
-                          <small style="font-size: 14px; color: #6c757d; padding: 2px">Unit Template</small>
-                          <div class="d-flex align-items-center">
-                            <b-form-select
-                              v-model="selectedUnitTemplate"
-                              :options="unitTemplateOptions"
-                              @change="handleTemplateChange"
-                              class="mr-2"
-                            ></b-form-select>
-                          </div>
                         </b-col>
                       </b-row>
                     </b-form-group>
