@@ -406,49 +406,43 @@
           </div>
         </b-modal>
 
-        <b-modal
-          v-model="showNotification"
-          :title="notificationTitle"
-          hide-footer
-          centered
-        >
-          <p>{{ notificationMessage }}</p>
-          <div class="button-container">
-            <button
-              type="button"
-              @click="showNotification = false"
-              class="btn-cancel-right"
-            >
-              Close
-            </button>
+        <b-modal v-model="showNotification" :title="notificationTitle" hide-footer hide-header centered>
+
+<div class="modal-title p-3">
+  <i :class="notificationIcon()" style="margin-right: 10px; font-size: 22px;"></i>
+  <h5 class="custom-title mb-0">{{ notificationTitle }}</h5>
+</div>
+
+<div class="p-3">
+  <p>{{ notificationMessage }}</p>
+  <div class="d-flex justify-content-end gap-2" style="margin-top: 30px">
+    <button type="button" @click="showNotification = false" class="btn-cancel" style="width: 100px;">
+      Close
+    </button>
+  </div>
+</div>
+</b-modal>
+
+        <!-- Confirmation Modal -->
+        <b-modal v-model="showConfirmModal" :title="'Confirmation'" hide-footer hide-header centered>
+
+          <div class="modal-title p-3">
+            <i class="fas fa-info-circle text-secondary" style="margin-right: 10px; font-size: 22px;"></i>
+            <h5 class="custom-title mb-0">Confirmation</h5>
           </div>
-        </b-modal>
-        <b-modal
-          v-model="showConfirmModal"
-          :title="'Confirmation'"
-          hide-footer
-          centered
-        >
-          <p>{{ confirmMessage }}</p>
-          <div
-            class="d-flex justify-content-end gap-2 mt-30"
-            style="padding-top: 15px"
-          >
-            <button
-              type="button"
-              @click="confirmAction"
-              class="btn btn-primary"
-            >
-              Confirm
-            </button>
-            <!-- Cancel Button -->
-            <button
-              type="button"
-              @click="cancelAction"
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
+
+          <div class="p-3">
+            <p>{{ confirmMessage }}</p>
+
+            <div class="d-flex justify-content-end gap-2" style="margin-top: 30px">
+              <button type="button" @click="confirmAction" class="btn-add">
+                Confirm
+              </button>
+
+              <button type="button" @click="cancelAction" class="btn-cancel">
+                Cancel
+              </button>
+            </div>
           </div>
         </b-modal>
       </div>
@@ -519,6 +513,7 @@ export default {
 
       // Notifications
       showNotification: false,
+      notificationType: "",
       notificationTitle: "",
       notificationMessage: "",
     };
@@ -613,6 +608,15 @@ export default {
   },
 
   methods: {
+    notificationIcon() {
+      if (this.notificationType === "success") {
+        return "fas fa-check-circle text-success"; // Green check icon
+      } else if (this.notificationType === "error") {
+        return "fas fa-exclamation-circle text-danger"; // Red error icon
+      }
+      return ""; // Default or no icon
+    },
+
     // Confirmation methods
     showConfirmation(message, action, params) {
       this.confirmMessage = message;
@@ -632,6 +636,7 @@ export default {
       } catch (error) {
         this.showConfirmModal = false;
         this.notificationTitle = "Error";
+        this.notificationType = "error";
         this.notificationMessage = "An error occurred during the action.";
         this.showNotification = true;
       }
@@ -713,6 +718,7 @@ export default {
 
       if (!hasChanges) {
         this.notificationTitle = "No Changes";
+        this.notificationType = "error";
         this.notificationMessage = "No changes made to broker.";
         this.showNotification = true;
         return; // Exit early, no need to continue with save
@@ -741,12 +747,14 @@ export default {
           }
         );
         this.notificationTitle = "Success";
+        this.notificationType = "success";
         this.notificationMessage = "Broker updated successfully!";
         this.showNotification = true;
         this.editModalVisible = false;
         this.fetchBrokers();
       } catch (error) {
         this.notificationTitle = "Error";
+        this.notificationType = "error";
         this.notificationMessage =
           "An error occurred while updating the broker.";
         this.showNotification = true;
@@ -790,6 +798,7 @@ export default {
           }
         );
         this.notificationTitle = "Success";
+        this.notificationType = "success";
         this.notificationMessage = `Broker ${
           status ? "archived" : "unarchived"
         } successfully!`;
@@ -797,6 +806,7 @@ export default {
         status ? this.fetchBrokers() : this.fetchArchivedBrokers();
       } catch (error) {
         this.notificationTitle = "Error";
+        this.notificationType = "error";
         this.notificationMessage = `An error occurred while ${
           status ? "archiving" : "unarchiving"
         } the broker.`;
@@ -825,12 +835,14 @@ export default {
 
           this.resetForm();
           this.notificationTitle = "Success";
+          this.notificationType = "success";
           this.notificationMessage = "Broker created successfully!";
           this.showNotification = true;
           this.showModal = false;
           this.fetchBrokers();
         } catch (error) {
           this.notificationTitle = "Error";
+          this.notificationType = "error";
           this.notificationMessage = "An error occurred while adding broker.";
           this.showNotification = true;
         }
@@ -1263,5 +1275,17 @@ body {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+
+.custom-title {
+  font-style: normal;
+  font-size: 20px;
+}
+
+.modal-title {
+  display: flex;
+  /* Use Flexbox for side-by-side layout */
+  align-items: center;
+  /* Align icon and text vertically */
 }
 </style>

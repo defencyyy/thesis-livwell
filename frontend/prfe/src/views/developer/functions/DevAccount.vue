@@ -9,10 +9,7 @@
           <div class="edit-title">Account Settings</div>
         </div>
 
-        <div
-          class="card shadow-lg border-0 rounded-1 mx-auto"
-          style="max-width: 900px"
-        >
+        <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 900px">
           <div class="card-body">
             <form @submit.prevent="promptAccountUpdate">
               <div class="row">
@@ -21,50 +18,23 @@
                   <h5 class="mb-4">Personal Information</h5>
                   <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
-                    <input
-                      type="text"
-                      id="username"
-                      v-model="username"
-                      class="form-control"
-                    />
+                    <input type="text" id="username" v-model="username" class="form-control" />
                   </div>
                   <div class="mb-3">
                     <label for="firstName" class="form-label">First Name</label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      v-model="firstName"
-                      class="form-control"
-                    />
+                    <input type="text" id="firstName" v-model="firstName" class="form-control" />
                   </div>
                   <div class="mb-3">
                     <label for="lastName" class="form-label">Last Name</label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      v-model="lastName"
-                      class="form-control"
-                    />
+                    <input type="text" id="lastName" v-model="lastName" class="form-control" />
                   </div>
                   <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      v-model="email"
-                      class="form-control"
-                    />
+                    <input type="email" id="email" v-model="email" class="form-control" />
                   </div>
                   <div class="mb-3">
-                    <label for="contactNumber" class="form-label"
-                      >Phone Number</label
-                    >
-                    <input
-                      type="text"
-                      id="contactNumber"
-                      v-model="contactNumber"
-                      class="form-control"
-                    />
+                    <label for="contactNumber" class="form-label">Phone Number</label>
+                    <input type="text" id="contactNumber" v-model="contactNumber" class="form-control" />
                   </div>
                 </div>
 
@@ -72,38 +42,17 @@
                 <div class="col-md-6">
                   <h5 class="mb-4">Password Settings</h5>
                   <div class="mb-3">
-                    <label for="currentPassword" class="form-label"
-                      >Current Password</label
-                    >
-                    <input
-                      type="password"
-                      id="currentPassword"
-                      v-model="currentPassword"
-                      class="form-control"
-                      required
-                    />
+                    <label for="currentPassword" class="form-label">Current Password</label>
+                    <input type="password" id="currentPassword" v-model="currentPassword" class="form-control"
+                      required />
                   </div>
                   <div class="mb-3">
-                    <label for="newPassword" class="form-label"
-                      >New Password</label
-                    >
-                    <input
-                      type="password"
-                      id="newPassword"
-                      v-model="newPassword"
-                      class="form-control"
-                    />
+                    <label for="newPassword" class="form-label">New Password</label>
+                    <input type="password" id="newPassword" v-model="newPassword" class="form-control" />
                   </div>
                   <div class="mb-3">
-                    <label for="confirmNewPassword" class="form-label"
-                      >Confirm New Password</label
-                    >
-                    <input
-                      type="password"
-                      id="confirmNewPassword"
-                      v-model="confirmNewPassword"
-                      class="form-control"
-                    />
+                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" v-model="confirmNewPassword" class="form-control" />
                   </div>
                 </div>
               </div>
@@ -117,74 +66,43 @@
           </div>
         </div>
 
-        <b-modal
-          v-model="showNotification"
-          :title="notificationTitle"
-          hide-footer
-          hide-header
-          centered
-        >
+        <b-modal v-model="showNotification" :title="notificationTitle" hide-footer hide-header centered>
 
-        <div class="modal-title p-3">
-          <i :class="notificationIcon()" style="margin-right: 10px; font-size: 22px;"></i>
+          <div class="modal-title p-3">
+            <i :class="notificationIcon()" style="margin-right: 10px; font-size: 22px;"></i>
             <h5 class="custom-title mb-0">{{ notificationTitle }}</h5>
           </div>
 
           <div class="p-3">
-          <p>{{ notificationMessage }}</p>
-          <div
-                class="d-flex justify-content-end gap-2"
-                style="margin-top: 30px"
-              >
-            <button
-              type="button"
-              @click="showNotification = false"
-              class="btn-cancel"
-              style="width: 100px;"
-            >
-              Close
-            </button>
-          </div>
+            <p>{{ notificationMessage }}</p>
+            <div class="d-flex justify-content-end gap-2" style="margin-top: 30px">
+              <button type="button" @click="showNotification = false" class="btn-cancel" style="width: 100px;">
+                Close
+              </button>
+            </div>
           </div>
         </b-modal>
 
         <!-- Confirmation Modal -->
-        <b-modal
-          v-model="showConfirmModal"
-          :title="'Confirmation'"
-          hide-footer
-          hide-header
-          centered
-        >
+        <b-modal v-model="showConfirmModal" :title="'Confirmation'" hide-footer hide-header centered>
 
-        <div class="modal-title p-3">
-          <i class="fas fa-info-circle text-secondary" style="margin-right: 10px; font-size: 22px;"></i>
+          <div class="modal-title p-3">
+            <i class="fas fa-info-circle text-secondary" style="margin-right: 10px; font-size: 22px;"></i>
             <h5 class="custom-title mb-0">Confirmation</h5>
           </div>
 
           <div class="p-3">
-          <p>{{ confirmMessage }}</p>
+            <p>{{ confirmMessage }}</p>
 
-          <div
-                class="d-flex justify-content-end gap-2"
-                style="margin-top: 30px"
-              >
-            <button
-              type="button"
-              @click="confirmAction"
-              class="btn-add"
-            >
-              Confirm
-            </button>
+            <div class="d-flex justify-content-end gap-2" style="margin-top: 30px">
+              <button type="button" @click="confirmAction" class="btn-add">
+                Confirm
+              </button>
 
-            <button
-              type="button"
-              @click="cancelAction"
-              class="btn-cancel"
-            >
-              Cancel
-            </button>
-          </div>
+              <button type="button" @click="cancelAction" class="btn-cancel">
+                Cancel
+              </button>
+            </div>
           </div>
         </b-modal>
       </div>
@@ -251,8 +169,8 @@ export default {
     promptAccountUpdate() {
       this.showConfirmation(
         "Are you sure you want to update your account?",
-        this.updateAccount, 
-        [] 
+        this.updateAccount,
+        []
       );
     },
     notificationIcon() {
@@ -371,7 +289,7 @@ export default {
           }
         );
 
-        
+
 
         // If update is successful, show success message
         this.notificationType = "success";
@@ -384,7 +302,7 @@ export default {
         if (error.response && error.response.data) {
           const errorMessage =
             error.response.data.message || "An error occurred.";
-            this.notificationType = "error";
+          this.notificationType = "error";
           this.notificationTitle = "Error";
           this.notificationMessage = errorMessage;
           this.showNotification = true;
@@ -441,7 +359,7 @@ export default {
             },
           }
         );
-        this.notificationType = "success"; 
+        this.notificationType = "success";
         this.notificationTitle = "Success";
         this.notificationMessage = "Account updated successfully!";
         this.showNotification = true;
@@ -645,19 +563,15 @@ h5 {
   outline: none;
 }
 
-.b-modal-header {
-  border-bottom: none !important;
-}
-
 .custom-title {
   font-style: normal;
   font-size: 20px;
 }
 
 .modal-title {
-  display: flex; /* Use Flexbox for side-by-side layout */
-  align-items: center; /* Align icon and text vertically */
+  display: flex;
+  /* Use Flexbox for side-by-side layout */
+  align-items: center;
+  /* Align icon and text vertically */
 }
-
-
 </style>
