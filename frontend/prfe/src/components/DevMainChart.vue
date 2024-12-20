@@ -18,6 +18,12 @@ export default {
       year: new Date().getFullYear(),
       chart: null,
       noData: false, // New state to track no data
+      statusColorMapping: {
+        "Pending Reservation": "#F39C12", // Yellow
+        Reserved: "#2980B9", // Blue
+        "Pending Sold": "#8E44AD", // Purple
+        Sold: "#E91E63", // Pink
+      },
     };
   },
   mounted() {
@@ -31,6 +37,7 @@ export default {
         console.error("No token found, user is not authenticated.");
         return; // Don't proceed if no token is available.
       }
+
       try {
         const response = await fetch(
           `http://localhost:8000/developer/sales/status/${this.year}/`,
@@ -62,15 +69,20 @@ export default {
         }
       } catch (error) {
         console.error("Error fetching sales status data:", error);
-        console.error("Error details:", error.response); // Log the response if it exists
       }
     },
+
     renderChart(salesData) {
       const ctx = document.getElementById("salesStatusChart").getContext("2d");
 
       // Extract labels and counts
       const labels = salesData.map((item) => item.status);
       const counts = salesData.map((item) => item.count);
+
+      // Map the sales status to the predefined color palette
+      const backgroundColors = salesData.map(
+        (item) => this.statusColorMapping[item.status]
+      );
 
       // If chart exists, destroy it before creating a new one
       if (this.chart) {
@@ -85,11 +97,10 @@ export default {
           datasets: [
             {
               data: counts,
-              backgroundColor: ["#F39C12", "#2980B9", "#8E44AD", "#E91E63"],
+              backgroundColor: backgroundColors,
             },
           ],
         },
-
         options: {
           responsive: true,
           plugins: {
@@ -105,22 +116,20 @@ export default {
 </script>
 
 <style>
-
-.chart-title{
+.chart-title {
   padding: 7px;
 }
 
 .chart-container {
   display: flex;
   flex-direction: column; /* Ensures the heading stays above the chart */
-  align-items: center;   /* Horizontally centers the chart */
+  align-items: center; /* Horizontally centers the chart */
   justify-content: center; /* Vertically centers the chart */
-  width: 100%;           /* Adjust as needed */
-  text-align: center;    /* Centers the heading */
+  width: 100%; /* Adjust as needed */
+  text-align: center; /* Centers the heading */
 }
-  #salesStatusChart {
-    max-width: 300px; /* Set a max-width for responsiveness */
-    height: auto;     /* Maintain aspect ratio */
-  }
+#salesStatusChart {
+  max-width: 300px; /* Set a max-width for responsiveness */
+  height: auto; /* Maintain aspect ratio */
+}
 </style>
-

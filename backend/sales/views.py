@@ -17,6 +17,7 @@ def get_developer_company(request):
     Helper function to get the company of the logged-in developer.
     """
     developer = request.user
+    print(f"Developer: {developer}, Company: {developer.company}")
     if not hasattr(developer, 'company'):
         return None
     return developer.company
@@ -97,59 +98,31 @@ class SaleDetailView(APIView):
             logger.warning(f"No 'status' provided in PUT request for Sale ID {pk}.")
             return Response({"error": "Status not provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-from django.db.models import Count
-from .models import Sale, Site
-
-def top_sites_sale_count():
-    # Count the number of sales per site and order by the count in descending order
-    top_sites = (Sale.objects
-                 .values('site')  # Group by site
-                 .annotate(sale_count=Count('id'))  # Count the sales
-                 .order_by('-sale_count')  # Order by the count in descending order
-                 [:5])  # Get top 5 sites
-
-    # Get the site names and sales counts
-    data = []
-    for site in top_sites:
-        site_name = Site.objects.get(id=site['site']).name  # Assuming Site has a name field
-        data.append({
-            'site': site_name,
-            'sales': site['sale_count'],
-        })
-    
-    return data
-
 from django.http import JsonResponse
 from django.db.models import Count
 from .models import Sale
-from datetime import datetime
 
-def sales_status_by_year(request, year):
-    # Try to get the company associated with the logged-in user
-    company = get_developer_company(request)
+class SalesStatusByYearView(APIView):
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
-    # Get the 'company_id' from the request parameters
-    company_id = request.GET.get('company_id', None)
+    def get(self, request, year):
+        # Try to get the company associated with the logged-in user
+        company = get_developer_company(request)
 
-    # Start building the filter with date_sold year
-    filters = {'date_sold__year': year}
+        # If no company is associated with the user, return an error or empty data
+        if not company:
+            return JsonResponse({'message': 'No company available for the user'}, status=400)
 
-    # If a company_id is provided in the query, use it to filter by company
-    if company_id:
-        filters['company_id'] = company_id
-    # If no company_id is provided, use the company of the logged-in user (if exists)
-    elif company:
-        filters['company_id'] = company.id
-    else:
-        # If no company is associated with the user and no company_id is provided, return an error or empty data
-        return JsonResponse({'message': 'No company available for the user or company_id not provided'}, status=400)
+        # Start building the filter with date_sold year
+        filters = {'date_sold__year': year, 'company_id': company.id}
 
-    # Query Sale objects based on the filters
-    sales_status_counts = (
-        Sale.objects.filter(**filters)  # Apply the filters dynamically
-        .values('status')
-        .annotate(count=Count('status'))
-        .order_by('status')
-    )
+        # Query Sale objects based on the filters
+        sales_status_counts = (
+            Sale.objects.filter(**filters)  # Apply the filters dynamically
+            .values('status')
+            .annotate(count=Count('status'))
+            .order_by('status')
+        )
 
-    return JsonResponse({'data': list(sales_status_counts)})
+        # Return the data in a response
+        return Response({'data': list(sales_status_counts)}, status=status.HTTP_200_OK)

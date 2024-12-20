@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from developers.models import Developer
 from .models import Broker
 from .serializers import DeveloperBrokerSerializer, EditBrokerSerializer
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
 
 def get_developer_company(request):
 
@@ -192,10 +194,6 @@ class ArchivedBrokerView(APIView):
         except Broker.DoesNotExist:
             return Response({"error": "Broker not found or not archived"}, status=status.HTTP_404_NOT_FOUND)
 
-from django.http import JsonResponse
-from .models import Broker
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
