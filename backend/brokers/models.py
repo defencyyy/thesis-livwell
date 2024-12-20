@@ -87,8 +87,11 @@ class Broker(models.Model):
 
     @property
     def total_commissions(self):
-        from sales.models import Sale  # Importing Sale here to avoid circular import
-        return Sale.objects.filter(broker=self).aggregate(total_commission=models.Sum('commission'))['total_commission'] or 0
+        from sales.models import Sale  # Avoid circular import
+        return Sale.objects.filter(broker=self, status='Sold').aggregate(
+            total_commission=models.Sum('commission')
+        )['total_commission'] or 0
+
 
     def meets_sales_milestone(self, milestone):
         if milestone.type == "sales":

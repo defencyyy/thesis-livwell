@@ -14,7 +14,7 @@
           style="max-width: 900px"
         >
           <div class="card-body">
-            <form @submit.prevent="updateAccount">
+            <form @submit.prevent="promptAccountUpdate">
               <div class="row">
                 <!-- Personal Information Section -->
                 <div class="col-md-6">
@@ -249,6 +249,17 @@ export default {
         this.error = "Error loading account details.";
       }
     },
+
+    // This method triggers the confirmation dialog before proceeding with the update
+    promptAccountUpdate() {
+      // Show confirmation before updating the account
+      this.showConfirmation(
+        "Are you sure you want to update your account?",
+        this.updateAccount, // This is the method to call if confirmed
+        [] // No parameters to pass to updateAccount
+      );
+    },
+
     async updateAccount() {
       this.username = this.username.toLowerCase();
 
@@ -366,40 +377,6 @@ export default {
           "An error occurred while verifying the current password.";
         this.showNotification = true;
         return false;
-      }
-    },
-
-    async performAccountUpdate() {
-      this.loading = true;
-      try {
-        await axios.put(
-          "http://localhost:8000/developer/account/",
-          {
-            username: this.username,
-            first_name: this.firstName,
-            last_name: this.lastName,
-            email: this.email,
-            contact_number: this.contactNumber,
-            current_password: this.currentPassword,
-            new_password: this.newPassword,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${this.authToken}`,
-            },
-          }
-        );
-        this.notificationTitle = "Success";
-        this.notificationMessage = "Account updated successfully!";
-        this.showNotification = true;
-        this.resetPasswordFields();
-      } catch {
-        this.notificationTitle = "Error";
-        this.notificationMessage =
-          "An error occurred while updating your account.";
-        this.showNotification = true;
-      } finally {
-        this.loading = false;
       }
     },
 

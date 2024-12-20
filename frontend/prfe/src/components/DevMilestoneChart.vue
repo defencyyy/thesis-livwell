@@ -141,7 +141,6 @@ export default {
 .chart-container {
   background-color: #fff;
   border-radius: 4px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   padding: 20px;
   width: 100%;
   max-width: 1100px;

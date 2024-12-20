@@ -351,7 +351,6 @@
             id="add-units-modal"
             title="Add Units"
             v-model="showAddUnitsModal"
-            :disabled="isSaveButtonDisabled"
             ok-title="Save"
             @ok="addUnits"
             hide-footer
@@ -392,6 +391,26 @@
                             "
                             >Sections: (Select to add units)</small
                           >
+                          <!-- Select/Unselect All Button
+                          <div class="d-flex justify-content-end mb-2">
+                            <b-button
+                              variant="link"
+                              size="sm"
+                              @click="toggleSelectAll"
+                              style="
+                                font-size: 14px;
+                                color: #6c757d;
+                                padding: 2px;
+                                text-decoration: none;
+                                background-color: none;
+                              "
+                            >
+                              {{
+                                isAllSelected ? "Unselect All" : "Select All"
+                              }}
+                            </b-button>
+                          </div> -->
+
                           <div class="checkbox-container">
                             <b-form-checkbox-group
                               v-model="newUnitSections"
@@ -567,7 +586,7 @@
                           ></b-form-select>
                         </b-col>
 
-                        <b-col cols="12" md="6">
+                        <b-col cols="12" md="4">
                           <small
                             style="
                               font-size: 14px;
@@ -1607,8 +1626,12 @@ export default {
       userId: (state) => state.userId,
       companyId: (state) => state.companyId,
     }),
-    isSaveButtonDisabled() {
-      return this.newUnitFloorArea < this.newUnitLotArea;
+
+    isAllSelected() {
+      return (
+        this.newUnitSections.length === this.sectionOptions.length &&
+        this.sectionOptions.length > 0
+      );
     },
 
     sectionOptions() {
@@ -1656,20 +1679,28 @@ export default {
     tableUnitTypeOptions() {
       return [
         { value: null, text: "None" },
-        ...this.unitTypes.map((type) => ({
-          value: type.id,
-          text: type.name,
-        })),
+        ...this.unitTypes
+          .filter((type) => !type.is_archived)
+          .slice() // Create a copy to avoid mutating the original array
+          .sort((a, b) => a.id - b.id) // Sort by id in ascending order
+          .map((type) => ({
+            value: type.id,
+            text: type.name,
+          })),
       ];
     },
 
     unitTypeOptions() {
       return [
         { value: null, text: "None", disabled: true },
-        ...this.unitTypes.map((type) => ({
-          value: type.id,
-          text: type.name,
-        })),
+        ...this.unitTypes
+          .filter((type) => !type.is_archived)
+          .slice() // Create a copy to avoid mutating the original array
+          .sort((a, b) => a.id - b.id) // Sort by id in ascending order
+          .map((type) => ({
+            value: type.id,
+            text: type.name,
+          })),
       ];
     },
 
@@ -1678,6 +1709,8 @@ export default {
         { value: null, text: "None", disabled: true },
         ...this.unitTypes
           .filter((type) => !type.is_archived) // Exclude archived types
+          .slice() // Create a copy to avoid mutating the original array
+          .sort((a, b) => a.id - b.id) // Sort by id in ascending order
           .map((type) => ({
             value: type.id,
             text: type.name,
@@ -1783,6 +1816,15 @@ export default {
     this.fetchUnits();
   },
   methods: {
+    toggleSelectAll() {
+      if (this.isAllSelected) {
+        this.newUnitSections = []; // Unselect all
+      } else {
+        this.newUnitSections = this.sectionOptions.map(
+          (option) => option.value
+        ); // Select all
+      }
+    },
     handleTemplateChange() {
       setTimeout(() => {
         if (!this.selectedUnitTemplate) {
