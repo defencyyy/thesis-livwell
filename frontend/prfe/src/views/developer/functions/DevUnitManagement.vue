@@ -1970,8 +1970,6 @@ export default {
           }
         );
 
-        console.log(response.data); // Log response to check the data
-
         if (response.data.success) {
           // Filter out archived templates by checking the 'is_archived' field
           const activeTemplates = response.data.data.filter(
@@ -2427,19 +2425,7 @@ export default {
         this.$nextTick(() => {
           this.selectedUnit = unit; // Shallow copy to prevent reference issues
           this.initialUnit = { ...unit };
-          if (this.selectedUnit.unit_template) {
-            console.log("Unit Template:", this.selectedUnit.unit_template); // Log the unit_template to check
-            console.log(
-              "Unit Template Name:",
-              this.selectedUnit.unit_template.name
-            ); // Access name safely
-            console.log(
-              "Unit Template Images:",
-              this.selectedUnit.unit_template.images
-            ); // Access images safely
-          } else {
-            console.log("Unit Template is not available.");
-          }
+        
           this.showEditUnitModal = true; // Show the modal for editing
         });
       } else {
