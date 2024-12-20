@@ -75,52 +75,71 @@
           </div>
         </div>
 
-        <!-- Notification Modal -->
         <b-modal
           v-model="showNotification"
           :title="notificationTitle"
           hide-footer
+          hide-header
           centered
         >
-          <p>{{ notificationMessage }}</p>
-          <div class="button-container">
-            <button
-              type="button"
-              @click="showNotification = false"
-              class="btn-cancel-right"
+          <div class="modal-title p-3">
+            <i
+              :class="notificationIcon()"
+              style="margin-right: 10px; font-size: 22px"
+            ></i>
+            <h5 class="custom-title mb-0">{{ notificationTitle }}</h5>
+          </div>
+
+          <div class="p-3">
+            <p>{{ notificationMessage }}</p>
+            <div
+              class="d-flex justify-content-end gap-2"
+              style="margin-top: 30px"
             >
-              Close
-            </button>
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel"
+                style="width: 100px"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </b-modal>
 
+        <!-- Confirmation Modal -->
         <!-- Confirmation Modal -->
         <b-modal
           v-model="showConfirmModal"
           :title="'Confirmation'"
           hide-footer
+          hide-header
           centered
         >
-          <p>{{ confirmMessage }}</p>
-          <div
-            class="d-flex justify-content-end gap-2 mt-30"
-            style="padding-top: 15px"
-          >
-            <button
-              type="button"
-              @click="confirmAction"
-              class="btn btn-primary"
+          <div class="modal-title p-3">
+            <i
+              class="fas fa-info-circle text-secondary"
+              style="margin-right: 10px; font-size: 22px"
+            ></i>
+            <h5 class="custom-title mb-0">Confirmation</h5>
+          </div>
+
+          <div class="p-3">
+            <p>{{ confirmMessage }}</p>
+
+            <div
+              class="d-flex justify-content-end gap-2"
+              style="margin-top: 30px"
             >
-              Confirm
-            </button>
-            <!-- Cancel Button -->
-            <button
-              type="button"
-              @click="cancelAction"
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
+              <button type="button" @click="confirmAction" class="btn-add">
+                Confirm
+              </button>
+
+              <button type="button" @click="cancelAction" class="btn-cancel">
+                Cancel
+              </button>
+            </div>
           </div>
         </b-modal>
       </div>
@@ -145,6 +164,7 @@ export default {
       newLogo: null,
       showNotification: false,
       notificationTitle: "",
+      notificationType: "",
       notificationMessage: "",
 
       // Modal confirmation states
@@ -185,6 +205,24 @@ export default {
   },
 
   methods: {
+
+    promptCompanyUpdate() {
+      this.showConfirmation(
+        "Are you sure you want to update your account?",
+        this.updateCompany,
+        []
+      );
+    },
+
+    notificationIcon() {
+      if (this.notificationType === "success") {
+        return "fas fa-check-circle text-success"; // Green check icon
+      } else if (this.notificationType === "error") {
+        return "fas fa-exclamation-circle text-danger"; // Red error icon
+      }
+      return ""; // Default or no icon
+    },
+
     // Fetch company data
     async fetchCompany() {
       const companyId = this.vuexCompanyId;
@@ -236,6 +274,7 @@ export default {
       } catch (error) {
         this.showConfirmModal = false; // Close modal on error
         this.notificationTitle = "Error";
+        this.notificationType = "error";
         this.notificationMessage = "An error occurred during the action.";
         this.showNotification = true;
       }
@@ -281,11 +320,13 @@ export default {
         if (response.status === 200) {
           this.fetchCompany();
           this.notificationTitle = "Success";
+          this.notificationType = "success";
           this.notificationMessage = "Company updated successfully!";
           this.showNotification = true;
           this.company.originalDescription = this.company.description;
         } else {
           this.notificationTitle = "Error";
+          this.notificationType = "error";
           this.notificationMessage =
             "An error occurred while updating the company.";
           this.showNotification = true;
@@ -293,6 +334,7 @@ export default {
       } catch (error) {
         console.error("Error updating company:", error);
         this.notificationTitle = "Error";
+        this.notificationType = "error";
         this.notificationMessage = "An unexpected error occurred.";
         this.showNotification = true;
       }
@@ -444,5 +486,36 @@ textarea:focus {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+
+.custom-title {
+  font-style: normal;
+  font-size: 20px;
+}
+
+.modal-title {
+  display: flex;
+  /* Use Flexbox for side-by-side layout */
+  align-items: center;
+  /* Align icon and text vertically */
+}
+
+.btn-cancel {
+  background-color: #343a40;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 14px;
 }
 </style>
