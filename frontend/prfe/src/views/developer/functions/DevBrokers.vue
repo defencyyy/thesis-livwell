@@ -318,7 +318,7 @@
             <form @submit.prevent="addBroker">
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="firstName" class="form-label">First Name:</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">First Name</small>
                   <input
                     type="text"
                     v-model="firstName"
@@ -332,7 +332,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="lastName" class="form-label">Last Name:</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Last Name</small>
                   <input
                     type="text"
                     v-model="lastName"
@@ -347,7 +347,7 @@
               </div>
 
               <div class="form-group mb-3">
-                <label for="email" class="form-label">Email:</label>
+                <small style="font-size: 14px; color: #6c757d; padding: 2px">Email</small>
                 <input
                   type="email"
                   v-model="email"
@@ -359,9 +359,7 @@
               </div>
 
               <div class="form-group mb-3">
-                <label for="contactNumber" class="form-label"
-                  >Contact Number:</label
-                >
+                <small style="font-size: 14px; color: #6c757d; padding: 2px">Contact Number</small>
                 <input
                   type="text"
                   v-model="contactNumber"
@@ -375,7 +373,7 @@
               </div>
 
               <div class="form-group mb-3">
-                <label for="password" class="form-label">Password:</label>
+                <small style="font-size: 14px; color: #6c757d; padding: 2px">Password</small>
                 <input
                   type="password"
                   v-model="password"
@@ -1218,7 +1216,7 @@ body {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
+  margin: 0 40px;
 
   /* Adjust line height for compactness */
 }

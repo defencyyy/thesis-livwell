@@ -67,6 +67,8 @@
                 <div class="edit-title">Pending Sales</div>
               </div>
             </div>
+
+            
             <div
               class="card border-0 rounded-1 mx-auto"
               style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -109,6 +111,7 @@
               <span class="header-item">Status</span>
             </div>
 
+            <div class="scrollable-table-container">
             <div v-if="filteredSales.length > 0">
               <div
                 v-for="sale in filteredSales"
@@ -135,6 +138,7 @@
               </div>
             </div>
             <p v-else>No pending sales found with the selected filters.</p>
+          </div>
           </div>
 
           <!-- Right Section -->
@@ -676,5 +680,12 @@ body {
 
 td {
   font-size: 12px;
+}
+
+/* Custom Scrollbar Container */
+.scrollable-table-container {
+  max-height: 310px;
+  overflow-y: auto;
+  scrollbar-width: thin;  /* Firefox only */
 }
 </style>

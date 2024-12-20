@@ -33,12 +33,23 @@ export default {
     async fetchTopBrokers() {
       try {
         const response = await fetch(
-          "http://localhost:8000/developer/brokers/api/top-brokers/"
+          "http://localhost:8000/developer/brokers/api/top-brokers/",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
         console.log("Top Brokers Data:", data);
 
-        // Filter brokers with total_sales > 0 and limit to top 10
+        // Filter brokers with total_sales > 0 and limit to top 5
         this.brokers = data
           .filter((broker) => broker.total_sales > 0)
           .slice(0, 5);
@@ -130,7 +141,6 @@ export default {
 .chart-container {
   background-color: #fff;
   border-radius: 4px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   padding: 20px;
   width: 100%;
   max-width: 1100px;

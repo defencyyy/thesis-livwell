@@ -9,18 +9,18 @@
             <div class="col-12 col-xl-9 text-start">
               <img
                 class="img-fluid rounded mb-4"
+                src="/assets/logo_3.png"
                 loading="lazy"
-                width="245"
+                width="420"
                 height="80"
-                alt="Logo of Company"
+                alt="LivWell Company Logo"
+                role="img"
               />
               <hr class="border mb-4" />
-              <h2 class="h1 mb-4 text-black">Welcome to PLMP</h2>
-              <p class="lead mb-5">
-                Property Listing Management Platform <br />
-                <br /><br /><br />
-                Log in Page
-              </p>
+              <h2 class="h1 mb-4 text-black">Welcome to LivWell</h2>
+              <h3 class="lead mb-5">
+                A Property Listing Management Platform <br />
+              </h3>
             </div>
           </div>
         </div>
@@ -33,7 +33,7 @@
                   <div class="mb-4">
                     <h2 class="h3">Log In</h2>
                     <h3 class="fs-6 fw-normal text-secondary m-0">
-                      Welcome back! Please enter your details.
+                      Welcome! Please enter your details:
                     </h3>
                   </div>
                 </div>
@@ -74,6 +74,7 @@
                         class="btn btn-primary btn-lg"
                         :disabled="loading"
                         type="submit"
+                        aria-label="Log in to your account"
                       >
                         Log In
                       </button>

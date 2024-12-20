@@ -73,21 +73,21 @@ class Site(models.Model):
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=12.00)
     reservation_fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
     other_charges = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, default=0)
-    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment (e.g., 60 months for 5 years max)")
-    relative_id = models.IntegerField(unique=True, null=True, blank=True)
+    maximum_months = models.PositiveIntegerField(default=60, help_text="Maximum months for downpayment (e.g., 24 months for 2 years max)")
+    relative_id = models.IntegerField(null=True, blank=True)
 
     def get_next_relative_id(self):
-        # Get the last assigned relative_id
-        last_site = Site.objects.order_by('-relative_id').first()
+        # Get the highest relative_id for this company
+        last_site = Site.objects.filter(company=self.company).order_by('-relative_id').first()
+        
         next_id = 1
-
         if last_site and last_site.relative_id is not None:
             next_id = last_site.relative_id + 1
-        
-        # Ensure the generated relative_id is unique
-        while Site.objects.filter(relative_id=next_id).exists():
-            next_id += 1  # Increment until a unique relative_id is found
-        
+
+        # Ensure the generated relative_id is unique for the company
+        while Site.objects.filter(company=self.company, relative_id=next_id).exists():
+            next_id += 1
+
         return next_id
 
     def __str__(self):
@@ -95,6 +95,16 @@ class Site(models.Model):
 
     @property
     def location(self):
+        address_parts = [
+            self.province,
+            self.municipality,
+            self.barangay, 
+            self.address, 
+        ]
+        return ', '.join(filter(None, address_parts))
+    
+    @property
+    def full_location(self):
         address_parts = [
             self.region,
             self.province,

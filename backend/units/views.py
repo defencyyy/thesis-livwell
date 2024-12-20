@@ -196,9 +196,13 @@ class UnitDetailView(APIView):
         unit = Unit.objects.filter(pk=pk, company=company).first()
         if not unit:
             return Response({"success": False, "message": "Unit not found"}, status=status.HTTP_404_NOT_FOUND)
-
-         # Fetch images using the get_unit_images method
-        unit_images = unit.get_unit_images_model()  # Calls the method on the Unit instance
+        
+        if unit.unit_template:
+            # Fetch images from the unit template
+            unit_images = unit.unit_template.images.all()
+        else:
+            # Fetch images from the unit itself
+            unit_images = unit.get_unit_images_model()
 
         unit_serializer = UnitSerializer(unit)
         unit_images_serializer = UnitImageSerializer(unit_images, many=True)
@@ -568,6 +572,7 @@ class UnitsBySectionView(APIView):
 
         # Using Q to filter and allow more flexible queries if necessary
         units = Unit.objects.filter(Q(section=section) & Q(company=company))
+        
 
         serializer = UnitSerializer(units, many=True)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)

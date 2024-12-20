@@ -15,7 +15,7 @@
         <div class="grid-layout">
           <!-- Left Section -->
           <div class="left-content">
-            <div>
+            <div class="test">
               <div class="add-milestones-headers">
                 <span class="header-item">Name</span>
                 <span class="header-item">Description</span>
@@ -23,50 +23,52 @@
                 <span class="header-item">Actions</span>
               </div>
 
-              <div
-                v-for="milestone in milestones"
-                :key="milestone.id"
-                class="card border-0 rounded-1 mx-auto my-2"
-                style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
-              >
-                <div class="card-body">
-                  <table class="add-milestones-table">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <span class="milestone-name">
-                            {{ milestone.name }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="milestone-description">
-                            {{ milestone.description || "N/A" }}
-                          </span>
-                        </td>
-                        <td>
-                          <span class="milestone-reward">
-                            {{ milestone.reward }}
-                          </span>
-                        </td>
-                        <td>
-                          <div class="broker-actions d-flex gap-2">
-                            <button
-                              @click="editMilestone(milestone)"
-                              style="
-                                border: none;
-                                background-color: transparent;
-                                color: #343a40;
-                                cursor: pointer;
-                                font-size: 18px;
-                              "
-                            >
-                              <i class="fas fa-edit"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div class="scrollable-table-container">
+                <div
+                  v-for="milestone in milestones"
+                  :key="milestone.id"
+                  class="card border-0 rounded-1 mx-auto my-2"
+                  style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+                >
+                  <div class="card-body">
+                    <table class="add-milestones-table">
+                      <tbody>
+                        <tr>
+                          <td>
+                            <span class="milestone-name">
+                              {{ milestone.name }}
+                            </span>
+                          </td>
+                          <td>
+                            <span class="milestone-description">
+                              {{ milestone.description || "N/A" }}
+                            </span>
+                          </td>
+                          <td>
+                            <span class="milestone-reward">
+                              {{ milestone.reward }}
+                            </span>
+                          </td>
+                          <td>
+                            <div class="broker-actions d-flex gap-2">
+                              <button
+                                @click="editMilestone(milestone)"
+                                style="
+                                  border: none;
+                                  background-color: transparent;
+                                  color: #343a40;
+                                  cursor: pointer;
+                                  font-size: 18px;
+                                "
+                              >
+                                <i class="fas fa-edit"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -139,7 +141,6 @@
           centered
           size="lg"
           :title="newMilestone.id ? 'Edit Milestone' : 'Add Milestone'"
-          @hide="closeForm"
         >
           <!-- Modal Title -->
           <div class="modal-title p-3">
@@ -157,7 +158,9 @@
               <div class="col-md-6">
                 <!-- Name -->
                 <div class="mb-3">
-                  <label for="milestoneName" class="form-label">Name</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Milestone Name</small
+                  >
                   <input
                     type="text"
                     class="form-control"
@@ -170,8 +173,8 @@
 
                 <!-- Description -->
                 <div class="mb-3">
-                  <label for="milestoneDescription" class="form-label"
-                    >Description</label
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Description</small
                   >
                   <textarea
                     class="form-control"
@@ -188,7 +191,9 @@
               <div class="col-md-6">
                 <!-- Reward -->
                 <div class="mb-3">
-                  <label for="milestoneReward" class="form-label">Reward</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Reward</small
+                  >
                   <input
                     type="text"
                     class="form-control"
@@ -201,8 +206,8 @@
 
                 <!-- Milestone Type -->
                 <div class="mb-3">
-                  <label for="milestoneType" class="form-label"
-                    >Milestone Type</label
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Milestone Type</small
                   >
                   <select
                     class="form-select"
@@ -217,8 +222,8 @@
 
                 <!-- Conditional Fields -->
                 <div v-if="newMilestone.type === 'sales'" class="mb-3">
-                  <label for="salesThreshold" class="form-label"
-                    >Sales Threshold</label
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Sales Threshold</small
                   >
                   <input
                     type="number"
@@ -231,8 +236,8 @@
                 </div>
 
                 <div v-if="newMilestone.type === 'commission'" class="mb-3">
-                  <label for="commissionThreshold" class="form-label"
-                    >Commission Threshold</label
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Commission Threshold</small
                   >
                   <input
                     type="number"
@@ -266,11 +271,12 @@
         <!-- Table for displaying brokers -->
         <div style="max-width: 1100px; width: 100%">
           <div class="broker-display-headers">
+            <span class="header-item">ID</span>
             <span class="header-item">Broker Name</span>
             <span class="header-item">Sales Completed</span>
-            <span class="header-item">Milestones Achieved</span>
+            <span class="header-item">Sale Milestones</span>
             <span class="header-item">Commission Collected</span>
-            <span class="header-item">Commission Achieved</span>
+            <span class="header-item">Commission Milestones</span>
             <span class="header-item">Action</span>
           </div>
           <div
@@ -283,6 +289,12 @@
               <table class="broker-milestones-table">
                 <tbody>
                   <tr>
+                    <td>
+                      <span class="broker-relative_id">
+                        {{ broker.relative_id }}
+                      </span>
+                    </td>
+
                     <td>
                       <i class="fas fa-user-tie broker-icon"></i>
                       <span class="broker-name">
@@ -332,7 +344,10 @@
             </div>
           </div>
         </div>
-        <nav aria-label="Page navigation example">
+        <nav
+          aria-label="Page navigation example"
+          style="max-width: 1100px; width: 100%; padding: 0 !important"
+        >
           <ul class="pagination">
             <li :class="['page-item', { disabled: currentPage === 1 }]">
               <a
@@ -539,7 +554,7 @@ export default {
       confirmParams: [],
       sortBy: "total_sales", // Default sort by name
       sortOrder: "desc", // Default ascending order
-       // Pagination
+      // Pagination
       currentPage: 1,
       itemsPerPage: 10,
     };
@@ -621,7 +636,7 @@ export default {
     }
   },
   methods: {
-      goToPage(pageNumber) {
+    goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
@@ -731,15 +746,19 @@ export default {
     },
 
     getCommissionMilestoneCount(broker) {
-      const milestone = this.milestones.find((m) => m.type === "commission");
-      if (milestone) {
-        const commissionThresholdReached =
-          broker.total_commissions >= milestone.commission_threshold;
-        return commissionThresholdReached ? 1 : 0;
-      }
-      return 0;
-    },
+      // Filter all commission milestones
+      const commissionMilestones = this.milestones.filter(
+        (m) => m.type === "commission"
+      );
 
+      // Count milestones where the broker's total commissions meet or exceed the threshold
+      return commissionMilestones.reduce((count, milestone) => {
+        if (broker.total_commissions >= milestone.commission_threshold) {
+          return count + 1;
+        }
+        return count;
+      }, 0);
+    },
     // Action to view broker's milestones
     viewBrokerMilestones(broker) {
       this.selectedBroker = broker;
@@ -1080,7 +1099,7 @@ body {
 
 .broker-display-headers {
   display: grid;
-  grid-template-columns: 30% 16% 16% 16% 16% 6%;
+  grid-template-columns: 5% 25% 14% 14% 18% 18% 6%;
   /* Adjust widths for better layout */
   max-width: 1100px;
   width: 100%;
@@ -1148,32 +1167,40 @@ body {
   width: 10%;
 }
 
+/* */
+
 .broker-milestones-table th:nth-child(2),
 .broker-milestones-table td:nth-child(2) {
   /* Location column */
-  width: 16%;
+  width: 25%;
 }
 
 .broker-milestones-table th:nth-child(3),
 .broker-milestones-table td:nth-child(3) {
   /* Status column */
-  width: 16%;
+  width: 14%;
 }
 
 .broker-milestones-table th:nth-child(4),
 .broker-milestones-table td:nth-child(4) {
   /* Actions column */
-  width: 16%;
+  width: 14%;
 }
 
 .broker-milestones-table th:nth-child(5),
 .broker-milestones-table td:nth-child(5) {
   /* Status column */
-  width: 16%;
+  width: 18%;
 }
 
 .broker-milestones-table th:nth-child(6),
 .broker-milestones-table td:nth-child(6) {
+  /* Actions column */
+  width: 18%;
+}
+
+.broker-milestones-table th:nth-child(7),
+.broker-milestones-table td:nth-child(7) {
   /* Actions column */
   width: 6%;
 }
@@ -1211,6 +1238,7 @@ td {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel {
@@ -1275,12 +1303,22 @@ td {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+  width: 80%;
+  max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 .card {
@@ -1371,7 +1409,7 @@ td {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
+  padding: 30px 0;
 
   /* Adjust line height for compactness */
 }
@@ -1381,20 +1419,25 @@ td {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {
   background-color: #007bff; /* Blue background for active page */
   color: white; /* White text for active page */
+}
+
+/* Custom Scrollbar Container */
+.scrollable-table-container {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin; /* Firefox only */
 }
 </style>

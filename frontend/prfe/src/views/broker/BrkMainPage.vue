@@ -26,7 +26,7 @@
               </div>
               <p>Total Commissions</p>
             </div>
-            <h2>{{ totalCommissions }}</h2>
+            <h2>{{ formatCurrency(totalCommissions) }}</h2>
           </div>
           <div class = "box">
             <div class = "box-header">
@@ -198,6 +198,15 @@ export default {
   }
 },
   methods: {
+    formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
     async fetchBrokerInfo() {
       const brokerId = this.userId;
 

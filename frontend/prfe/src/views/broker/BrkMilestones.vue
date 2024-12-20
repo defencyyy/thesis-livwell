@@ -35,7 +35,7 @@
               </div>
               <p>Total Commissions</p>
             </div>
-            <h2>{{ totalCommissions }}</h2>
+            <h2>{{ formatCurrency(totalCommissions) }}</h2>
           </div>
 
           <div class = "box">
@@ -246,6 +246,15 @@ export default {
     ...mapGetters(["getUserId", "isLoggedIn"]),
   },
   methods: {
+    formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
     async fetchMilestonesData() {
       const brokerId = this.getUserId;
 

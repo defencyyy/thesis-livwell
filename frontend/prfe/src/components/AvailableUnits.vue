@@ -57,19 +57,54 @@
       </div>
     </div>
 
-    <div v-if = "filteredUnits.length" class = "site-grid">
-      <div
-      v-for="unit in paginatedUnits"
-      :key="unit.id"
-      class="site-card"
-      @click="showUnitDetails(unit)"
-      >
-        <p>{{ unit.unit_title }}</p>
+    <div>
+      <div class="outside-headers">
+        <span class="header-item">Name</span>
+        <span class="header-item">Price</span>
+        <span class="header-item">Actions</span>
       </div>
-    </div>
 
-    <div v-else>
-      <p>No sites with available units.</p>
+      <div v-if = "filteredUnits.length">
+        <div
+        v-for="unit in paginatedUnits"
+        :key="unit.id" class="card border-0 rounded-1 mx-auto card-hover"
+        style="
+        max-width: 1100px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+
+          <div class = "card-body">
+            <table class = "site-table">
+              <tbody>
+                <tr>
+                  <td>
+                    <span>{{ unit.unit_title }}</span>
+                  </td>
+                  <td>
+                    <span>{{formatCurrency(unit.price)}}</span>
+                  </td>
+                  <td>
+                    <div class="broker-actions d-flex">
+                      <button  @click="showUnitDetails(unit)" style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        ">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div v-else>
+        <p>No sites with available units.</p>
+      </div>
     </div>
 
     <!-- Pagination Controls -->
@@ -110,259 +145,6 @@
         </li>
       </ul>
     </nav>
-
-      <!-- Unit Details Modal -->
-      <b-modal
-      id="unitDetailsModal"
-      v-model="isModalVisible"
-      title="Unit Details"
-      hide-footer
-      size="lg"
-      @hide="closeModal"
-    >
-
-      <div v-if="selectedUnit.images && selectedUnit.images.length" id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-      <!-- Indicators -->
-      <div class="carousel-indicators">
-        <button
-          v-for="(image, index) in selectedUnit.images"
-          :key="index"
-          :data-bs-target="'#carouselExampleIndicators'"
-          :data-bs-slide-to="index"
-          :class="{ active: index === 0 }"
-          :aria-current="index === 0 ? 'true' : null"
-          :aria-label="'Slide ' + (index + 1)"
-        ></button>
-      </div>
-
-      <!-- Carousel Items -->
-      <div class="carousel-inner">
-        <div
-          v-for="(image, index) in selectedUnit.images"
-          :key="index"
-          :class="['carousel-item', { active: index === 0 }]"
-        >
-          <img :src="image" class="d-block w-100" alt="Unit Picture" style="width: 100%; height: 500px; object-fit: cover;" />
-        </div>
-      </div>
-
-      <!-- Navigation Controls -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
-
-    <!-- Loading State -->
-    <div v-else class="text-center">
-      <p>No unit images.</p>
-    </div>
-    <div class="row mb-3">
-      <div class="col-12 d-flex justify-content-between align-items-center">
-          <!-- Left Section: Price and Installment Badge -->
-          <div class="d-flex align-items-center gap-2">
-              <span class="property-price">₱ {{ selectedUnit.price }}</span>
-          </div>
-          <!-- Right Section: Icons and Details -->
-          <div class="d-flex align-items-center gap-3">
-              <div class="d-flex align-items-center gap-1">
-                  <i class="fa-solid fa-bed"></i>
-                  <span>{{ selectedUnit.bedroom }}</span>
-              </div>
-              <div class="d-flex align-items-center gap-1">
-                <i class="fa-solid fa-bath"></i>
-                  <span>{{ selectedUnit.bathroom }}</span>
-              </div>
-              <div class="d-flex align-items-center gap-1">
-                  <i class="bi bi-arrows-fullscreen"></i>
-                  <span>{{ selectedUnit.floor_area }}m<sup>2</sup></span>
-              </div>
-              <span class="text-muted">Studio Type</span>
-          </div>
-      </div>
-    </div>
-    <div class="line mb-4"></div>
-    <div class="col-12 text-center mb-3 text-center">
-          <h5 class="property-header">Details</h5>
-    </div>
-    <div class="row ps-5">
-      <!-- Column 1 -->
-      <div class="col-md-4">
-          <ul class="list-unstyled mb-0">
-            <li><strong>Balcony:</strong> {{ selectedUnit.balcony }} </li>
-            <li><strong>Floor Area (m²):</strong> {{ selectedUnit.floor_area }}m<sup>2</sup></li>
-            <li><strong>View:</strong> {{ selectedUnit.view }}</li>
-          </ul>
-      </div>
-      <!-- Column 2 -->
-      <div class="col-md-4">
-          <ul class="list-unstyled mb-0">
-              <li><strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}</li>
-              <li><strong>Build (Year):</strong> {{ siteYear }}</li>
-          </ul>
-      </div>
-      <!-- Column 3 -->
-      <div class="col-md-4">
-          <ul class="list-unstyled mb-0">
-            <li><strong>Baths:</strong> {{ selectedUnit.bathroom }}</li>
-            <li><strong>Bedrooms:</strong> {{ selectedUnit.bedroom }}</li>
-          </ul>
-      </div>
-    </div>
-    <br>
-
-    <div
-      class="d-flex justify-content-end gap-2 mt-30"
-      style="padding-top: 15px"
-    >
-      <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
-      <button class="payment-plan-btn" @click="redirectToPaymentPlan">View Payment Plan</button>
-    </div>
-
-    <!-- Success Message Pop-up -->
-
-    <b-modal
-      v-model="showSuccessMessage"
-      title="Reservation Submitted"
-      @hide="closePopup"
-      centered
-      hide-footer
-      :visible="successMessage"
-      >
-        <p>{{ successMessage }}</p>
-        <div class = "buttons-container">
-          <button @click="closePopup" class="btn btn-primary">OK</button>
-        </div>
-    </b-modal>
-    
-    <!-- Reserve Unit Modal -->
-    <b-modal
-      v-model="isReserveModalVisible"
-      @hide="closeReserveModal"
-      hide-footer
-      title="Reserve Unit"
-      centered
-    >
-      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
-        <!-- Customer Name Dropdown -->
-        <div class="form-group">
-          <label for="customerName">Customer Name</label>
-          <select
-            v-model="reservationForm.customerName"
-            id="customerName"
-            class="form-select"
-            style="margin-left: 1px;"
-            required
-          >
-            <option value="" disabled selected>Select Customer</option>
-            <option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
-            >
-              {{ customer.name }} ({{ customer.customer_code }})
-            </option>
-          </select>
-        </div>
-        <!-- File Upload -->
-        <div class="form-group">
-          <label for="fileUpload">Upload File (Required)</label>
-          <input
-            type="file"
-            @change="handleFileUpload"
-            id="fileUpload"
-            class="form-control"
-            required
-          />
-        </div>
-        <!-- Payment Details -->
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="paymentAmount">Payment Amount</label>
-              <input
-                type="number"
-                v-model="reservationForm.paymentAmount"
-                id="paymentAmount"
-                class="form-control"
-                placeholder="Enter payment amount"
-                required
-              />
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="paymentMethod">Payment Method</label>
-              <select
-                v-model="reservationForm.paymentMethod"
-                id="paymentMethod"
-                class="form-select"
-                required
-              >
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="cash">Cash</option>
-                <option value="online_payment">Online Payment</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="paymentDate">Date of Payment</label>
-              <input
-                type="date"
-                v-model="reservationForm.paymentDate"
-                id="paymentDate"
-                class="form-control"
-                required
-              />
-            </div>
-          </div>
-          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
-            <div class="form-group">
-              <label for="paymentReference">Payment Reference Number</label>
-              <input
-                type="text"
-                v-model="reservationForm.paymentReference"
-                id="paymentReference"
-                class="form-control"
-                placeholder="Enter reference number"
-                required
-              />
-            </div>
-          </div>
-        </div>
-        <!-- Submit Button -->
-        <div
-          class="d-flex justify-content-end gap-2 mt-3"
-          style="padding-top: 15px"
-        >
-        <button type="submit" class="btn-add">
-            Submit Reservation
-        </button>
-        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
-        </div>
-      </form>
-      <!-- Error Message Modal -->
-      <b-modal 
-        v-model="isErrorModalVisible" 
-        hide-footer 
-        title="Error"
-        @hide="handleErrorModalClose"
-      >
-        <p>{{ errorMessage }}</p>
-        <div class="button-container">
-          <button @click="closeErrorModal" class="btn-cancel-right">Close</button>
-        </div>
-      </b-modal>
-      </b-modal>
-
-     </b-modal>
   </div>
   </div>
 </div>
@@ -371,14 +153,12 @@
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
-import { BModal } from "bootstrap-vue-3"; 
 import axios from "axios";
 
 export default {
   name: "AvailableUnits",
   components: {
     SideNav,
-    BModal,
     AppHeader,
   },
   data() {
@@ -387,39 +167,21 @@ export default {
       units: [],
       siteName: "",
       siteYear: "",
-      isModalVisible: false,
       selectedUnit: {
         images: null, // Initially null
       },
-      showDetailedSchedule: false, // To toggle detailed payment schedule
-      isReserveModalVisible: false,
-      reservationForm: {
-        customerName: "",
-        paymentAmount: "",
-        paymentMethod: "",
-        paymentDate: "",
-        paymentReference: "",
-        file: null, // This will hold the file
-      },
-      customers: [],
-      successMessage: "", // Success message
-      errorMessage: "", // Error message
-      isErrorModalVisible: false, // To control modal visibility
-      showSuccessMessage: false, // Control the visibility of the success message
-      unitPrice: 0, // Example price of the unit
       selectedView: 'all',      // Default to "all"
       selectedBalcony: 'all',   // Default to "all"
       selectedFloor: 'all',
       selectedUnitType: 'all', // Default unit type filter
       currentPage: 1, // Current page number
-      itemsPerPage: 20, // Number of customers per page
+      itemsPerPage: 15, // Number of customers per page
     };
   },
 
   mounted() {
     this.fetchAvailableUnits();
     this.fetchSiteName();
-    this.fetchCustomers();
   },
   computed: {
  // Paginate filtered units
@@ -468,6 +230,15 @@ export default {
   },
 
   methods: {
+    formatCurrency(amount) {
+    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  },
     redirectToPaymentPlan() {
       // Redirect to the payment plan page
       this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });
@@ -477,10 +248,7 @@ export default {
         this.currentPage = pageNumber;
       }
     },
-    toggleDetailedSchedule() {
-      // Toggle the visibility of the detailed payment schedule
-      this.showDetailedSchedule = !this.showDetailedSchedule;
-    },
+
     async fetchAvailableUnits() {
       try {
         const response = await axios.get(
@@ -507,27 +275,6 @@ export default {
       }
     },
 
-    async fetchCustomers() {
-      const brokerId = this.$store.getters.getUserId; // Use Vuex getter to get broker ID
-      if (!brokerId) {
-        this.errorMessage = "Broker ID not found. Please log in again.";
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
-        );
-        const data = await response.json();
-        if (data && data.customers) {
-          this.customers = data.customers;
-        } else {
-          this.errorMessage = "No customers found.";
-        }
-      } catch (error) {
-        this.errorMessage = "Failed to fetch customer data.";
-      }
-    },
 
     async fetchImages() {
       try {
@@ -544,136 +291,16 @@ export default {
         this.selectedUnit.images = []; // Fallback to an empty array on error
       }
     },
-
     showUnitDetails(unit) {
       this.selectedUnit = unit;
-      this.unitPrice = unit.price; // Set the price of the selected unit
-      this.isModalVisible = true;
+      this.redirectToPaymentPlan();
     },
 
-    closeModal() {
-      this.isModalVisible = false;
-      this.errorMessage = ""; // Clear the error message and close the modal
-    },
-
-    openReserveModal() {
-      this.isReserveModalVisible = true;
-    },
-
-    closeReserveModal() {
-      this.isReserveModalVisible = false;
-      this.reservationForm = {
-        customerName: "",
-        paymentAmount: "",
-        paymentMethod: "",
-        paymentDate: "",
-        paymentReference: "",
-        file: null,
-      };
-    },
-
-    handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.reservationForm.file = file;
-      }
-    },
-    async submitReservation() {
-      // Check if all required fields are filled, including the file
-      if (
-        !this.reservationForm.customerName ||
-        !this.reservationForm.paymentAmount ||
-        !this.reservationForm.paymentMethod ||
-        !this.reservationForm.paymentDate ||
-        !this.reservationForm.file ||
-        (this.reservationForm.paymentMethod !== "cash" &&
-          !this.reservationForm.paymentReference)
-      ) {
-        this.errorMessage ="All fields are required except the payment reference (if payment method is 'cash').";
-        this.isErrorModalVisible = true;
-        return;
-      }
-      if (this.reservationForm.paymentAmount < this.selectedUnit.reservation_fee ) {
-        this.errorMessage = "Payment Amount Insufficient";
-        this.isErrorModalVisible = true;
-        return;
-      }
-      const data = {
-        customer_name: this.reservationForm.customerName,
-        site_id: parseInt(this.siteId, 10), // Convert to integer
-        unit_id: this.selectedUnit.id,
-        commission:this.selectedUnit.commission,
-        broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
-        company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
-        payment_amount: this.reservationForm.paymentAmount,
-        payment_method: this.reservationForm.paymentMethod,
-        payment_reference: this.reservationForm.paymentReference || null, // Payment reference is optional if payment is "cash"
-        reservation_file: this.reservationForm.file
-          ? this.reservationForm.file.name
-          : null, // Ensure file is present
-      };
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/reserve-unit/",
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json", // Sending JSON data
-            },
-          }
-        );
-
-        // Set the success message to display in the pop-up
-        this.successMessage = "Reservation submitted successfully!";
-
-        setTimeout(() => {
-          this.showSuccessMessage = true; // Trigger to show success message
-        }, 500);
-
-        // Close the modal after success
-        this.closeReserveModal();
-
-        // Reset the reservation form
-        this.reservationForm = {
-          customerName: "",
-          paymentAmount: "",
-          paymentMethod: "",
-          paymentDate: "",
-          paymentReference: "",
-          file: null,
-        };
-
-        console.log("Sale created:", response.data);
-      } catch (error) {
-        console.error("Error submitting reservation:", error);
-        this.errorMessage =
-          "There was an error submitting the reservation. Please try again."; // Display error message
-      }
-    },
-
-    closePopup() {
-      this.successMessage = ""; // Hide the success message pop-up
-      this.$router.push({ name: "AffiliatedUnits" }); // Redirect to the 'AffiliatedUnits' page
-    },
-     // Trigger the error modal
-  showErrorModal(message) {
-    this.errorMessage = message; // Set the error message
-    this.isErrorModalVisible = true; // Open the error modal
-  },
-  // Handle closing of the modal
-  handleErrorModalClose() {
-    this.isErrorModalVisible = false; // Ensure modal closes
-    this.errorMessage = ''; // Clear the error message
-  },
-  closeErrorModal() {
-    this.handleErrorModalClose();
-  },
   },
 };
 </script>
 
 <style scoped>
-
 html,
 body {
   height: 100%;
@@ -739,6 +366,15 @@ body {
   /* Center the wrapper */
 }
 
+.card {
+  background-color: #fff;
+  margin-bottom: 10px;
+  margin-top: 0;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .title-left {
   display: flex;
   align-items: center;
@@ -765,19 +401,6 @@ body {
   /* Matches the max-width of the card */
   margin: 0 auto;
   /* Centers the grid within the parent */
-}
-
-.site-card {
-  background: #fff;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
-}
-
-.site-card:hover {
-  transform: translateY(-2px);
 }
 
 .toolbar {
@@ -988,6 +611,58 @@ body {
 .unit-card:hover {
   background-color: #e8e8e8;
   transition: ease 0.3s;
+}
+
+.outside-headers {
+  display: grid;
+  grid-template-columns: 50% 40% 10%;
+  padding: 0px 18px;
+  margin: 20px auto 10px;
+  max-width: 1100px;
+}
+
+.header-item {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+.site-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+  background: #fff;
+}
+
+.site-table th,
+.site-table td {
+  padding-bottom: 5px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+}
+
+.site-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.site-table th:nth-child(1),
+.site-table td:nth-child(1) {
+  width: 50%;
+}
+
+.site-table th:nth-child(2),
+.site-table td:nth-child(2) {
+  width: 40%;
+}
+
+.site-table th:nth-child(3),
+.site-table td:nth-child(3) {
+  width: 10%;
 }
 
 /* Modal Content */

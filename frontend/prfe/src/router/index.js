@@ -40,7 +40,7 @@ import AvailableUnits from "@/components/AvailableUnits.vue"; // Adjust the path
 import SalesDetailsPage from "@/components/SalesDetailsPage.vue";
 import BrkTest from "@/views/broker/BrkTest.vue";
 import ReservePage from "@/components/ReservePage.vue";
-import PaymentPlan from '@/components/PaymentPlan.vue';
+import PaymentPlan from '@/components/UnitDetails.vue';
 
 
 

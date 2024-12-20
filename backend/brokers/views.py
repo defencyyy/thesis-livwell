@@ -5,7 +5,15 @@ from rest_framework.permissions import IsAuthenticated
 from developers.models import Developer
 from .models import Broker
 from .serializers import DeveloperBrokerSerializer, EditBrokerSerializer
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
 
+def get_developer_company(request):
+
+    developer = request.user
+    if not hasattr(developer, 'company'):
+        return None
+    return developer.company
 
 class BrokerListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -186,30 +194,39 @@ class ArchivedBrokerView(APIView):
         except Broker.DoesNotExist:
             return Response({"error": "Broker not found or not archived"}, status=status.HTTP_404_NOT_FOUND)
 
-from django.http import JsonResponse
-from django.db.models import Count
-from sales.models import Sale
-from .models import Broker
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def top_brokers(request):
-    # Query brokers and annotate with total sales count
-    brokers = Broker.objects.all()
+    
+    try:
+        # Get the developer instance associated with the request's user
+        developer = Developer.objects.get(id=request.user.id)
 
-    # Sort brokers based on total sales
-    sorted_brokers = sorted(brokers, key=lambda broker: broker.total_sales, reverse=True)
+        if not hasattr(developer, 'company') or developer.company is None:
+            return JsonResponse({"error": "Company not found for this developer."}, status=status.HTTP_404_NOT_FOUND)
 
-    # Get top 5 brokers
-    top_brokers = sorted_brokers[:5]
+        # Query brokers associated with the developer's company
+        brokers = Broker.objects.filter(company=developer.company)
 
-    # Prepare the response data
-    broker_data = [
-        {
-            'id': broker.id,
-            'full_name': broker.get_full_name(),
-            'total_sales': broker.total_sales,  # Access the property here, don't set it
-            'total_commissions': broker.total_commissions,
-        }
-        for broker in top_brokers
-    ]
+        # Sort brokers based on total sales
+        sorted_brokers = sorted(brokers, key=lambda broker: broker.total_sales, reverse=True)
 
-    return JsonResponse(broker_data, safe=False)
+        # Get top 5 brokers
+        top_brokers = sorted_brokers[:5]
+
+        # Prepare the response data
+        broker_data = [
+            {
+                'id': broker.id,
+                'full_name': broker.get_full_name(),
+                'total_sales': broker.total_sales,
+                'total_commissions': broker.total_commissions,
+            }
+            for broker in top_brokers
+        ]
+
+        return JsonResponse(broker_data, safe=False, status=status.HTTP_200_OK)
+
+    except Developer.DoesNotExist:
+        return JsonResponse({"error": "Developer not found."}, status=status.HTTP_404_NOT_FOUND)
