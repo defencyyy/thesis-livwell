@@ -121,17 +121,32 @@
           v-model="showNotification"
           :title="notificationTitle"
           hide-footer
+          hide-header
           centered
         >
-          <p>{{ notificationMessage }}</p>
-          <div class="button-container">
-            <button
-              type="button"
-              @click="showNotification = false"
-              class="btn-cancel-right"
+          <div class="modal-title p-3">
+            <i
+              :class="notificationIcon()"
+              style="margin-right: 10px; font-size: 22px"
+            ></i>
+            <h5 class="custom-title mb-0">{{ notificationTitle }}</h5>
+          </div>
+
+          <div class="p-3">
+            <p>{{ notificationMessage }}</p>
+            <div
+              class="d-flex justify-content-end gap-2"
+              style="margin-top: 30px"
             >
-              Close
-            </button>
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel"
+                style="width: 100px"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </b-modal>
 
@@ -140,25 +155,32 @@
           v-model="showConfirmModal"
           :title="'Confirmation'"
           hide-footer
+          hide-header
           centered
         >
-          <p>{{ confirmMessage }}</p>
-          <div class="button-container">
-            <!-- Cancel Button -->
-            <button
-              type="button"
-              @click="cancelAction"
-              class="btn btn-secondary"
+          <div class="modal-title p-3">
+            <i
+              class="fas fa-info-circle text-secondary"
+              style="margin-right: 10px; font-size: 22px"
+            ></i>
+            <h5 class="custom-title mb-0">Confirmation</h5>
+          </div>
+
+          <div class="p-3">
+            <p>{{ confirmMessage }}</p>
+
+            <div
+              class="d-flex justify-content-end gap-2"
+              style="margin-top: 30px"
             >
-              Cancel
-            </button>
-            <button
-              type="button"
-              @click="confirmAction"
-              class="btn btn-primary"
-            >
-              Confirm
-            </button>
+              <button type="button" @click="confirmAction" class="btn-add">
+                Confirm
+              </button>
+
+              <button type="button" @click="cancelAction" class="btn-cancel">
+                Cancel
+              </button>
+            </div>
           </div>
         </b-modal>
       </div>
@@ -204,6 +226,7 @@ export default {
       showNotification: false,
       notificationTitle: "",
       notificationMessage: "",
+      notificationType: "",
       showConfirmModal: false, // Controls modal visibility
       confirmMessage: "", // Stores the confirmation message
       actionToConfirm: null, // Renamed this from 'confirmAction'
@@ -216,10 +239,26 @@ export default {
       authToken: (state) => state.authToken,
     }),
   },
+
   mounted() {
     this.fetchAccountDetails();
   },
   methods: {
+    promptAccountUpdate() {
+      this.showConfirmation(
+        "Are you sure you want to update your account?",
+        this.updateAccount,
+        []
+      );
+    },
+    notificationIcon() {
+      if (this.notificationType === "success") {
+        return "fas fa-check-circle text-success"; // Green check icon
+      } else if (this.notificationType === "error") {
+        return "fas fa-exclamation-circle text-danger"; // Red error icon
+      }
+      return ""; // Default or no icon
+    },
     async fetchAccountDetails() {
       try {
         const response = await axios.get(
@@ -250,16 +289,6 @@ export default {
       }
     },
 
-    // This method triggers the confirmation dialog before proceeding with the update
-    promptAccountUpdate() {
-      // Show confirmation before updating the account
-      this.showConfirmation(
-        "Are you sure you want to update your account?",
-        this.updateAccount, // This is the method to call if confirmed
-        [] // No parameters to pass to updateAccount
-      );
-    },
-
     async updateAccount() {
       this.username = this.username.toLowerCase();
 
@@ -274,6 +303,7 @@ export default {
         this.confirmNewPassword === "" // Check if confirm password is empty
       ) {
         this.showNotification = true;
+        this.notificationType = "error";
         this.notificationTitle = "Invalid";
         this.notificationMessage =
           "No changes detected. Please update some fields.";
@@ -286,6 +316,7 @@ export default {
       );
       if (!isCurrentPasswordValid) {
         this.showNotification = true;
+        this.notificationType = "error";
         this.notificationTitle = "Error";
         this.notificationMessage = "Current password is incorrect.";
         return;
@@ -300,6 +331,7 @@ export default {
         // Check if passwords match
         if (this.newPassword !== this.confirmNewPassword) {
           this.showNotification = true;
+          this.notificationType = "error";
           this.notificationTitle = "Error";
           this.notificationMessage = "New passwords do not match.";
           return;
@@ -308,6 +340,7 @@ export default {
         // Check if the new password meets the regex criteria
         if (!passwordRegex.test(this.newPassword)) {
           this.showNotification = true;
+          this.notificationType = "error";
           this.notificationTitle = "Error";
           this.notificationMessage =
             "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
@@ -336,6 +369,7 @@ export default {
         );
 
         // If update is successful, show success message
+        this.notificationType = "success";
         this.notificationTitle = "Success";
         this.notificationMessage = "Account updated successfully!";
         this.showNotification = true;
@@ -345,11 +379,13 @@ export default {
         if (error.response && error.response.data) {
           const errorMessage =
             error.response.data.message || "An error occurred.";
+          this.notificationType = "error";
           this.notificationTitle = "Error";
           this.notificationMessage = errorMessage;
           this.showNotification = true;
         } else {
           // General error message for unexpected errors
+          this.notificationType = "error";
           this.notificationTitle = "Error";
           this.notificationMessage =
             "An error occurred while updating your account.";
@@ -380,6 +416,42 @@ export default {
       }
     },
 
+    async performAccountUpdate() {
+      this.loading = true;
+      try {
+        await axios.put(
+          "http://localhost:8000/developer/account/",
+          {
+            username: this.username,
+            first_name: this.firstName,
+            last_name: this.lastName,
+            email: this.email,
+            contact_number: this.contactNumber,
+            current_password: this.currentPassword,
+            new_password: this.newPassword,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${this.authToken}`,
+            },
+          }
+        );
+        this.notificationType = "success";
+        this.notificationTitle = "Success";
+        this.notificationMessage = "Account updated successfully!";
+        this.showNotification = true;
+        this.resetPasswordFields();
+      } catch {
+        this.notificationType = "error";
+        this.notificationTitle = "Error";
+        this.notificationMessage =
+          "An error occurred while updating your account.";
+        this.showNotification = true;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     resetPasswordFields() {
       this.currentPassword = "";
       this.newPassword = "";
@@ -403,6 +475,7 @@ export default {
         this.showConfirmModal = false;
       } catch (error) {
         this.showConfirmModal = false;
+        this.notificationType = "error";
         this.notificationTitle = "Error";
         this.notificationMessage = "An error occurred during the action.";
         this.showNotification = true;
@@ -537,9 +610,15 @@ h5 {
   padding: 10px;
 }
 
-.button-container {
-  display: flex;
-  justify-content: flex-end;
+.btn-add {
+  background-color: #0560fd;
+  /* Button primary color */
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  /* Adjust the border radius */
+  padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel-right {
@@ -559,5 +638,17 @@ h5 {
 
 .btn-cancel-right:focus {
   outline: none;
+}
+
+.custom-title {
+  font-style: normal;
+  font-size: 20px;
+}
+
+.modal-title {
+  display: flex;
+  /* Use Flexbox for side-by-side layout */
+  align-items: center;
+  /* Align icon and text vertically */
 }
 </style>
