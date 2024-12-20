@@ -23,6 +23,7 @@
                 <span class="header-item">Actions</span>
               </div>
 
+              <div class="scrollable-table-container">
               <div
                 v-for="milestone in milestones"
                 :key="milestone.id"
@@ -68,6 +69,7 @@
                     </tbody>
                   </table>
                 </div>
+              </div>
               </div>
             </div>
             <div class="d-flex justify-content-end mt-3">
@@ -139,7 +141,6 @@
           centered
           size="lg"
           :title="newMilestone.id ? 'Edit Milestone' : 'Add Milestone'"
-          @hide="closeForm"
         >
           <!-- Modal Title -->
           <div class="modal-title p-3">
@@ -157,7 +158,7 @@
               <div class="col-md-6">
                 <!-- Name -->
                 <div class="mb-3">
-                  <label for="milestoneName" class="form-label">Name</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Milestone Name</small>
                   <input
                     type="text"
                     class="form-control"
@@ -170,9 +171,7 @@
 
                 <!-- Description -->
                 <div class="mb-3">
-                  <label for="milestoneDescription" class="form-label"
-                    >Description</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Description</small>
                   <textarea
                     class="form-control"
                     id="milestoneDescription"
@@ -188,7 +187,7 @@
               <div class="col-md-6">
                 <!-- Reward -->
                 <div class="mb-3">
-                  <label for="milestoneReward" class="form-label">Reward</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Reward</small>
                   <input
                     type="text"
                     class="form-control"
@@ -201,9 +200,7 @@
 
                 <!-- Milestone Type -->
                 <div class="mb-3">
-                  <label for="milestoneType" class="form-label"
-                    >Milestone Type</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Milestone Type</small>
                   <select
                     class="form-select"
                     v-model="newMilestone.type"
@@ -217,9 +214,7 @@
 
                 <!-- Conditional Fields -->
                 <div v-if="newMilestone.type === 'sales'" class="mb-3">
-                  <label for="salesThreshold" class="form-label"
-                    >Sales Threshold</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Sales Threshold</small>
                   <input
                     type="number"
                     class="form-control"
@@ -231,9 +226,7 @@
                 </div>
 
                 <div v-if="newMilestone.type === 'commission'" class="mb-3">
-                  <label for="commissionThreshold" class="form-label"
-                    >Commission Threshold</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Commission Threshold</small>
                   <input
                     type="number"
                     class="form-control"
@@ -332,7 +325,7 @@
             </div>
           </div>
         </div>
-        <nav aria-label="Page navigation example">
+        <nav aria-label="Page navigation example" style="max-width: 1100px; width: 100%; padding: 0 !important;">
           <ul class="pagination">
             <li :class="['page-item', { disabled: currentPage === 1 }]">
               <a
@@ -1211,6 +1204,7 @@ td {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel {
@@ -1275,12 +1269,22 @@ td {
 }
 
 .dropdown {
+  appearance: none;
   padding: 8px 12px;
+  height: 38px;
+  /* Explicitly set height */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+  width: 80%;
+  max-width: 150px;
   background-color: white;
   color: #333;
+  padding-right: 30px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M7 10l5 5 5-5z"/%3E%3C/svg%3E');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 .card {
@@ -1371,7 +1375,7 @@ td {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
+  padding: 30px 0;
 
   /* Adjust line height for compactness */
 }
@@ -1381,21 +1385,26 @@ td {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {
   background-color: #007bff; /* Blue background for active page */
   color: white; /* White text for active page */
+}
+
+/* Custom Scrollbar Container */
+.scrollable-table-container {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;  /* Firefox only */
 }
 
 </style>

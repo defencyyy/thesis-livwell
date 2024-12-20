@@ -55,10 +55,7 @@
 
                 <div class="right-section">
                   <!-- Add Site Button -->
-                  <button
-                    @click="showAddModal = true"
-                    class="btn-primary add-button"
-                  >
+                  <button @click="showAddModal = true" class="btn-add">
                     Add Site
                   </button>
                 </div>
@@ -223,7 +220,9 @@
                 <div class="col-md-6">
                   <!-- Site Name -->
                   <div class="form-group mb-3">
-                    <label for="siteName" class="form-label">Site Name</label>
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Site Name</small
+                    >
                     <input
                       type="text"
                       v-model="newSite.name"
@@ -237,7 +236,10 @@
                   <div class="row mb-3">
                     <!-- Region Dropdown -->
                     <div class="col-md-6">
-                      <label for="region" class="form-label">Region</label>
+                      <small
+                        style="font-size: 14px; color: #6c757d; padding: 2px"
+                        >Region</small
+                      >
                       <select
                         v-model="selectedRegion"
                         id="region"
@@ -256,7 +258,10 @@
 
                     <!-- Province Dropdown -->
                     <div class="col-md-6">
-                      <label for="province" class="form-label">Province</label>
+                      <small
+                        style="font-size: 14px; color: #6c757d; padding: 2px"
+                        >Province</small
+                      >
                       <select
                         v-model="selectedProvince"
                         id="province"
@@ -276,8 +281,8 @@
 
                   <!-- Municipality Dropdown -->
                   <div class="form-group mb-3">
-                    <label for="municipality" class="form-label"
-                      >Municipality</label
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Municipality</small
                     >
                     <select
                       v-model="selectedMunicipality"
@@ -297,7 +302,9 @@
 
                   <!-- Barangay Dropdown -->
                   <div class="form-group mb-3">
-                    <label for="barangay" class="form-label">Barangay</label>
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Barangay</small
+                    >
                     <select
                       v-model="newSite.barangay"
                       id="barangay"
@@ -316,8 +323,8 @@
 
                   <!-- Address Field (New) -->
                   <div class="form-group mb-3">
-                    <label for="address" class="form-label"
-                      >Additional Address</label
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Additional Address</small
                     >
                     <input
                       type="text"
@@ -330,8 +337,9 @@
 
                   <div class="row mb-3">
                     <div class="col-md-6">
-                      <label for="postalCode" class="form-label"
-                        >Postal Code</label
+                      <small
+                        style="font-size: 14px; color: #6c757d; padding: 2px"
+                        >Postal Code</small
                       >
                       <input
                         type="text"
@@ -342,7 +350,10 @@
                     </div>
 
                     <div class="col-md-6">
-                      <label for="siteStatus" class="form-label">Status</label>
+                      <small
+                        style="font-size: 14px; color: #6c757d; padding: 2px"
+                        >Status</small
+                      >
                       <select
                         v-model="newSite.status"
                         id="siteStatus"
@@ -365,8 +376,8 @@
                 <div class="col-md-6">
                   <!-- Image Upload Section -->
                   <div class="form-group mb-3">
-                    <label for="sitePicture" class="form-label"
-                      >Upload Photo</label
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Upload Photo</small
                     >
                     <input
                       type="file"
@@ -393,12 +404,12 @@
                 <!-- New Fields for Commission, Discounts, and Charges -->
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="commission" class="form-label">
-                      Broker Commission:
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Broker Commission:
                       <span class="text-muted">{{
                         formatCurrency(newSite.commission)
-                      }}</span>
-                    </label>
+                      }}</span></small
+                    >
                     <input
                       type="number"
                       v-model="newSite.commission"
@@ -411,11 +422,11 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="spotDiscountPercentage" class="form-label"
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
                       >Spot Discount Percentage:
                       <span class="text-muted"
                         >{{ newSite.spot_discount_percentage }}%</span
-                      ></label
+                      ></small
                     >
                     <input
                       type="number"
@@ -430,12 +441,14 @@
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="reservationFee" class="form-label">
+                    <small
+                      style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >
                       Reservation Fee:
                       <span class="text-muted">{{
                         formatCurrency(newSite.reservation_fee)
                       }}</span>
-                    </label>
+                    </small>
                     <input
                       type="number"
                       v-model="newSite.reservation_fee"
@@ -447,11 +460,13 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="spotDiscountFlat" class="form-label"
-                      >Spot Discount Flat:
+                    <small
+                      style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >
+                      Spot Discount Flat:
                       <span class="text-muted"
                         >{{ newSite.spot_discount_flat }}%</span
-                      ></label
+                      ></small
                     >
                     <input
                       type="number"
@@ -466,12 +481,14 @@
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="otherCharges" class="form-label">
+                    <small
+                      style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >
                       Other Charges:
                       <span class="text-muted">{{
                         formatCurrency(newSite.other_charges)
                       }}</span>
-                    </label>
+                    </small>
                     <input
                       type="number"
                       v-model="newSite.other_charges"
@@ -483,12 +500,14 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="vatPercentage" class="form-label">
+                    <small
+                      style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >
                       VAT Percentage:
                       <span class="text-muted"
                         >{{ newSite.vat_percentage }}%</span
                       >
-                    </label>
+                    </small>
                     <input
                       type="number"
                       v-model="newSite.vat_percentage"
@@ -503,8 +522,8 @@
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="numberOfSections" class="form-label"
-                      >Number of Sections</label
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Number of Section</small
                     >
                     <input
                       type="number"
@@ -519,8 +538,10 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="maximumMonths" class="form-label"
-                      >Month Limit for Downpayment</label
+                    <small
+                      style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >
+                      >Month Limit for Downpayment</small
                     >
                     <input
                       type="number"
@@ -536,8 +557,8 @@
                 <!-- New Fields for Numbering Type and Section Label -->
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <label for="numberingType" class="form-label"
-                      >Numbering Type</label
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Numbering Type</small
                     >
                     <select
                       v-model="newSite.numbering_type"
@@ -553,8 +574,8 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="sectionLabel" class="form-label"
-                      >Section Label</label
+                    <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                      >Section Label</small
                     >
                     <select
                       v-model="newSite.section_label"
@@ -2350,6 +2371,7 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-add-floors {
@@ -2382,9 +2404,7 @@ body {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
-
-  /* Adjust line height for compactness */
+  margin: 0 50px;
 }
 
 .page-item {

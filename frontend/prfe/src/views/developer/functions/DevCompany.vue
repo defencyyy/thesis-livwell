@@ -32,7 +32,7 @@
 
               <div class="col-md-8">
                 <div class="mb-3">
-                  <label for="logo" class="form-label">Upload Logo</label>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px; text-align: left; display: block">Upload Logo</small>
                   <input
                     type="file"
                     class="form-control"
@@ -43,9 +43,7 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="companyDescription" class="form-label"
-                    >Company Description</label
-                  >
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px; text-align: left; display: block">Company Description</small>
                   <textarea
                     class="form-control"
                     id="companyDescription"
@@ -410,6 +408,7 @@ textarea:focus {
   border: none;
   border-radius: 3px;
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-primary {

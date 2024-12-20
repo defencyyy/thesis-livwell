@@ -69,7 +69,6 @@
           hide-footer
           hide-header
           centered
-          @hide="onModalHide"
         >
 
         <div class="modal-title p-3">
@@ -79,7 +78,7 @@
           <div class="p-3">
 
           <div class="mb-3">
-            <small>Name </small>
+            <small style="font-size: 14px; color: #6c757d; padding: 2px">Name </small>
             <input
               type="text"
               class="form-control"
@@ -95,7 +94,7 @@
           </div>
 
           <div class="mb-3">
-            <small>Description</small>
+            <small style="font-size: 14px; color: #6c757d; padding: 2px">Description</small>
             
             <textarea
               class="form-control"

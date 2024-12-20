@@ -67,7 +67,7 @@
                   <div class="right-section">
                     <button
                       @click="openCreateTemplateModal"
-                      class="btn-primary add-button"
+                      class="btn-add"
                     >
                       Create Unit Template
                     </button>
@@ -1447,6 +1447,7 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .btn-cancel {
@@ -1457,6 +1458,7 @@ body {
   border-radius: 3px;
   /* Adjust the border radius */
   padding: 10px;
+  font-size: 14px;
 }
 
 .form-group label {
@@ -1496,7 +1498,7 @@ body {
   font-size: 12px;
   /* Smaller font size */
   line-height: 1;
-  margin: 0;
+  margin: 0 50px;
 
   /* Adjust line height for compactness */
 }
