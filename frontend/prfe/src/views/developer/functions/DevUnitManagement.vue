@@ -779,29 +779,21 @@
                 <form>
                   <!-- Unit Images Section -->
                   <b-form-group>
+                    <!-- Unit Template Images Section -->
                     <div
-                      v-if="selectedUnit.images && selectedUnit.images.length"
-                      id="carouselExampleIndicators"
+                      v-if="
+                        selectedUnit.unit_template &&
+                        selectedUnit.unit_template.images &&
+                        selectedUnit.unit_template.images.length
+                      "
                       class="carousel slide"
+                      :id="'carousel-' + selectedUnit.unit_template.id"
                       data-bs-ride="carousel"
                     >
-                      <!-- Indicators -->
-                      <div class="carousel-indicators">
-                        <button
-                          v-for="(image, index) in selectedUnit.images"
-                          :key="index"
-                          :data-bs-target="'#carouselExampleIndicators'"
-                          :data-bs-slide-to="index"
-                          :class="{ active: index === 0 }"
-                          :aria-current="index === 0 ? 'true' : null"
-                          :aria-label="'Slide ' + (index + 1)"
-                        ></button>
-                      </div>
-
-                      <!-- Carousel Items -->
                       <div class="carousel-inner">
                         <div
-                          v-for="(image, index) in selectedUnit.images"
+                          v-for="(image, index) in selectedUnit.unit_template
+                            .images"
                           :key="index"
                           :class="['carousel-item', { active: index === 0 }]"
                           class="position-relative"
@@ -809,26 +801,13 @@
                           <img
                             :src="getPictureUrl(image.image)"
                             class="d-block w-100"
-                            alt="Unit Picture"
+                            alt="Template Unit Picture"
                             style="
                               width: 100%;
                               height: 500px;
                               object-fit: cover;
                             "
                           />
-
-                          <!-- Delete Button -->
-                          <div
-                            class="image-overlay d-flex flex-column justify-content-center align-items-center"
-                          >
-                            <b-button
-                              size="sm"
-                              class="delete-button ml-2"
-                              @click="deleteImage(index)"
-                            >
-                              Delete
-                            </b-button>
-                          </div>
                         </div>
                       </div>
 
@@ -836,7 +815,9 @@
                       <button
                         class="carousel-control-prev"
                         type="button"
-                        data-bs-target="#carouselExampleIndicators"
+                        :data-bs-target="
+                          '#carousel-' + selectedUnit.unit_template.id
+                        "
                         data-bs-slide="prev"
                       >
                         <span
@@ -848,7 +829,9 @@
                       <button
                         class="carousel-control-next"
                         type="button"
-                        data-bs-target="#carouselExampleIndicators"
+                        :data-bs-target="
+                          '#carousel-' + selectedUnit.unit_template.id
+                        "
                         data-bs-slide="next"
                       >
                         <span
@@ -857,31 +840,107 @@
                         ></span>
                         <span class="visually-hidden">Next</span>
                       </button>
-                    </div>
-                    <p v-else>No images available for this unit.</p>
 
-                    <!-- Add Image Button -->
-                    <div
-                      v-if="
-                        selectedUnit.images && selectedUnit.images.length < 5
-                      "
-                      class="mt-3 d-flex align-items-center"
-                    >
-                      <b-button
-                        variant="primary"
-                        @click="triggerAddImage"
-                        class="btn-add me-2"
-                        style="width: 100px"
+                      <p class="mt-2 text-muted">
+                        Images are taken from the unit template
+                        {{ selectedUnit.unit_template.name }}.
+                      </p>
+                    </div>
+
+                    <!-- Fallback if no images in the unit template -->
+                    <div v-else-if="selectedUnit.unit_template">
+                      <p>The unit template of this unit has no images.</p>
+                    </div>
+
+                    <!-- Individual Unit Images Section (if no unit template) -->
+                    <div v-else>
+                      <div
+                        v-if="selectedUnit.images && selectedUnit.images.length"
+                        id="carouselExampleIndicators"
+                        class="carousel slide"
+                        data-bs-ride="carousel"
                       >
-                        Add Image
-                      </b-button>
-                      <input
-                        v-if="isAddingImage"
-                        type="file"
-                        accept="image/*"
-                        @change="handleFileChangeImage"
-                        class="form-control d-inline-block"
-                      />
+                        <div class="carousel-inner">
+                          <div
+                            v-for="(image, index) in selectedUnit.images"
+                            :key="index"
+                            :class="['carousel-item', { active: index === 0 }]"
+                            class="position-relative"
+                          >
+                            <img
+                              :src="getPictureUrl(image.image)"
+                              class="d-block w-100"
+                              alt="Unit Picture"
+                              style="
+                                width: 100%;
+                                height: 500px;
+                                object-fit: cover;
+                              "
+                            />
+                            <!-- Delete Button -->
+                            <div
+                              class="image-overlay d-flex flex-column justify-content-center align-items-center"
+                            >
+                              <b-button
+                                size="sm"
+                                class="delete-button ml-2"
+                                @click="deleteImage(index)"
+                              >
+                                Delete
+                              </b-button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <button
+                          class="carousel-control-prev"
+                          type="button"
+                          data-bs-target="#carouselExampleIndicators"
+                          data-bs-slide="prev"
+                        >
+                          <span
+                            class="carousel-control-prev-icon"
+                            aria-hidden="true"
+                          ></span>
+                          <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button
+                          class="carousel-control-next"
+                          type="button"
+                          data-bs-target="#carouselExampleIndicators"
+                          data-bs-slide="next"
+                        >
+                          <span
+                            class="carousel-control-next-icon"
+                            aria-hidden="true"
+                          ></span>
+                          <span class="visually-hidden">Next</span>
+                        </button>
+                      </div>
+
+                      <div
+                        v-if="
+                          selectedUnit.images && selectedUnit.images.length < 5
+                        "
+                        class="mt-3 d-flex align-items-center"
+                      >
+                        <b-button
+                          variant="primary"
+                          @click="triggerAddImage"
+                          class="btn-add me-2"
+                          style="width: 100px"
+                        >
+                          Add Image
+                        </b-button>
+                        <input
+                          v-if="isAddingImage"
+                          type="file"
+                          accept="image/*"
+                          @change="handleFileChangeImage"
+                          class="form-control d-inline-block"
+                        />
+                      </div>
                     </div>
                   </b-form-group>
 
@@ -1627,6 +1686,10 @@ export default {
       companyId: (state) => state.companyId,
     }),
 
+    isUnitTemplate() {
+      return this.selectedUnit && this.selectedUnit.unit_template;
+    },
+
     isAllSelected() {
       return (
         this.newUnitSections.length === this.sectionOptions.length &&
@@ -2318,6 +2381,7 @@ export default {
         );
         this.selectedSection = section;
         this.unitsData = response.data.data;
+
         this.showUnitManagementModal = true;
       } catch (error) {
         console.error("Error fetching units:", error);
@@ -2363,6 +2427,19 @@ export default {
         this.$nextTick(() => {
           this.selectedUnit = unit; // Shallow copy to prevent reference issues
           this.initialUnit = { ...unit };
+          if (this.selectedUnit.unit_template) {
+            console.log("Unit Template:", this.selectedUnit.unit_template); // Log the unit_template to check
+            console.log(
+              "Unit Template Name:",
+              this.selectedUnit.unit_template.name
+            ); // Access name safely
+            console.log(
+              "Unit Template Images:",
+              this.selectedUnit.unit_template.images
+            ); // Access images safely
+          } else {
+            console.log("Unit Template is not available.");
+          }
           this.showEditUnitModal = true; // Show the modal for editing
         });
       } else {
@@ -2455,8 +2532,10 @@ export default {
 
     // Trigger Add Image and show the file input
     triggerAddImage() {
-      if (this.selectedUnit.images.length < 5) {
-        this.isAddingImage = true; // Show the file input
+      if (!this.isUnitTemplate) {
+        if (this.selectedUnit.images.length < 5) {
+          this.isAddingImage = true; // Show the file input
+        }
       }
     },
 
@@ -2537,54 +2616,56 @@ export default {
     },
 
     async deleteImage(index) {
-      try {
-        const response = await axios.delete(
-          `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+      if (!this.isUnitTemplate) {
+        try {
+          const response = await axios.delete(
+            `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
 
-        if (response.status === 200) {
-          this.selectedUnit.images.splice(index, 1); // Remove the image from the array
+          if (response.status === 200) {
+            this.selectedUnit.images.splice(index, 1); // Remove the image from the array
 
-          // Reassign the "active" class to the first image if necessary
-          this.$nextTick(() => {
-            const carouselElement = document.querySelector(
-              "#carouselExampleIndicators"
-            );
-
-            if (carouselElement) {
-              const carouselItems =
-                carouselElement.querySelectorAll(".carousel-item");
-              const carouselIndicators = carouselElement.querySelectorAll(
-                ".carousel-indicators button"
+            // Reassign the "active" class to the first image if necessary
+            this.$nextTick(() => {
+              const carouselElement = document.querySelector(
+                "#carouselExampleIndicators"
               );
 
-              // If there are still images left
-              if (carouselItems.length > 0) {
-                // Remove the "active" class from all items and indicators
-                carouselItems.forEach((item) =>
-                  item.classList.remove("active")
-                );
-                carouselIndicators.forEach((indicator) =>
-                  indicator.classList.remove("active")
+              if (carouselElement) {
+                const carouselItems =
+                  carouselElement.querySelectorAll(".carousel-item");
+                const carouselIndicators = carouselElement.querySelectorAll(
+                  ".carousel-indicators button"
                 );
 
-                // Add the "active" class to the first remaining item and indicator
-                carouselItems[0].classList.add("active");
-                carouselIndicators[0].classList.add("active");
-              } else {
-                // If no images left, hide the carousel (or handle as appropriate)
-                carouselElement.style.display = "none";
+                // If there are still images left
+                if (carouselItems.length > 0) {
+                  // Remove the "active" class from all items and indicators
+                  carouselItems.forEach((item) =>
+                    item.classList.remove("active")
+                  );
+                  carouselIndicators.forEach((indicator) =>
+                    indicator.classList.remove("active")
+                  );
+
+                  // Add the "active" class to the first remaining item and indicator
+                  carouselItems[0].classList.add("active");
+                  carouselIndicators[0].classList.add("active");
+                } else {
+                  // If no images left, hide the carousel (or handle as appropriate)
+                  carouselElement.style.display = "none";
+                }
               }
-            }
-          });
+            });
+          }
+        } catch (error) {
+          console.error("Error deleting image:", error.response || error);
         }
-      } catch (error) {
-        console.error("Error deleting image:", error.response || error);
       }
     },
 

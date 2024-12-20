@@ -75,6 +75,7 @@ class UnitTemplateSerializer(serializers.ModelSerializer):
 
 class UnitSerializer(serializers.ModelSerializer):
     images = UnitImageSerializer(many=True, required=False)
+    unit_template = UnitTemplateSerializer()  # Include unit_template details
 
     class Meta:
         model = Unit
