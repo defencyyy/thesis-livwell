@@ -40,7 +40,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/developer/sales/status/${this.year}/`,
+          `${process.env.vue_app_api_url}/developer/sales/status/${this.year}/`,
           {
             method: "GET",
             headers: {

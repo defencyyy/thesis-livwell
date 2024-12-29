@@ -406,7 +406,7 @@ export default {
     async fetchSales() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sales/`,
+          `${process.env.vue_app_api_url}/developer/sales/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -426,7 +426,7 @@ export default {
     async fetchUnits() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/units/`,
+          `${process.env.vue_app_api_url}/developer/units/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -553,7 +553,7 @@ export default {
     async confirmSaleAction(saleId) {
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sales/${saleId}/`,
+          `${process.env.vue_app_api_url}/developer/sales/${saleId}/`,
           { status: this.selectedSale.status },
           {
             headers: {
@@ -599,10 +599,12 @@ export default {
       // Check if the file path contains '/media/' and adjust the path
       if (filePath.startsWith("/media/")) {
         // Replace '/media/' with '/media/reservations/' to match the correct folder
-        return `http://localhost:8000/media/reservations${filePath.slice(6)}`;
+        return `${
+          process.env.vue_app_api_url
+        }/media/reservations${filePath.slice(6)}`;
       }
       // If the path doesn't start with '/media/', just return the original URL
-      return `http://localhost:8000${filePath}`;
+      return `${process.env.vue_app_api_url}${filePath}`;
     },
     // Redirect to login page
     redirectToLogin() {
@@ -913,7 +915,6 @@ body {
   /* Adjust the border radius */
   padding: 10px;
   font-size: 12px;
-
 }
 
 .outside-headers {

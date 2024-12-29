@@ -6,10 +6,14 @@
           <div class="card rounded-3 text-black">
             <div class="card-body p-md-5 mx-md-4">
               <h2 class="text-start">Reset Your Password</h2>
-              <p class="text-start underline">Please enter a new password for your account, {{ username }}.</p>
+              <p class="text-start underline">
+                Please enter a new password for your account, {{ username }}.
+              </p>
               <form @submit.prevent="resetPassword">
                 <div class="form-outline mb-4">
-                  <label class="form-label" for="new-password">New Password</label>
+                  <label class="form-label" for="new-password"
+                    >New Password</label
+                  >
                   <input
                     type="password"
                     id="new-password"
@@ -20,7 +24,9 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  <label class="form-label" for="confirm-password">Confirm New Password</label>
+                  <label class="form-label" for="confirm-password"
+                    >Confirm New Password</label
+                  >
                   <input
                     type="password"
                     id="confirm-password"
@@ -41,15 +47,19 @@
                 </div>
 
                 <p v-if="error" class="text-danger">{{ error }}</p>
-                
+
                 <!-- Success/Error Modal -->
-                <b-modal v-model="showMessage" :title="'Password Reset Status'" hide-footer centered>
+                <b-modal
+                  v-model="showMessage"
+                  :title="'Password Reset Status'"
+                  hide-footer
+                  centered
+                >
                   <div>
                     <p>{{ modalMessage }}</p>
-                    <div class = "button-container-right">
+                    <div class="button-container-right">
                       <b-button @click="closeModal">Close</b-button>
                     </div>
-                    
                   </div>
                 </b-modal>
               </form>
@@ -62,12 +72,12 @@
 </template>
 
 <script>
-import { BModal, BButton } from "bootstrap-vue-3";  // Import necessary Bootstrap Vue components
+import { BModal, BButton } from "bootstrap-vue-3"; // Import necessary Bootstrap Vue components
 
 export default {
   components: {
     BModal,
-    BButton
+    BButton,
   },
   data() {
     return {
@@ -90,56 +100,63 @@ export default {
     async resetPassword() {
       this.error = null;
       this.loading = true;
-      
-  // Define a regex to validate all password criteria
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
-  if (!passwordRegex.test(this.newPassword)) {
-    this.modalMessage = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
-    this.showMessage = true;
-    this.isSuccess = false; // Indicate an error occurred
-    this.loading = false; // Stop the loading spinner
-    return;
-  }
+      // Define a regex to validate all password criteria
+      const passwordRegex =
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
-  if (this.newPassword !== this.confirmPassword) {
-    this.modalMessage = "New passwords do not match.";
-    this.showMessage = true;
-    this.isSuccess = false; // Indicate an error occurred
-    this.loading = false; // Stop the loading spinner
-    return;
-  }
+      if (!passwordRegex.test(this.newPassword)) {
+        this.modalMessage =
+          "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+        this.showMessage = true;
+        this.isSuccess = false; // Indicate an error occurred
+        this.loading = false; // Stop the loading spinner
+        return;
+      }
+
+      if (this.newPassword !== this.confirmPassword) {
+        this.modalMessage = "New passwords do not match.";
+        this.showMessage = true;
+        this.isSuccess = false; // Indicate an error occurred
+        this.loading = false; // Stop the loading spinner
+        return;
+      }
 
       if (this.newPassword === this.confirmPassword) {
         try {
-          const response = await fetch(`http://localhost:8000/reset-password/${this.token}/`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              new_password: this.newPassword,
-            }),
-          });
+          const response = await fetch(
+            `${process.env.vue_app_api_url}/reset-password/${this.token}/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                new_password: this.newPassword,
+              }),
+            }
+          );
 
           const data = await response.json();
 
           if (response.ok) {
-            this.modalMessage = "Password reset successfully! You can now log in with your new password.";
+            this.modalMessage =
+              "Password reset successfully! You can now log in with your new password.";
             this.showMessage = true;
             this.isSuccess = true; // Indicate success
             setTimeout(() => {
               this.$router.push("/login"); // Redirect to login page after password reset
             }, 9000); // Delay to show the modal before redirecting
           } else {
-            this.modalMessage = data.message || "An error occurred. Please try again.";
+            this.modalMessage =
+              data.message || "An error occurred. Please try again.";
             this.showMessage = true;
             this.isSuccess = false; // Indicate an error occurred
-
           }
         } catch (error) {
           console.error("Request error:", error);
-          this.modalMessage = "An error occurred during the password reset request.";
+          this.modalMessage =
+            "An error occurred during the password reset request.";
           this.showMessage = true;
           this.isSuccess = false; // Indicate an error occurred
         } finally {
@@ -152,11 +169,11 @@ export default {
     },
     closeModal() {
       this.showMessage = false; // Close the modal
-       if (this.isSuccess) {
-      // Redirect to login page only if the reset password was successful
-      this.$router.push("/login");
-    }
-    }
+      if (this.isSuccess) {
+        // Redirect to login page only if the reset password was successful
+        this.$router.push("/login");
+      }
+    },
   },
 };
 </script>

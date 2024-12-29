@@ -59,62 +59,74 @@ export default {
     };
   },
   methods: {
-  async resetPassword() {
-    // Client-side password validation
-    const password = this.newPassword;
-    const confirmPassword = this.confirmPassword;
+    async resetPassword() {
+      // Client-side password validation
+      const password = this.newPassword;
+      const confirmPassword = this.confirmPassword;
 
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      this.error = "Passwords do not match.";
-      this.message = "";
-      return;
-    }
-
-    // Validate password strength on the client-side
-    const passwordRequirements = [
-      { regex: /.{8,}/, message: "Password must be at least 8 characters long." },
-      { regex: /[A-Z]/, message: "Password must contain at least one uppercase letter." },
-      { regex: /[a-z]/, message: "Password must contain at least one lowercase letter." },
-      { regex: /\d/, message: "Password must contain at least one number." },
-      { regex: /[!@#$%^&*(),.?":{}|<>]/, message: "Password must contain at least one special character." },
-    ];
-
-    for (const rule of passwordRequirements) {
-      if (!rule.regex.test(password)) {
-        this.error = rule.message;
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        this.error = "Passwords do not match.";
         this.message = "";
         return;
       }
-    }
 
-    // Proceed with the password reset request if validation passes
-    try {
-      const response = await fetch(
-        `http://localhost:8000/broker/reset-pass/${this.$route.params.uid}/${this.$route.params.token}/`,
+      // Validate password strength on the client-side
+      const passwordRequirements = [
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ new_password: password }),
-        }
-      );
+          regex: /.{8,}/,
+          message: "Password must be at least 8 characters long.",
+        },
+        {
+          regex: /[A-Z]/,
+          message: "Password must contain at least one uppercase letter.",
+        },
+        {
+          regex: /[a-z]/,
+          message: "Password must contain at least one lowercase letter.",
+        },
+        { regex: /\d/, message: "Password must contain at least one number." },
+        {
+          regex: /[!@#$%^&*(),.?":{}|<>]/,
+          message: "Password must contain at least one special character.",
+        },
+      ];
 
-      if (response.ok) {
-        this.message = "Password reset successfully!";
-        this.error = "";
-      } else {
-        const errorData = await response.json();
-        this.error = errorData.message || "Failed to reset password.";
+      for (const rule of passwordRequirements) {
+        if (!rule.regex.test(password)) {
+          this.error = rule.message;
+          this.message = "";
+          return;
+        }
+      }
+
+      // Proceed with the password reset request if validation passes
+      try {
+        const response = await fetch(
+          `${process.env.vue_app_api_url}/broker/reset-pass/${this.$route.params.uid}/${this.$route.params.token}/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ new_password: password }),
+          }
+        );
+
+        if (response.ok) {
+          this.message = "Password reset successfully!";
+          this.error = "";
+        } else {
+          const errorData = await response.json();
+          this.error = errorData.message || "Failed to reset password.";
+          this.message = "";
+        }
+      } catch (error) {
+        this.error = "An error occurred while resetting the password.";
         this.message = "";
       }
-    } catch (error) {
-      this.error = "An error occurred while resetting the password.";
-      this.message = "";
-    }
+    },
   },
-}
 };
 </script>
 

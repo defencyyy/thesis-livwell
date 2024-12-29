@@ -99,9 +99,11 @@ export default {
 
         // Determine the logout endpoint based on userRole
         if (this.userRole === "developer") {
-          logoutEndpoint = "http://localhost:8000/api/token/devlogout/";
+          logoutEndpoint =
+            "${process.env.vue_app_api_url}/api/token/devlogout/";
         } else if (this.userRole === "broker") {
-          logoutEndpoint = "http://localhost:8000/api/token/brklogout/";
+          logoutEndpoint =
+            "${process.env.vue_app_api_url}/api/token/brklogout/";
         } else {
           throw new Error("Unsupported user role.");
         }

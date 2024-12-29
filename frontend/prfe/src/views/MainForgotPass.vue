@@ -55,7 +55,9 @@
     <div v-if="successMessage" class="modal-overlay">
       <div class="modal-content">
         <p>{{ successMessage }}</p>
-        <button @click="successMessage = null" class="btn btn-primary">OK</button>
+        <button @click="successMessage = null" class="btn btn-primary">
+          OK
+        </button>
       </div>
     </div>
 
@@ -76,36 +78,39 @@ export default {
       username: "",
       email: "",
       error: null,
-      successMessage: null,  // To hold the success message for the pop-up
+      successMessage: null, // To hold the success message for the pop-up
       loading: false,
     };
   },
   methods: {
     async requestPasswordReset() {
       this.error = null;
-      this.successMessage = null;  // Clear any previous messages
+      this.successMessage = null; // Clear any previous messages
       this.loading = true;
 
       if (this.username && this.email) {
         try {
-          const response = await fetch("http://localhost:8000/forgot-password/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username: this.username.toLowerCase(),
-              email: this.email,
-            }),
-          });
+          const response = await fetch(
+            "${process.env.vue_app_api_url}/forgot-password/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: this.username.toLowerCase(),
+                email: this.email,
+              }),
+            }
+          );
 
           const data = await response.json();
 
           if (response.ok) {
             this.successMessage = "Password reset email sent successfully.";
             setTimeout(() => {
-              this.successMessage = null;  // Hide the message after 5 seconds
-            }, 5000);  // 5 seconds delay before hiding
+              this.successMessage = null; // Hide the message after 5 seconds
+            }, 5000); // 5 seconds delay before hiding
           } else {
             this.error = data.message || "An error occurred. Please try again.";
           }

@@ -15,14 +15,21 @@
           </div>
         </div>
 
-        <div class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)">
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
           <div class="card-body">
             <!-- Toolbar -->
             <div class="toolbar">
               <div class="left-section">
                 <div class="search-bar-container">
-                  <input type="text" v-model="searchQuery" placeholder="Search Customers" class="search-bar" />
+                  <input
+                    type="text"
+                    v-model="searchQuery"
+                    placeholder="Search Customers"
+                    class="search-bar"
+                  />
                   <i class="fa fa-search search-icon"></i>
                 </div>
                 <!-- Sort Dropdown -->
@@ -38,7 +45,11 @@
                 </select>
 
                 <!-- Active vs Archived View Filter -->
-                <select v-model="viewFilter" @change="toggleArchived" class="dropdown2">
+                <select
+                  v-model="viewFilter"
+                  @change="toggleArchived"
+                  class="dropdown2"
+                >
                   <option value="active">View: Active</option>
                   <option value="archived">View: Archived</option>
                 </select>
@@ -62,15 +73,23 @@
           </div>
 
           <!-- Conditional Rendering -->
-          <div v-if="currentCustomers.length === 0" class="no-customers-message">
+          <div
+            v-if="currentCustomers.length === 0"
+            class="no-customers-message"
+          >
             No customers found.
           </div>
 
-          <div v-else v-for="(customer, index) in currentCustomers" :key="customer.id || index"
-            class="card border-0 rounded-1 mx-auto my-2" style="
+          <div
+            v-else
+            v-for="(customer, index) in currentCustomers"
+            :key="customer.id || index"
+            class="card border-0 rounded-1 mx-auto my-2"
+            style="
               max-width: 1100px;
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            ">
+            "
+          >
             <div class="card-body">
               <table class="customer-table">
                 <tbody>
@@ -101,10 +120,10 @@
                         {{
                           customer.broker_sales
                             ? customer.broker_sales.reduce(
-                              (count, sale) =>
-                                sale.site && sale.unit ? count + 1 : count,
-                              0
-                            )
+                                (count, sale) =>
+                                  sale.site && sale.unit ? count + 1 : count,
+                                0
+                              )
                             : 0
                         }}
                       </span>
@@ -114,21 +133,24 @@
                         {{
                           customer.broker
                             ? customer.broker.first_name +
-                            " " +
-                            customer.broker.last_name
+                              " " +
+                              customer.broker.last_name
                             : "N/A"
                         }}
                       </span>
                     </td>
                     <td>
                       <div class="broker-actions d-flex">
-                        <button @click="viewCustomer(customer)" style="
+                        <button
+                          @click="viewCustomer(customer)"
+                          style="
                             border: none;
                             background-color: transparent;
                             color: #343a40;
                             cursor: pointer;
                             font-size: 18px;
-                          ">
+                          "
+                        >
                           <i class="fas fa-eye"></i>
                         </button>
                       </div>
@@ -142,17 +164,33 @@
           <nav aria-label="Page navigation example">
             <ul class="pagination">
               <li :class="['page-item', { disabled: currentPage === 1 }]">
-                <a class="page-link" href="#" @click.prevent="prevPage" aria-label="Previous">
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="prevPage"
+                  aria-label="Previous"
+                >
                   <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
-              <li v-for="page in totalPages" :key="page" :class="['page-item', { active: currentPage === page }]">
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                :class="['page-item', { active: currentPage === page }]"
+              >
                 <a class="page-link" href="#" @click.prevent="changePage(page)">
                   {{ page }}
                 </a>
               </li>
-              <li :class="['page-item', { disabled: currentPage === totalPages }]">
-                <a class="page-link" href="#" @click.prevent="nextPage" aria-label="Next">
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
+                  @click.prevent="nextPage"
+                  aria-label="Next"
+                >
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
@@ -163,7 +201,14 @@
     </div>
 
     <!-- View Customer Modal -->
-    <b-modal v-model="showEditModal" title="Customer Details" hide-footer hide-header centered size="lg">
+    <b-modal
+      v-model="showEditModal"
+      title="Customer Details"
+      hide-footer
+      hide-header
+      centered
+      size="lg"
+    >
       <div class="modal-title p-3">
         <h5 class="mb-0">
           Customer: {{ (currentCustomer.first_name || "").toUpperCase() }}
@@ -232,7 +277,10 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="(units, siteName) in groupedSales" :key="siteName">
+              <template
+                v-for="(units, siteName) in groupedSales"
+                :key="siteName"
+              >
                 <tr v-for="unit in units" :key="unit.id">
                   <td>{{ unit.title }}</td>
                   <td>{{ unit.unit_number }}</td>
@@ -248,10 +296,11 @@
         <!-- Spacer -->
         <div style="margin-top: 20px"></div>
 
-
         <!-- Units Connected -->
         <h6 style="color: #a3a3a3"><em>**Submitted Documents**</em></h6>
-        <div v-if="currentCustomer.documents && currentCustomer.documents.length">
+        <div
+          v-if="currentCustomer.documents && currentCustomer.documents.length"
+        >
           <table class="styled-table">
             <thead>
               <tr>
@@ -260,25 +309,38 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="document in currentCustomer.documents" :key="document.url">
+              <tr
+                v-for="document in currentCustomer.documents"
+                :key="document.url"
+              >
                 <td>{{ document.type }}</td>
-                <td><a :href="`http://localhost:8000${document.url}`" target="_blank"
-                    class="btn btn-sm btn-outline-success" style="border: none;"
-                    aria-label="Open document in a new tab">
+                <td>
+                  <a
+                    :href="`${process.env.vue_app_api_url}${document.url}`"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-success"
+                    style="border: none"
+                    aria-label="Open document in a new tab"
+                  >
                     <i class="bi bi-box-arrow-up-right"></i>
-                  </a></td>
+                  </a>
+                </td>
               </tr>
             </tbody>
           </table>
-
         </div>
         <div v-else>No documents available.</div>
 
-
-
-
-        <div class="d-flex justify-content-end gap-3 mt-3" style="padding: 15px">
-          <button type="button" class="btn-cancel" @click="showEditModal = false" style="width: 100px">
+        <div
+          class="d-flex justify-content-end gap-3 mt-3"
+          style="padding: 15px"
+        >
+          <button
+            type="button"
+            class="btn-cancel"
+            @click="showEditModal = false"
+            style="width: 100px"
+          >
             Close
           </button>
         </div>
@@ -452,7 +514,7 @@ export default {
         0
       );
     },
-    showArchived() { },
+    showArchived() {},
   },
   methods: {
     changePage(page) {
@@ -486,7 +548,7 @@ export default {
       try {
         const archived = this.viewFilter === "archived" ? true : false;
         const response = await axios.get(
-          "http://localhost:8000/developer/customers/",
+          "${process.env.vue_app_api_url}/developer/customers/",
           {
             params: {
               archived: archived, // Use the archived parameter to fetch based on the view filter
@@ -514,7 +576,7 @@ export default {
     async fetchArchivedCustomers() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/customers/",
+          "${process.env.vue_app_api_url}/developer/customers/",
           {
             params: {
               archived: true, // Always fetch archived customers
@@ -544,7 +606,7 @@ export default {
     async viewCustomer(customer) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/customers/${customer.id}/`,
+          `${process.env.vue_app_api_url}/developer/customers/${customer.id}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -561,7 +623,7 @@ export default {
     async fetchCustomerDocuments(customerId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/customers/${customerId}/documents/`,
+          `${process.env.vue_app_api_url}/developer/customers/${customerId}/documents/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -581,7 +643,7 @@ export default {
     async fetchBrokerDetails(brokerId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/brokers/${brokerId}/`,
+          `${process.env.vue_app_api_url}/developer/brokers/${brokerId}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -597,7 +659,7 @@ export default {
     async updateCustomer() {
       try {
         await axios.put(
-          `http://localhost:8000/developer/customers/${this.currentCustomer.id}/`,
+          `${process.env.vue_app_api_url}/developer/customers/${this.currentCustomer.id}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -613,8 +675,8 @@ export default {
     },
     // openDocumentModal(document) {
     //   if (document && document.url) {
-    //     // Prefix the document URL with 'http://localhost:8000'
-    //     const fullUrl = `http://localhost:8000${document.url}`;
+    //     // Prefix the document URL with '${process.env.vue_app_api_url}'
+    //     const fullUrl = `${process.env.vue_app_api_url}${document.url}`;
     //     this.selectedDocument = { ...document, url: fullUrl };
     //     this.showDocumentModal = true;
     //   } else {
@@ -629,7 +691,7 @@ export default {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
+          "${process.env.vue_app_api_url}/api/token/refresh/",
           {
             refresh: refreshToken,
           }
@@ -944,7 +1006,6 @@ body {
   font-weight: bold;
 }
 
-
 .pagination {
   display: flex;
   justify-content: flex-end;
@@ -964,23 +1025,20 @@ body {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {
   background-color: #007bff; /* Blue background for active page */
   color: white; /* White text for active page */
 }
-
 
 .modal-title {
   display: flex;

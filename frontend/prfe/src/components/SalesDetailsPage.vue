@@ -113,7 +113,7 @@
                       style="text-align: right"
                     >
                       <a
-                        :href="`http://localhost:8000/download_reservation_agreement/${salesDetail.id}`"
+                        :href="`${process.env.vue_app_api_url}/download_reservation_agreement/${salesDetail.id}`"
                         download
                       >
                         <button>Download Reservation Agreement</button>
@@ -175,112 +175,144 @@
                           </div>
                         </div>
                         <div class="additional-box">
-                          <h4><center>Monthly Amortization (est.6.5%)</center></h4>
+                          <h4>
+                            <center>Monthly Amortization (est.6.5%)</center>
+                          </h4>
                           <div class="summary-item">
                             <span class="label">10 years</span>
-                            <span class="value"
-                              >{{ formatCurrency(amortization10Years) }}</span
-                            >
+                            <span class="value">{{
+                              formatCurrency(amortization10Years)
+                            }}</span>
                           </div>
                           <hr class="separator" />
                           <div class="summary-item">
                             <span class="label">15 years</span>
-                            <span class="value"
-                              >{{ formatCurrency(amortization15Years) }}</span
-                            >
+                            <span class="value">{{
+                              formatCurrency(amortization15Years)
+                            }}</span>
                           </div>
                           <hr class="separator" />
                           <div class="summary-item">
                             <span class="label">20 years</span>
-                            <span class="value"
-                              >{{ formatCurrency(amortization20Years) }}</span
-                            >
+                            <span class="value">{{
+                              formatCurrency(amortization20Years)
+                            }}</span>
                           </div>
                           <hr class="separator" />
                           <div class="summary-item">
                             <span class="label">25 years</span>
-                            <span class="value"
-                              >{{ formatCurrency(amortization25Years) }}</span
-                            >
+                            <span class="value">{{
+                              formatCurrency(amortization25Years)
+                            }}</span>
                           </div>
                         </div>
                       </div>
                       <div class="detailed-schedule">
-                      <table class="payment-table">
-                        <thead>
-                          <tr>
-                            <th colspan="3"><strong>Payment Schedule</strong></th> <!-- Group Header -->
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- Spot and Spread Downpayments Section -->
-                          <tr>
-                            <td colspan="3"><strong>Initial Payments</strong></td> <!-- Heading for initial payments -->
-                          </tr>
-                          <tr>
-                            <td>Spot Downpayment</td>
-                            <td class="amount-column highlight">{{ formatCurrency(spotDownpayment) }}</td>
-                            <td class="amount-column">{{ spotDueDate }}</td> <!-- Spot due date -->
-                          </tr>
-                          <tr>
-                            <td>Spread Downpayment</td>
-                            <td class="amount-column highlight">{{ formatCurrency(netDownpayment) }}</td>
-                            <td class="amount-column">{{ spreadDueDate }}</td> <!-- Spread due date -->
-                          </tr>
+                        <table class="payment-table">
+                          <thead>
+                            <tr>
+                              <th colspan="3">
+                                <strong>Payment Schedule</strong>
+                              </th>
+                              <!-- Group Header -->
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <!-- Spot and Spread Downpayments Section -->
+                            <tr>
+                              <td colspan="3">
+                                <strong>Initial Payments</strong>
+                              </td>
+                              <!-- Heading for initial payments -->
+                            </tr>
+                            <tr>
+                              <td>Spot Downpayment</td>
+                              <td class="amount-column highlight">
+                                {{ formatCurrency(spotDownpayment) }}
+                              </td>
+                              <td class="amount-column">{{ spotDueDate }}</td>
+                              <!-- Spot due date -->
+                            </tr>
+                            <tr>
+                              <td>Spread Downpayment</td>
+                              <td class="amount-column highlight">
+                                {{ formatCurrency(netDownpayment) }}
+                              </td>
+                              <td class="amount-column">{{ spreadDueDate }}</td>
+                              <!-- Spread due date -->
+                            </tr>
 
-                          <!-- Monthly Payments Section -->
-                          <tr>
-                            <td colspan="3"><strong>Monthly Payments</strong></td> <!-- Heading for monthly payments -->
-                          </tr>
-                          <tr v-for="month in payableMonths" :key="month">
-                            <td>Month {{ month }} Payment</td>
-                            <td class="amount-column">{{ formatCurrency(payablePerMonth) }}</td>
-                            <td class="amount-column">{{ getPaymentDueDate(month) }}</td> <!-- Specific due date for each month -->
-                          </tr>
+                            <!-- Monthly Payments Section -->
+                            <tr>
+                              <td colspan="3">
+                                <strong>Monthly Payments</strong>
+                              </td>
+                              <!-- Heading for monthly payments -->
+                            </tr>
+                            <tr v-for="month in payableMonths" :key="month">
+                              <td>Month {{ month }} Payment</td>
+                              <td class="amount-column">
+                                {{ formatCurrency(payablePerMonth) }}
+                              </td>
+                              <td class="amount-column">
+                                {{ getPaymentDueDate(month) }}
+                              </td>
+                              <!-- Specific due date for each month -->
+                            </tr>
 
-                          <!-- Balance Upon Turnover Section -->
-                          <tr>
-                            <td colspan="3"><strong>Balance Upon Turnover</strong></td> <!-- Heading for balance -->
-                          </tr>
-                          <tr>
-                            <td>Balance Upon Turnover</td>
-                            <td class="amount-column highlight">{{ formatCurrency(balanceUponTurnover) }}</td>
-                            <td class="amount-column">{{ turnoverDueDate }}</td> <!-- Balance turnover due date -->
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                            <!-- Balance Upon Turnover Section -->
+                            <tr>
+                              <td colspan="3">
+                                <strong>Balance Upon Turnover</strong>
+                              </td>
+                              <!-- Heading for balance -->
+                            </tr>
+                            <tr>
+                              <td>Balance Upon Turnover</td>
+                              <td class="amount-column highlight">
+                                {{ formatCurrency(balanceUponTurnover) }}
+                              </td>
+                              <td class="amount-column">
+                                {{ turnoverDueDate }}
+                              </td>
+                              <!-- Balance turnover due date -->
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                   <div v-if="salesDetail.payment_plan === 'Spot Cash'">
-                  <div class="title-wrapper">
-                    <div class="title-left">
-                      <div class="title-icon"></div>
-                      <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
+                    <div class="title-wrapper">
+                      <div class="title-left">
+                        <div class="title-icon"></div>
+                        <div class="edit-title">
+                          <strong>Payment Schedule Summary</strong>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="payment-container">
-                    <div class="detailed-schedule1">
-                      <table class="payment-table">
-                        <thead>
-                          <tr>
-                            <th>Payment Type</th>
-                            <th>Amount (₱)</th>
-                            <th>Due Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Net Full Payment</td>
-                            <td>{{ formatCurrency(netFullPayment) }}</td>
-                            <td>{{ dueDate }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <div class="payment-container">
+                      <div class="detailed-schedule1">
+                        <table class="payment-table">
+                          <thead>
+                            <tr>
+                              <th>Payment Type</th>
+                              <th>Amount (₱)</th>
+                              <th>Due Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Net Full Payment</td>
+                              <td>{{ formatCurrency(netFullPayment) }}</td>
+                              <td>{{ dueDate }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
-                </div>
                 </div>
               </div>
             </div>
@@ -317,12 +349,12 @@ export default {
       showDetailedSchedule: false, // To toggle the detailed schedule
       documentTypes: [], // Store the document types fetched from the API
       documents: [], // Store the documents fetched from the API
-      reservationDate: new Date().toISOString().split('T')[0], // Default to today's date
+      reservationDate: new Date().toISOString().split("T")[0], // Default to today's date
       dueDate: null,
       spotDueDate: null,
       spreadDueDate: null,
       turnoverDueDate: null,
-      payableMonths:1,
+      payableMonths: 1,
     };
   },
   created() {
@@ -351,15 +383,15 @@ export default {
     },
   },
   methods: {
-     formatCurrency(amount) {
-    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  },
+    formatCurrency(amount) {
+      if (isNaN(amount)) return "₱0.00"; // Return '₱0.00' if the amount is not a number
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    },
     calculateAmortization(balance, years) {
       const interestRate = 6.5 / 100; // 6.5% annual interest
       const monthlyRate = interestRate / 12; // Monthly interest rate
@@ -375,7 +407,7 @@ export default {
     async fetchDocuments() {
       try {
         const response = await fetch(
-          `http://localhost:8000/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
+          `${process.env.vue_app_api_url}/documents/customer/${this.salesDetail.customer_id}/${this.salesDetail.sales_id}/`
         );
         const data = await response.json();
         if (data.success) {
@@ -402,7 +434,7 @@ export default {
     async fetchSalesDetail(salesDetailUuid) {
       try {
         const response = await fetch(
-          `http://localhost:8000/sales-detail/${salesDetailUuid}/`
+          `${process.env.vue_app_api_url}/sales-detail/${salesDetailUuid}/`
         ); // Update the URL with UUID
         const data = await response.json();
         if (data.success === false) {
@@ -505,7 +537,7 @@ export default {
     async fetchDocumentTypes() {
       try {
         const response = await fetch(
-          `http://localhost:8000/document-types/?company_id=${this.companyId}`
+          `${process.env.vue_app_api_url}/document-types/?company_id=${this.companyId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -524,40 +556,39 @@ export default {
     toggleDetailedSchedule() {
       this.showDetailedSchedule = !this.showDetailedSchedule;
     },
-  calculateDueDate() {
-  const reservationDate = new Date(this.reservationDate);
-  if (this.salesDetail.payment_plan === 'Spot Cash') {
-    // For Spot Payment, add 30 days
-    reservationDate.setDate(reservationDate.getDate() + 30);
-    this.dueDate = reservationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-  } else if (this.salesDetail.payment_plan === 'Deffered Payment') {         
-    // For Deferred Payment:
-    // Spot Payment Due Date: 30 days from the reservation date
-    const spotDate = new Date(reservationDate);
-    spotDate.setDate(spotDate.getDate() + 30);
-    this.spotDueDate = spotDate.toISOString().split('T')[0];
+    calculateDueDate() {
+      const reservationDate = new Date(this.reservationDate);
+      if (this.salesDetail.payment_plan === "Spot Cash") {
+        // For Spot Payment, add 30 days
+        reservationDate.setDate(reservationDate.getDate() + 30);
+        this.dueDate = reservationDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+      } else if (this.salesDetail.payment_plan === "Deffered Payment") {
+        // For Deferred Payment:
+        // Spot Payment Due Date: 30 days from the reservation date
+        const spotDate = new Date(reservationDate);
+        spotDate.setDate(spotDate.getDate() + 30);
+        this.spotDueDate = spotDate.toISOString().split("T")[0];
 
-    // Spread Payment Due Date: Last month of the payment term
-    const spreadDate = new Date(reservationDate);
-    spreadDate.setMonth(spreadDate.getMonth() + this.payableMonths - 1); // Set to the last month
-    this.spreadDueDate = spreadDate.toISOString().split('T')[0];
+        // Spread Payment Due Date: Last month of the payment term
+        const spreadDate = new Date(reservationDate);
+        spreadDate.setMonth(spreadDate.getMonth() + this.payableMonths - 1); // Set to the last month
+        this.spreadDueDate = spreadDate.toISOString().split("T")[0];
 
-    // Balance Upon Turnover Due Date: 1 year after reservation
-    const turnoverDate = new Date(reservationDate);
-    turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // 1 year later
-    this.turnoverDueDate = turnoverDate.toISOString().split('T')[0];
+        // Balance Upon Turnover Due Date: 1 year after reservation
+        const turnoverDate = new Date(reservationDate);
+        turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // 1 year later
+        this.turnoverDueDate = turnoverDate.toISOString().split("T")[0];
 
-    // Optionally set a "main" due date if needed
-    this.dueDate = this.spreadDueDate; 
-
-  }
-},
-getPaymentDueDate(month) {
-    const reservationDate = new Date(this.reservationDate);
-    const paymentDate = new Date(reservationDate);
-    paymentDate.setMonth(paymentDate.getMonth() + month);
-    return paymentDate.toISOString().split('T')[0];
-  },
+        // Optionally set a "main" due date if needed
+        this.dueDate = this.spreadDueDate;
+      }
+    },
+    getPaymentDueDate(month) {
+      const reservationDate = new Date(this.reservationDate);
+      const paymentDate = new Date(reservationDate);
+      paymentDate.setMonth(paymentDate.getMonth() + month);
+      return paymentDate.toISOString().split("T")[0];
+    },
   },
 };
 </script>
@@ -704,8 +735,8 @@ body {
 }
 
 .documents-table thead {
-    background-color: lightgrey;
-  }
+  background-color: lightgrey;
+}
 
 /* Main Content Responsiveness */
 .main-content {
@@ -1174,5 +1205,4 @@ button:hover {
 .amount-column {
   text-align: right;
 }
-
 </style>

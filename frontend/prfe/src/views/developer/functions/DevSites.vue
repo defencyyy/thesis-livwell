@@ -1345,7 +1345,7 @@ export default {
     async fetchStatusOptions() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/sites/status-options/",
+          "${process.env.vue_app_api_url}/developer/sites/status-options/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1384,7 +1384,7 @@ export default {
 
     // Function to generate picture URL from the picture path
     getPictureUrl(picture) {
-      return `http://localhost:8000${picture}`; // Adjust the URL path as needed
+      return `${process.env.vue_app_api_url}${picture}`; // Adjust the URL path as needed
     },
 
     // Upload a picture for a specific site
@@ -1399,7 +1399,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/picture/${siteId}/`,
+          `${process.env.vue_app_api_url}/developer/sites/picture/${siteId}/`,
           formData,
           {
             headers: {
@@ -1460,7 +1460,7 @@ export default {
     async fetchSites() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/sites/",
+          "${process.env.vue_app_api_url}/developer/sites/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1485,7 +1485,7 @@ export default {
     async fetchArchivedSites() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/sites/archived/",
+          "${process.env.vue_app_api_url}/developer/sites/archived/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1562,7 +1562,7 @@ export default {
     async executeArchiveSite(siteId, site) {
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/archived/${siteId}/`,
+          `${process.env.vue_app_api_url}/developer/sites/archived/${siteId}/`,
           {
             name: site.name,
             description: site.description,
@@ -1603,7 +1603,7 @@ export default {
     async executeUnarchiveSite(siteId, site) {
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/archived/${siteId}/`,
+          `${process.env.vue_app_api_url}/developer/sites/archived/${siteId}/`,
           {
             name: site.name,
             description: site.description,
@@ -1708,7 +1708,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/developer/sites/",
+          "${process.env.vue_app_api_url}/developer/sites/",
           formData,
           {
             headers: {
@@ -1846,7 +1846,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/sites/${this.selectedSite.id}/`,
+          `${process.env.vue_app_api_url}/developer/sites/${this.selectedSite.id}/`,
           formData,
           {
             headers: {
@@ -1933,7 +1933,7 @@ export default {
     async loadRegionData() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/sites/locations/"
+          "${process.env.vue_app_api_url}/developer/sites/locations/"
         );
         this.regionData = response.data;
         this.regionOptions = Object.keys(this.regionData).sort((a, b) => {

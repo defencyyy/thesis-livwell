@@ -115,7 +115,7 @@ export default {
       if (storedLogo) {
         this.tempLogo = storedLogo;
       } else if (this.company?.logo) {
-        this.tempLogo = `http://localhost:8000${this.company.logo}`;
+        this.tempLogo = `${process.env.vue_app_api_url}${this.company.logo}`;
         localStorage.setItem("company_logo", this.tempLogo); // Store for future page refreshes
       }
     },
@@ -229,7 +229,7 @@ export default {
       }
     },
     getLogoUrl(logoPath) {
-      return `http://localhost:8000${logoPath}`;
+      return `${process.env.vue_app_api_url}${logoPath}`;
     },
     isActive(item) {
       return this.$route.path === item.link;

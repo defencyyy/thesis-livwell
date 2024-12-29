@@ -33,7 +33,7 @@ export default {
     async fetchTopBrokers() {
       try {
         const response = await fetch(
-          "http://localhost:8000/developer/brokers/api/top-brokers/",
+          "${process.env.vue_app_api_url}/developer/brokers/api/top-brokers/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

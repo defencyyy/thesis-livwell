@@ -4,7 +4,6 @@
     <div class="main-content">
       <AppHeader />
       <div class="content">
-
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
@@ -16,11 +15,10 @@
 
         <div v-if="error" class="error-message">{{ error }}</div>
 
-        <div class = "dashboard-boxes" v-else>
-
-          <div class = "box">
-            <div class = "box-header">
-              <div class = "icon-container">
+        <div class="dashboard-boxes" v-else>
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
                 <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
               </div>
               <p>Total Sales</p>
@@ -28,9 +26,9 @@
             <h2>{{ totalSales }}</h2>
           </div>
 
-          <div class = "box">
-            <div class = "box-header">
-              <div class = "icon-container">
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
                 <i class="fa fa-money-bill" style="font-size: 13px"></i>
               </div>
               <p>Total Commissions</p>
@@ -38,31 +36,30 @@
             <h2>{{ formatCurrency(totalCommissions) }}</h2>
           </div>
 
-          <div class = "box">
-            <div class = "box-header">
-              <div class = "icon-container">
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
                 <i class="fas fa-flag" style="font-size: 13px"></i>
               </div>
               <p>Total Milestones</p>
             </div>
             <h2>{{ totalMilestones }}</h2>
           </div>
-
         </div>
 
-        <br><br>
+        <br /><br />
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title"><strong>Site Sales Information</strong></div>
+            <div class="edit-title">
+              <strong>Site Sales Information</strong>
+            </div>
           </div>
         </div>
 
-        <div v-if="siteSales.length === 0">
-            No progress yet.
-        </div>
+        <div v-if="siteSales.length === 0">No progress yet.</div>
 
-        <div v-else class = "site-grid">
+        <div v-else class="site-grid">
           <div
             v-for="site in siteSales"
             :key="site.id"
@@ -70,27 +67,26 @@
             @click="openModal(site)"
           >
             <img
-                :src="site.picture ||  require('@/assets/home.png')"
-                alt="Site Image"
-                class = "site-image"
-              />
+              :src="site.picture || require('@/assets/home.png')"
+              alt="Site Image"
+              class="site-image"
+            />
             <h2 class="site-name">
               {{ site.name }}
             </h2>
             <p class="site-totalsales">
-              <strong>Total Sales</strong><br>{{ site.total_sales }}
+              <strong>Total Sales</strong><br />{{ site.total_sales }}
             </p>
           </div>
         </div>
 
         <div class="milestones-section">
-
           <!-- Milestones Achieved Table -->
-          <br><br>
+          <br /><br />
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title "><strong>Milestones Achieved</strong></div>
+              <div class="edit-title"><strong>Milestones Achieved</strong></div>
             </div>
           </div>
 
@@ -114,8 +110,8 @@
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
-            <div class = "card-body">
-              <table class = "next-milestone-table">
+            <div class="card-body">
+              <table class="next-milestone-table">
                 <tbody>
                   <tr>
                     <td>
@@ -132,26 +128,24 @@
               </table>
             </div>
           </div>
-      
+
           <!-- Next Milestones Table -->
-          <br><br>
+          <br /><br />
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title "><strong>Next Milestones</strong></div>
+              <div class="edit-title"><strong>Next Milestones</strong></div>
             </div>
           </div>
-         
+
           <div class="outside-headers">
             <span class="header-item">Name</span>
             <span class="header-item">Reward</span>
             <span class="header-item">Description</span>
           </div>
-          
-          <div v-if="nextMilestones.length === 0">
-            No pending milestones.
-          </div>
-          
+
+          <div v-if="nextMilestones.length === 0">No pending milestones.</div>
+
           <div
             v-else
             v-for="milestone in nextMilestones"
@@ -162,8 +156,8 @@
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
-            <div class = "card-body">
-              <table class = "next-milestone-table">
+            <div class="card-body">
+              <table class="next-milestone-table">
                 <tbody>
                   <tr>
                     <td>
@@ -183,11 +177,19 @@
         </div>
 
         <!-- Modal -->
-        <b-modal v-model ="showModal" :title="`Site ${selectedSite ? selectedSite.name : ''}`" centered hide-footer>
+        <b-modal
+          v-model="showModal"
+          :title="`Site ${selectedSite ? selectedSite.name : ''}`"
+          centered
+          hide-footer
+        >
           <div>
             <div v-if="selectedSite && selectedSite.sales.length > 0">
-              <center><h5>Sales Details</h5><br></center>
-              <table class = "table">
+              <center>
+                <h5>Sales Details</h5>
+                <br />
+              </center>
+              <table class="table">
                 <thead>
                   <tr>
                     <th>Unit Name</th>
@@ -208,7 +210,7 @@
             <div v-else-if="selectedSite">
               <p>No sales found for this site.</p>
             </div>
-            </div>
+          </div>
         </b-modal>
       </div>
     </div>
@@ -216,7 +218,7 @@
 </template>
 
 <script>
-import AppHeader from "@/components/Header.vue"
+import AppHeader from "@/components/Header.vue";
 import SideNav from "@/components/SideNav.vue";
 import { mapGetters } from "vuex";
 import { BModal } from "bootstrap-vue-3";
@@ -247,14 +249,14 @@ export default {
   },
   methods: {
     formatCurrency(amount) {
-    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  },
+      if (isNaN(amount)) return "₱0.00"; // Return '₱0.00' if the amount is not a number
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    },
     async fetchMilestonesData() {
       const brokerId = this.getUserId;
 
@@ -267,7 +269,7 @@ export default {
       try {
         // Fetch total sales
         const salesResponse = await fetch(
-          `http://localhost:8000/sales/total/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/total/?broker_id=${brokerId}`
         );
         if (salesResponse.ok) {
           const salesData = await salesResponse.json();
@@ -278,7 +280,7 @@ export default {
 
         // Fetch total commissions
         const commissionsResponse = await fetch(
-          `http://localhost:8000/sales/commissions/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/commissions/?broker_id=${brokerId}`
         );
         if (commissionsResponse.ok) {
           const commissionsData = await commissionsResponse.json();
@@ -288,20 +290,21 @@ export default {
         }
 
         // Fetch milestones data
-        const milestonesResponse = await fetch(`http://localhost:8000/milestones/?broker_id=${brokerId}`);
+        const milestonesResponse = await fetch(
+          `${process.env.vue_app_api_url}/milestones/?broker_id=${brokerId}`
+        );
         if (milestonesResponse.ok) {
           const milestonesData = await milestonesResponse.json();
           this.achievedMilestones = milestonesData.achieved_milestones;
           this.nextMilestones = milestonesData.next_milestones;
-          this.totalMilestones = milestonesData.total_milestones;  // Get total milestones count
-
+          this.totalMilestones = milestonesData.total_milestones; // Get total milestones count
         } else {
           this.error = "Failed to fetch milestones.";
         }
 
         // Fetch site sales data
         const sitesResponse = await fetch(
-          `http://localhost:8000/sales/sites/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/sites/?broker_id=${brokerId}`
         );
         if (sitesResponse.ok) {
           const sitesData = await sitesResponse.json();
@@ -328,7 +331,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/sales/details/?site_id=${site.id}&broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/details/?site_id=${site.id}&broker_id=${brokerId}`
         );
         if (response.ok) {
           const salesData = await response.json();
@@ -359,7 +362,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 html,
@@ -478,19 +480,19 @@ body {
 
 .outside-headers {
   display: grid;
-  grid-template-columns: 25% 25% 50%; 
+  grid-template-columns: 25% 25% 50%;
   padding: 10px 18px;
   margin: 20px auto 10px;
   max-width: 1100px;
   font-weight: bold;
-  text-align: left; 
+  text-align: left;
 }
 
 .outside-headers .header-item {
   display: flex;
-  justify-content: flex-start; 
-  align-items: center; 
-  padding: 5px 0; 
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5px 0;
   line-height: 1.2;
   word-wrap: break-word;
   font-size: 14px;
@@ -499,12 +501,12 @@ body {
 .next-milestone-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left; 
+  text-align: left;
   font-size: 14px;
 }
 
 .next-milestone-table td {
-  padding: 10px 0; 
+  padding: 10px 0;
 }
 
 .next-milestone-table td:nth-child(1),
@@ -612,5 +614,4 @@ body {
     padding: 10px 0; /* Increase padding for better touch targets */
   }
 }
-
 </style>

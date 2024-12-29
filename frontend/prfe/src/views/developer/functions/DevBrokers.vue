@@ -318,7 +318,9 @@
             <form @submit.prevent="addBroker">
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <small style="font-size: 14px; color: #6c757d; padding: 2px">First Name</small>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >First Name</small
+                  >
                   <input
                     type="text"
                     v-model="firstName"
@@ -332,7 +334,9 @@
                 </div>
 
                 <div class="col-md-6">
-                  <small style="font-size: 14px; color: #6c757d; padding: 2px">Last Name</small>
+                  <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                    >Last Name</small
+                  >
                   <input
                     type="text"
                     v-model="lastName"
@@ -347,7 +351,9 @@
               </div>
 
               <div class="form-group mb-3">
-                <small style="font-size: 14px; color: #6c757d; padding: 2px">Email</small>
+                <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                  >Email</small
+                >
                 <input
                   type="email"
                   v-model="email"
@@ -359,7 +365,9 @@
               </div>
 
               <div class="form-group mb-3">
-                <small style="font-size: 14px; color: #6c757d; padding: 2px">Contact Number</small>
+                <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                  >Contact Number</small
+                >
                 <input
                   type="text"
                   v-model="contactNumber"
@@ -373,7 +381,9 @@
               </div>
 
               <div class="form-group mb-3">
-                <small style="font-size: 14px; color: #6c757d; padding: 2px">Password</small>
+                <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                  >Password</small
+                >
                 <input
                   type="password"
                   v-model="password"
@@ -406,35 +416,62 @@
           </div>
         </b-modal>
 
-        <b-modal v-model="showNotification" :title="notificationTitle" hide-footer hide-header centered>
+        <b-modal
+          v-model="showNotification"
+          :title="notificationTitle"
+          hide-footer
+          hide-header
+          centered
+        >
+          <div class="modal-title p-3">
+            <i
+              :class="notificationIcon()"
+              style="margin-right: 10px; font-size: 22px"
+            ></i>
+            <h5 class="custom-title mb-0">{{ notificationTitle }}</h5>
+          </div>
 
-<div class="modal-title p-3">
-  <i :class="notificationIcon()" style="margin-right: 10px; font-size: 22px;"></i>
-  <h5 class="custom-title mb-0">{{ notificationTitle }}</h5>
-</div>
-
-<div class="p-3">
-  <p>{{ notificationMessage }}</p>
-  <div class="d-flex justify-content-end gap-2" style="margin-top: 30px">
-    <button type="button" @click="showNotification = false" class="btn-cancel" style="width: 100px;">
-      Close
-    </button>
-  </div>
-</div>
-</b-modal>
+          <div class="p-3">
+            <p>{{ notificationMessage }}</p>
+            <div
+              class="d-flex justify-content-end gap-2"
+              style="margin-top: 30px"
+            >
+              <button
+                type="button"
+                @click="showNotification = false"
+                class="btn-cancel"
+                style="width: 100px"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </b-modal>
 
         <!-- Confirmation Modal -->
-        <b-modal v-model="showConfirmModal" :title="'Confirmation'" hide-footer hide-header centered>
-
+        <b-modal
+          v-model="showConfirmModal"
+          :title="'Confirmation'"
+          hide-footer
+          hide-header
+          centered
+        >
           <div class="modal-title p-3">
-            <i class="fas fa-info-circle text-secondary" style="margin-right: 10px; font-size: 22px;"></i>
+            <i
+              class="fas fa-info-circle text-secondary"
+              style="margin-right: 10px; font-size: 22px"
+            ></i>
             <h5 class="custom-title mb-0">Confirmation</h5>
           </div>
 
           <div class="p-3">
             <p>{{ confirmMessage }}</p>
 
-            <div class="d-flex justify-content-end gap-2" style="margin-top: 30px">
+            <div
+              class="d-flex justify-content-end gap-2"
+              style="margin-top: 30px"
+            >
               <button type="button" @click="confirmAction" class="btn-add">
                 Confirm
               </button>
@@ -667,7 +704,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/brokers/",
+          "${process.env.vue_app_api_url}/developer/brokers/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -684,7 +721,7 @@ export default {
     async fetchArchivedBrokers() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/brokers/archived/",
+          "${process.env.vue_app_api_url}/developer/brokers/archived/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -738,7 +775,7 @@ export default {
         const payload = { ...broker };
         if (!payload.password) delete payload.password;
         await axios.put(
-          `http://localhost:8000/developer/brokers/${broker.id}/`,
+          `${process.env.vue_app_api_url}/developer/brokers/${broker.id}/`,
           payload,
           {
             headers: {
@@ -789,7 +826,7 @@ export default {
     async updateBrokerArchiveStatus(brokerId, status) {
       try {
         await axios.put(
-          `http://localhost:8000/developer/brokers/${brokerId}/`,
+          `${process.env.vue_app_api_url}/developer/brokers/${brokerId}/`,
           { archived: status },
           {
             headers: {
@@ -818,7 +855,7 @@ export default {
       if (this.validateForm()) {
         try {
           await axios.post(
-            "http://localhost:8000/developer/brokers/add/",
+            "${process.env.vue_app_api_url}/developer/brokers/add/",
             {
               first_name: this.firstName,
               last_name: this.lastName,

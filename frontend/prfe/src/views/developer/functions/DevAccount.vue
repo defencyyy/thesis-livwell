@@ -262,7 +262,7 @@ export default {
     async fetchAccountDetails() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/account/",
+          "${process.env.vue_app_api_url}/developer/account/",
           {
             headers: {
               Authorization: `Bearer ${this.authToken}`,
@@ -351,7 +351,7 @@ export default {
       try {
         // Attempt to update the account, handle any validation errors from the backend
         await axios.put(
-          "http://localhost:8000/developer/account/",
+          "${process.env.vue_app_api_url}/developer/account/",
           {
             username: this.username,
             first_name: this.firstName,
@@ -397,7 +397,7 @@ export default {
     async verifyCurrentPassword(currentPassword) {
       try {
         const response = await axios.post(
-          "http://localhost:8000/developer/account/verify-password/",
+          "${process.env.vue_app_api_url}/developer/account/verify-password/",
           { password: currentPassword },
           {
             headers: {
@@ -420,7 +420,7 @@ export default {
       this.loading = true;
       try {
         await axios.put(
-          "http://localhost:8000/developer/account/",
+          "${process.env.vue_app_api_url}/developer/account/",
           {
             username: this.username,
             first_name: this.firstName,

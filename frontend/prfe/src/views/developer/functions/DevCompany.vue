@@ -32,7 +32,16 @@
 
               <div class="col-md-8">
                 <div class="mb-3">
-                  <small style="font-size: 14px; color: #6c757d; padding: 2px; text-align: left; display: block">Upload Logo</small>
+                  <small
+                    style="
+                      font-size: 14px;
+                      color: #6c757d;
+                      padding: 2px;
+                      text-align: left;
+                      display: block;
+                    "
+                    >Upload Logo</small
+                  >
                   <input
                     type="file"
                     class="form-control"
@@ -43,7 +52,16 @@
                 </div>
 
                 <div class="mb-3">
-                  <small style="font-size: 14px; color: #6c757d; padding: 2px; text-align: left; display: block">Company Description</small>
+                  <small
+                    style="
+                      font-size: 14px;
+                      color: #6c757d;
+                      padding: 2px;
+                      text-align: left;
+                      display: block;
+                    "
+                    >Company Description</small
+                  >
                   <textarea
                     class="form-control"
                     id="companyDescription"
@@ -196,7 +214,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/company/`,
+          `${process.env.vue_app_api_url}/developer/company/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -251,7 +269,7 @@ export default {
 
     // Get logo URL
     getLogoUrl(logo) {
-      return `http://localhost:8000${logo}`;
+      return `${process.env.vue_app_api_url}${logo}`;
     },
 
     // Update company details
@@ -268,7 +286,7 @@ export default {
         }
 
         const response = await axios.put(
-          "http://localhost:8000/developer/company/edit/",
+          "${process.env.vue_app_api_url}/developer/company/edit/",
           formData,
           {
             headers: {

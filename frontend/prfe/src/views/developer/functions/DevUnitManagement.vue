@@ -1931,7 +1931,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/units/templates/${this.selectedUnitTemplate}/`,
+          `${process.env.vue_app_api_url}/developer/units/templates/${this.selectedUnitTemplate}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1961,7 +1961,7 @@ export default {
         this.isLoading = true;
         this.errorMessage = null;
         const response = await axios.get(
-          "http://localhost:8000/developer/units/templates/",
+          "${process.env.vue_app_api_url}/developer/units/templates/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2100,7 +2100,7 @@ export default {
       try {
         // Send the FormData to the backend
         const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
+          "${process.env.vue_app_api_url}/developer/units/bulk-add/",
           formData,
           {
             headers: {
@@ -2188,7 +2188,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/developer/units/bulk-add/",
+          "${process.env.vue_app_api_url}/developer/units/bulk-add/",
           formData,
           {
             headers: {
@@ -2278,7 +2278,7 @@ export default {
     async fetchSiteDetails() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/`,
+          `${process.env.vue_app_api_url}/developer/sites/${this.$route.params.siteId}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2301,7 +2301,7 @@ export default {
     async fetchSectionsData() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/${this.$route.params.siteId}/sections/`, // Correct endpoint for section data
+          `${process.env.vue_app_api_url}/developer/sites/${this.$route.params.siteId}/sections/`, // Correct endpoint for section data
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2321,7 +2321,7 @@ export default {
     async fetchUnitTypes() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/units/types/",
+          "${process.env.vue_app_api_url}/developer/units/types/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2370,7 +2370,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/units/${this.$route.params.siteId}/sections/${section.id}/`,
+          `${process.env.vue_app_api_url}/developer/units/${this.$route.params.siteId}/sections/${section.id}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2397,7 +2397,7 @@ export default {
         try {
           this.isLoading = true;
           const response = await axios.get(
-            `http://localhost:8000/developer/units/${unitId}/`,
+            `${process.env.vue_app_api_url}/developer/units/${unitId}/`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2425,7 +2425,7 @@ export default {
         this.$nextTick(() => {
           this.selectedUnit = unit; // Shallow copy to prevent reference issues
           this.initialUnit = { ...unit };
-        
+
           this.showEditUnitModal = true; // Show the modal for editing
         });
       } else {
@@ -2471,7 +2471,7 @@ export default {
 
             // If the unit has an id, it's an update (PUT request)
             response = await axios.put(
-              `http://localhost:8000/developer/units/${this.selectedUnit.id}/`,
+              `${process.env.vue_app_api_url}/developer/units/${this.selectedUnit.id}/`,
               formData,
               {
                 headers: {
@@ -2541,7 +2541,7 @@ export default {
 
       try {
         const response = await axios.post(
-          `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/`,
+          `${process.env.vue_app_api_url}/developer/units/${this.selectedUnit.id}/images/`,
           formData,
           {
             headers: {
@@ -2582,7 +2582,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
+          `${process.env.vue_app_api_url}/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
           formData,
           {
             headers: {
@@ -2605,7 +2605,7 @@ export default {
       if (!this.isUnitTemplate) {
         try {
           const response = await axios.delete(
-            `http://localhost:8000/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
+            `${process.env.vue_app_api_url}/developer/units/${this.selectedUnit.id}/images/${this.selectedUnit.images[index].id}/`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -2683,7 +2683,7 @@ export default {
     },
 
     getPictureUrl(picture) {
-      return `http://localhost:8000${picture}`;
+      return `${process.env.vue_app_api_url}${picture}`;
     },
     // This is the method that opens the modal for editing a unit
     openEditUnitModal(unit) {

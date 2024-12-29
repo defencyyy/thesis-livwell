@@ -3,151 +3,171 @@
     <SideNav />
     <div class="main-content">
       <AppHeader />
-    <div class="content">
-      <router-link class="text-start" to="/broker/affiliated-units">
-        <div class = "back-container">
-          <i class="fas fa-arrow-left"></i> Back to Sites
-        </div>
-      </router-link>
+      <div class="content">
+        <router-link class="text-start" to="/broker/affiliated-units">
+          <div class="back-container">
+            <i class="fas fa-arrow-left"></i> Back to Sites
+          </div>
+        </router-link>
 
-      <div class="title-wrapper">
-        <div class="title-left">
-          <div class="title-icon"></div>
-          <div class="edit-title"><strong>Available Units for Site {{ siteName }}</strong> </div>
-        </div>
-      </div>
-
-      <div
-          class="card border-0 rounded-1 mx-auto"
-          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 15px;"
-      >
-    
-      <div class = "card-body">
-        <div class = "row">
-          <!-- Toolbar -->
-           <div class = "toolbar">
-            <div class = "left-section">
-              <label>View </label>
-              <select v-model="selectedView" class = "dropdown-select">
-              <option value="all">All</option>
-              <option value="north">North</option>
-              <option value="south">South</option>
-              <option value="east">East</option>
-              <option value="west">West</option>
-            </select>
-            <label>Balcony</label>
-            <select v-model="selectedBalcony" class = "dropdown-select">
-              <option value="all">All</option>
-              <option value="has">Has Balcony</option>
-              <option value="no">No Balcony</option>
-            </select>
-            <label>Floor</label>
-            <select v-model="selectedFloor" class = "dropdown-select">
-              <option value="all">All</option>
-              <option v-for="floor in availableFloors" :key="floor" :value="floor">{{ floor }}</option>
-            </select>
-            <label>Unit Type</label>
-            <select v-model="selectedUnitType" class = "dropdown-select">
-              <option value="all">All</option>
-              <option v-for="unitType in availableUnitTypes" :key="unitType" :value="unitType">{{ unitType }}</option>
-            </select>
-           </div>
-        </div>
-      </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="outside-headers">
-        <span class="header-item">Name</span>
-        <span class="header-item">Price</span>
-        <span class="header-item">Actions</span>
-      </div>
-
-      <div v-if = "filteredUnits.length">
-        <div
-        v-for="unit in paginatedUnits"
-        :key="unit.id" class="card border-0 rounded-1 mx-auto card-hover"
-        style="
-        max-width: 1100px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-
-          <div class = "card-body">
-            <table class = "site-table">
-              <tbody>
-                <tr>
-                  <td>
-                    <span>{{ unit.unit_title }}</span>
-                  </td>
-                  <td>
-                    <span>{{formatCurrency(unit.price)}}</span>
-                  </td>
-                  <td>
-                    <div class="broker-actions d-flex">
-                      <button  @click="showUnitDetails(unit)" style="
-                          border: none;
-                          background-color: transparent;
-                          color: #343a40;
-                          cursor: pointer;
-                          font-size: 18px;
-                        ">
-                        <i class="fas fa-eye"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="title-wrapper">
+          <div class="title-left">
+            <div class="title-icon"></div>
+            <div class="edit-title">
+              <strong>Available Units for Site {{ siteName }}</strong>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-else>
-        <p>No sites with available units.</p>
+        <div
+          class="card border-0 rounded-1 mx-auto"
+          style="
+            max-width: 1100px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+          "
+        >
+          <div class="card-body">
+            <div class="row">
+              <!-- Toolbar -->
+              <div class="toolbar">
+                <div class="left-section">
+                  <label>View </label>
+                  <select v-model="selectedView" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option value="north">North</option>
+                    <option value="south">South</option>
+                    <option value="east">East</option>
+                    <option value="west">West</option>
+                  </select>
+                  <label>Balcony</label>
+                  <select v-model="selectedBalcony" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option value="has">Has Balcony</option>
+                    <option value="no">No Balcony</option>
+                  </select>
+                  <label>Floor</label>
+                  <select v-model="selectedFloor" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option
+                      v-for="floor in availableFloors"
+                      :key="floor"
+                      :value="floor"
+                    >
+                      {{ floor }}
+                    </option>
+                  </select>
+                  <label>Unit Type</label>
+                  <select v-model="selectedUnitType" class="dropdown-select">
+                    <option value="all">All</option>
+                    <option
+                      v-for="unitType in availableUnitTypes"
+                      :key="unitType"
+                      :value="unitType"
+                    >
+                      {{ unitType }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="outside-headers">
+            <span class="header-item">Name</span>
+            <span class="header-item">Price</span>
+            <span class="header-item">Actions</span>
+          </div>
+
+          <div v-if="filteredUnits.length">
+            <div
+              v-for="unit in paginatedUnits"
+              :key="unit.id"
+              class="card border-0 rounded-1 mx-auto card-hover"
+              style="
+                max-width: 1100px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              "
+            >
+              <div class="card-body">
+                <table class="site-table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <span>{{ unit.unit_title }}</span>
+                      </td>
+                      <td>
+                        <span>{{ formatCurrency(unit.price) }}</span>
+                      </td>
+                      <td>
+                        <div class="broker-actions d-flex">
+                          <button
+                            @click="showUnitDetails(unit)"
+                            style="
+                              border: none;
+                              background-color: transparent;
+                              color: #343a40;
+                              cursor: pointer;
+                              font-size: 18px;
+                            "
+                          >
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div v-else>
+            <p>No sites with available units.</p>
+          </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li :class="['page-item', { disabled: currentPage === 1 }]">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage - 1)"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-item', { active: page === currentPage }]"
+            >
+              <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                {{ page }}
+              </a>
+            </li>
+            <li
+              :class="['page-item', { disabled: currentPage === totalPages }]"
+            >
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage + 1)"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
-
-    <!-- Pagination Controls -->
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li :class="['page-item', { disabled: currentPage === 1 }]">
-          <a 
-            class="page-link" 
-            href="#" 
-            @click.prevent="goToPage(currentPage - 1)"
-            aria-label="Previous"
-          >
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li 
-          v-for="page in totalPages" 
-          :key="page" 
-          :class="['page-item', { active: page === currentPage }]"
-        >
-          <a 
-            class="page-link" 
-            href="#" 
-            @click.prevent="goToPage(page)"
-          >
-            {{ page }}
-          </a>
-        </li>
-        <li :class="['page-item', { disabled: currentPage === totalPages }]">
-          <a 
-            class="page-link" 
-            href="#" 
-            @click.prevent="goToPage(currentPage + 1)"
-            aria-label="Next"
-          >
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
   </div>
-  </div>
-</div>
 </template>
 
 <script>
@@ -170,10 +190,10 @@ export default {
       selectedUnit: {
         images: null, // Initially null
       },
-      selectedView: 'all',      // Default to "all"
-      selectedBalcony: 'all',   // Default to "all"
-      selectedFloor: 'all',
-      selectedUnitType: 'all', // Default unit type filter
+      selectedView: "all", // Default to "all"
+      selectedBalcony: "all", // Default to "all"
+      selectedFloor: "all",
+      selectedUnitType: "all", // Default unit type filter
       currentPage: 1, // Current page number
       itemsPerPage: 15, // Number of customers per page
     };
@@ -184,7 +204,7 @@ export default {
     this.fetchSiteName();
   },
   computed: {
- // Paginate filtered units
+    // Paginate filtered units
     paginatedUnits() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
@@ -194,56 +214,61 @@ export default {
     totalPages() {
       return Math.ceil(this.filteredUnits.length / this.itemsPerPage);
     },
-  availableFloors() {
-    // Get unique floor values from available units
-    const floors = this.units.map(unit => unit.section);
-    return [...new Set(floors)].sort(); // Remove duplicates and sort them
+    availableFloors() {
+      // Get unique floor values from available units
+      const floors = this.units.map((unit) => unit.section);
+      return [...new Set(floors)].sort(); // Remove duplicates and sort them
     },
-  availableUnitTypes() {
-    // Get unique unit type values from available units
-    const unitTypes = this.units.map(unit => unit.type);
-    return [...new Set(unitTypes)].sort(); // Add 'all' option and remove duplicates
+    availableUnitTypes() {
+      // Get unique unit type values from available units
+      const unitTypes = this.units.map((unit) => unit.type);
+      return [...new Set(unitTypes)].sort(); // Add 'all' option and remove duplicates
+    },
+    filteredUnits() {
+      return this.units.filter((unit) => {
+        const viewMatch =
+          this.selectedView === "all" ||
+          unit.view.toLowerCase() === this.selectedView;
+
+        const balconyMatch =
+          this.selectedBalcony === "all" ||
+          (this.selectedBalcony === "has" &&
+            unit.balcony.toLowerCase() !== "no balcony") ||
+          (this.selectedBalcony === "no" &&
+            unit.balcony.toLowerCase() === "no balcony");
+        const floorMatch =
+          this.selectedFloor === "all" || unit.section === this.selectedFloor;
+
+        const unitTypeMatch =
+          this.selectedUnitType === "all" ||
+          unit.type === this.selectedUnitType;
+
+        return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
+      });
+    },
   },
-  filteredUnits() {
-    return this.units.filter((unit) => {
-      const viewMatch =
-        this.selectedView === 'all' ||
-        unit.view.toLowerCase() === this.selectedView;
-
-      const balconyMatch =
-        this.selectedBalcony === 'all' ||
-        (this.selectedBalcony === 'has' && unit.balcony.toLowerCase() !== 'no balcony') ||
-        (this.selectedBalcony === 'no' && unit.balcony.toLowerCase() === 'no balcony');
-      const floorMatch =
-        this.selectedFloor === 'all' || unit.section === this.selectedFloor;
-
-      const unitTypeMatch =
-        this.selectedUnitType === 'all' || unit.type === this.selectedUnitType;
-
-      return viewMatch && balconyMatch && floorMatch && unitTypeMatch;
-    });
-    },
-   
-},
   created() {
-      this.fetchImages(); // Fetch images when the component is created
+    this.fetchImages(); // Fetch images when the component is created
   },
 
   methods: {
     formatCurrency(amount) {
-    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  },
+      if (isNaN(amount)) return "₱0.00"; // Return '₱0.00' if the amount is not a number
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    },
     redirectToPaymentPlan() {
       // Redirect to the payment plan page
-      this.$router.push({ name: 'PaymentPlan', params: { unitId: this.selectedUnit.id } });
+      this.$router.push({
+        name: "PaymentPlan",
+        params: { unitId: this.selectedUnit.id },
+      });
     },
-     goToPage(pageNumber) {
+    goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
@@ -252,7 +277,7 @@ export default {
     async fetchAvailableUnits() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/units/available/?site_id=${this.siteId}`
+          `${process.env.vue_app_api_url}/units/available/?site_id=${this.siteId}`
         );
         this.units = response.data.units.map((unit) => ({
           ...unit,
@@ -266,7 +291,7 @@ export default {
     async fetchSiteName() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/sites/${this.siteId}`
+          `${process.env.vue_app_api_url}/sites/${this.siteId}`
         );
         this.siteName = response.data.name;
         this.siteYear = response.data.created_year;
@@ -275,11 +300,12 @@ export default {
       }
     },
 
-
     async fetchImages() {
       try {
         // Replace with your actual API endpoint
-        const response = await fetch("https://api.example.com/units/123/images");
+        const response = await fetch(
+          "https://api.example.com/units/123/images"
+        );
 
         // Assuming the API returns an array of image URLs
         const data = await response.json();
@@ -295,7 +321,6 @@ export default {
       this.selectedUnit = unit;
       this.redirectToPaymentPlan();
     },
-
   },
 };
 </script>
@@ -351,7 +376,7 @@ body {
   text-align: center;
 }
 
-.text-start{
+.text-start {
   color: black;
   text-decoration: none !important;
 }
@@ -476,11 +501,10 @@ body {
   margin-left: 5px;
 }
 
-
 .line {
-    border-top: 2px solid #000; /* Adjust thickness and color */
-    width: 100%; /* Full-width */
-    margin: 0 auto; /* Center it */
+  border-top: 2px solid #000; /* Adjust thickness and color */
+  width: 100%; /* Full-width */
+  margin: 0 auto; /* Center it */
 }
 
 .text-center1 {
@@ -536,7 +560,6 @@ body {
   padding: 10px;
 }
 
-
 .btn-cancel {
   background-color: #343a40;
   color: #fff;
@@ -546,7 +569,7 @@ body {
 }
 
 .btn-cancel:hover {
-  background-color: #495057;  /* Slightly lighter gray */
+  background-color: #495057; /* Slightly lighter gray */
   color: #fff;
   border: none;
 }
@@ -828,12 +851,12 @@ button:hover {
 
 .filters {
   display: flex;
-  align-items: center;   /* Align vertically */
-  gap: 20px;             /* Add space between elements */
+  align-items: center; /* Align vertically */
+  gap: 20px; /* Add space between elements */
 }
 
 .filters label {
-  margin-right: 5px;     /* Small space between label and select */
+  margin-right: 5px; /* Small space between label and select */
 }
 
 .filters select {
@@ -844,7 +867,7 @@ button:hover {
 
 /* Style the list for better appearance */
 .unit-list {
-  list-style: none;      /* Remove default bullets */
+  list-style: none; /* Remove default bullets */
   padding: 0;
 }
 
@@ -870,5 +893,4 @@ button:hover {
   padding: 4px 8px; /* Smaller button padding */
   font-size: 14px; /* Match font size for consistency */
 }
-
 </style>

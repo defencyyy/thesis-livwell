@@ -1,84 +1,81 @@
 <template>
- <section class="hero overlay">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-md-8 col-lg-6 col-xl-5"> <!-- Adjusted column width to center the form -->
-        <div class="card rounded-3 text-black">
-          <div class="card-body p-md-5 mx-md-4">
-            <form @submit.prevent="login">
-              <br />
-              <h2 class="text-start">Hello, Developer!</h2>
-              <p class="text-start underline">
-                Welcome back! Please enter your details.
-              </p>
-              <br />
+  <section class="hero overlay">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+          <!-- Adjusted column width to center the form -->
+          <div class="card rounded-3 text-black">
+            <div class="card-body p-md-5 mx-md-4">
+              <form @submit.prevent="login">
+                <br />
+                <h2 class="text-start">Hello, Developer!</h2>
+                <p class="text-start underline">
+                  Welcome back! Please enter your details.
+                </p>
+                <br />
 
-              <div class="form-outline mb-4">
-                <label class="form-label" for="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  v-model="username"
-                  @input="error = null"
-                  class="form-control"
-                  required
-                />
-              </div>
+                <div class="form-outline mb-4">
+                  <label class="form-label" for="username">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    v-model="username"
+                    @input="error = null"
+                    class="form-control"
+                    required
+                  />
+                </div>
 
-              <div class="form-outline mb-4">
-                <label class="form-label" for="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  v-model="password"
-                  @input="error = null"
-                  class="form-control"
-                  required
-                />
-              </div>
+                <div class="form-outline mb-4">
+                  <label class="form-label" for="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    v-model="password"
+                    @input="error = null"
+                    class="form-control"
+                    required
+                  />
+                </div>
 
-              <div
-                class="d-flex justify-content-between align-items-center mb-4"
-              >
-                <router-link
-                  class="text-muted"
-                  to="/developer/forgot-password"
-                  >Forgot Password</router-link
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
                 >
-                <router-link class="text-muted" to="/home"
-                  >Back to home</router-link
-                >
+                  <router-link
+                    class="text-muted"
+                    to="/developer/forgot-password"
+                    >Forgot Password</router-link
+                  >
+                  <router-link class="text-muted" to="/home"
+                    >Back to home</router-link
+                  >
+                </div>
+
+                <div class="text-center pt-1 mb-5 pb-1">
+                  <button
+                    class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
+                    :disabled="loading"
+                    type="submit"
+                  >
+                    Log In
+                  </button>
+                </div>
+
+                <p v-if="error" class="text-danger">{{ error }}</p>
+              </form>
+
+              <!-- Add the Switch to Broker button -->
+              <div class="text-center mt-4">
+                <router-link to="/broker/login" class="btn btn-outline-primary">
+                  Switch to Broker
+                </router-link>
               </div>
-
-              <div class="text-center pt-1 mb-5 pb-1">
-                <button
-                  class="btn btn-primary w-100 btn-block fa-lg gradient-custom-2 mb-3 pt-4 pb-4"
-                  :disabled="loading"
-                  type="submit"
-                >
-                  Log In
-                </button>
-              </div>
-
-              <p v-if="error" class="text-danger">{{ error }}</p>
-            </form>
-
-            <!-- Add the Switch to Broker button -->
-            <div class="text-center mt-4">
-              <router-link
-                to="/broker/login"
-                class="btn btn-outline-primary"
-              >
-                Switch to Broker
-              </router-link>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
-
+  </section>
 </template>
 
 <script>
@@ -102,7 +99,7 @@ export default {
       if (this.username && this.password) {
         try {
           const response = await fetch(
-            "http://localhost:8000/api/token/developer/",
+            "${process.env.vue_app_api_url}/api/token/developer/",
             {
               method: "POST",
               headers: {
@@ -158,13 +155,16 @@ export default {
 
 <style>
 .overlay {
-  background-color:  linear-gradient(to bottom, rgba(55, 55, 55, 0.4), rgba(44, 171, 255, 0.7)) 
+  background-color: linear-gradient(
+      to bottom,
+      rgba(55, 55, 55, 0.4),
+      rgba(44, 171, 255, 0.7)
+    )
     fill 1;
 }
 
 /* bg of the main page */
 .hero {
-  
   background-size: cover;
   background-repeat: no-repeat;
   min-height: 100vh;

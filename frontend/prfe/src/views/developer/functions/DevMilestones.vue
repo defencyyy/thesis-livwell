@@ -644,7 +644,7 @@ export default {
     // Axios instance with token handling
     getAxiosInstance() {
       const instance = axios.create({
-        baseURL: "http://localhost:8000/developer/",
+        baseURL: "${process.env.vue_app_api_url}/developer/",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           "Content-Type": "application/json",
@@ -659,7 +659,7 @@ export default {
             // Handle token refresh if expired
             try {
               const refreshResponse = await axios.post(
-                "http://localhost:8000/auth/refresh/",
+                "${process.env.vue_app_api_url}/auth/refresh/",
                 { refresh: localStorage.getItem("refreshToken") }
               );
 
@@ -706,7 +706,7 @@ export default {
       const axiosInstance = this.getAxiosInstance();
       try {
         const response = await axiosInstance.get(
-          "http://localhost:8000/developer/brokers/"
+          "${process.env.vue_app_api_url}/developer/brokers/"
         );
         if (response.status === 200) {
           this.brokers = response.data;
@@ -816,7 +816,7 @@ export default {
     // Create a new milestone
     async createMilestone() {
       const axiosInstance = this.getAxiosInstance();
-      const url = "http://localhost:8000/developer/milestones/";
+      const url = "${process.env.vue_app_api_url}/developer/milestones/";
 
       // Add the company ID from Vuex state to the milestone
       const milestoneData = { ...this.newMilestone, company: this.companyId };
@@ -869,7 +869,7 @@ export default {
     // Action to confirm the update
     async confirmUpdateMilestone(milestoneId) {
       const axiosInstance = this.getAxiosInstance();
-      const url = `http://localhost:8000/developer/milestones/${milestoneId}/`;
+      const url = `${process.env.vue_app_api_url}/developer/milestones/${milestoneId}/`;
 
       // Add the company ID from Vuex state to the milestone
       const milestoneData = { ...this.newMilestone, company: this.companyId };
@@ -904,7 +904,7 @@ export default {
     // Action to confirm the deletion
     async confirmDeleteMilestone(milestoneId) {
       const axiosInstance = this.getAxiosInstance();
-      const url = `http://localhost:8000/developer/milestones/${milestoneId}/`;
+      const url = `${process.env.vue_app_api_url}/developer/milestones/${milestoneId}/`;
 
       try {
         const response = await axiosInstance.delete(url);

@@ -129,16 +129,19 @@ export default {
           // Convert username to lowercase before sending to backend
           const usernameLowercase = this.username.toLowerCase();
 
-          let response = await fetch("http://localhost:8000/broker/login/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username: usernameLowercase, // Send lowercase username
-              password: this.password,
-            }),
-          });
+          let response = await fetch(
+            "${process.env.VUE_APP_API_URL}/broker/login/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: usernameLowercase, // Send lowercase username
+                password: this.password,
+              }),
+            }
+          );
 
           const data = await response.json();
 
@@ -146,7 +149,7 @@ export default {
             this.handleLogin(data, "broker");
           } else {
             response = await fetch(
-              "http://localhost:8000/api/token/developer/",
+              "${process.env.VUE_APP_API_URL}/api/token/developer/",
               {
                 method: "POST",
                 headers: {

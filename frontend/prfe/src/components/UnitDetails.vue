@@ -5,131 +5,185 @@
       <AppHeader />
       <div class="content">
         <router-link class="text-start text" :to="`/units/${siteId}`">
-          <div class = "back-container">
+          <div class="back-container">
             <i class="fas fa-arrow-left"></i> Back to Units
           </div>
         </router-link>
         <div class="title-wrapper">
           <div class="title-left">
             <div class="title-icon"></div>
-            <div class="edit-title"><strong>Unit {{ unitDetails ? unitDetails.unit_title : unitId }}</strong></div>
+            <div class="edit-title">
+              <strong
+                >Unit
+                {{ unitDetails ? unitDetails.unit_title : unitId }}</strong
+              >
+            </div>
           </div>
           <div
-      class="d-flex justify-content-end gap-2 mt-30"
-      style="padding-top: 15px"
-    >
-      <button class="reserve-btn" @click="openReserveModal">Reserve Unit</button>
-    </div>
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
+            <button class="reserve-btn" @click="openReserveModal">
+              Reserve Unit
+            </button>
+          </div>
         </div>
-        <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 1100px;">
-          <div class = "card-body">
-            <div v-if="selectedUnit.images && selectedUnit.images.length" id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-            <!-- Indicators -->
-            <div class="carousel-indicators">
-              <button
-                v-for="(image, index) in selectedUnit.images"
-                :key="index"
-                :data-bs-target="'#carouselExampleIndicators'"
-                :data-bs-slide-to="index"
-                :class="{ active: index === 0 }"
-                :aria-current="index === 0 ? 'true' : null"
-                :aria-label="'Slide ' + (index + 1)"
-              ></button>
-            </div>
-
-            <!-- Carousel Items -->
-            <div class="carousel-inner">
-              <div
-                v-for="(image, index) in selectedUnit.images"
-                :key="index"
-                :class="['carousel-item', { active: index === 0 }]"
-              >
-                <img :src="image" class="d-block w-100" alt="Unit Picture" style="width: 100%; height: 500px; object-fit: cover;" />
+        <div
+          class="card shadow-lg border-0 rounded-1 mx-auto"
+          style="max-width: 1100px"
+        >
+          <div class="card-body">
+            <div
+              v-if="selectedUnit.images && selectedUnit.images.length"
+              id="carouselExampleIndicators"
+              class="carousel slide"
+              data-bs-ride="carousel"
+            >
+              <!-- Indicators -->
+              <div class="carousel-indicators">
+                <button
+                  v-for="(image, index) in selectedUnit.images"
+                  :key="index"
+                  :data-bs-target="'#carouselExampleIndicators'"
+                  :data-bs-slide-to="index"
+                  :class="{ active: index === 0 }"
+                  :aria-current="index === 0 ? 'true' : null"
+                  :aria-label="'Slide ' + (index + 1)"
+                ></button>
               </div>
-            </div>
 
-            <!-- Navigation Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          </div>
-          <!-- Loading State -->
-          <div v-else class="text-center">
-            <p>No unit images.</p>
-          </div>
-          <div class="row-details row mb-3">
-            <div class="col-12 d-flex justify-content-between align-items-center">
+              <!-- Carousel Items -->
+              <div class="carousel-inner">
+                <div
+                  v-for="(image, index) in selectedUnit.images"
+                  :key="index"
+                  :class="['carousel-item', { active: index === 0 }]"
+                >
+                  <img
+                    :src="image"
+                    class="d-block w-100"
+                    alt="Unit Picture"
+                    style="width: 100%; height: 500px; object-fit: cover"
+                  />
+                </div>
+              </div>
+
+              <!-- Navigation Controls -->
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            <!-- Loading State -->
+            <div v-else class="text-center">
+              <p>No unit images.</p>
+            </div>
+            <div class="row-details row mb-3">
+              <div
+                class="col-12 d-flex justify-content-between align-items-center"
+              >
                 <!-- Left Section: Price and Installment Badge -->
                 <div class="d-flex align-items-center gap-2">
-                    <span class="property-price"> {{ formatCurrency(selectedUnit.price) }}</span>
+                  <span class="property-price">
+                    {{ formatCurrency(selectedUnit.price) }}</span
+                  >
                 </div>
                 <!-- Right Section: Icons and Details -->
                 <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center gap-1">
-                        <i class="fa-solid fa-bed"></i>
-                        <span>{{ selectedUnit.bedroom }}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-1">
-                      <i class="fa-solid fa-bath"></i>
-                        <span>{{ selectedUnit.bathroom }}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-1">
-                        <i class="bi bi-arrows-fullscreen"></i>
-                        <span>{{ selectedUnit.floor_area }}m<sup>2</sup></span>
-                    </div>
-                    <span class="text-muted">Studio Type</span>
+                  <div class="d-flex align-items-center gap-1">
+                    <i class="fa-solid fa-bed"></i>
+                    <span>{{ selectedUnit.bedroom }}</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <i class="fa-solid fa-bath"></i>
+                    <span>{{ selectedUnit.bathroom }}</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                    <span>{{ selectedUnit.floor_area }}m<sup>2</sup></span>
+                  </div>
+                  <span class="text-muted">Studio Type</span>
                 </div>
+              </div>
             </div>
-          </div>
-          <div class="line mb-4"></div>
-          <div class="col-12 text-center mb-3 text-center">
-                <h5 class="property-header">Details</h5>
-          </div>
-          <div class="row-details row ps-5">
-            <!-- Column 1 -->
-            <div class="col-md-4">
+            <div class="line mb-4"></div>
+            <div class="col-12 text-center mb-3 text-center">
+              <h5 class="property-header">Details</h5>
+            </div>
+            <div class="row-details row ps-5">
+              <!-- Column 1 -->
+              <div class="col-md-4">
                 <ul class="list-unstyled mb-0">
-                  <li><strong>Balcony:</strong> {{ selectedUnit.balcony }} </li>
-                  <li><strong>Floor Area (m²):</strong> {{ selectedUnit.floor_area }}m<sup>2</sup></li>
+                  <li><strong>Balcony:</strong> {{ selectedUnit.balcony }}</li>
+                  <li>
+                    <strong>Floor Area (m²):</strong>
+                    {{ selectedUnit.floor_area }}m<sup>2</sup>
+                  </li>
                   <li><strong>View:</strong> {{ selectedUnit.view }}</li>
                 </ul>
-            </div>
-            <!-- Column 2 -->
-            <div class="col-md-4">
+              </div>
+              <!-- Column 2 -->
+              <div class="col-md-4">
                 <ul class="list-unstyled mb-0">
-                    <li><strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}</li>
-                    <li><strong>Build (Year):</strong> {{ siteYear }}</li>
+                  <li>
+                    <strong>Unit/Floor Number:</strong> {{ selectedUnit.floor }}
+                  </li>
+                  <li><strong>Build (Year):</strong> {{ siteYear }}</li>
                 </ul>
-            </div>
-            <!-- Column 3 -->
-            <div class="col-md-4">
+              </div>
+              <!-- Column 3 -->
+              <div class="col-md-4">
                 <ul class="list-unstyled mb-0">
                   <li><strong>Baths:</strong> {{ selectedUnit.bathroom }}</li>
                   <li><strong>Bedrooms:</strong> {{ selectedUnit.bedroom }}</li>
                 </ul>
+              </div>
             </div>
           </div>
-          </div>
         </div>
-      <br>
-      <hr>
+        <br />
+        <hr />
         <div class="payment-plan-container">
           <div class="row-details row mb-3 ps-5">
-            <div class="col-12 d-flex justify-content-around align-items-center">
+            <div
+              class="col-12 d-flex justify-content-around align-items-center"
+            >
               <!-- Left Section: Property Price -->
               <div class="text-center">
                 <h5 class="price-header">Property Price</h5>
-                <p class="property-price"><strong> {{ formatCurrency(selectedUnit.price) }}</strong></p>
+                <p class="property-price">
+                  <strong> {{ formatCurrency(selectedUnit.price) }}</strong>
+                </p>
               </div>
               <!-- Right Section: Payment Plan -->
               <div class="text-center">
                 <h5 class="price-header">Payment Plan</h5>
-                <select v-model="selectedPaymentPlan" id="paymentPlan" class="form-select mt-2" required>
+                <select
+                  v-model="selectedPaymentPlan"
+                  id="paymentPlan"
+                  class="form-select mt-2"
+                  required
+                >
                   <option value="Spot Cash">Spot Cash</option>
                   <option value="Deferred Payment">Deferred Payment</option>
                 </select>
@@ -137,14 +191,19 @@
             </div>
           </div>
 
-          <div class="card shadow-lg border-0 rounded-1 mx-auto" style="max-width: 900px;">
+          <div
+            class="card shadow-lg border-0 rounded-1 mx-auto"
+            style="max-width: 900px"
+          >
             <div class="card-body">
               <form>
                 <div class="row-payment row">
                   <div class="col-md-6">
                     <!-- Spot Discount -->
                     <div class="mb-3">
-                      <label for="spotDiscount" class="form-label text-start">Spot Discount</label>
+                      <label for="spotDiscount" class="form-label text-start"
+                        >Spot Discount</label
+                      >
                       <input
                         type="number"
                         id="spotDiscount"
@@ -154,13 +213,23 @@
                         :min="0"
                         :max="maxSpotCashDiscount"
                       />
-                      <p><strong>Spot Discount:</strong> {{ formatCurrency(spotDiscount) }}</p>
-                      <p><strong>Unit Price after Spot Discount:</strong> {{ formatCurrency(unitPriceAfterSpotDiscount) }}</p>
+                      <p>
+                        <strong>Spot Discount:</strong>
+                        {{ formatCurrency(spotDiscount) }}
+                      </p>
+                      <p>
+                        <strong>Unit Price after Spot Discount:</strong>
+                        {{ formatCurrency(unitPriceAfterSpotDiscount) }}
+                      </p>
                     </div>
 
                     <!-- Other Charges -->
                     <div class="mb-3">
-                      <label for="otherChargesPercentage" class="form-label text-start">Other Charges (%)</label>
+                      <label
+                        for="otherChargesPercentage"
+                        class="form-label text-start"
+                        >Other Charges (%)</label
+                      >
                       <input
                         type="number"
                         id="otherChargesPercentage"
@@ -171,28 +240,43 @@
                         max="maxOtherChargesPercentage"
                         step="0.1"
                       />
-                      <p><strong>Other Charges:</strong> {{ formatCurrency(otherCharges) }}</p>
-                      <p v-if="netUnitPrice > 3600000"><strong>VAT (12%):</strong> ₱{{ vatAmount }}</p>
-                      <p><strong>Total Amount Payable:</strong> {{ formatCurrency(totalAmountPayable) }}</p>
+                      <p>
+                        <strong>Other Charges:</strong>
+                        {{ formatCurrency(otherCharges) }}
+                      </p>
+                      <p v-if="netUnitPrice > 3600000">
+                        <strong>VAT (12%):</strong> ₱{{ vatAmount }}
+                      </p>
+                      <p>
+                        <strong>Total Amount Payable:</strong>
+                        {{ formatCurrency(totalAmountPayable) }}
+                      </p>
                     </div>
 
                     <!-- Spread Downpayment -->
                     <div v-if="selectedPaymentPlan === 'Deferred Payment'">
                       <div class="mb-3 align-fields">
-                        <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
+                        <label
+                          for="spreadDownpayment"
+                          class="form-label text-start"
+                          >Spread Downpayment</label
+                        >
                         <input
-                        type="number"
-                        v-model="spreadDownpaymentPercentage"
-                        id="spreadDownpayment"
-                        @input="updatePaymentDetails"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="form-control"
-                        required
-                        placeholder="Enter percentage"
-                      />
-                      <p><strong>Spread Downpayment:</strong> {{ formatCurrency(spreadDownpayment) }}</p>
+                          type="number"
+                          v-model="spreadDownpaymentPercentage"
+                          id="spreadDownpayment"
+                          @input="updatePaymentDetails"
+                          min="0"
+                          max="100"
+                          step="1"
+                          class="form-control"
+                          required
+                          placeholder="Enter percentage"
+                        />
+                        <p>
+                          <strong>Spread Downpayment:</strong>
+                          {{ formatCurrency(spreadDownpayment) }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -200,7 +284,9 @@
                   <div class="col-md-6">
                     <!-- TLP Discount -->
                     <div class="mb-3">
-                      <label for="tlpDiscount" class="form-label text-start">TLP Discount (Optional)</label>
+                      <label for="tlpDiscount" class="form-label text-start"
+                        >TLP Discount (Optional)</label
+                      >
                       <input
                         type="number"
                         id="tlpDiscount"
@@ -210,13 +296,24 @@
                         min="0"
                         max="maxTlpDiscount"
                       />
-                      <p><strong>TLP Discount:</strong> {{ formatCurrency(tlpDiscountAmount) }}</p>
-                      <p><strong>Net Unit Price:</strong> {{ formatCurrency(netUnitPrice) }}</p>
+                      <p>
+                        <strong>TLP Discount:</strong>
+                        {{ formatCurrency(tlpDiscountAmount) }}
+                      </p>
+                      <p>
+                        <strong>Net Unit Price:</strong>
+                        {{ formatCurrency(netUnitPrice) }}
+                      </p>
                     </div>
 
                     <!-- Spot Downpayment -->
-                    <div v-if="selectedPaymentPlan === 'Deferred Payment'" class="mb-3">
-                      <label for="spotDownpayment" class="form-label text-start">Spot Downpayment</label>
+                    <div
+                      v-if="selectedPaymentPlan === 'Deferred Payment'"
+                      class="mb-3"
+                    >
+                      <label for="spotDownpayment" class="form-label text-start"
+                        >Spot Downpayment</label
+                      >
                       <input
                         type="number"
                         id="spotDownpayment"
@@ -228,13 +325,27 @@
                         placeholder="Enter downpayment percentage"
                         required
                       />
-                      <p><strong>Spot Downpayment:</strong> {{ formatCurrency(spotDownpayment) }}</p>
-                      <p><strong>Reservation Fee:</strong> {{ formatCurrency(reservationFee) }}</p>
-                      <p v-if="selectedPaymentPlan === 'Spot Cash'"><strong>Net Full Payment:</strong> {{ formatCurrency(netFullPayment) }}</p>
-                      <p v-if="selectedPaymentPlan === 'Deferred Payment'"><strong>Net Downpayment:</strong> {{ formatCurrency(netDownpayment) }}</p>
+                      <p>
+                        <strong>Spot Downpayment:</strong>
+                        {{ formatCurrency(spotDownpayment) }}
+                      </p>
+                      <p>
+                        <strong>Reservation Fee:</strong>
+                        {{ formatCurrency(reservationFee) }}
+                      </p>
+                      <p v-if="selectedPaymentPlan === 'Spot Cash'">
+                        <strong>Net Full Payment:</strong>
+                        {{ formatCurrency(netFullPayment) }}
+                      </p>
+                      <p v-if="selectedPaymentPlan === 'Deferred Payment'">
+                        <strong>Net Downpayment:</strong>
+                        {{ formatCurrency(netDownpayment) }}
+                      </p>
                       <!-- Payable in Months -->
                       <div class="mb-3">
-                        <label for="months" class="form-label text-start">Months to Pay</label>
+                        <label for="months" class="form-label text-start"
+                          >Months to Pay</label
+                        >
                         <input
                           type="number"
                           v-model="payableMonths"
@@ -246,8 +357,14 @@
                           step="1"
                           required
                         />
-                        <p><strong>Payable Per Month:</strong> {{ formatCurrency(payablePerMonth) }}</p>
-                        <p><strong>Balance Upon Turnover:</strong> {{ formatCurrency(balanceUponTurnover) }}</p>
+                        <p>
+                          <strong>Payable Per Month:</strong>
+                          {{ formatCurrency(payablePerMonth) }}
+                        </p>
+                        <p>
+                          <strong>Balance Upon Turnover:</strong>
+                          {{ formatCurrency(balanceUponTurnover) }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -255,16 +372,17 @@
               </form>
             </div>
           </div>
-
-          </div>
-          <div v-if="selectedPaymentPlan === 'Deferred Payment'">
+        </div>
+        <div v-if="selectedPaymentPlan === 'Deferred Payment'">
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
+              <div class="edit-title">
+                <strong>Payment Schedule Summary</strong>
+              </div>
             </div>
           </div>
-          
+
           <div class="payment-container">
             <!-- Payment Summary and Additional Information -->
             <div class="summary-and-info">
@@ -272,22 +390,31 @@
               <div class="payment-schedule-summary">
                 <div class="summary-item">
                   <span class="label">Spot Downpayment:</span>
-                  <span class="value">{{ formatCurrency(spotDownpayment) }}</span>
+                  <span class="value">{{
+                    formatCurrency(spotDownpayment)
+                  }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <div class="summary-item">
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">{{ formatCurrency(netDownpayment) }}</span>
+                  <span class="value">{{
+                    formatCurrency(netDownpayment)
+                  }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <div class="summary-item highlight">
                   <span class="label">Monthly Payment:</span>
-                  <span class="value">{{ formatCurrency(payablePerMonth) }} / month for {{ payableMonths }} months</span>
+                  <span class="value"
+                    >{{ formatCurrency(payablePerMonth) }} / month for
+                    {{ payableMonths }} months</span
+                  >
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <div class="summary-item">
                   <span class="label">Balance Upon Turnover:</span>
-                  <span class="value">{{ formatCurrency(balanceUponTurnover) }}</span>
+                  <span class="value">{{
+                    formatCurrency(balanceUponTurnover)
+                  }}</span>
                 </div>
               </div>
 
@@ -296,79 +423,107 @@
                 <h4><center>Monthly Amortization (est.6.5%)</center></h4>
                 <div class="summary-item">
                   <span class="label">10 years</span>
-                  <span class="value">{{ formatCurrency(amortization10Years) }}</span>
+                  <span class="value">{{
+                    formatCurrency(amortization10Years)
+                  }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <div class="summary-item">
                   <span class="label">15 years</span>
-                  <span class="value">{{ formatCurrency(amortization15Years) }}</span>
+                  <span class="value">{{
+                    formatCurrency(amortization15Years)
+                  }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <div class="summary-item">
                   <span class="label">20 years</span>
-                  <span class="value">{{ formatCurrency(amortization20Years) }}</span>
+                  <span class="value">{{
+                    formatCurrency(amortization20Years)
+                  }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <div class="summary-item">
                   <span class="label">25 years</span>
-                  <span class="value">{{ formatCurrency(amortization25Years) }}</span>
+                  <span class="value">{{
+                    formatCurrency(amortization25Years)
+                  }}</span>
                 </div>
               </div>
             </div>
 
-          <!-- Detailed Schedule -->
-          <div class="detailed-schedule">
-            <table class="payment-table">
-              <thead>
-                <tr>
-                  <th colspan="3"><strong>Payment Schedule</strong></th> <!-- Group Header -->
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Spot and Spread Downpayments Section -->
-                <tr>
-                  <td colspan="3"><strong>Initial Payments</strong></td> <!-- Heading for initial payments -->
-                </tr>
-                <tr>
-                  <td>Spot Downpayment</td>
-                  <td class="amount-column highlight">{{ formatCurrency(spotDownpayment) }}</td>
-                  <td class="amount-column">{{ spotDueDate }}</td> <!-- Spot due date -->
-                </tr>
-                <tr>
-                  <td>Spread Downpayment</td>
-                  <td class="amount-column highlight">{{ formatCurrency(netDownpayment) }}</td>
-                  <td class="amount-column">{{ spreadDueDate }}</td> <!-- Spread due date -->
-                </tr>
+            <!-- Detailed Schedule -->
+            <div class="detailed-schedule">
+              <table class="payment-table">
+                <thead>
+                  <tr>
+                    <th colspan="3"><strong>Payment Schedule</strong></th>
+                    <!-- Group Header -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Spot and Spread Downpayments Section -->
+                  <tr>
+                    <td colspan="3"><strong>Initial Payments</strong></td>
+                    <!-- Heading for initial payments -->
+                  </tr>
+                  <tr>
+                    <td>Spot Downpayment</td>
+                    <td class="amount-column highlight">
+                      {{ formatCurrency(spotDownpayment) }}
+                    </td>
+                    <td class="amount-column">{{ spotDueDate }}</td>
+                    <!-- Spot due date -->
+                  </tr>
+                  <tr>
+                    <td>Spread Downpayment</td>
+                    <td class="amount-column highlight">
+                      {{ formatCurrency(netDownpayment) }}
+                    </td>
+                    <td class="amount-column">{{ spreadDueDate }}</td>
+                    <!-- Spread due date -->
+                  </tr>
 
-                <!-- Monthly Payments Section -->
-                <tr>
-                  <td colspan="3"><strong>Monthly Payments</strong></td> <!-- Heading for monthly payments -->
-                </tr>
-                <tr v-for="month in payableMonths" :key="month">
-                  <td>Month {{ month }} Payment</td>
-                  <td class="amount-column">{{ formatCurrency(payablePerMonth) }}</td>
-                  <td class="amount-column">{{ getPaymentDueDate(month) }}</td> <!-- Specific due date for each month -->
-                </tr>
+                  <!-- Monthly Payments Section -->
+                  <tr>
+                    <td colspan="3"><strong>Monthly Payments</strong></td>
+                    <!-- Heading for monthly payments -->
+                  </tr>
+                  <tr v-for="month in payableMonths" :key="month">
+                    <td>Month {{ month }} Payment</td>
+                    <td class="amount-column">
+                      {{ formatCurrency(payablePerMonth) }}
+                    </td>
+                    <td class="amount-column">
+                      {{ getPaymentDueDate(month) }}
+                    </td>
+                    <!-- Specific due date for each month -->
+                  </tr>
 
-                <!-- Balance Upon Turnover Section -->
-                <tr>
-                  <td colspan="3"><strong>Balance Upon Turnover</strong></td> <!-- Heading for balance -->
-                </tr>
-                <tr>
-                  <td>Balance Upon Turnover</td>
-                  <td class="amount-column highlight">{{ formatCurrency(balanceUponTurnover) }}</td>
-                  <td class="amount-column">{{ turnoverDueDate }}</td> <!-- Balance turnover due date -->
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  <!-- Balance Upon Turnover Section -->
+                  <tr>
+                    <td colspan="3"><strong>Balance Upon Turnover</strong></td>
+                    <!-- Heading for balance -->
+                  </tr>
+                  <tr>
+                    <td>Balance Upon Turnover</td>
+                    <td class="amount-column highlight">
+                      {{ formatCurrency(balanceUponTurnover) }}
+                    </td>
+                    <td class="amount-column">{{ turnoverDueDate }}</td>
+                    <!-- Balance turnover due date -->
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-          <div v-if="selectedPaymentPlan === 'Spot Cash'">
+        <div v-if="selectedPaymentPlan === 'Spot Cash'">
           <div class="title-wrapper">
             <div class="title-left">
               <div class="title-icon"></div>
-              <div class="edit-title"><strong>Payment Schedule Summary</strong></div>
+              <div class="edit-title">
+                <strong>Payment Schedule Summary</strong>
+              </div>
             </div>
           </div>
 
@@ -393,160 +548,159 @@
             </div>
           </div>
         </div>
-
-        </div>
-         <b-modal
+      </div>
+      <b-modal
         v-model="showSuccessMessage"
         title="Reservation Submitted"
         @hide="closePopup"
         centered
         hide-footer
         :visible="successMessage"
-        >
-          <p>{{ successMessage }}</p>
-          <div class="button-container">
-              <button
-                type="button"
-                @click="closePopup"
-                class="btn-cancel-right"
-              >
-                Close
-              </button>
-            </div>
+      >
+        <p>{{ successMessage }}</p>
+        <div class="button-container">
+          <button type="button" @click="closePopup" class="btn-cancel-right">
+            Close
+          </button>
+        </div>
       </b-modal>
-          <!-- Reserve Unit Modal -->
+      <!-- Reserve Unit Modal -->
       <b-modal
         v-model="isReserveModalVisible"
         @hide="closeReserveModal"
         hide-footer
         title="Reserve Unit"
         centered
-        class = "reserve-modal"
+        class="reserve-modal"
       >
-      <form @submit.prevent="submitReservation" style="margin-left: -25px;">
-        <!-- Customer Name Dropdown -->
-        <div class="form-group">
-          <label for="customerName">Customer Name</label>
-          <select
-            v-model="reservationForm.customerName"
-            id="customerName"
-            class="form-select"
-            style="margin-left: 1px;"
-            required
-          >
-            <option value="" disabled selected>Select Customer</option>
-            <option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
+        <form @submit.prevent="submitReservation" style="margin-left: -25px">
+          <!-- Customer Name Dropdown -->
+          <div class="form-group">
+            <label for="customerName">Customer Name</label>
+            <select
+              v-model="reservationForm.customerName"
+              id="customerName"
+              class="form-select"
+              style="margin-left: 1px"
+              required
             >
-              {{ customer.name }} ({{ customer.customer_code }})
-            </option>
-          </select>
-        </div>
-        <!-- File Upload -->
-        <div class="form-group">
-          <label for="fileUpload">Upload File (Required)</label>
-          <input
-            type="file"
-            @change="handleFileUpload"
-            id="fileUpload"
-            class="form-control"
-            required
-          />
-        </div>
-        <!-- Payment Details -->
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="paymentAmount">Payment Amount ({{ formatCurrency(reservationFee) }})</label>
-              <input
-                type="number"
-                v-model="reservationForm.paymentAmount"
-                id="paymentAmount"
-                class="form-control"
-                placeholder="Enter payment amount"
-                required
-              />
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="paymentMethod">Payment Method</label>
-              <select
-                v-model="reservationForm.paymentMethod"
-                id="paymentMethod"
-                class="form-select"
-                required
+              <option value="" disabled selected>Select Customer</option>
+              <option
+                v-for="customer in customers"
+                :key="customer.id"
+                :value="customer.id"
               >
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="cash">Cash</option>
-                <option value="online_payment">Online Payment</option>
-              </select>
+                {{ customer.name }} ({{ customer.customer_code }})
+              </option>
+            </select>
+          </div>
+          <!-- File Upload -->
+          <div class="form-group">
+            <label for="fileUpload">Upload File (Required)</label>
+            <input
+              type="file"
+              @change="handleFileUpload"
+              id="fileUpload"
+              class="form-control"
+              required
+            />
+          </div>
+          <!-- Payment Details -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="paymentAmount"
+                  >Payment Amount ({{ formatCurrency(reservationFee) }})</label
+                >
+                <input
+                  type="number"
+                  v-model="reservationForm.paymentAmount"
+                  id="paymentAmount"
+                  class="form-control"
+                  placeholder="Enter payment amount"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="paymentMethod">Payment Method</label>
+                <select
+                  v-model="reservationForm.paymentMethod"
+                  id="paymentMethod"
+                  class="form-select"
+                  required
+                >
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="cash">Cash</option>
+                  <option value="online_payment">Online Payment</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="paymentDate">Date of Payment</label>
-              <input
-                type="date"
-                v-model="reservationForm.paymentDate"
-                id="paymentDate"
-                class="form-control"
-                required
-              />
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="paymentDate">Date of Payment</label>
+                <input
+                  type="date"
+                  v-model="reservationForm.paymentDate"
+                  id="paymentDate"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+            <div
+              class="col-md-6"
+              v-if="reservationForm.paymentMethod !== 'cash'"
+            >
+              <div class="form-group">
+                <label for="paymentReference">Payment Reference Number</label>
+                <input
+                  type="text"
+                  v-model="reservationForm.paymentReference"
+                  id="paymentReference"
+                  class="form-control"
+                  placeholder="Enter reference number"
+                  required
+                />
+              </div>
             </div>
           </div>
-          <div class="col-md-6" v-if="reservationForm.paymentMethod !== 'cash'">
-            <div class="form-group">
-              <label for="paymentReference">Payment Reference Number</label>
-              <input
-                type="text"
-                v-model="reservationForm.paymentReference"
-                id="paymentReference"
-                class="form-control"
-                placeholder="Enter reference number"
-                required
-              />
-            </div>
+          <!-- Submit Button -->
+          <div
+            class="d-flex justify-content-end gap-2 mt-3"
+            style="padding-top: 15px"
+          >
+            <button type="submit" class="btn-add">Submit Reservation</button>
+            <button @click="closeReserveModal" class="btn-cancel">
+              Cancel
+            </button>
           </div>
-        </div>
-        <!-- Submit Button -->
-        <div
-          class="d-flex justify-content-end gap-2 mt-3"
-          style="padding-top: 15px"
-        >
-        <button type="submit" class="btn-add">
-            Submit Reservation
-        </button>
-        <button @click="closeReserveModal" class="btn-cancel">Cancel</button>
-        </div>
-      </form>
+        </form>
         <!-- Error Message Modal -->
-        <b-modal 
-          v-model="isErrorModalVisible" 
-          hide-footer 
+        <b-modal
+          v-model="isErrorModalVisible"
+          hide-footer
           title="Error"
           @hide="handleErrorModalClose"
         >
           <p>{{ errorMessage }}</p>
           <div class="button-container">
-              <button
-                type="button"
-                @click="closeErrorModal"
-                class="btn-cancel-right"
-              >
-                Close
-              </button>
-            </div>
+            <button
+              type="button"
+              @click="closeErrorModal"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
+          </div>
         </b-modal>
-        </b-modal>
-      </div>
+      </b-modal>
     </div>
+  </div>
 </template>
-
 
 <script>
 import SideNav from "@/components/SideNav.vue";
@@ -563,7 +717,7 @@ export default {
       unitId: this.$route.params.unitId,
       unitDetails: null,
       units: [],
-      siteId:null,
+      siteId: null,
       siteName: "",
       siteYear: "",
       isModalVisible: false,
@@ -591,7 +745,7 @@ export default {
       spotCashDiscount: 0,
       maxSpotCashDiscount: 0, // Default value fetched from DB
       maxotherChargesPercentage: 0,
-      maxtlpDiscount:0,
+      maxtlpDiscount: 0,
       tlpDiscount: 0,
       spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
@@ -607,30 +761,30 @@ export default {
       spreadDownpaymentPercentage: 0,
       spreadDownpayment: 0,
       payableMonths: 1,
-      maxpayableMonths:0,
+      maxpayableMonths: 0,
       payablePerMonth: 0,
       balanceUponTurnover: 0,
       vat: 0,
-      reservationDate: new Date().toISOString().split('T')[0], // Default to today's date
+      reservationDate: new Date().toISOString().split("T")[0], // Default to today's date
       dueDate: null,
       spotDueDate: null,
       spreadDueDate: null,
       turnoverDueDate: null,
     };
+  },
+  computed: {
+    amortization10Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 10);
     },
-    computed:{
-     amortization10Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 10);
-  },
-  amortization15Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 15);
-  },
-  amortization20Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 20);
-  },
-  amortization25Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 25);
-  },
+    amortization15Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 15);
+    },
+    amortization20Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 20);
+    },
+    amortization25Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 25);
+    },
   },
   mounted() {
     this.fetchUnitDetails();
@@ -639,15 +793,15 @@ export default {
   },
   methods: {
     formatCurrency(amount) {
-    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  },
-   async fetchCustomers() {
+      if (isNaN(amount)) return "₱0.00"; // Return '₱0.00' if the amount is not a number
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    },
+    async fetchCustomers() {
       const brokerId = this.$store.getters.getUserId; // Use Vuex getter to get broker ID
       if (!brokerId) {
         this.errorMessage = "Broker ID not found. Please log in again.";
@@ -656,7 +810,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
+          `${process.env.vue_app_api_url}/customers/broker/${brokerId}/?include_sales=false`
         );
         const data = await response.json();
         if (data && data.customers) {
@@ -669,77 +823,76 @@ export default {
       }
     },
 
-      calculateAmortization(balance, years) {
+    calculateAmortization(balance, years) {
       const interestRate = 6.5 / 100; // 6.5% annual interest
       const monthlyRate = interestRate / 12; // Monthly interest rate
       const totalMonths = years * 12; // Total number of months
       return (
-        balance *
-        (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+        (balance * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))) /
         (Math.pow(1 + monthlyRate, totalMonths) - 1)
       );
     },
-   async fetchUnitDetails() {
-  try {
-    const response = await axios.get(
-      `http://localhost:8000/units/${this.unitId}/details`
-    );
-    this.unitDetails = response.data.unit; // Assuming `unit` is the key in the response
-    this.selectedUnit = this.unitDetails;
-    this.siteId = this.selectedUnit.site.id;
-    this.unitPrice = this.unitDetails.price; // Set the price of the selected unit
-    this.spotCashDiscount = this.selectedUnit.spot_discount;
-    this.payableMonths = this.selectedUnit.months;
-    this.maxpayableMonths = this.payableMonths;
-    this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
-    this.tlpDiscount = this.selectedUnit.TLP_Discount;
-    this.maxtlpDiscount = this.tlpDiscount;
-    this.otherChargesPercentage = this.selectedUnit.other_charges;
-    this.maxotherChargesPercentage = this.otherChargesPercentage;
-    this.reservationFee = this.selectedUnit.reservation_fee;
-    this.vat = this.selectedUnit.vat_percent;
-    this.updatePaymentDetails();
-  } catch (error) {
-    console.error("Error fetching unit details:", error);
-  }
+    async fetchUnitDetails() {
+      try {
+        const response = await axios.get(
+          `${process.env.vue_app_api_url}/units/${this.unitId}/details`
+        );
+        this.unitDetails = response.data.unit; // Assuming `unit` is the key in the response
+        this.selectedUnit = this.unitDetails;
+        this.siteId = this.selectedUnit.site.id;
+        this.unitPrice = this.unitDetails.price; // Set the price of the selected unit
+        this.spotCashDiscount = this.selectedUnit.spot_discount;
+        this.payableMonths = this.selectedUnit.months;
+        this.maxpayableMonths = this.payableMonths;
+        this.maxSpotCashDiscount = this.spotCashDiscount; // Default value fetched from DB
+        this.tlpDiscount = this.selectedUnit.TLP_Discount;
+        this.maxtlpDiscount = this.tlpDiscount;
+        this.otherChargesPercentage = this.selectedUnit.other_charges;
+        this.maxotherChargesPercentage = this.otherChargesPercentage;
+        this.reservationFee = this.selectedUnit.reservation_fee;
+        this.vat = this.selectedUnit.vat_percent;
+        this.updatePaymentDetails();
+      } catch (error) {
+        console.error("Error fetching unit details:", error);
+      }
     },
-  calculateDueDate() {
-  const reservationDate = new Date(this.reservationDate);
+    calculateDueDate() {
+      const reservationDate = new Date(this.reservationDate);
 
-  if (this.selectedPaymentPlan === 'Spot Cash') {
-    // For Spot Payment, add 30 days
-    reservationDate.setDate(reservationDate.getDate() + 30);
-    this.dueDate = reservationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-  } else if (this.selectedPaymentPlan === 'Deferred Payment') {
-    // For Deferred Payment:
-    
-    // Spot Payment Due Date: 30 days from the reservation date
-    const spotDate = new Date(reservationDate);
-    spotDate.setDate(spotDate.getDate() + 30);
-    this.spotDueDate = spotDate.toISOString().split('T')[0];
+      if (this.selectedPaymentPlan === "Spot Cash") {
+        // For Spot Payment, add 30 days
+        reservationDate.setDate(reservationDate.getDate() + 30);
+        this.dueDate = reservationDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+      } else if (this.selectedPaymentPlan === "Deferred Payment") {
+        // For Deferred Payment:
 
-    // Spread Payment Due Date: Last month of the payment term
-    const spreadDate = new Date(reservationDate);
-    spreadDate.setMonth(spreadDate.getMonth() + this.payableMonths - 1); // Set to the last month
-    this.spreadDueDate = spreadDate.toISOString().split('T')[0];
+        // Spot Payment Due Date: 30 days from the reservation date
+        const spotDate = new Date(reservationDate);
+        spotDate.setDate(spotDate.getDate() + 30);
+        this.spotDueDate = spotDate.toISOString().split("T")[0];
 
-    // Balance Upon Turnover Due Date: 1 year after reservation
-    const turnoverDate = new Date(reservationDate);
-    turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // 1 year later
-    this.turnoverDueDate = turnoverDate.toISOString().split('T')[0];
+        // Spread Payment Due Date: Last month of the payment term
+        const spreadDate = new Date(reservationDate);
+        spreadDate.setMonth(spreadDate.getMonth() + this.payableMonths - 1); // Set to the last month
+        this.spreadDueDate = spreadDate.toISOString().split("T")[0];
 
-    // Optionally set a "main" due date if needed
-    this.dueDate = this.spreadDueDate; 
-  }
-},
-getPaymentDueDate(month) {
-    const reservationDate = new Date(this.reservationDate);
-    const paymentDate = new Date(reservationDate);
-    paymentDate.setMonth(paymentDate.getMonth() + month);
-    return paymentDate.toISOString().split('T')[0];
-  },
+        // Balance Upon Turnover Due Date: 1 year after reservation
+        const turnoverDate = new Date(reservationDate);
+        turnoverDate.setFullYear(turnoverDate.getFullYear() + 1); // 1 year later
+        this.turnoverDueDate = turnoverDate.toISOString().split("T")[0];
+
+        // Optionally set a "main" due date if needed
+        this.dueDate = this.spreadDueDate;
+      }
+    },
+    getPaymentDueDate(month) {
+      const reservationDate = new Date(this.reservationDate);
+      const paymentDate = new Date(reservationDate);
+      paymentDate.setMonth(paymentDate.getMonth() + month);
+      return paymentDate.toISOString().split("T")[0];
+    },
     updatePaymentDetails() {
-    if (this.spotCashDiscount < 0) {
+      if (this.spotCashDiscount < 0) {
         this.spotCashDiscount = 0;
       } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
         this.spotCashDiscount = this.maxSpotCashDiscount;
@@ -765,14 +918,13 @@ getPaymentDueDate(month) {
       this.calculateVAT();
       this.calculateFinancingDetails();
       this.calculateDueDate(); // Call this whenever payment details update
-
     },
 
     applySpotCashDiscount() {
-    const discountPercentage = parseFloat(this.spotCashDiscount);
-    this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
-    this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
-    this.updateNetUnitPrice();
+      const discountPercentage = parseFloat(this.spotCashDiscount);
+      this.spotDiscount = (this.unitPrice * discountPercentage) / 100;
+      this.unitPriceAfterSpotDiscount = this.unitPrice - this.spotDiscount;
+      this.updateNetUnitPrice();
     },
 
     applyTLPDiscount() {
@@ -802,8 +954,10 @@ getPaymentDueDate(month) {
     },
 
     calculateFinancingDetails() {
-      this.spotDownpayment =this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
-      this.spreadDownpayment =this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
+      this.spotDownpayment =
+        this.totalAmountPayable * (this.spotDownpaymentPercentage / 100);
+      this.spreadDownpayment =
+        this.totalAmountPayable * (this.spreadDownpaymentPercentage / 100);
       if (this.spotDownpaymentPercentage == "0") {
         this.netDownpayment = this.spreadDownpayment - this.reservationFee;
         this.payablePerMonth = this.netDownpayment / this.payableMonths;
@@ -817,8 +971,8 @@ getPaymentDueDate(month) {
             Number(this.spotDownpaymentPercentage))) /
           100) *
         this.totalAmountPayable; // Correct sum of percentages
-  },
-        openReserveModal() {
+    },
+    openReserveModal() {
       this.isReserveModalVisible = true;
     },
 
@@ -851,11 +1005,14 @@ getPaymentDueDate(month) {
         (this.reservationForm.paymentMethod !== "cash" &&
           !this.reservationForm.paymentReference)
       ) {
-        this.errorMessage ="All fields are required except the payment reference (if payment method is 'cash').";
+        this.errorMessage =
+          "All fields are required except the payment reference (if payment method is 'cash').";
         this.isErrorModalVisible = true;
         return;
       }
-      if (this.reservationForm.paymentAmount < this.selectedUnit.reservation_fee ) {
+      if (
+        this.reservationForm.paymentAmount < this.selectedUnit.reservation_fee
+      ) {
         this.errorMessage = "Payment Amount Insufficient";
         this.isErrorModalVisible = true;
         return;
@@ -864,7 +1021,7 @@ getPaymentDueDate(month) {
         customer_name: this.reservationForm.customerName,
         site_id: parseInt(this.siteId, 10), // Convert to integer
         unit_id: this.selectedUnit.id,
-        commission:this.selectedUnit.commission,
+        commission: this.selectedUnit.commission,
         broker_id: parseInt(this.$store.getters.getUserId, 10), // Use Vuex getter for broker_id
         company_id: this.selectedUnit.company_id, // Ensure this is correctly passed
         payment_amount: this.reservationForm.paymentAmount,
@@ -876,7 +1033,7 @@ getPaymentDueDate(month) {
       };
       try {
         const response = await axios.post(
-          "http://localhost:8000/reserve-unit/",
+          "${process.env.vue_app_api_url}/reserve-unit/",
           data,
           {
             headers: {
@@ -917,19 +1074,19 @@ getPaymentDueDate(month) {
       this.successMessage = ""; // Hide the success message pop-up
       this.$router.push({ name: "AffiliatedUnits" }); // Redirect to the 'AffiliatedUnits' page
     },
-     // Trigger the error modal
-  showErrorModal(message) {
-    this.errorMessage = message; // Set the error message
-    this.isErrorModalVisible = true; // Open the error modal
-  },
-  // Handle closing of the modal
-  handleErrorModalClose() {
-    this.isErrorModalVisible = false; // Ensure modal closes
-    this.errorMessage = ''; // Clear the error message
-  },
-  closeErrorModal() {
-    this.handleErrorModalClose();
-  },
+    // Trigger the error modal
+    showErrorModal(message) {
+      this.errorMessage = message; // Set the error message
+      this.isErrorModalVisible = true; // Open the error modal
+    },
+    // Handle closing of the modal
+    handleErrorModalClose() {
+      this.isErrorModalVisible = false; // Ensure modal closes
+      this.errorMessage = ""; // Clear the error message
+    },
+    closeErrorModal() {
+      this.handleErrorModalClose();
+    },
   },
 };
 </script>
@@ -982,7 +1139,7 @@ body {
   text-align: center;
 }
 
-.text{
+.text {
   color: black;
   text-decoration: none !important;
 }
@@ -1055,7 +1212,7 @@ p {
   padding-right: 5px;
 }
 
-.align-fields{
+.align-fields {
   margin-top: 35px;
 }
 
@@ -1227,7 +1384,6 @@ button {
   cursor: pointer;
 }
 
-
 .carousel-inner img {
   max-height: 400px; /* Adjust as needed */
   object-fit: cover;
@@ -1246,7 +1402,12 @@ button {
 .carousel-control-prev:focus,
 .carousel-control-next:focus {
   outline: none; /* Remove outline if desired */
-  background-color: rgba(0, 0, 0, 0.4); /* Slightly darker background when focused */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.4
+  ); /* Slightly darker background when focused */
 }
 
 .property-price {
@@ -1298,7 +1459,7 @@ button {
 }
 
 .btn-cancel:hover {
-  background-color: #495057;  /* Slightly lighter gray */
+  background-color: #495057; /* Slightly lighter gray */
   color: #fff;
   border: none;
 }
@@ -1381,5 +1542,4 @@ input[type="file"] {
   padding: 10px;
   cursor: pointer;
 }
-
 </style>

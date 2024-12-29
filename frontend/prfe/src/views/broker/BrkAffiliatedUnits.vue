@@ -2,7 +2,7 @@
   <div class="main-page">
     <SideNav />
     <div class="main-content">
-      <AppHeader />  
+      <AppHeader />
       <div class="content">
         <div class="title-wrapper">
           <div class="title-left">
@@ -45,7 +45,7 @@
             </div>
           </div>
         </div>
-        
+
         <div>
           <div class="outside-headers">
             <span class="header-item">Name</span>
@@ -53,18 +53,18 @@
             <span class="header-item">Actions</span>
           </div>
 
-          <div v-if = "filteredSites.length">
+          <div v-if="filteredSites.length">
             <div
               v-for="site in paginatedSites"
               :key="site.id || index"
               class="card border-0 rounded-1 mx-auto card-hover"
               style="
-              max-width: 1100px;
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            "
+                max-width: 1100px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+              "
             >
-              <div class = "card-body">
-                <table class = "site-table">
+              <div class="card-body">
+                <table class="site-table">
                   <tbody>
                     <tr>
                       <td>
@@ -82,17 +82,20 @@
                       <td>{{ site.location || "Location unavailable" }}</td>
                       <td>
                         <div class="broker-actions d-flex">
-                          <button  @click="() => redirectToUnits(site.id)" style="
+                          <button
+                            @click="() => redirectToUnits(site.id)"
+                            style="
                               border: none;
                               background-color: transparent;
                               color: #343a40;
                               cursor: pointer;
                               font-size: 18px;
-                            ">
+                            "
+                          >
                             <i class="fas fa-eye"></i>
                           </button>
-                      </div>
-                    </td>
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -103,46 +106,43 @@
           <div v-else>
             <p>No sites with available units.</p>
           </div>
-
         </div>
 
-    <!-- Pagination Controls -->
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li :class="['page-item', { disabled: currentPage === 1 }]">
-          <a 
-            class="page-link" 
-            href="#" 
-            @click.prevent="goToPage(currentPage - 1)"
-            aria-label="Previous"
-          >
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li 
-          v-for="page in totalPages" 
-          :key="page" 
-          :class="['page-item', { active: page === currentPage }]"
-        >
-          <a 
-            class="page-link" 
-            href="#" 
-            @click.prevent="goToPage(page)"
-          >
-            {{ page }}
-          </a>
-        </li>
-        <li :class="['page-item', { disabled: currentPage === totalPages }]">
-          <a 
-            class="page-link" 
-            href="#" 
-            @click.prevent="goToPage(currentPage + 1)"
-            aria-label="Next"
-          >
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li :class="['page-item', { disabled: currentPage === 1 }]">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage - 1)"
+                aria-label="Previous"
+              >
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-item', { active: page === currentPage }]"
+            >
+              <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                {{ page }}
+              </a>
+            </li>
+            <li
+              :class="['page-item', { disabled: currentPage === totalPages }]"
+            >
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="goToPage(currentPage + 1)"
+                aria-label="Next"
+              >
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
         </nav>
       </div>
     </div>
@@ -181,7 +181,6 @@ export default {
       filteredSites: [],
       currentPage: 1, // Current page number
       itemsPerPage: 15, // Number of customers per page
-
     };
   },
   computed: {
@@ -190,7 +189,7 @@ export default {
       userType: (state) => state.userType,
       companyId: (state) => state.companyId,
     }),
-     // Filter and sort sites dynamically
+    // Filter and sort sites dynamically
     filteredAndSortedSites() {
       // Filter by search query
       const query = this.searchQuery.toLowerCase();
@@ -207,11 +206,23 @@ export default {
           case "site_desc":
             return b.name.localeCompare(a.name);
           case "status_pre":
-            return a.status === "preselling" ? -1 : b.status === "preselling" ? 1 : 0;
+            return a.status === "preselling"
+              ? -1
+              : b.status === "preselling"
+              ? 1
+              : 0;
           case "status_comp":
-            return a.status === "completed" ? -1 : b.status === "completed" ? 1 : 0;
+            return a.status === "completed"
+              ? -1
+              : b.status === "completed"
+              ? 1
+              : 0;
           case "status_on":
-            return a.status === "on going" ? -1 : b.status === "on going" ? 1 : 0;
+            return a.status === "on going"
+              ? -1
+              : b.status === "on going"
+              ? 1
+              : 0;
           default:
             return 0;
         }
@@ -240,7 +251,7 @@ export default {
     this.fetchAvailableSites();
   },
   methods: {
-      goToPage(pageNumber) {
+    goToPage(pageNumber) {
       if (pageNumber > 0 && pageNumber <= this.totalPages) {
         this.currentPage = pageNumber;
       }
@@ -249,12 +260,12 @@ export default {
     toggleView() {
       this.viewMode = this.viewMode === "grid" ? "table" : "grid";
     },
-    
+
     async fetchAvailableSites() {
       try {
         console.log("Fetching sites for company ID:", this.companyId);
         const response = await axios.get(
-          `http://localhost:8000/sites/available/`,
+          `${process.env.vue_app_api_url}/sites/available/`,
           {
             params: {
               company_id: this.companyId, // Pass the company ID of the logged-in broker
@@ -356,17 +367,17 @@ body {
 }
 
 .site-image {
-  width: 100%; 
-  height: 150px; 
-  object-fit: cover; 
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
   border-radius: 12px;
-  margin-bottom: 10px; 
+  margin-bottom: 10px;
 }
 
 .site-name {
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 5px; 
+  margin-bottom: 5px;
 }
 
 .site-location {
@@ -542,7 +553,6 @@ body {
   font-size: 14px; /* Match font size for consistency */
 }
 
-
 @media (max-width: 1440px) {
   .site-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -583,5 +593,4 @@ body {
     font-size: 12px;
   }
 }
-
 </style>

@@ -12,8 +12,8 @@
         </div>
 
         <div
-        class="card border-0 rounded-1 mx-auto"
-        style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+          class="card border-0 rounded-1 mx-auto"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
         >
           <div class="card-body">
             <div class="row">
@@ -41,7 +41,9 @@
                     <option value="Sold">Sold</option>
                     <option value="Pending Sold">Pending Sold</option>
                     <option value="Reserved">Reserved</option>
-                    <option value="Pending Reservation">Pending Reservation</option>
+                    <option value="Pending Reservation">
+                      Pending Reservation
+                    </option>
                     <!-- New sorting option -->
                   </select>
                 </div>
@@ -49,7 +51,7 @@
             </div>
           </div>
         </div>
-  
+
         <!-- Sales Table -->
         <div>
           <div class="outside-headers">
@@ -60,27 +62,23 @@
             <span class="header-item">Status</span>
             <span class="header-item">Actions</span>
           </div>
-        </div> 
-
-        <div v-if="sales.length === 0">
-            No sales found.
         </div>
 
+        <div v-if="sales.length === 0">No sales found.</div>
+
         <div
-        v-else
-        v-for="sale in paginatedCustomers"
-        :key="sale.id"
-        class="card border-0 rounded-1 mx-auto my-2"
-        style="
-          max-width: 1100px;
-          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        ">
-          <div class = "card-body">
-            <table class = "sales-table">
+          v-else
+          v-for="sale in paginatedCustomers"
+          :key="sale.id"
+          class="card border-0 rounded-1 mx-auto my-2"
+          style="max-width: 1100px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
+        >
+          <div class="card-body">
+            <table class="sales-table">
               <tbody>
                 <tr>
                   <td>
-                    <span class = "customer-name">
+                    <span class="customer-name">
                       {{ sale.customer_name }}
                     </span>
                   </td>
@@ -106,31 +104,40 @@
                   </td>
                   <td>
                     <div class="broker-actions d-flex gap-2">
-                      <button @click="openSalesAgreementModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
+                      <button
+                        @click="openSalesAgreementModal(sale)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
                         <i class="fas fa-dollar-sign"></i>
                       </button>
-                      <button @click="openDocumentModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
+                      <button
+                        @click="openDocumentModal(sale)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
                         <i class="fas fa-file-alt"></i>
                       </button>
-                      <button @click="DeleteSaleModal(sale)" style="
-                      border: none;
-                      background-color: transparent;
-                      color: #343a40;
-                      cursor: pointer;
-                      font-size: 18px;
-                      ">
+                      <button
+                        @click="DeleteSaleModal(sale)"
+                        style="
+                          border: none;
+                          background-color: transparent;
+                          color: #343a40;
+                          cursor: pointer;
+                          font-size: 18px;
+                        "
+                      >
                         <i class="fas fa-archive"></i>
                       </button>
                     </div>
@@ -141,36 +148,34 @@
           </div>
         </div>
 
-         <!-- Pagination Controls -->
-         <nav aria-label="Page navigation example">
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example">
           <ul class="pagination">
             <li :class="['page-item', { disabled: currentPage === 1 }]">
-              <a 
-                class="page-link" 
-                href="#" 
+              <a
+                class="page-link"
+                href="#"
                 @click.prevent="goToPage(currentPage - 1)"
                 aria-label="Previous"
               >
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
-            <li 
-              v-for="page in totalPages" 
-              :key="page" 
+            <li
+              v-for="page in totalPages"
+              :key="page"
               :class="['page-item', { active: page === currentPage }]"
             >
-              <a 
-                class="page-link" 
-                href="#" 
-                @click.prevent="goToPage(page)"
-              >
+              <a class="page-link" href="#" @click.prevent="goToPage(page)">
                 {{ page }}
               </a>
             </li>
-            <li :class="['page-item', { disabled: currentPage === totalPages }]">
-              <a 
-                class="page-link" 
-                href="#" 
+            <li
+              :class="['page-item', { disabled: currentPage === totalPages }]"
+            >
+              <a
+                class="page-link"
+                href="#"
                 @click.prevent="goToPage(currentPage + 1)"
                 aria-label="Next"
               >
@@ -181,141 +186,199 @@
         </nav>
 
         <!-- Sales Agreement Modal -->
-        <b-modal v-model="showModal" title = "Sales Agreement" size="lg" centered hide-footer >
+        <b-modal
+          v-model="showModal"
+          title="Sales Agreement"
+          size="lg"
+          centered
+          hide-footer
+        >
           <div v-if="selectedSale.status === 'Pending Reservation'">
-            <p style="text-align: center">
-              Reservation not yet confirmed
-            </p>
-            <div class = "button-container">
-              <button @click="closeModal" class = "btn-cancel-right">Close</button>
+            <p style="text-align: center">Reservation not yet confirmed</p>
+            <div class="button-container">
+              <button @click="closeModal" class="btn-cancel-right">
+                Close
+              </button>
             </div>
           </div>
-          
+
           <div v-else>
             <div class="row">
               <div class="col-md-6">
-                <h6 class = "customer-title">Customer</h6>
-                <h4> {{ selectedSale.customer_name }} </h4>
+                <h6 class="customer-title">Customer</h6>
+                <h4>{{ selectedSale.customer_name }}</h4>
               </div>
               <div class="col-md-6">
-                <h6 class = "customer-title">Site</h6>
-                <h4> {{ selectedSale.site_name }} </h4>
-                <h6 class = "customer-title">Unit</h6>
-                <h4> {{ selectedSale.unit_title }} </h4>
+                <h6 class="customer-title">Site</h6>
+                <h4>{{ selectedSale.site_name }}</h4>
+                <h6 class="customer-title">Unit</h6>
+                <h4>{{ selectedSale.unit_title }}</h4>
               </div>
             </div>
 
             <div v-if="salesDetailsExists">
-              <br>
+              <br />
               <div class="row">
                 <div class="col-md-6">
-                  <h6 class = "customer-title">Unit Price</h6>
-                  <h5> {{ formatCurrency(salesDetails.unit_price) }} </h5>
+                  <h6 class="customer-title">Unit Price</h6>
+                  <h5>{{ formatCurrency(salesDetails.unit_price) }}</h5>
                 </div>
                 <div class="col-md-6">
-                  <h6 class = "customer-title">Payment Plan</h6>
-                  <h5> {{ salesDetails.payment_plan }} </h5>
+                  <h6 class="customer-title">Payment Plan</h6>
+                  <h5>{{ salesDetails.payment_plan }}</h5>
                 </div>
               </div>
-              <br>
+              <br />
 
-              <div class = "sales-box">
+              <div class="sales-box">
                 <h6><strong>Spot Discount</strong></h6>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Spot Discount Percentage:</span>
                   <span class="value">{{ salesDetails.spot_discount }}%</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Spot Discount: </span>
-                  <span class="value">{{ formatCurrency(this.spotDiscount) }}</span>
+                  <span class="value">{{
+                    formatCurrency(this.spotDiscount)
+                  }}</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Unit Price after Spot Discount:</span>
-                  <span class="value">{{formatCurrency(this.unitPriceAfterSpotDiscount)}}</span>
+                  <span class="value">{{
+                    formatCurrency(this.unitPriceAfterSpotDiscount)
+                  }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <h6><strong>TLP Discount</strong></h6>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">TLP Discount Percentage:</span>
                   <span class="value">{{ salesDetails.tlp_discount }}%</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">TLP Discount: </span>
-                  <span class="value">{{ formatCurrency(this.tlpDiscountAmount) }}</span>
+                  <span class="value">{{
+                    formatCurrency(this.tlpDiscountAmount)
+                  }}</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Net Unit Price:</span>
                   <span class="value">{{ formatCurrency(netUnitPrice) }}</span>
                 </div>
-                <hr class="separator">
+                <hr class="separator" />
                 <h6><strong>Other Charges</strong></h6>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Other Charges Percentage:</span>
-                  <span class="value">{{ salesDetails.other_charges_percent }}%</span>
+                  <span class="value"
+                    >{{ salesDetails.other_charges_percent }}%</span
+                  >
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Other Charges:</span>
                   <span class="value">{{ formatCurrency(otherCharges) }}</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Net Unit Price:</span>
                   <span class="value">{{ formatCurrency(netUnitPrice) }}</span>
                 </div>
-                <hr class="separator">
-                <div v-if="netUnitPrice > 3600000" class = "sales-item">
+                <hr class="separator" />
+                <div v-if="netUnitPrice > 3600000" class="sales-item">
                   <span class="label">VAT (12%):</span>
                   <span class="value">{{ formatCurrency(vatAmount) }}</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Total Amount Payable:</span>
-                  <span class="value">{{formatCurrency(totalAmountPayable)}}</span>
+                  <span class="value">{{
+                    formatCurrency(totalAmountPayable)
+                  }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Spot Downpayment Percentage:</span>
-                  <span class="value">{{ salesDetails.spot_downpayment_percent }}% </span>
+                  <span class="value"
+                    >{{ salesDetails.spot_downpayment_percent }}%
+                  </span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Spot Downpayment:</span>
                   <span class="value">₱{{ spotDownpayment }}</span>
                 </div>
-                <div class = "sales-item">
+                <div class="sales-item">
                   <span class="label">Reservation Fee:</span>
-                  <span class="value">{{formatCurrency(salesDetails.reservation_fee)}}</span>
+                  <span class="value">{{
+                    formatCurrency(salesDetails.reservation_fee)
+                  }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Spot Cash'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Spot Cash'"
+                  class="sales-item"
+                >
                   <span class="label">Net Full Payment:</span>
-                  <span class="value">{{ formatCurrency(netFullPayment) }}</span>
+                  <span class="value">{{
+                    formatCurrency(netFullPayment)
+                  }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Net Downpayment:</span>
-                  <span class="value">{{ formatCurrency(netDownpayment) }}</span>
+                  <span class="value">{{
+                    formatCurrency(netDownpayment)
+                  }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Spread Downpayment Percentage:</span>
-                  <span class="value">{{ salesDetails.spread_downpayment_percent }}%</span>
+                  <span class="value"
+                    >{{ salesDetails.spread_downpayment_percent }}%</span
+                  >
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Spread Downpayment:</span>
-                  <span class="value">{{ formatCurrency(spreadDownpayment) }}</span>
+                  <span class="value">{{
+                    formatCurrency(spreadDownpayment)
+                  }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Payable Months:</span>
                   <span class="value">{{ salesDetails.payable_months }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Payable Per Month:</span>
-                  <span class="value">{{ formatCurrency(payablePerMonth) }}</span>
+                  <span class="value">{{
+                    formatCurrency(payablePerMonth)
+                  }}</span>
                 </div>
-                <div v-if="salesDetails.payment_plan === 'Deffered Payment'" class = "sales-item">
+                <div
+                  v-if="salesDetails.payment_plan === 'Deffered Payment'"
+                  class="sales-item"
+                >
                   <span class="label">Balance Upon Turnover:</span>
-                  <span class="value">{{formatCurrency(balanceUponTurnover)}}</span>
+                  <span class="value">{{
+                    formatCurrency(balanceUponTurnover)
+                  }}</span>
                 </div>
               </div>
 
-
               <div
-              class="d-flex justify-content-end gap-2 mt-30"
-              style="padding-top: 15px"
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
               >
                 <button
                   v-if="
@@ -323,108 +386,129 @@
                     selectedSale.status !== 'Sold'
                   "
                   @click="markUnitAsSold"
-                  class = "btn-add"
+                  class="btn-add"
                 >
                   Mark Unit as Sold
                 </button>
-                <button @click="closeModal" class = "btn-cancel">Close</button>
+                <button @click="closeModal" class="btn-cancel">Close</button>
               </div>
-              </div>
-              
-              <div v-if="!salesDetailsExists">
-                <br>
-                <div class="row">
-                  <div class="col-md-6">
-                    <h6 class = "customer-title">Unit Price</h6>
-                    <h5> {{ formatCurrency(unitPrice) }} </h5>
-                  </div>
-                  <div class="col-md-6">
-                    <h6 class = "customer-title">Payment Plan</h6>
-                    <div class = "form-group">
-                      <select
+            </div>
+
+            <div v-if="!salesDetailsExists">
+              <br />
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="customer-title">Unit Price</h6>
+                  <h5>{{ formatCurrency(unitPrice) }}</h5>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="customer-title">Payment Plan</h6>
+                  <div class="form-group">
+                    <select
                       v-model="selectedPaymentPlan"
                       id="paymentPlan"
-                      class = "dropdown"
+                      class="dropdown"
                       required
-                      >
-                        <option value="Spot Cash">Spot Cash</option>
-                        <option value="Deffered Payment">Deffered Payment</option>
-                      </select>
-                    </div>
+                    >
+                      <option value="Spot Cash">Spot Cash</option>
+                      <option value="Deffered Payment">Deffered Payment</option>
+                    </select>
                   </div>
                 </div>
+              </div>
 
-                <div class="line mb-4"></div>
+              <div class="line mb-4"></div>
 
-                <form>
-                  <div class = "row">
-                    <div class = "col-md-6">
-                      <div class = "mb-3">
-                        <label for="spotDiscount" class="form-label text-start">Spot Discount</label>
-                        <input
-                          type="number"
-                          id="spotDiscount"
-                          v-model="spotCashDiscount"
-                          @input="updatePaymentDetails"
-                          class="form-control"
-                          :min="0"
-                          :max="maxSpotCashDiscount" 
-                        />
-                        <p class = "p-label"><strong>Spot Discount:</strong> {{ formatCurrency(spotDiscount) }}</p>
-                        <p class = "p-label">
-                          <strong>Unit Price after Spot Discount:</strong> {{formatCurrency(unitPriceAfterSpotDiscount)}}
-                        </p>
-                      </div>
-                      <div class = "mb-3">
-                        <label for="otherChargesPercentage" class="form-label text-start">Other Charges (%)</label>
-                        <input
-                          type="number"
-                          id="otherChargesPercentage"
-                          v-model="otherChargesPercentage"
-                          @input="updatePaymentDetails"
-                          class="form-control"
-                          min="0"
-                          max="maxotherChargesPercentage"
-                          step="0.1"
-                        />
-                        <p class = "p-label"><strong>Other Charges:</strong> {{ formatCurrency(otherCharges) }}</p>
-
-                        <!-- VAT Calculation -->
-                        <p v-if="netUnitPrice > 3600000" class = "p-label">
-                          <strong>VAT (12%):</strong> {{ formatCurrency(vatAmount) }}
-                        </p>
-
-                        <!-- Total Amount Payable -->
-                        <p class = "p-label">
-                          <strong>Total Amount Payable:</strong> {{formatCurrency(totalAmountPayable)}}
-                        </p>
-
-                      </div>
-                      <br><br>
-                      <div v-if="selectedPaymentPlan === 'Deffered Payment'">
-                        <label for="spreadDownpayment" class="form-label text-start">Spread Downpayment</label>
-                        <input
-                          type="number"
-                          v-model="spreadDownpaymentPercentage"
-                          id="spreadDownpayment"
-                          @input="updatePaymentDetails"
-                          min="0"
-                          max="100"
-                          step="1"
-                          class="form-control"
-                          required
-                          placeholder="Enter percentage"
-                        />
-                        <p class = "p-label">
-                          <strong>Spread Downpayment:</strong> {{formatCurrency(spreadDownpayment)}}
-                        </p>
-                      </div>
+              <form>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="spotDiscount" class="form-label text-start"
+                        >Spot Discount</label
+                      >
+                      <input
+                        type="number"
+                        id="spotDiscount"
+                        v-model="spotCashDiscount"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        :min="0"
+                        :max="maxSpotCashDiscount"
+                      />
+                      <p class="p-label">
+                        <strong>Spot Discount:</strong>
+                        {{ formatCurrency(spotDiscount) }}
+                      </p>
+                      <p class="p-label">
+                        <strong>Unit Price after Spot Discount:</strong>
+                        {{ formatCurrency(unitPriceAfterSpotDiscount) }}
+                      </p>
                     </div>
+                    <div class="mb-3">
+                      <label
+                        for="otherChargesPercentage"
+                        class="form-label text-start"
+                        >Other Charges (%)</label
+                      >
+                      <input
+                        type="number"
+                        id="otherChargesPercentage"
+                        v-model="otherChargesPercentage"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        max="maxotherChargesPercentage"
+                        step="0.1"
+                      />
+                      <p class="p-label">
+                        <strong>Other Charges:</strong>
+                        {{ formatCurrency(otherCharges) }}
+                      </p>
 
-                    <div class = "col-md-6">
-                      <div class = "mb-3">
-                        <label for="tlpDiscount" class="form-label text-start">LP Discount (Optional)</label>
-                        <input
+                      <!-- VAT Calculation -->
+                      <p v-if="netUnitPrice > 3600000" class="p-label">
+                        <strong>VAT (12%):</strong>
+                        {{ formatCurrency(vatAmount) }}
+                      </p>
+
+                      <!-- Total Amount Payable -->
+                      <p class="p-label">
+                        <strong>Total Amount Payable:</strong>
+                        {{ formatCurrency(totalAmountPayable) }}
+                      </p>
+                    </div>
+                    <br /><br />
+                    <div v-if="selectedPaymentPlan === 'Deffered Payment'">
+                      <label
+                        for="spreadDownpayment"
+                        class="form-label text-start"
+                        >Spread Downpayment</label
+                      >
+                      <input
+                        type="number"
+                        v-model="spreadDownpaymentPercentage"
+                        id="spreadDownpayment"
+                        @input="updatePaymentDetails"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="form-control"
+                        required
+                        placeholder="Enter percentage"
+                      />
+                      <p class="p-label">
+                        <strong>Spread Downpayment:</strong>
+                        {{ formatCurrency(spreadDownpayment) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="tlpDiscount" class="form-label text-start"
+                        >LP Discount (Optional)</label
+                      >
+                      <input
                         type="number"
                         id="tlpDiscount"
                         v-model="tlpDiscount"
@@ -434,120 +518,160 @@
                         max="maxtlpDiscount"
                       />
 
-                      <p class = "p-label"><strong>TLP Discount:</strong> {{ formatCurrency(tlpDiscountAmount) }}</p>
+                      <p class="p-label">
+                        <strong>TLP Discount:</strong>
+                        {{ formatCurrency(tlpDiscountAmount) }}
+                      </p>
                       <!-- Net Unit Price -->
-                      <p class = "p-label"><strong>Net Unit Price:</strong> {{ formatCurrency(netUnitPrice) }}</p>
-                      </div>
-
-                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
-                        <label for="spotDownpayment" class="form-label text-start">Spot Downpayment</label>
-                        <input
-                          type="number"
-                          id="spotDownpayment"
-                          v-model="spotDownpaymentPercentage"
-                          @input="updatePaymentDetails"
-                          class="form-control"
-                          min="0"
-                          step="5"
-                          placeholder="Enter downpayment percentage"
-                          required
-                        />
-                        <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "p-label">
-                          <strong>Spot Downpayment:</strong> {{ formatCurrency(spotDownpayment) }}
-                        </p>
-
-                        <!-- Reservation Fee -->
-                        <p class = "p-label" ><strong>Reservation Fee:</strong> {{ formatCurrency(reservationFee) }}</p>
-                        <p v-if="selectedPaymentPlan === 'Spot Cash'" class = "p-label" >
-                          <strong>Net Full Payment:</strong> {{ formatCurrency(netFullPayment) }}
-                        </p>
-
-                        <!-- Net Downpayment -->
-                        <p v-if="selectedPaymentPlan === 'Deffered Payment'" class = "p-label">
-                          <strong>Net Downpayment:</strong> {{ formatCurrency(netDownpayment) }}
-                        </p>
-                      </div>
-
-                      <br>
-                      <div v-if="selectedPaymentPlan === 'Deffered Payment'" class = "mb-3">
-                        <label for="months" class="form-label text-start">Months to Pay</label>
-                        <input
-                          type="number"
-                          v-model="payableMonths"
-                          id="months"
-                          @input="updatePaymentDetails"
-                          class="form-control"
-                          min="1"
-                          max="maxpayableMonths"
-                          step="1"
-                          required
-                        />
-                        <p class = "p-label">
-                          <strong>Payable Per Month:</strong> {{ formatCurrency(payablePerMonth) }}
-                        </p>
-
-                        <!-- Balance Upon Turnover -->
-                        <p class = "p-label">
-                          <strong>Balance Upon Turnover:</strong> {{formatCurrency(balanceUponTurnover)}}
-                        </p>
-                      </div>
+                      <p class="p-label">
+                        <strong>Net Unit Price:</strong>
+                        {{ formatCurrency(netUnitPrice) }}
+                      </p>
                     </div>
-                  </div>
-                </form>
 
-                <div class="line mb-4"></div>
-
-                <!-- Required Documents Section (Always Displayed) -->
-                <div class="form-group">
-                  <div class="col-12 text-center mb-3 text-center">
-                    <h5 class="property-header">Required Documents</h5>
-                  </div>
-                  <ul>
-                    <li>
-                    <strong>Reservation Agreement</strong><br>
-                    <input type="file" @change="handleFileChange" id="reservationAgreement"   ref="reservationAgreementInput"  required/>
-                    </li>
-                    <li v-for="document in documentTypes" :key="document.id">
-                      <strong>{{ document.name }}</strong>
-                      <br v-if="document.id === 'reservationAgreement'">
+                    <div
+                      v-if="selectedPaymentPlan === 'Deffered Payment'"
+                      class="mb-3"
+                    >
+                      <label for="spotDownpayment" class="form-label text-start"
+                        >Spot Downpayment</label
+                      >
                       <input
-                        v-if="document.id === 'reservationAgreement'"
-                        type="file"
-                        @change="handleFileChange"
-                        :id="document.id"
-                        class = "form-control"
+                        type="number"
+                        id="spotDownpayment"
+                        v-model="spotDownpaymentPercentage"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="0"
+                        step="5"
+                        placeholder="Enter downpayment percentage"
                         required
                       />
-                      <span v-else>{{ document.description }}</span>
-                    </li>
-                  </ul>
-                </div>  
+                      <p
+                        v-if="selectedPaymentPlan === 'Deffered Payment'"
+                        class="p-label"
+                      >
+                        <strong>Spot Downpayment:</strong>
+                        {{ formatCurrency(spotDownpayment) }}
+                      </p>
 
-                <div
-                class="d-flex justify-content-end gap-2 mt-30"
-                style="padding-top: 15px"
-                >
-                  <button @click="submitToCustomer" class = "btn-add">Submit to Customer</button>
-                  <button @click="closeModal" class = "btn-cancel">Close</button>
-                </div>
+                      <!-- Reservation Fee -->
+                      <p class="p-label">
+                        <strong>Reservation Fee:</strong>
+                        {{ formatCurrency(reservationFee) }}
+                      </p>
+                      <p
+                        v-if="selectedPaymentPlan === 'Spot Cash'"
+                        class="p-label"
+                      >
+                        <strong>Net Full Payment:</strong>
+                        {{ formatCurrency(netFullPayment) }}
+                      </p>
 
-                <!-- Loading Indicator -->
-                <div v-if="loading" class="loading-overlay">
-                  <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p>Submitting...</p>
+                      <!-- Net Downpayment -->
+                      <p
+                        v-if="selectedPaymentPlan === 'Deffered Payment'"
+                        class="p-label"
+                      >
+                        <strong>Net Downpayment:</strong>
+                        {{ formatCurrency(netDownpayment) }}
+                      </p>
+                    </div>
+
+                    <br />
+                    <div
+                      v-if="selectedPaymentPlan === 'Deffered Payment'"
+                      class="mb-3"
+                    >
+                      <label for="months" class="form-label text-start"
+                        >Months to Pay</label
+                      >
+                      <input
+                        type="number"
+                        v-model="payableMonths"
+                        id="months"
+                        @input="updatePaymentDetails"
+                        class="form-control"
+                        min="1"
+                        max="maxpayableMonths"
+                        step="1"
+                        required
+                      />
+                      <p class="p-label">
+                        <strong>Payable Per Month:</strong>
+                        {{ formatCurrency(payablePerMonth) }}
+                      </p>
+
+                      <!-- Balance Upon Turnover -->
+                      <p class="p-label">
+                        <strong>Balance Upon Turnover:</strong>
+                        {{ formatCurrency(balanceUponTurnover) }}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <!-- Display error message if there's an error -->
-                <p v-if="errorMessage" class="error-message">
-                  {{ errorMessage }}
-                </p>
+              </form>
 
+              <div class="line mb-4"></div>
+
+              <!-- Required Documents Section (Always Displayed) -->
+              <div class="form-group">
+                <div class="col-12 text-center mb-3 text-center">
+                  <h5 class="property-header">Required Documents</h5>
+                </div>
+                <ul>
+                  <li>
+                    <strong>Reservation Agreement</strong><br />
+                    <input
+                      type="file"
+                      @change="handleFileChange"
+                      id="reservationAgreement"
+                      ref="reservationAgreementInput"
+                      required
+                    />
+                  </li>
+                  <li v-for="document in documentTypes" :key="document.id">
+                    <strong>{{ document.name }}</strong>
+                    <br v-if="document.id === 'reservationAgreement'" />
+                    <input
+                      v-if="document.id === 'reservationAgreement'"
+                      type="file"
+                      @change="handleFileChange"
+                      :id="document.id"
+                      class="form-control"
+                      required
+                    />
+                    <span v-else>{{ document.description }}</span>
+                  </li>
+                </ul>
               </div>
+
+              <div
+                class="d-flex justify-content-end gap-2 mt-30"
+                style="padding-top: 15px"
+              >
+                <button @click="submitToCustomer" class="btn-add">
+                  Submit to Customer
+                </button>
+                <button @click="closeModal" class="btn-cancel">Close</button>
+              </div>
+
+              <!-- Loading Indicator -->
+              <div v-if="loading" class="loading-overlay">
+                <div class="loading-spinner">
+                  <div class="spinner"></div>
+                  <p>Submitting...</p>
+                </div>
+              </div>
+              <!-- Display error message if there's an error -->
+              <p v-if="errorMessage" class="error-message">
+                {{ errorMessage }}
+              </p>
+            </div>
           </div>
         </b-modal>
 
-         <!-- Documents -->
+        <!-- Documents -->
         <b-modal v-model="showDocumentModal" hide-header hide-footer centered>
           <div class="modal-title p-3">
             <h5 class="mb-0">Customer Documents</h5>
@@ -638,7 +762,7 @@
         </b-modal>
 
         <!-- Delete -->
-         <b-modal
+        <b-modal
           v-model="showDeleteModal"
           title="Cancel Confirmation"
           hide-footer
@@ -649,14 +773,13 @@
             customer?
           </p>
 
-          <div class="d-flex justify-content-end gap-2 mt-30" style="padding-top: 15px">
+          <div
+            class="d-flex justify-content-end gap-2 mt-30"
+            style="padding-top: 15px"
+          >
             <button
               type="button"
-              @click="
-                deleteSaleFromBackend(
-                  selectedCustomer.sale_id
-                )
-              "
+              @click="deleteSaleFromBackend(selectedCustomer.sale_id)"
               class="btn-add"
             >
               Yes
@@ -677,13 +800,19 @@
           centered
         >
           <p>{{ notificationMessage }}</p>
-          <div class = "button-container">
-            <button type="button" @click="showNotification = false" class = "btn-cancel-right">Close</button>
+          <div class="button-container">
+            <button
+              type="button"
+              @click="showNotification = false"
+              class="btn-cancel-right"
+            >
+              Close
+            </button>
           </div>
         </b-modal>
-        </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -713,55 +842,61 @@ export default {
     localStorageCompanyId() {
       return localStorage.getItem("company_id");
     },
-     // Filter and sort customers dynamically
-sortedAndFilteredCustomers() {
-  const query = this.searchQuery.toLowerCase();
-  const filtered = this.sales.filter((customer) => {
-    const customerName = customer.customer_name.toLowerCase();
-    const customerCode = customer.customer_code ? customer.customer_code.toLowerCase() : "";
-    return !query || customerName.includes(query) || customerCode.includes(query);
-  });
+    // Filter and sort customers dynamically
+    sortedAndFilteredCustomers() {
+      const query = this.searchQuery.toLowerCase();
+      const filtered = this.sales.filter((customer) => {
+        const customerName = customer.customer_name.toLowerCase();
+        const customerCode = customer.customer_code
+          ? customer.customer_code.toLowerCase()
+          : "";
+        return (
+          !query || customerName.includes(query) || customerCode.includes(query)
+        );
+      });
 
-  // Filter by the selected status
-  if (this.sortBy && this.sortBy !== 'All') {
-    return filtered.filter((sale) => sale.status === this.sortBy);
-  }
+      // Filter by the selected status
+      if (this.sortBy && this.sortBy !== "All") {
+        return filtered.filter((sale) => sale.status === this.sortBy);
+      }
 
-  // Sort by status if needed
-  return filtered.sort((a, b) => {
-    const statusOrder = {
-      'Sold': 1,
-      'Pending Sold': 2,
-      'Reserved': 3,
-      'Pending Reservation': 4
-    };
-    const statusComparison = statusOrder[a.status] - statusOrder[b.status];
-    return statusComparison !== 0 ? statusComparison : 0;
-  });
-},
-  // Paginate filtered and sorted customers
-  paginatedCustomers() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.sortedAndFilteredCustomers.slice(startIndex, endIndex);
-  },
-
-  // Total pages based on filtered customers
-  totalPages() {
-    return Math.ceil(this.sortedAndFilteredCustomers.length / this.itemsPerPage);
+      // Sort by status if needed
+      return filtered.sort((a, b) => {
+        const statusOrder = {
+          Sold: 1,
+          "Pending Sold": 2,
+          Reserved: 3,
+          "Pending Reservation": 4,
+        };
+        const statusComparison = statusOrder[a.status] - statusOrder[b.status];
+        return statusComparison !== 0 ? statusComparison : 0;
+      });
     },
-  amortization10Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 10);
-  },
-  amortization15Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 15);
-  },
-  amortization20Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 20);
-  },
-  amortization25Years() {
-    return this.calculateAmortization(this.balanceUponTurnover, 25);
-  },
+    // Paginate filtered and sorted customers
+    paginatedCustomers() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.sortedAndFilteredCustomers.slice(startIndex, endIndex);
+    },
+
+    // Total pages based on filtered customers
+    totalPages() {
+      return Math.ceil(
+        this.sortedAndFilteredCustomers.length / this.itemsPerPage
+      );
+    },
+    amortization10Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 10);
+    },
+    amortization15Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 15);
+    },
+    amortization20Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 20);
+    },
+    amortization25Years() {
+      return this.calculateAmortization(this.balanceUponTurnover, 25);
+    },
   },
   data() {
     return {
@@ -769,7 +904,7 @@ sortedAndFilteredCustomers() {
       showModal: false,
       showDocumentModal: false, // Controls the visibility of the document modal
       selectedSale: {
-      status: '', // Initialize with a default value
+        status: "", // Initialize with a default value
       },
       salesDetailsExists: false, // Flag to check if sales details already exist
       salesDetails: null, // S
@@ -780,7 +915,7 @@ sortedAndFilteredCustomers() {
       maxSpotCashDiscount: 0, // Default value fetched from DB
       tlpDiscount: 0,
       maxotherChargesPercentage: 0,
-      maxtlpDiscount:0,
+      maxtlpDiscount: 0,
       spotDiscount: 0,
       unitPriceAfterSpotDiscount: 0,
       tlpDiscountAmount: 0,
@@ -815,7 +950,6 @@ sortedAndFilteredCustomers() {
       currentPage: 1, // Current page number
       itemsPerPage: 15, // Number of customers per page
       sortBy: "All", // Selected sorting option (default is "Name (A-Z)")
-
     };
   },
   mounted() {
@@ -824,7 +958,6 @@ sortedAndFilteredCustomers() {
     if (!this.loggedIn || this.userType !== "broker" || !this.companyId) {
       this.redirectToLogin();
     }
-
   },
   watch: {
     loggedIn(newVal) {
@@ -845,21 +978,20 @@ sortedAndFilteredCustomers() {
   },
   methods: {
     formatCurrency(amount) {
-    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  },
+      if (isNaN(amount)) return "₱0.00"; // Return '₱0.00' if the amount is not a number
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    },
     calculateAmortization(balance, years) {
       const interestRate = 6.5 / 100; // 6.5% annual interest
       const monthlyRate = interestRate / 12; // Monthly interest rate
       const totalMonths = years * 12; // Total number of months
       return (
-        balance *
-        (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+        (balance * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))) /
         (Math.pow(1 + monthlyRate, totalMonths) - 1)
       );
     },
@@ -868,7 +1000,7 @@ sortedAndFilteredCustomers() {
         this.currentPage = pageNumber;
       }
     },
-     validateSpotCashDiscount() {
+    validateSpotCashDiscount() {
       if (this.spotCashDiscount < 0) {
         this.spotCashDiscount = 0;
       } else if (this.spotCashDiscount > this.maxSpotCashDiscount) {
@@ -887,7 +1019,7 @@ sortedAndFilteredCustomers() {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/salesdetails/check/${this.selectedSale.customer_id}/${this.selectedSale.site_id}/${this.selectedSale.unit_id}`
+          `${process.env.vue_app_api_url}/salesdetails/check/${this.selectedSale.customer_id}/${this.selectedSale.site_id}/${this.selectedSale.unit_id}`
         );
         if (response.data.exists) {
           this.salesDetailsExists = true;
@@ -906,7 +1038,7 @@ sortedAndFilteredCustomers() {
       const brokerId = this.userId; // Use Vuex userId instead of localStorage
       try {
         const response = await fetch(
-          `http://localhost:8000/sales/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/?broker_id=${brokerId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -933,7 +1065,7 @@ sortedAndFilteredCustomers() {
       this.spotCashDiscount = this.selectedSale.spot_discount;
       this.payableMonths = this.selectedSale.months;
       this.maxpayableMonths = this.payableMonths;
-      this.maxSpotCashDiscount= this.spotCashDiscount; // Default value fetched from DB
+      this.maxSpotCashDiscount = this.spotCashDiscount; // Default value fetched from DB
       this.tlpDiscount = this.selectedSale.TLP_Discount;
       this.maxtlpDiscount = this.tlpDiscount;
       this.otherChargesPercentage = this.selectedSale.other_charges;
@@ -961,7 +1093,7 @@ sortedAndFilteredCustomers() {
       } else if (this.otherChargesPercentage > this.maxotherChargesPercentage) {
         this.otherChargesPercentage = this.maxotherChargesPercentage;
       }
-       if (this.payableMonths < 0) {
+      if (this.payableMonths < 0) {
         this.payableMonths = 1;
       } else if (this.payableMonths > this.maxpayableMonths) {
         this.payableMonths = this.maxpayableMonths;
@@ -1057,7 +1189,6 @@ sortedAndFilteredCustomers() {
       if (fileInput) {
         this.file = fileInput;
         this.$refs.reservationAgreementInput.setCustomValidity("");
-
       }
     },
 
@@ -1067,20 +1198,25 @@ sortedAndFilteredCustomers() {
 
       // Check if the selected payment plan is "Spot Cash" and validate required fields
       if (!this.file) {
-        this.$refs.reservationAgreementInput.setCustomValidity("Please upload the required reservation agreement file.");
+        this.$refs.reservationAgreementInput.setCustomValidity(
+          "Please upload the required reservation agreement file."
+        );
         this.$refs.reservationAgreementInput.reportValidity();
         this.loading = false;
         return; // Stop further processing if validation fails
       }
-      if (  this.selectedPaymentPlan === "Deffered Payment" &&(this.netDownpayment < 0 || this.spreadDownpaymentPercentage <= 0)
+      if (
+        this.selectedPaymentPlan === "Deffered Payment" &&
+        (this.netDownpayment < 0 || this.spreadDownpaymentPercentage <= 0)
       ) {
         this.notificationTitle = "Error!";
-        this.notificationMessage = "Please specify a valid spread downpayment percentage!";
+        this.notificationMessage =
+          "Please specify a valid spread downpayment percentage!";
         this.showNotification = true; // Show the notification modal
         this.loading = false;
         return; // Stop further processing if validation fails
       }
-      
+
       const formData = new FormData();
       // Add sales details
       formData.append("customer_id", this.selectedSale.customer_id);
@@ -1116,7 +1252,7 @@ sortedAndFilteredCustomers() {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/submit-sales/",
+          "${process.env.vue_app_api_url}/submit-sales/",
           formData,
           {
             headers: {
@@ -1135,7 +1271,8 @@ sortedAndFilteredCustomers() {
         }
       } catch (error) {
         this.notificationTitle = "Error!";
-        this.notificationMessage = error.response.data.message || "Failed to add customer.";
+        this.notificationMessage =
+          error.response.data.message || "Failed to add customer.";
         this.showNotification = true; // Show the notification modal
       } finally {
         this.loading = false;
@@ -1145,7 +1282,7 @@ sortedAndFilteredCustomers() {
       try {
         // Make an API request to mark the unit as sold
         const response = await axios.post(
-          `http://localhost:8000/mark/${this.selectedSale.customer_id}/${this.selectedSale.sale_id}/`
+          `${process.env.vue_app_api_url}/mark/${this.selectedSale.customer_id}/${this.selectedSale.sale_id}/`
         );
 
         if (response.data.success) {
@@ -1153,16 +1290,15 @@ sortedAndFilteredCustomers() {
           this.notificationTitle = "Success!";
           this.notificationMessage = "Unit successfully marked as sold!";
           this.showNotification = true;
-          this.showModal=false;
+          this.showModal = false;
           this.fetchSales();
-
         } else {
           this.notificationTitle = "Failed!";
-          this.notificationMessage = "Customer has not submitted all required documents!";
+          this.notificationMessage =
+            "Customer has not submitted all required documents!";
           this.showNotification = true;
-          this.showModal=false;
+          this.showModal = false;
           this.fetchSales();
-
         }
       } catch (error) {
         console.error("Error marking unit as sold:", error);
@@ -1199,7 +1335,7 @@ sortedAndFilteredCustomers() {
     async fetchCustomerDocuments(customerId, salesId) {
       try {
         const response = await fetch(
-          `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
+          `${process.env.vue_app_api_url}/documents/customer/${customerId}/${salesId}/`
         );
         if (response.ok) {
           const data = await response.json();
@@ -1215,7 +1351,7 @@ sortedAndFilteredCustomers() {
         this.error = "An error occurred while fetching customer documents.";
       }
     },
-     // Update file previews based on existing documents
+    // Update file previews based on existing documents
     updateDocumentPreviews() {
       // Initialize filePreviews as an empty object
       this.filePreviews = {};
@@ -1239,7 +1375,9 @@ sortedAndFilteredCustomers() {
     // Fetch document types from the API
     async fetchDocumentTypes() {
       try {
-        const response = await fetch(`http://localhost:8000/document-types/?company_id=${this.companyId}`);
+        const response = await fetch(
+          `${process.env.vue_app_api_url}/document-types/?company_id=${this.companyId}`
+        );
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
@@ -1291,15 +1429,17 @@ sortedAndFilteredCustomers() {
       formData.append("company", this.companyId);
       // Log the formData for debugging
 
-  
       try {
-        const response = await fetch("http://localhost:8000/upload-document/", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-CSRFToken": this.getCookie("csrftoken"),
-          },
-        });
+        const response = await fetch(
+          "${process.env.vue_app_api_url}/upload-document/",
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-CSRFToken": this.getCookie("csrftoken"),
+            },
+          }
+        );
 
         const data = await response.json();
         if (response.ok && data.success) {
@@ -1328,8 +1468,8 @@ sortedAndFilteredCustomers() {
     async deleteSaleFromBackend(salesId) {
       try {
         let url = "";
-          // Otherwise, delete the sale
-        url = `http://localhost:8000/delete_sale/${salesId}/`;
+        // Otherwise, delete the sale
+        url = `${process.env.vue_app_api_url}/delete_sale/${salesId}/`;
         // Send a POST request with DELETE override if CSRF protection is enabled
         const response = await fetch(url, {
           method: "POST", // Use POST with _method override
@@ -1372,7 +1512,7 @@ sortedAndFilteredCustomers() {
       // Optionally, clear any other form-related fields
       this.selectedCustomer = null; // Clear selected customer
     },
-    
+
     getCookie(name) {
       let value = "; " + document.cookie;
       let parts = value.split("; " + name + "=");
@@ -1383,7 +1523,8 @@ sortedAndFilteredCustomers() {
 </script>
 
 <style scoped>
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -1511,14 +1652,14 @@ html, body {
 
 .button-container {
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
 }
 
 .btn-cancel-right {
-  background-color: #343a40; 
+  background-color: #343a40;
   color: #fff;
   border: none;
-  border-radius: 3px; 
+  border-radius: 3px;
   padding: 10px;
   cursor: pointer;
 }
@@ -1551,22 +1692,22 @@ html, body {
   color: #333;
 }
 
-.customer-title{
+.customer-title {
   color: #6c757d;
   margin-bottom: 1px;
 }
 
 .info-box {
-  background-color: #f8f9fa; 
-  border-radius: 8px; 
-  padding: 15px; 
-  margin-bottom: 15px; 
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
 }
 
 .line {
-    border-top: 2px solid  #6c757d;; 
-    width: 100%; 
-    margin: 0 auto; 
+  border-top: 2px solid #6c757d;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .payment-summary {
@@ -1599,7 +1740,7 @@ table {
   border-collapse: collapse;
 }
 
-.sched-table, 
+.sched-table,
 .sched-table th,
 .sched-table td {
   border: 1px solid #ddd;
@@ -1638,8 +1779,8 @@ table {
 }
 
 .spinner {
-  border: 4px solid #f3f3f3; 
-  border-top: 4px solid #3498db; 
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -1665,23 +1806,23 @@ table {
 }
 
 .form-group select {
-  background-color: white; 
-  color: black; 
+  background-color: white;
+  color: black;
   padding: 8px;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
-  width: 100%; 
+  width: 100%;
   cursor: pointer;
 }
 
 .form-group select:focus {
   outline: none;
-  border-color: #007bff; 
+  border-color: #007bff;
 }
 
 .form-group select:hover {
-  color: black; 
+  color: black;
 }
 
 input[type="file"] {
@@ -1690,28 +1831,28 @@ input[type="file"] {
 }
 
 .form-group input[type="number"] {
-  width: 70%; 
-  padding: 10px; 
-  font-size: 16px; 
-  border: 1px solid #ccc; 
-  border-radius: 8px; 
-  color: #333; 
-  transition: all 0.3s ease; 
+  width: 70%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  color: #333;
+  transition: all 0.3s ease;
 }
 
 .form-group input[type="number"]:hover {
-  border-color: #007bff; 
+  border-color: #007bff;
 }
 
 .form-group input[type="number"]:focus {
-  border-color: #0056b3; 
-  outline: none; 
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5); 
+  border-color: #0056b3;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5);
 }
 
 .form-group input[type="number"]::placeholder {
-  color: #888; 
-  font-style: italic; 
+  color: #888;
+  font-style: italic;
 }
 
 .search-bar-container {
@@ -1756,10 +1897,9 @@ input[type="file"] {
   font-size: 14px; /* Match font size for consistency */
 }
 
-
 .sales-box {
   min-width: 300px;
-  background-color: #f8f9fa; 
+  background-color: #f8f9fa;
   border-radius: 8px;
   padding: 20px;
   overflow-y: auto;
@@ -1910,6 +2050,4 @@ input[type="file"] {
   align-items: center;
   gap: 10px;
 }
-
-
 </style>

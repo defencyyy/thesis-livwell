@@ -70,57 +70,59 @@
           hide-header
           centered
         >
-
-        <div class="modal-title p-3">
-            <h5 class="mb-0"> {{ newDocumentType.id ? 'Edit Document Type' : 'Add New Document' }}</h5>
+          <div class="modal-title p-3">
+            <h5 class="mb-0">
+              {{
+                newDocumentType.id ? "Edit Document Type" : "Add New Document"
+              }}
+            </h5>
           </div>
 
           <div class="p-3">
-
-          <div class="mb-3">
-            <small style="font-size: 14px; color: #6c757d; padding: 2px">Name </small>
-            <input
-              type="text"
-              class="form-control"
-              id="documentTypeName"
-              v-model="newDocumentType.name"
-              placeholder="Enter document type name"
-              :disabled="newDocumentType.id ? true : false"
-              :class="{ 'is-invalid': nameError }"
-            />
-            <div v-if="nameError" class="invalid-feedback">
-              Please enter a document name.
+            <div class="mb-3">
+              <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                >Name
+              </small>
+              <input
+                type="text"
+                class="form-control"
+                id="documentTypeName"
+                v-model="newDocumentType.name"
+                placeholder="Enter document type name"
+                :disabled="newDocumentType.id ? true : false"
+                :class="{ 'is-invalid': nameError }"
+              />
+              <div v-if="nameError" class="invalid-feedback">
+                Please enter a document name.
+              </div>
             </div>
-          </div>
 
-          <div class="mb-3">
-            <small style="font-size: 14px; color: #6c757d; padding: 2px">Description</small>
-            
-            <textarea
-              class="form-control"
-              id="documentTypeDescription"
-              v-model="newDocumentType.description"
-              rows="4"
-              placeholder="Enter description"
-            ></textarea>
-          </div>
+            <div class="mb-3">
+              <small style="font-size: 14px; color: #6c757d; padding: 2px"
+                >Description</small
+              >
 
-          <!-- Modal Footer -->
-          <div
-            class="d-flex justify-content-end gap-2 mt-3"
-            style="padding-top: 15px"
-          >
-            <button
-              type="button"
-              class="btn-add"
-              @click="saveDocumentType"
+              <textarea
+                class="form-control"
+                id="documentTypeDescription"
+                v-model="newDocumentType.description"
+                rows="4"
+                placeholder="Enter description"
+              ></textarea>
+            </div>
+
+            <!-- Modal Footer -->
+            <div
+              class="d-flex justify-content-end gap-2 mt-3"
+              style="padding-top: 15px"
             >
-              {{ newDocumentType.id ? "Save Changes" : "Add Document" }}
-            </button>
-            <button type="button" class="btn-cancel" @click="closeForm">
-              Cancel
-            </button>
-          </div>
+              <button type="button" class="btn-add" @click="saveDocumentType">
+                {{ newDocumentType.id ? "Save Changes" : "Add Document" }}
+              </button>
+              <button type="button" class="btn-cancel" @click="closeForm">
+                Cancel
+              </button>
+            </div>
           </div>
         </b-modal>
 
@@ -207,7 +209,7 @@ export default {
   methods: {
     getAxiosInstance() {
       const instance = axios.create({
-        baseURL: "http://localhost:8000/developer/",
+        baseURL: "${process.env.vue_app_api_url}/developer/",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           "Content-Type": "application/json",
@@ -220,7 +222,7 @@ export default {
           if (error.response && error.response.status === 401) {
             try {
               const refreshResponse = await axios.post(
-                "http://localhost:8000/auth/refresh/",
+                "${process.env.vue_app_api_url}/auth/refresh/",
                 {
                   refresh: localStorage.getItem("refreshToken"),
                 }

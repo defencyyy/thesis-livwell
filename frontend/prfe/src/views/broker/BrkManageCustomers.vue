@@ -151,32 +151,30 @@
           <nav aria-label="Page navigation example">
             <ul class="pagination">
               <li :class="['page-item', { disabled: currentPage === 1 }]">
-                <a 
-                  class="page-link" 
-                  href="#" 
+                <a
+                  class="page-link"
+                  href="#"
                   @click.prevent="goToPage(currentPage - 1)"
                   aria-label="Previous"
                 >
                   <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
-              <li 
-                v-for="page in totalPages" 
-                :key="page" 
+              <li
+                v-for="page in totalPages"
+                :key="page"
                 :class="['page-item', { active: page === currentPage }]"
               >
-                <a 
-                  class="page-link" 
-                  href="#" 
-                  @click.prevent="goToPage(page)"
-                >
+                <a class="page-link" href="#" @click.prevent="goToPage(page)">
                   {{ page }}
                 </a>
               </li>
-              <li :class="['page-item', { disabled: currentPage === totalPages }]">
-                <a 
-                  class="page-link" 
-                  href="#" 
+              <li
+                :class="['page-item', { disabled: currentPage === totalPages }]"
+              >
+                <a
+                  class="page-link"
+                  href="#"
                   @click.prevent="goToPage(currentPage + 1)"
                   aria-label="Next"
                 >
@@ -600,7 +598,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/broker/${this.userId}/?include_sales=false`
+          `${process.env.vue_app_api_url}/customers/broker/${this.userId}/?include_sales=false`
         );
         if (response.ok) {
           const data = await response.json();
@@ -640,7 +638,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/customers/${this.selectedCustomer.id}/`,
+          `${process.env.vue_app_api_url}/customers/${this.selectedCustomer.id}/`,
           {
             method: "PUT",
             headers: {
@@ -687,7 +685,7 @@ export default {
       try {
         // Send a POST request with DELETE override if CSRF protection is enabled
         const response = await fetch(
-          `http://localhost:8000/delete_customer/${customer_id}/`,
+          `${process.env.vue_app_api_url}/delete_customer/${customer_id}/`,
           {
             method: "POST", // Use POST with _method override
             headers: {
@@ -739,13 +737,16 @@ export default {
       };
 
       try {
-        const response = await fetch("http://localhost:8000/customers/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(customerData),
-        });
+        const response = await fetch(
+          "${process.env.vue_app_api_url}/customers/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(customerData),
+          }
+        );
 
         const data = await response.json();
 
@@ -769,7 +770,7 @@ export default {
     async fetchCustomerDocuments(customerId, salesId) {
       try {
         const response = await fetch(
-          `http://localhost:8000/documents/customer/${customerId}/${salesId}/`
+          `${process.env.vue_app_api_url}/documents/customer/${customerId}/${salesId}/`
         );
         if (response.ok) {
           const data = await response.json();
@@ -805,11 +806,11 @@ export default {
         }
       });
     },
-      resetForm() {
-      this.email = '';
-      this.contactNumber = '';
-      this.lastName = '';
-      this.firstName = '';
+    resetForm() {
+      this.email = "";
+      this.contactNumber = "";
+      this.lastName = "";
+      this.firstName = "";
     },
     getCookie(name) {
       let value = "; " + document.cookie;

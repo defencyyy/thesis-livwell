@@ -5,46 +5,53 @@
       <AppHeader />
       <div class="content">
         <div class="name-position d-flex align-items-center">
-          <h2 class="text-start display-5 fw-bolder text-capitalize pb-6 fs-1">{{ brokerName }}</h2>
-          <h3 class="text-start display-5 text-capitalize pb-6 fst-italic fs-2 ms-3">({{ brokerUsername }})</h3> <!-- ms-3 for margin left -->
+          <h2 class="text-start display-5 fw-bolder text-capitalize pb-6 fs-1">
+            {{ brokerName }}
+          </h2>
+          <h3
+            class="text-start display-5 text-capitalize pb-6 fst-italic fs-2 ms-3"
+          >
+            ({{ brokerUsername }})
+          </h3>
+          <!-- ms-3 for margin left -->
         </div>
 
-        <div class = "dashboard-boxes">
-          <div class = "box">
-            <div class = "box-header">
-              <div class = "icon-container">
+        <div class="dashboard-boxes">
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
                 <i class="fa fa-shopping-cart" style="font-size: 13px"></i>
               </div>
               <p>Total Sales</p>
             </div>
             <h2>{{ totalSales }}</h2>
           </div>
-          <div class = "box">
-            <div class = "box-header">
-              <div class = "icon-container">
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
                 <i class="fa fa-money-bill" style="font-size: 13px"></i>
               </div>
               <p>Total Commissions</p>
             </div>
             <h2>{{ formatCurrency(totalCommissions) }}</h2>
           </div>
-          <div class = "box">
-            <div class = "box-header">
-              <div class = "icon-container">
+          <div class="box">
+            <div class="box-header">
+              <div class="icon-container">
                 <i class="fa fa-users" style="font-size: 13px"></i>
               </div>
               <p>Total Customers</p>
             </div>
-            <h2>{{ totalCustomers }} </h2>
+            <h2>{{ totalCustomers }}</h2>
           </div>
         </div>
-        
-        <div class = "grid-layout">
-          <div class = "left-content">
+
+        <div class="grid-layout">
+          <div class="left-content">
             <!-- Bottom: Bar Chart -->
             <div v-if="salesStatus.sold > 0" class="bar-chart-container">
               <!-- Bar Chart -->
-              <canvas id="salesBarChart" style = "border-radius: 4px;"></canvas>
+              <canvas id="salesBarChart" style="border-radius: 4px"></canvas>
 
               <!-- Overlay for Label and Dropdown -->
               <div class="chart-overlay">
@@ -59,8 +66,14 @@
                     @change="fetchSalesByMonth"
                     :disabled="loading"
                   >
-                    <option v-if="loading" value="" disabled>Loading years...</option>
-                    <option v-for="year in availableYears" :key="year" :value="year">
+                    <option v-if="loading" value="" disabled>
+                      Loading years...
+                    </option>
+                    <option
+                      v-for="year in availableYears"
+                      :key="year"
+                      :value="year"
+                    >
                       {{ year }}
                     </option>
                   </select>
@@ -72,20 +85,25 @@
             </div>
           </div>
 
-          <div class = "right-content">
+          <div class="right-content">
             <div class="piechart-container">
-            <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
-              <p>No sales data available.</p>
+              <div
+                v-if="
+                  salesStatus.sold === 0 &&
+                  salesStatus.pending === 0 &&
+                  salesStatus.reserved === 0
+                "
+              >
+                <p>No sales data available.</p>
+              </div>
+              <div v-else>
+                <canvas id="salesPieChart"></canvas>
+              </div>
             </div>
-            <div v-else>
-              <canvas id="salesPieChart"></canvas>
-            </div>
-          </div>
           </div>
         </div>
 
-
-<!-- 
+        <!-- 
         <div class="dashboard-and-pie">
 
           <div class="dashboard-boxes">
@@ -117,9 +135,9 @@
               <h2>{{ totalCustomers }} </h2>
             </div>
           </div> -->
-          
-          <!-- Right side: Pie Chart -->
-          <!-- <div class="piechart-container">
+
+        <!-- Right side: Pie Chart -->
+        <!-- <div class="piechart-container">
             <div v-if="salesStatus.sold === 0 && salesStatus.pending === 0 && salesStatus.reserved === 0">
               <p>No sales data available.</p>
             </div>
@@ -128,21 +146,39 @@
             </div>
           </div>
         </div> -->
-
       </div>
     </div>
   </div>
 </template>
-
-
 
 <script>
 import SideNav from "@/components/SideNav.vue";
 import AppHeader from "@/components/Header.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import { BarElement,Chart, ArcElement, Tooltip, Legend, PieController, CategoryScale, LinearScale, Title,BarController } from "chart.js"; // Import necessary components from Chart.js
-Chart.register(BarElement, CategoryScale, LinearScale,PieController, ArcElement, Title, Tooltip, Legend,BarController);
+import {
+  BarElement,
+  Chart,
+  ArcElement,
+  Tooltip,
+  Legend,
+  PieController,
+  CategoryScale,
+  LinearScale,
+  Title,
+  BarController,
+} from "chart.js"; // Import necessary components from Chart.js
+Chart.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PieController,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  BarController
+);
 
 export default {
   name: "BrkMainPage",
@@ -161,23 +197,22 @@ export default {
   data() {
     return {
       loading: true, // Initially set to true while fetching
-    brokerName: "",
-    brokerUsername: "",
-    totalSales: 0,
-    totalCommissions: 0,
-    totalCustomers: 0,
-    salesStatus: {
-      sold: 0,
-      pending: 0,
-      reserved: 0,
-    },
-    salefilter: {
-      months: [],
-      salesCount: [],
-      availableYears: [],  
+      brokerName: "",
+      brokerUsername: "",
+      totalSales: 0,
+      totalCommissions: 0,
+      totalCustomers: 0,
+      salesStatus: {
+        sold: 0,
+        pending: 0,
+        reserved: 0,
+      },
+      salefilter: {
+        months: [],
+        salesCount: [],
+        availableYears: [],
       },
       selectedYear: new Date().getFullYear(), // Default to current year
-
     };
   },
   mounted() {
@@ -190,23 +225,23 @@ export default {
   watch: {
     // Re-render the pie chart when sales data changes
     salesStatus: "renderPieChart",
-    salefilter:"renderBarChart",
+    salefilter: "renderBarChart",
   },
   updated() {
-  if (this.salesStatus.sold > 0) {
-    this.renderBarChart();
-  }
-},
+    if (this.salesStatus.sold > 0) {
+      this.renderBarChart();
+    }
+  },
   methods: {
     formatCurrency(amount) {
-    if (isNaN(amount)) return "₱0.00";  // Return '₱0.00' if the amount is not a number
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  },
+      if (isNaN(amount)) return "₱0.00"; // Return '₱0.00' if the amount is not a number
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    },
     async fetchBrokerInfo() {
       const brokerId = this.userId;
 
@@ -219,7 +254,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/brokers/${brokerId}/`,
+          `${process.env.vue_app_api_url}/brokers/${brokerId}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -234,7 +269,7 @@ export default {
         }
 
         const salesResponse = await fetch(
-          `http://localhost:8000/sales/total/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/total/?broker_id=${brokerId}`
         );
         if (salesResponse.ok) {
           const salesData = await salesResponse.json();
@@ -242,7 +277,7 @@ export default {
         }
 
         const commissionsResponse = await fetch(
-          `http://localhost:8000/sales/commissions/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/commissions/?broker_id=${brokerId}`
         );
         if (commissionsResponse.ok) {
           const commissionsData = await commissionsResponse.json();
@@ -250,7 +285,7 @@ export default {
         }
 
         const customersResponse = await fetch(
-          `http://localhost:8000/customers/broker/${brokerId}/?include_sales=false`
+          `${process.env.vue_app_api_url}/customers/broker/${brokerId}/?include_sales=false`
         );
         if (customersResponse.ok) {
           const customersData = await customersResponse.json();
@@ -258,7 +293,7 @@ export default {
         }
 
         const salesStatusResponse = await fetch(
-          `http://localhost:8000/sales/?broker_id=${brokerId}`
+          `${process.env.vue_app_api_url}/sales/?broker_id=${brokerId}`
         );
         if (salesStatusResponse.ok) {
           const statusData = await salesStatusResponse.json();
@@ -283,7 +318,12 @@ export default {
           new Chart(ctx, {
             type: "pie",
             data: {
-              labels: ["Sold", "Pending Reservation", "Reserved", "Pending Sold"], // Add "Pending Sold"
+              labels: [
+                "Sold",
+                "Pending Reservation",
+                "Reserved",
+                "Pending Sold",
+              ], // Add "Pending Sold"
               datasets: [
                 {
                   data: [
@@ -319,118 +359,133 @@ export default {
         }
       });
     },
-async fetchSalesByMonth() {
-  const brokerId = this.userId;
-  const year = this.selectedYear || new Date().getFullYear(); // Default to current year if no selection
-  
-  try {
-    const response = await axios.get(`http://localhost:8000/sales/by-month/?broker_id=${brokerId}&year=${year}`);
-    
-    if (response.data.success) {
-      const monthSales = response.data.month_sales;
-      const availableYears = response.data.years;
+    async fetchSalesByMonth() {
+      const brokerId = this.userId;
+      const year = this.selectedYear || new Date().getFullYear(); // Default to current year if no selection
 
-      this.availableYears = availableYears; // Set available years
+      try {
+        const response = await axios.get(
+          `${process.env.vue_app_api_url}/sales/by-month/?broker_id=${brokerId}&year=${year}`
+        );
 
-      // List of all months in order
-      const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      this.months = allMonths;
-      this.salesCount = allMonths.map((month) => monthSales[month] || 0); // Fill missing months with 0
+        if (response.data.success) {
+          const monthSales = response.data.month_sales;
+          const availableYears = response.data.years;
 
-      // Re-render the bar chart after updating the data
-      this.renderBarChart();
-    }
-  } catch (error) {
-    console.error("Error fetching sales data by month:", error);
-  } finally {
-    this.loading = false; // Set loading to false after fetching
-  }
-},
-renderBarChart() {
-  // Check if a chart already exists and destroy it before creating a new one
-  if (this.barChart) {
-    this.barChart.destroy();  // Destroy the previous chart instance
-    this.barChart = null;     // Ensure the chart is set to null after destruction
-  }
+          this.availableYears = availableYears; // Set available years
 
-  // Clear the canvas if needed (sometimes helps with persistent issues)
-  const canvas = document.getElementById("salesBarChart");
-  if (canvas) {
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-  }
+          // List of all months in order
+          const allMonths = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ];
+          this.months = allMonths;
+          this.salesCount = allMonths.map((month) => monthSales[month] || 0); // Fill missing months with 0
 
-  this.$nextTick(() => {
-    const ctx = document.getElementById("salesBarChart");
+          // Re-render the bar chart after updating the data
+          this.renderBarChart();
+        }
+      } catch (error) {
+        console.error("Error fetching sales data by month:", error);
+      } finally {
+        this.loading = false; // Set loading to false after fetching
+      }
+    },
+    renderBarChart() {
+      // Check if a chart already exists and destroy it before creating a new one
+      if (this.barChart) {
+        this.barChart.destroy(); // Destroy the previous chart instance
+        this.barChart = null; // Ensure the chart is set to null after destruction
+      }
 
-    if (!ctx) {
-      console.error("Canvas element not found.");
-      return;
-    }
+      // Clear the canvas if needed (sometimes helps with persistent issues)
+      const canvas = document.getElementById("salesBarChart");
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+      }
 
-    // Create a new chart instance
-    this.barChart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: this.months,
-        datasets: [
-          {
-            label: "Sold Sales",
-            data: this.salesCount,
-            backgroundColor: "#A78BFA",
-            borderColor: "#A78BFA", // Matching border color
-            borderWidth: 1,
+      this.$nextTick(() => {
+        const ctx = document.getElementById("salesBarChart");
+
+        if (!ctx) {
+          console.error("Canvas element not found.");
+          return;
+        }
+
+        // Create a new chart instance
+        this.barChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: this.months,
+            datasets: [
+              {
+                label: "Sold Sales",
+                data: this.salesCount,
+                backgroundColor: "#A78BFA",
+                borderColor: "#A78BFA", // Matching border color
+                borderWidth: 1,
+              },
+            ],
           },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const value = context.raw || 0;
-                return `${context.label}: ${value}`;
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const value = context.raw || 0;
+                    return `${context.label}: ${value}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Month",
+                },
+                grid: { display: false }, // No grid lines for X-axis
+                ticks: { color: "#555" },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Number of Sales",
+                },
+                beginAtZero: true,
+                grid: { color: "#eaeaea" },
+                ticks: { color: "#555" },
+              },
+            },
+            layout: {
+              padding: {
+                top: 60, // Spacing above the chart
+                bottom: 20,
+                left: 20,
+                right: 10,
               },
             },
           },
-        },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: "Month",
-            },
-            grid: { display: false }, // No grid lines for X-axis
-            ticks: { color: "#555" },
-          },
-          y: {
-            title: {
-              display: true,
-              text: "Number of Sales",
-            },
-            beginAtZero: true,
-            grid: { color: "#eaeaea" },
-            ticks: { color: "#555" },
-          },
-        },
-        layout: {
-          padding: {
-            top: 60, // Spacing above the chart
-            bottom: 20,
-            left: 20,
-            right: 10,
-          },
-        },
-      },
-    });
-  });
-},
+        });
+      });
+    },
     async logout() {
       try {
         await axios.post(
-          "http://localhost:8000/api/token/brklogout/",
+          "${process.env.vue_app_api_url}/api/token/brklogout/",
           {},
           {
             headers: {
@@ -459,7 +514,6 @@ renderBarChart() {
   },
 };
 </script>
-
 
 <style scoped>
 html,
@@ -511,8 +565,8 @@ canvas {
 
 #salesBarChart {
   max-width: 100%;
-  width: 100%; 
-  height: 500px; 
+  width: 100%;
+  height: 500px;
   margin: 20px auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
@@ -525,7 +579,7 @@ canvas {
   margin-left: 250px;
   flex: 1;
   padding: 20px;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 * {
@@ -534,13 +588,13 @@ canvas {
 
 .bar-chart-container,
 .piechart-container {
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .dashboard-and-pie {
   display: flex;
   justify-content: space-between;
-  align-items: stretch; 
+  align-items: stretch;
   gap: 20px;
   margin-bottom: 30px;
   margin-top: 30px;
@@ -614,7 +668,7 @@ canvas {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .left-content {
@@ -633,30 +687,30 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -50px; 
-  padding: 10px; 
+  margin-top: -50px;
+  padding: 10px;
   width: 400px;
   margin-left: -40px;
 }
 
 #salesPieChart {
-  width: 100% !important; 
-  height: 350px !important; 
+  width: 100% !important;
+  height: 350px !important;
   max-width: 100%;
-  max-height: 100%; 
+  max-height: 100%;
   padding: 20px;
   text-align: center;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
-  box-sizing: border-box; 
+  box-sizing: border-box;
   margin-top: 70px;
   overflow: hidden;
 }
 
 .bar-chart-container {
-  position: relative; 
+  position: relative;
   margin-top: 10px;
   width: 770px;
   height: 370px;
@@ -667,11 +721,11 @@ canvas {
   position: absolute;
   top: 10px;
   left: 10px;
-  right: 10px; 
+  right: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  pointer-events: none; 
+  pointer-events: none;
   margin-bottom: 100px;
   margin-top: 30px;
 }
@@ -679,7 +733,7 @@ canvas {
 .chart-label {
   font-size: 14px;
   font-weight: bold;
-  color: #333; 
+  color: #333;
   pointer-events: auto;
   margin-left: 50px;
 }
@@ -692,7 +746,7 @@ canvas {
   border-radius: 2px;
   background-color: #d5d5d5;
   cursor: pointer;
-  pointer-events: auto; 
+  pointer-events: auto;
   position: relative;
   top: -5px;
   right: 10px;
@@ -819,5 +873,4 @@ canvas {
     height: 300px;
   }
 }
-
 </style>

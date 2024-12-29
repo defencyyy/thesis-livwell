@@ -68,7 +68,6 @@
               </div>
             </div>
 
-            
             <div
               class="card border-0 rounded-1 mx-auto"
               style="box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -112,33 +111,33 @@
             </div>
 
             <div class="scrollable-table-container">
-            <div v-if="filteredSales.length > 0">
-              <div
-                v-for="sale in filteredSales"
-                :key="sale.id"
-                class="card border-0 rounded-1 mx-auto"
-                style="
-                  max-width: 1100px;
-                  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-                "
-              >
-                <div class="card-body">
-                  <table class="sale-table">
-                    <tbody>
-                      <tr>
-                        <td>{{ sale.relativeID }}</td>
-                        <td>{{ sale.brokerName }}</td>
-                        <td>{{ sale.customerName }}</td>
-                        <td>{{ sale.site ? sale.site.name : "No Site" }}</td>
-                        <td>{{ sale.status }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div v-if="filteredSales.length > 0">
+                <div
+                  v-for="sale in filteredSales"
+                  :key="sale.id"
+                  class="card border-0 rounded-1 mx-auto"
+                  style="
+                    max-width: 1100px;
+                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                  "
+                >
+                  <div class="card-body">
+                    <table class="sale-table">
+                      <tbody>
+                        <tr>
+                          <td>{{ sale.relativeID }}</td>
+                          <td>{{ sale.brokerName }}</td>
+                          <td>{{ sale.customerName }}</td>
+                          <td>{{ sale.site ? sale.site.name : "No Site" }}</td>
+                          <td>{{ sale.status }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
+              <p v-else>No pending sales found with the selected filters.</p>
             </div>
-            <p v-else>No pending sales found with the selected filters.</p>
-          </div>
           </div>
 
           <!-- Right Section -->
@@ -205,7 +204,7 @@ export default {
       this.error = null;
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/dashboard/`,
+          `${process.env.vue_app_api_url}/developer/dashboard/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -228,7 +227,7 @@ export default {
     async fetchSites() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sites/`,
+          `${process.env.vue_app_api_url}/developer/sites/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -244,7 +243,7 @@ export default {
     async fetchPendingSales() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/developer/sales/`,
+          `${process.env.vue_app_api_url}/developer/sales/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -302,7 +301,7 @@ export default {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
+          "${process.env.vue_app_api_url}/api/token/refresh/",
           {
             refresh: refreshToken,
           }
@@ -686,6 +685,6 @@ td {
 .scrollable-table-container {
   max-height: 310px;
   overflow-y: auto;
-  scrollbar-width: thin;  /* Firefox only */
+  scrollbar-width: thin; /* Firefox only */
 }
 </style>

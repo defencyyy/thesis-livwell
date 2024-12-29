@@ -7,7 +7,8 @@
             <div class="card-body p-md-5 mx-md-4">
               <h2 class="text-start">Forgot Password?</h2>
               <p class="text-start">
-                Enter your email address and we’ll send you a link to reset your password.
+                Enter your email address and we’ll send you a link to reset your
+                password.
               </p>
               <br />
 
@@ -39,7 +40,10 @@
               </form>
 
               <div class="text-center mt-4">
-                <router-link to="/developer/login" class="btn btn-outline-primary">
+                <router-link
+                  to="/developer/login"
+                  class="btn btn-outline-primary"
+                >
                   Back to Login
                 </router-link>
               </div>
@@ -68,13 +72,16 @@ export default {
       this.loading = true;
 
       try {
-        const response = await fetch("http://localhost:8000/developer/reset-password/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: this.email }),
-        });
+        const response = await fetch(
+          "${process.env.vue_app_api_url}/developer/reset-password/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: this.email }),
+          }
+        );
 
         if (response.ok) {
           this.message = "Password reset link sent to your email.";
@@ -104,7 +111,6 @@ export default {
 
 /* Background of the main page */
 .hero {
-  
   background-size: cover;
   background-repeat: no-repeat;
   min-height: 100vh;
@@ -121,6 +127,4 @@ export default {
 .form-control {
   font-size: 1rem;
 }
-
-
 </style>

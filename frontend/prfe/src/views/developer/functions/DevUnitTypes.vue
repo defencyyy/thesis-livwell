@@ -451,7 +451,7 @@ export default {
     async fetchUnitTypes() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/units/types/",
+          "${process.env.vue_app_api_url}/developer/units/types/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -477,7 +477,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/developer/units/types/",
+          "${process.env.vue_app_api_url}/developer/units/types/",
           data,
           {
             headers: {
@@ -529,7 +529,7 @@ export default {
     async updateUnitTypeConfirmed() {
       try {
         await axios.put(
-          `http://localhost:8000/developer/units/types/${this.editedUnitType.id}/`,
+          `${process.env.vue_app_api_url}/developer/units/types/${this.editedUnitType.id}/`,
           { name: this.editedUnitType.name },
           {
             headers: {
@@ -565,7 +565,7 @@ export default {
     async archiveUnitTypeConfirmed(unitTypeId) {
       try {
         await axios.put(
-          `http://localhost:8000/developer/units/types/${unitTypeId}/`,
+          `${process.env.vue_app_api_url}/developer/units/types/${unitTypeId}/`,
           { is_archived: true },
           {
             headers: {
@@ -600,7 +600,7 @@ export default {
     async unarchiveUnitTypeConfirmed(unitTypeId) {
       try {
         await axios.put(
-          `http://localhost:8000/developer/units/types/${unitTypeId}/`,
+          `${process.env.vue_app_api_url}/developer/units/types/${unitTypeId}/`,
           { is_archived: false },
           {
             headers: {

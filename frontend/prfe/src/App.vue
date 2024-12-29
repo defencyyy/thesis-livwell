@@ -14,7 +14,7 @@ export default {
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
+          "${process.env.vue_app_api_url}/api/token/refresh/",
           {
             refresh: refreshToken,
           }

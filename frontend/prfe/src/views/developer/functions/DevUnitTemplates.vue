@@ -65,10 +65,7 @@
                     </select>
                   </div>
                   <div class="right-section">
-                    <button
-                      @click="openCreateTemplateModal"
-                      class="btn-add"
-                    >
+                    <button @click="openCreateTemplateModal" class="btn-add">
                       Create Unit Template
                     </button>
                   </div>
@@ -585,8 +582,8 @@
     >
       <p>{{ confirmMessage }}</p>
       <div
-      class="d-flex justify-content-end gap-2 mt-30"
-      style="padding-top: 15px"
+        class="d-flex justify-content-end gap-2 mt-30"
+        style="padding-top: 15px"
       >
         <button type="button" @click="confirmAction" class="btn btn-primary">
           Confirm
@@ -759,7 +756,7 @@ export default {
   },
   methods: {
     getPictureUrl(picture) {
-      const url = `http://localhost:8000${picture}`;
+      const url = `${process.env.vue_app_api_url}${picture}`;
       console.log(url); // Check the URL being generated
       return url;
     },
@@ -867,7 +864,7 @@ export default {
 
         // Send the form data to the backend
         const response = await axios.post(
-          "http://localhost:8000/developer/units/templates/",
+          "${process.env.vue_app_api_url}/developer/units/templates/",
           formData,
           {
             headers: {
@@ -915,7 +912,7 @@ export default {
             }
 
             const response = await axios.put(
-              `http://localhost:8000/developer/units/templates/${this.selectedTemplate.id}/`,
+              `${process.env.vue_app_api_url}/developer/units/templates/${this.selectedTemplate.id}/`,
               formData,
               {
                 headers: {
@@ -961,7 +958,7 @@ export default {
     async performArchiveTemplate(templateId) {
       try {
         await axios.put(
-          `http://localhost:8000/developer/units/templates/${templateId}/`,
+          `${process.env.vue_app_api_url}/developer/units/templates/${templateId}/`,
           { is_archived: true },
           {
             headers: {
@@ -996,7 +993,7 @@ export default {
     async performUnarchiveTemplate(templateId) {
       try {
         await axios.put(
-          `http://localhost:8000/developer/units/templates/${templateId}/`,
+          `${process.env.vue_app_api_url}/developer/units/templates/${templateId}/`,
           { is_archived: false },
           {
             headers: {
@@ -1048,7 +1045,7 @@ export default {
         this.isLoading = true;
         this.errorMessage = null;
         const response = await axios.get(
-          "http://localhost:8000/developer/units/templates/",
+          "${process.env.vue_app_api_url}/developer/units/templates/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1077,7 +1074,7 @@ export default {
     async fetchUnitTypes() {
       try {
         const response = await axios.get(
-          "http://localhost:8000/developer/units/types/",
+          "${process.env.vue_app_api_url}/developer/units/types/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1508,16 +1505,14 @@ body {
   /* Reduce spacing between buttons */
 }
 
-
 /* Ensure the arrow button container has a white background */
 .pagination .page-item .page-link {
   background-color: white; /* White background for the arrow container */
-  color: #6c757d;  /* Default color for inactive arrows */
-  border: 1px solid #ddd;  /* Optional: Add border if you want the arrow container to have a border */
+  color: #6c757d; /* Default color for inactive arrows */
+  border: 1px solid #ddd; /* Optional: Add border if you want the arrow container to have a border */
   padding: 8px 12px;
   font-size: 11px;
 }
-
 
 /* Active page color */
 .pagination .page-item.active .page-link {

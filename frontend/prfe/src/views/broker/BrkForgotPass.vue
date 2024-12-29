@@ -55,7 +55,7 @@ export default {
     async sendResetLink() {
       try {
         const response = await fetch(
-          "http://localhost:8000/broker/reset-password/",
+          "${process.env.vue_app_api_url}/broker/reset-password/",
           {
             method: "POST",
             headers: {
@@ -92,7 +92,6 @@ export default {
     fill 1;
 }
 .hero {
- 
   background-size: cover;
   background-repeat: no-repeat;
   min-height: 100vh;
