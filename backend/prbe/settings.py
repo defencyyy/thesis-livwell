@@ -62,9 +62,9 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:8080']
+CORS_ALLOWED_ORIGINS = ['http://localhost:8080', 'http://13.215.50.86']
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8080']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://13.215.50.86']
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_SECURE = True   # Disable secure cookies for dev
 CSRF_COOKIE_SAMESITE = 'Lax'
