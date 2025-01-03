@@ -62,10 +62,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Clickjacking protection
 ]
 
-
-CORS_ALLOWED_ORIGINS = ['http://localhost:8080', 'http://13.215.50.86']
+CORS_ALLOWED_ORIGINS = ['http://localhost:8080', 'https://livwellph.space', 'https://www.livwellph.space']
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://13.215.50.86']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'https://livwellph.space', 'https://www.livwellph.space']
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_SECURE = True   # Disable secure cookies for dev
 CSRF_COOKIE_SAMESITE = 'Lax'
@@ -98,8 +97,6 @@ TEMPLATES = [
         },
     },
 ]
-
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -153,7 +150,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -179,7 +175,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Adjust as needed
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=300),  # Adjust as needed
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Adjust as needed
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
