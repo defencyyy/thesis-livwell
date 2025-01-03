@@ -17,7 +17,8 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '13.215.50.86', 'ec2-13-215-50-86.ap-southeast-1.compute.amazonaws.com']
+ALLOWED_HOSTS = ['livwellph.space', 'www.livwellph.space', '13.215.50.86', 'ec2-13-215-50-86.ap-southeast-1.compute.amazonaws.com']
+
 
 # Application definition
 
