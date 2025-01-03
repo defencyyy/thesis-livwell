@@ -71,6 +71,7 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True   # Disable secure cookies for dev 
+SESSION_COOKIE_DOMAIN = '.livwellph.space'
 
  # Custom headers 
 CORS_ALLOW_HEADERS = [
